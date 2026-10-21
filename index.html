@@ -158,8 +158,9 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')"><div class="m">M</div><b>TUBEMOCHA</b></div>
     <div class="search-top">
+      <!-- Added inputmode and enterkeyhint for iOS keyboard -->
       <form class="search-form" action="javascript:void(0);" onsubmit="handleSearch(event)">
-        <input id="q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search movies, TV shows..." />
+        <input id="q" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="Search movies, TV shows..." />
         <button type="submit">⌕</button>
       </form>
     </div>
@@ -315,7 +316,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
       </div>
     </div>
     <form class="search-form" action="javascript:void(0);" style="max-width:520px;margin:8px 0 16px" onsubmit="handleSearch(event)">
-      <input id="q2" type="search" enterkeyhint="search" placeholder="Search movies, TV shows, actors..." />
+      <input id="q2" type="search" inputmode="search" enterkeyhint="search" placeholder="Search movies, TV shows, actors..." />
       <button type="submit">⌕</button>
     </form>
     <div class="row">
@@ -528,68 +529,47 @@ function cardHTML(m){
 }
 
 /* ==============================================================
-   TMDB fetch — robust proxy + timeout
+   TMDB FETCH ENGINE (Bulletproof for iOS)
+   Tries Direct -> Proxy 1 -> Proxy 2. Hard 10s timeout per request.
    ============================================================== */
 const _tmdbCache = new Map();
-
-async function fetchWithTimeout(url, timeoutMs = 10000){
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
-  try{
-    const r = await fetch(url, { signal: ctrl.signal, cache: 'no-store' });
-    clearTimeout(timer);
-    return r;
-  }catch(e){
-    clearTimeout(timer);
-    return null;
-  }
-}
 
 async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
   target.searchParams.set('api_key', TMDB_KEY);
   Object.entries(params).forEach(([k,v]) => target.searchParams.set(k,v));
-  const href = target.href;
-  if(_tmdbCache.has(href)) return _tmdbCache.get(href);
+  
+  const directUrl = target.href;
+  if(_tmdbCache.has(directUrl)) return _tmdbCache.get(directUrl);
 
-  // Try direct first (fastest on desktop)
-  let r = await fetchWithTimeout(href);
-  if(r && r.ok){
-    try{
-      const data = await r.json();
-      if(data && !data.status_code){
-        _tmdbCache.set(href, data);
+  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(directUrl)}`;
+  const proxyUrl2 = `https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`;
+  
+  const urlsToTry = [directUrl, proxyUrl1, proxyUrl2];
+
+  for (const tryUrl of urlsToTry) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds max
+      
+      const res = await fetch(tryUrl, { 
+        signal: controller.signal,
+        headers: { 'Accept': 'application/json' }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!res.ok) continue;
+      
+      const data = await res.json();
+      if (data && !data.status_code) {
+        _tmdbCache.set(directUrl, data);
         return data;
       }
-    }catch(e){}
+    } catch (e) {
+      // Ignore error and try next URL
+    }
   }
-
-  // Fallback to CORS proxy
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(href)}`;
-  r = await fetchWithTimeout(proxyUrl);
-  if(r && r.ok){
-    try{
-      const data = await r.json();
-      if(data && !data.status_code){
-        _tmdbCache.set(href, data);
-        return data;
-      }
-    }catch(e){}
-  }
-
-  // Last resort: allorigins
-  const proxyUrl2 = `https://api.allorigins.win/raw?url=${encodeURIComponent(href)}`;
-  r = await fetchWithTimeout(proxyUrl2);
-  if(r && r.ok){
-    try{
-      const data = await r.json();
-      if(data && !data.status_code){
-        _tmdbCache.set(href, data);
-        return data;
-      }
-    }catch(e){}
-  }
-
   return null;
 }
 
@@ -617,11 +597,10 @@ function mapResult(r){
 }
 
 /* ==============================================================
-   RANKING EQUATIONS
+   RANKING EQUATIONS (The "Best Equations")
    ============================================================== */
 
-/* Trending:  T = 0.35*popNorm + 0.25*freshness + 0.15*engagement
-                + 0.10*weight + 0.15*decay   */
+/* Trending Scoring */
 function rankTrending(list){
   if(!list.length) return list;
   const maxP = Math.max(...list.map(x=>x.pop||100), 100);
@@ -637,35 +616,72 @@ function rankTrending(list){
   }).sort((a,b)=>b._T - a._T);
 }
 
-/* Search:    S = 0.40*exactTitle + 0.25*startsWith + 0.15*contains
-                + 0.10*wordCoverage + 0.05*popNorm + 0.03*voteNorm + 0.02*countNorm */
+/* 
+ * THE DETAILED SEARCH EQUATION
+ * Calculates a highly precise score for every result returned by TMDB.
+ * 
+ * Score = (Title Weight * Title Match) + (Popularity Weight * Pop Score) + 
+ *         (Vote Weight * Vote Score) + (Count Weight * Count Score)
+ */
 function rankSearchResults(list, query){
   const ql = query.toLowerCase().trim();
-  const qWords = ql.split(/\s+/).filter(Boolean);
+  
+  // Normalize the search query into word tokens
+  const qWords = ql.split(/\s+/).filter(w => w.length > 0);
+
   return list.map(item => {
-    const title    = (item.title || item.name || '').toLowerCase();
+    const title = (item.title || item.name || '').toLowerCase();
     const overview = (item.overview || '').toLowerCase();
 
-    const exactTitle   = title === ql ? 1 : 0;
-    const startsWith   = title.startsWith(ql) ? 1 : 0;
-    const contains     = title.includes(ql) ? 1 : 0;
-    const wordCoverage = qWords.length
-      ? qWords.filter(w => title.includes(w)).length / qWords.length
-      : 0;
-    const popNorm      = Math.log1p(item.popularity || 0) / Math.log1p(1000);
-    const voteNorm     = (item.vote_average || 0) / 10;
-    const countNorm    = Math.log1p(item.vote_count || 0) / Math.log1p(10000);
-    const overviewBonus = overview.includes(ql) ? 0.02 : 0;
+    // 1. Title Similarity (Max Weight: 70%)
+    let titleScore = 0;
+    if (title === ql) {
+      titleScore = 1.0; // Exact match (e.g., "ted" === "ted")
+    } else if (title.startsWith(ql)) {
+      titleScore = 0.8; // Starts with (e.g., "ted 2" starts with "ted")
+    } else if (title.includes(ql)) {
+      titleScore = 0.6; // Contains exact query anywhere
+    } else {
+      // Word Boundary Matching (e.g., "ted" in "ted 2")
+      let wordMatches = 0;
+      qWords.forEach(w => {
+        if (title.includes(w)) wordMatches++;
+      });
+      if (qWords.length > 0) {
+        titleScore = (wordMatches / qWords.length) * 0.5;
+      }
+    }
 
-    const S = 0.40*exactTitle + 0.25*startsWith + 0.15*contains
-            + 0.10*wordCoverage + 0.05*popNorm + 0.03*voteNorm + 0.02*countNorm
-            + overviewBonus;
+    // 2. Overview Match (Bonus)
+    if (overview.includes(ql)) {
+      titleScore += 0.1;
+    }
 
-    return {...item, _score: S};
-  }).sort((a,b) => b._score - a._score);
+    // 3. Popularity (Normalized via logarithm to handle huge popularity spikes)
+    const popScore = Math.min(Math.log1p(item.popularity || 0) / Math.log1p(1000), 1.0);
+
+    // 4. Vote Average (0.0 to 10.0 scaled to 0.0 to 1.0)
+    const voteScore = (item.vote_average || 0) / 10;
+
+    // 5. Vote Count (Normalized)
+    const countScore = Math.min(Math.log1p(item.vote_count || 0) / Math.log1p(10000), 1.0);
+
+    // THE MASTER EQUATION
+    // 70% based on title string matching
+    // 15% based on how popular the movie is globally
+    // 10% based on user rating
+    // 5% based on total number of votes
+    const finalScore = 
+      (titleScore * 0.70) + 
+      (popScore * 0.15) + 
+      (voteScore * 0.10) + 
+      (countScore * 0.05);
+
+    return {...item, _score: finalScore};
+  }).sort((a,b) => b._score - a._score); // Sort highest score first
 }
 
-/* Similar:   R = 0.40*Jaccard + 0.30*T + 0.20*recency + 0.10*popNorm */
+/* Similar Content Jaccard Equation */
 function computeSimilarLocal(base){
   try{
     const baseG = new Set((base.gid || base.genre_ids || []).map(String));
@@ -893,7 +909,7 @@ function navigate(view){
 }
 
 /* ==============================================================
-   SEARCH ENGINE (v6 — bulletproof)
+   SEARCH ENGINE (Bulletproof Async/Await)
    ============================================================== */
 function handleSearch(e){
   if(e && e.preventDefault) e.preventDefault();
@@ -905,7 +921,7 @@ function handleSearch(e){
   return false;
 }
 
-function doSearch(q){
+async function doSearch(q){
   q = (q || '').trim();
   if(!q) return;
 
@@ -925,31 +941,45 @@ function doSearch(q){
   document.getElementById('searchLoadMore').style.display = 'none';
   document.getElementById('searchReset').style.display = 'inline-flex';
 
-  searchTMDB(q, 1).then(first => {
+  // Use Try/Catch to guarantee we break out of the loading state
+  try {
+    const first = await searchTMDB(q, 1);
+    
     if(!first){
       showSearchError(q);
       return;
     }
+    
     if(first.results.length === 0){
       showNoResults(q);
       return;
     }
+    
     searchAllResults  = first.results;
     searchTotalResults = first.total;
     searchTotalPages   = first.totalPages;
     renderSearchResults();
-  });
+    
+  } catch(err) {
+    console.error("Search failed:", err);
+    showSearchError(q);
+  }
 }
 
 async function searchTMDB(q, page){
   const params = { query: q, page: page, include_adult: 'false', language: 'en-US' };
 
-  const [movies, tv] = await Promise.all([
+  // Fetch both Movies and TV shows simultaneously
+  const results = await Promise.allSettled([
     tmdb('/search/movie', params),
     tmdb('/search/tv', params)
   ]);
 
-  if(!movies && !tv) return null;
+  const moviesRes = results[0].status === 'fulfilled' ? results[0].value : null;
+  const tvRes     = results[1].status === 'fulfilled' ? results[1].value : null;
+
+  // If both failed (e.g., network offline), return null
+  if(!moviesRes && !tvRes) return null;
 
   const seen = new Set();
   const out  = [];
@@ -962,18 +992,19 @@ async function searchTMDB(q, page){
     out.push({...item, media_type: type});
   }
 
-  if(movies && movies.results) movies.results.forEach(r => add(r, 'movie'));
-  if(tv && tv.results)         tv.results.forEach(r => add(r, 'tv'));
+  if(moviesRes && moviesRes.results) moviesRes.results.forEach(r => add(r, 'movie'));
+  if(tvRes && tvRes.results)         tvRes.results.forEach(r => add(r, 'tv'));
 
+  // Apply the massive ranking equation
   const ranked = rankSearchResults(out, q);
 
   const totals = [
-    (movies && movies.total_results) || 0,
-    (tv && tv.total_results) || 0
+    (moviesRes && moviesRes.total_results) || 0,
+    (tvRes && tvRes.total_results) || 0
   ];
   const pages = [
-    (movies && movies.total_pages) || 0,
-    (tv && tv.total_pages) || 0
+    (moviesRes && moviesRes.total_pages) || 0,
+    (tvRes && tvRes.total_pages) || 0
   ];
 
   return {
@@ -1296,7 +1327,7 @@ async function loadProviders(tmdbId, isTV){
 }
 
 /* ==============================================================
-   PLAYER — NO SANDBOX (fixes the "sandbox" error)
+   PLAYER
    ============================================================== */
 function setServer(id, type){
   const m = allCache.find(x => String(x.id) === String(id))
