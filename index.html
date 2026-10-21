@@ -158,7 +158,6 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')"><div class="m">M</div><b>TUBEMOCHA</b></div>
     <div class="search-top">
-      <!-- Added inputmode and enterkeyhint for iOS keyboard -->
       <form class="search-form" action="javascript:void(0);" onsubmit="handleSearch(event)">
         <input id="q" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="Search movies, TV shows..." />
         <button type="submit">⌕</button>
@@ -529,10 +528,29 @@ function cardHTML(m){
 }
 
 /* ==============================================================
-   TMDB FETCH ENGINE (Bulletproof for iOS)
-   Tries Direct -> Proxy 1 -> Proxy 2. Hard 10s timeout per request.
+   TMDB FETCH ENGINE (Bulletproof for iOS Safari)
+   Uses Promise.race for timeout because AbortController fails on iOS.
    ============================================================== */
 const _tmdbCache = new Map();
+
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 10000 } = options;
+  
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
 
 async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
@@ -549,15 +567,7 @@ async function tmdb(path, params = {}){
 
   for (const tryUrl of urlsToTry) {
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 seconds max
-      
-      const res = await fetch(tryUrl, { 
-        signal: controller.signal,
-        headers: { 'Accept': 'application/json' }
-      });
-      
-      clearTimeout(timeoutId);
+      const res = await fetchWithTimeout(tryUrl, { timeout: 10000 });
       
       if (!res.ok) continue;
       
@@ -619,14 +629,9 @@ function rankTrending(list){
 /* 
  * THE DETAILED SEARCH EQUATION
  * Calculates a highly precise score for every result returned by TMDB.
- * 
- * Score = (Title Weight * Title Match) + (Popularity Weight * Pop Score) + 
- *         (Vote Weight * Vote Score) + (Count Weight * Count Score)
  */
 function rankSearchResults(list, query){
   const ql = query.toLowerCase().trim();
-  
-  // Normalize the search query into word tokens
   const qWords = ql.split(/\s+/).filter(w => w.length > 0);
 
   return list.map(item => {
@@ -636,13 +641,12 @@ function rankSearchResults(list, query){
     // 1. Title Similarity (Max Weight: 70%)
     let titleScore = 0;
     if (title === ql) {
-      titleScore = 1.0; // Exact match (e.g., "ted" === "ted")
+      titleScore = 1.0;
     } else if (title.startsWith(ql)) {
-      titleScore = 0.8; // Starts with (e.g., "ted 2" starts with "ted")
+      titleScore = 0.8;
     } else if (title.includes(ql)) {
-      titleScore = 0.6; // Contains exact query anywhere
+      titleScore = 0.6;
     } else {
-      // Word Boundary Matching (e.g., "ted" in "ted 2")
       let wordMatches = 0;
       qWords.forEach(w => {
         if (title.includes(w)) wordMatches++;
@@ -652,25 +656,14 @@ function rankSearchResults(list, query){
       }
     }
 
-    // 2. Overview Match (Bonus)
     if (overview.includes(ql)) {
       titleScore += 0.1;
     }
 
-    // 3. Popularity (Normalized via logarithm to handle huge popularity spikes)
     const popScore = Math.min(Math.log1p(item.popularity || 0) / Math.log1p(1000), 1.0);
-
-    // 4. Vote Average (0.0 to 10.0 scaled to 0.0 to 1.0)
     const voteScore = (item.vote_average || 0) / 10;
-
-    // 5. Vote Count (Normalized)
     const countScore = Math.min(Math.log1p(item.vote_count || 0) / Math.log1p(10000), 1.0);
 
-    // THE MASTER EQUATION
-    // 70% based on title string matching
-    // 15% based on how popular the movie is globally
-    // 10% based on user rating
-    // 5% based on total number of votes
     const finalScore = 
       (titleScore * 0.70) + 
       (popScore * 0.15) + 
@@ -678,7 +671,7 @@ function rankSearchResults(list, query){
       (countScore * 0.05);
 
     return {...item, _score: finalScore};
-  }).sort((a,b) => b._score - a._score); // Sort highest score first
+  }).sort((a,b) => b._score - a._score);
 }
 
 /* Similar Content Jaccard Equation */
@@ -909,7 +902,7 @@ function navigate(view){
 }
 
 /* ==============================================================
-   SEARCH ENGINE (Bulletproof Async/Await)
+   SEARCH ENGINE
    ============================================================== */
 function handleSearch(e){
   if(e && e.preventDefault) e.preventDefault();
@@ -941,7 +934,6 @@ async function doSearch(q){
   document.getElementById('searchLoadMore').style.display = 'none';
   document.getElementById('searchReset').style.display = 'inline-flex';
 
-  // Use Try/Catch to guarantee we break out of the loading state
   try {
     const first = await searchTMDB(q, 1);
     
@@ -978,7 +970,6 @@ async function searchTMDB(q, page){
   const moviesRes = results[0].status === 'fulfilled' ? results[0].value : null;
   const tvRes     = results[1].status === 'fulfilled' ? results[1].value : null;
 
-  // If both failed (e.g., network offline), return null
   if(!moviesRes && !tvRes) return null;
 
   const seen = new Set();
@@ -995,7 +986,7 @@ async function searchTMDB(q, page){
   if(moviesRes && moviesRes.results) moviesRes.results.forEach(r => add(r, 'movie'));
   if(tvRes && tvRes.results)         tvRes.results.forEach(r => add(r, 'tv'));
 
-  // Apply the massive ranking equation
+  // Apply the detailed ranking equation
   const ranked = rankSearchResults(out, q);
 
   const totals = [
