@@ -428,7 +428,7 @@ let currentGenre = { id:'all', name:'All' }, currentGenreList = [];
 /* Search state */
 let searchQuery = '', searchPage = 1, searchAllResults = [];
 let searchTotalResults = 0, searchTotalPages = 0;
-let searchIsLoading = false, searchLastQuery = '';
+let searchIsLoading = false;
 
 /* Providers */
 const EMBED_PROVIDERS = [
@@ -525,8 +525,7 @@ function cardHTML(m){
 }
 
 /* ==============================================================
-   TMDB fetch — direct first (TMDB supports CORS), then proxies.
-   Caches successful responses. Remembers which proxy works.
+   TMDB fetch — direct first, then proxies. Caches successful responses.
    ============================================================== */
 const _tmdbCache = new Map();
 const CORS_PROXIES = [
@@ -878,9 +877,7 @@ function navigate(view){
 }
 
 /* ==============================================================
-   SEARCH ENGINE (v3)
-   Uses /search/multi (primary) + /search/movie + /search/tv (enrich page 1).
-   Ranks results client-side. Handles pagination correctly.
+   SEARCH ENGINE (v4) — corrected endpoint + pagination
    ============================================================== */
 function handleSearch(e){
   if(e && e.preventDefault) e.preventDefault();
@@ -897,9 +894,8 @@ function doSearch(q){
   if(!q) return;
 
   syncInputs(q);
-  searchQuery     = q;
-  searchLastQuery = q;
-  searchPage      = 1;
+  searchQuery = q;
+  searchPage = 1;
   searchAllResults = [];
   searchTotalResults = 0;
   searchTotalPages = 0;
@@ -912,37 +908,11 @@ function doSearch(q){
   document.getElementById('searchLoadMore').style.display = 'none';
   document.getElementById('searchReset').style.display = 'inline-flex';
 
-  searchTMDBRobust(q, 1).then(first => {
+  searchTMDB(q, 1).then(first => {
     if(!first || first.results.length === 0){
-      // Fallback 1: keyword-based discover
-      return searchByKeyword(q, 1).then(kw => {
-        if(kw.length){
-          searchAllResults  = kw;
-          searchTotalResults = kw.length;
-          searchTotalPages   = 1;
-          renderSearchResults();
-          return;
-        }
-        // Fallback 2: broaden with first word only
-        const words = q.split(/\s+/).filter(w => w.length > 2);
-        if(words.length > 1){
-          const bro = words[0];
-          return searchTMDBRobust(bro, 1).then(r => {
-            if(r && r.results.length){
-              searchAllResults  = r.results;
-              searchTotalResults = r.total;
-              searchTotalPages   = 1;
-              setSearchHeader('No exact match — showing related', `Related to "${q}" • broadened to "${bro}"`);
-              renderSearchResults();
-              return;
-            }
-            showNoResults(q);
-          });
-        }
-        showNoResults(q);
-      });
+      showNoResults(q);
+      return;
     }
-
     searchAllResults  = first.results;
     searchTotalResults = first.total;
     searchTotalPages   = first.totalPages;
@@ -950,87 +920,45 @@ function doSearch(q){
   });
 }
 
-async function searchTMDBRobust(q, page){
+/* Correct TMDB search: /search/movie + /search/tv in parallel */
+async function searchTMDB(q, page){
   const params = { query: q, page: page, include_adult: 'false', language: 'en-US' };
 
-  if(page === 1){
-    // Enrich page 1 with all three endpoints for maximum coverage
-    const [multi, movies, tv] = await Promise.all([
-      tmdb('/search/multi', params),
-      tmdb('/search/movie', params),
-      tmdb('/search/tv', params)
-    ]);
-
-    const seen = new Set();
-    const out  = [];
-    function add(item, type){
-      if(!item || !item.id) return;
-      const key = type + ':' + item.id;
-      if(seen.has(key)) return;
-      seen.add(key);
-      out.push({...item, media_type: type});
-    }
-
-    if(multi && multi.results) multi.results.forEach(r => {
-      const mt = r.media_type;
-      if(mt === 'movie' || mt === 'tv') add(r, mt);
-    });
-    if(movies && movies.results) movies.results.forEach(r => add(r, 'movie'));
-    if(tv && tv.results)         tv.results.forEach(r => add(r, 'tv'));
-
-    const ranked = rankSearchResults(out, q);
-
-    const totals = [
-      (multi && multi.total_results)  || 0,
-      (movies && movies.total_results) || 0,
-      (tv && tv.total_results)         || 0
-    ];
-    const pages = [
-      (multi && multi.total_pages)  || 0,
-      (movies && movies.total_pages) || 0,
-      (tv && tv.total_pages)         || 0
-    ];
-
-    return {
-      results:    ranked,
-      total:      Math.max(...totals),
-      totalPages: Math.min(500, Math.max(...pages))
-    };
-  }
-
-  // Pages 2+: use /search/multi for consistent pagination
-  const multi = await tmdb('/search/multi', params);
-  if(!multi || !multi.results) return { results: [], total: 0, totalPages: 0 };
+  const [movies, tv] = await Promise.all([
+    tmdb('/search/movie', params),
+    tmdb('/search/tv', params)
+  ]);
 
   const seen = new Set();
   const out  = [];
-  multi.results.forEach(r => {
-    const mt = r.media_type;
-    if(mt !== 'movie' && mt !== 'tv') return;
-    const key = mt + ':' + r.id;
+
+  function add(item, type){
+    if(!item || !item.id) return;
+    const key = type + ':' + item.id;
     if(seen.has(key)) return;
     seen.add(key);
-    out.push({...r, media_type: mt});
-  });
+    out.push({...item, media_type: type});
+  }
+
+  if(movies && movies.results) movies.results.forEach(r => add(r, 'movie'));
+  if(tv && tv.results)         tv.results.forEach(r => add(r, 'tv'));
+
+  const ranked = rankSearchResults(out, q);
+
+  const totals = [
+    (movies && movies.total_results) || 0,
+    (tv && tv.total_results) || 0
+  ];
+  const pages = [
+    (movies && movies.total_pages) || 0,
+    (tv && tv.total_pages) || 0
+  ];
 
   return {
-    results:    rankSearchResults(out, q),
-    total:      multi.total_results || 0,
-    totalPages: Math.min(500, multi.total_pages || 0)
+    results:    ranked,
+    total:      Math.max(...totals),
+    totalPages: Math.min(500, Math.max(...pages))
   };
-}
-
-async function searchByKeyword(q, page){
-  const kw = await tmdb('/search/keyword', { query: q, page: page });
-  if(!kw || !kw.results || !kw.results.length) return [];
-  const topKw = kw.results[0];
-  const disc = await tmdb('/discover/movie', {
-    with_keywords: topKw.id,
-    sort_by: 'popularity.desc',
-    page: page
-  });
-  if(!disc || !disc.results) return [];
-  return disc.results.map(r => ({...r, media_type: 'movie'}));
 }
 
 function renderSearchResults(){
@@ -1090,7 +1018,7 @@ async function loadMoreSearch(){
   const nextPage = searchPage + 1;
 
   try{
-    const more = await searchTMDBRobust(searchQuery, nextPage);
+    const more = await searchTMDB(searchQuery, nextPage);
     if(!more.results.length){
       searchIsLoading = false;
       toast('No more results');
@@ -1111,7 +1039,6 @@ async function loadMoreSearch(){
 function resetSearch(){
   searchAllResults = [];
   searchQuery = '';
-  searchLastQuery = '';
   syncInputs('');
   document.getElementById('searchGrid').innerHTML = '';
   document.getElementById('searchCount').textContent = '0';
@@ -1333,7 +1260,7 @@ async function loadProviders(tmdbId, isTV){
 }
 
 /* ==============================================================
-   PLAYER — SANDBOXED (no redirects, no popups)
+   PLAYER — SANDBOX REMOVED (fixes "sandbox" errors on many titles)
    ============================================================== */
 function setServer(id, type){
   const m = allCache.find(x => String(x.id) === String(id))
@@ -1351,7 +1278,8 @@ function setServer(id, type){
   return renderYouTubePlayer(m);
 }
 
-function makeSafeIframe(src){
+/* No sandbox attribute — players need allow-same-origin to function */
+function makeIframe(src){
   const iframe = document.createElement('iframe');
   iframe.src = src;
   iframe.frameBorder = '0';
@@ -1361,7 +1289,6 @@ function makeSafeIframe(src){
   iframe.setAttribute('playsinline', '');
   iframe.setAttribute('webkit-playsinline', '');
   iframe.setAttribute('moz-playsinline', '');
-  iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-forms');
   iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;background:#0a0805';
   return iframe;
 }
@@ -1393,7 +1320,7 @@ function bindPlayOverlay(container, src){
   if(!overlay) return;
   overlay.addEventListener('click', function(){
     container.innerHTML = '';
-    container.appendChild(makeSafeIframe(src));
+    container.appendChild(makeIframe(src));
     container.appendChild(makeOpenButton(src));
   }, { once:true });
 }
