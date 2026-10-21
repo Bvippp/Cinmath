@@ -158,7 +158,8 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')"><div class="m">M</div><b>TUBEMOCHA</b></div>
     <div class="search-top">
-      <form class="search-form" action="javascript:void(0);" onsubmit="handleSearch(event)">
+      <!-- Fixed iOS Keyboard Search Icon -->
+      <form class="search-form" action="#" onsubmit="return handleSearch(event)">
         <input id="q" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="Search movies, TV shows..." />
         <button type="submit">⌕</button>
       </form>
@@ -314,7 +315,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
         <div style="font-size:12px;color:#7a6e62" id="searchSub">Search TMDB's 1M+ movies and TV shows</div>
       </div>
     </div>
-    <form class="search-form" action="javascript:void(0);" style="max-width:520px;margin:8px 0 16px" onsubmit="handleSearch(event)">
+    <form class="search-form" action="#" style="max-width:520px;margin:8px 0 16px" onsubmit="return handleSearch(event)">
       <input id="q2" type="search" inputmode="search" enterkeyhint="search" placeholder="Search movies, TV shows, actors..." />
       <button type="submit">⌕</button>
     </form>
@@ -528,29 +529,11 @@ function cardHTML(m){
 }
 
 /* ==============================================================
-   TMDB FETCH ENGINE (Bulletproof for iOS Safari)
-   Uses Promise.race for timeout because AbortController fails on iOS.
+   TMDB FETCH ENGINE (The Bulletproof Solution)
+   Uses Promise.any to fire all 3 connections simultaneously.
+   The first one to respond successfully is used. No hanging!
    ============================================================== */
 const _tmdbCache = new Map();
-
-async function fetchWithTimeout(resource, options = {}) {
-  const { timeout = 10000 } = options;
-  
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(resource, {
-      ...options,
-      signal: controller.signal
-    });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
-  }
-}
 
 async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
@@ -565,22 +548,32 @@ async function tmdb(path, params = {}){
   
   const urlsToTry = [directUrl, proxyUrl1, proxyUrl2];
 
-  for (const tryUrl of urlsToTry) {
-    try {
-      const res = await fetchWithTimeout(tryUrl, { timeout: 10000 });
-      
-      if (!res.ok) continue;
-      
-      const data = await res.json();
-      if (data && !data.status_code) {
-        _tmdbCache.set(directUrl, data);
-        return data;
-      }
-    } catch (e) {
-      // Ignore error and try next URL
-    }
+  // Helper to fetch with a 5 second timeout limit
+  const fetchWithTimeout = async (url) => {
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
+    const fetchPromise = fetch(url, { headers: { 'Accept': 'application/json' } });
+    
+    // Wait for the fetch to finish OR the timeout to trigger
+    const res = await Promise.race([fetchPromise, timeoutPromise]);
+    
+    if (!res.ok) throw new Error('HTTP Error');
+    
+    const data = await res.json();
+    if (data && data.status_code) throw new Error('API Error');
+    
+    return data;
+  };
+
+  try {
+    // Promise.any waits for the FIRST successful promise to resolve.
+    // If direct API works, it returns instantly. If it fails, the proxy takes over.
+    const data = await Promise.any(urlsToTry.map(url => fetchWithTimeout(url)));
+    _tmdbCache.set(directUrl, data);
+    return data;
+  } catch (e) {
+    // If all 3 URLs failed or timed out, return null.
+    return null;
   }
-  return null;
 }
 
 function mapResult(r){
@@ -600,7 +593,7 @@ function mapResult(r){
     b  : r.backdrop_path ? BACKDROP + r.backdrop_path : '',
     yt : null, arch: null, arc: false,
     tmdb: r.id,
-    pop : r.popularity || 0,
+    pop: r.popularity || 0,
     media_type: isTV ? 'tv' : 'movie',
     _tv: isTV
   };
