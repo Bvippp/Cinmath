@@ -38,9 +38,11 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 .search-top{flex:1;display:flex;justify-content:flex-end}
 .search-form{display:flex;align-items:center;background:#1e1814;border:1px solid #3a2e26;border-radius:12px;height:40px;padding:0 5px 0 12px;width:100%;max-width:380px;transition:.2s}
 .search-form:focus-within{border-color:#c89666;background:#251e19}
-.search-form input{flex:1;background:transparent;border:0;color:#f0e8dd;outline:none;font-size:16px;height:100%}
+.search-form input{flex:1;background:transparent;border:0;color:#f0e8dd;outline:none;font-size:16px;height:100%;-webkit-appearance:none;appearance:none;min-width:0}
 .search-form input::placeholder{color:#5f5449}
-.search-form button{width:32px;height:32px;border-radius:8px;background:#f5ede3;color:#14100d;border:0;display:grid;place-items:center;cursor:pointer;font-weight:800}
+.search-form input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.search-form button{flex:0 0 auto;width:32px;height:32px;border-radius:8px;background:#f5ede3;color:#14100d;border:0;display:grid;place-items:center;cursor:pointer;font-weight:800}
+.search-form button svg{display:block}
 
 /* HERO */
 .hero{position:relative;height:62vh;min-height:380px;max-height:520px;overflow:hidden;background:#14100d;cursor:pointer}
@@ -134,6 +136,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 .bottom button{width:46px;height:46px;border-radius:16px;background:transparent;border:0;display:grid;place-items:center;color:#7a6e62;cursor:pointer;transition:.2s;font-size:18px}
 .bottom button.active{background:#f5ede3;color:#14100d}
 .bottom button:hover{color:#f0e8dd}
+.bottom button svg{display:block}
 
 /* FOOTER */
 .footer{margin-top:40px;padding:22px 12px 90px;border-top:1px solid #2a211a;color:#5f5449;font-size:11px;line-height:1.6;max-width:1400px;margin-left:auto;margin-right:auto}
@@ -158,9 +161,9 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')"><div class="m">M</div><b>TUBEMOCHA</b></div>
     <div class="search-top">
-      <form class="search-form" action="." method="get" role="search" autocomplete="off" onsubmit="return handleSearch(event)">
-        <input id="q" type="search" name="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows..." />
-        <button type="submit" aria-label="Search">⌕</button>
+      <form class="search-form" action="#" method="GET" role="search" onsubmit="event.preventDefault(); handleSearch(this);">
+        <input id="q" type="search" name="q" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows..." />
+        <button type="submit" aria-label="Search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.6" y1="15.6" x2="21" y2="21"></line></svg></button>
       </form>
     </div>
   </div>
@@ -216,7 +219,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 <div id="view-movies" class="view">
   <div class="main">
     <div style="position:relative;border-radius:16px;overflow:hidden;height:280px;background:#1e1814;margin-bottom:16px">
-      <img src="https://image.tmdb.org/t/p/original/7RyHsO4yDXtBv1zUU3mTpHeQWU.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5" alt="">
+      <img src="https://image.tmdb.org/t/p/original/7RyHsO4yDXtBv1zUU3mTpHeQWU.jpg" onerror="this.onerror=null;this.src='https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg';" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5" alt="">
       <div style="position:absolute;inset:0;background:linear-gradient(0deg,#14100d 0%,transparent 60%)"></div>
       <div style="position:absolute;bottom:0;left:0;padding:18px">
         <div style="font-size:34px;font-weight:900;color:#f5ede3;display:flex;gap:12px;align-items:center">
@@ -227,9 +230,10 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     </div>
     <div class="filters">
       <button class="fpill" onclick="openGenreModal()">Genres ▾</button>
-      <button class="fpill" onclick="openYearModal()">Years ▾</button>
-      <button class="fpill" onclick="openCountryModal()">Countries ▾</button>
-      <button class="fpill" onclick="setSort('popular')">Most popular ▾</button>
+      <button class="fpill" id="pillYear" onclick="openYearModal()">Years ▾</button>
+      <button class="fpill" id="pillCountry" onclick="openCountryModal()">Countries ▾</button>
+      <button class="fpill" id="pillSort" onclick="openSortModal()">Most popular ▾</button>
+      <button class="fpill" id="pillReset" style="display:none" onclick="resetMovieFilters()">✕ Reset</button>
     </div>
     <div class="row">
       <div class="row-head"><div class="row-title">Trending in United States</div></div>
@@ -280,6 +284,38 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   </div>
 </div>
 
+<!-- TV SHOWS VIEW (was "coming soon") -->
+<div id="view-tv" class="view">
+  <div class="main">
+    <div style="position:relative;border-radius:16px;overflow:hidden;height:240px;background:#1e1814;margin-bottom:16px">
+      <img src="https://image.tmdb.org/t/p/original/nMKdUUepR0i5zn0Y1gMf4e0thwV.jpg" onerror="this.onerror=null;this.src='https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg';" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5" alt="">
+      <div style="position:absolute;inset:0;background:linear-gradient(0deg,#14100d 0%,transparent 60%)"></div>
+      <div style="position:absolute;bottom:0;left:0;padding:18px">
+        <div style="font-size:34px;font-weight:900;color:#f5ede3;display:flex;gap:12px;align-items:center">
+          <span style="width:4px;height:36px;background:#8ba5c4;display:inline-block;border-radius:2px"></span>TV Shows
+        </div>
+        <div style="color:#b8ac9e;font-size:13px;margin-top:6px">Series grouped by trend, popularity, air status and rating</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="row-head"><div class="row-title">Trending Shows This Week</div></div>
+      <div class="scroller" id="tvTrending"></div>
+    </div>
+    <div class="row">
+      <div class="row-head"><div class="row-title">Popular Series</div></div>
+      <div class="scroller" id="tvPopular"></div>
+    </div>
+    <div class="row">
+      <div class="row-head"><div class="row-title">On The Air • Currently Airing</div></div>
+      <div class="scroller" id="tvOnAir"></div>
+    </div>
+    <div class="row">
+      <div class="row-head"><div class="row-title">Top Rated Shows</div></div>
+      <div class="scroller" id="tvTop"></div>
+    </div>
+  </div>
+</div>
+
 <div id="view-browse" class="view">
   <div class="main">
     <div style="display:flex;align-items:center;gap:10px;padding:12px 0">
@@ -304,6 +340,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   </div>
 </div>
 
+<!-- SEARCH VIEW -->
 <div id="view-search" class="view">
   <div class="main">
     <div style="display:flex;align-items:center;gap:10px;padding:12px 0">
@@ -313,13 +350,13 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
         <div style="font-size:12px;color:#7a6e62" id="searchSub">Search TMDB's 1M+ movies and TV shows</div>
       </div>
     </div>
-    <form class="search-form" action="." method="get" role="search" autocomplete="off" style="max-width:520px;margin:8px 0 16px" onsubmit="return handleSearch(event)">
-      <input id="q2" type="search" name="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows, actors..." />
-      <button type="submit" aria-label="Search">⌕</button>
+    <form class="search-form" action="#" method="GET" role="search" style="max-width:520px;margin:8px 0 16px" onsubmit="event.preventDefault(); handleSearch(this);">
+      <input id="q2" type="search" name="q2" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows, actors..." />
+      <button type="submit" aria-label="Search"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.6" y1="15.6" x2="21" y2="21"></line></svg></button>
     </form>
     <div class="row">
       <div class="row-head">
-        <div class="row-title"><span id="searchTitle">Results</span> <small id="searchCount">0</small></div>
+        <div class="row-title" id="searchTitle">Results <small id="searchCount">0</small></div>
       </div>
       <div class="grid" id="searchGrid"></div>
       <div id="searchEmpty" class="empty" style="display:none">
@@ -327,6 +364,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
       </div>
       <div id="searchError" class="empty" style="display:none">
         <b>Connection failed</b>Could not reach TMDB. Check your connection and try again.
+        <div style="margin-top:12px"><button class="btn btn-p" onclick="doSearch(searchQuery)">↻ Retry Search</button></div>
       </div>
       <div style="display:flex;gap:8px;justify-content:center;padding:20px 0;flex-wrap:wrap">
         <button class="btn btn-g" id="searchLoadMore" style="display:none" onclick="loadMoreSearch()">
@@ -371,7 +409,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   <div style="font-weight:800;color:#f0e8dd;font-size:13px;margin-bottom:8px">TUBEMOCHA • Watch Free Movies & TV Shows Online</div>
   Tubemocha does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.<br><br>
   <strong>DMCA Notice:</strong> Tubemocha functions strictly as an automated search engine and metadata aggregator. We DO NOT host, store, stream, or upload any video, media file, or copyrighted material on our servers. All media content, streams, and downloads accessible via Tubemocha are scraped, indexed, and fetched in real-time from unaffiliated third-party websites and APIs (TMDB, YouTube, Archive.org, VidSrc-style providers). Tubemocha acts merely as a client-side directory and proxy tool, similar to Google Search, linking you to content that is already publicly accessible on the internet. We have absolutely no control over the content hosted by these third parties.<br><br>
-  <a href="#" onclick="navigate('home');return false">Home</a> • <a href="#" onclick="navigate('movies');return false">Movies</a> • <a href="#" onclick="navigate('fullfilms');return false">Full Films</a> • <a href="#" onclick="navigate('browse');return false">Browse</a> • <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a> • <a href="https://archive.org/" target="_blank" rel="noopener">Archive.org</a><br><br>
+  <a href="#" onclick="navigate('home');return false">Home</a> • <a href="#" onclick="navigate('movies');return false">Movies</a> • <a href="#" onclick="navigate('tv');return false">TV Shows</a> • <a href="#" onclick="navigate('fullfilms');return false">Full Films</a> • <a href="#" onclick="navigate('browse');return false">Browse</a> • <a href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB</a> • <a href="https://archive.org/" target="_blank" rel="noopener">Archive.org</a><br><br>
   © 2026 Tubemocha. Uses TMDB API but is not endorsed or certified by TMDB. All trademarks are property of their owners.
 </div>
 
@@ -380,8 +418,8 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   <button id="b-movies" onclick="navigate('movies')" title="Movies">🎬</button>
   <button id="b-full" onclick="navigate('fullfilms')" title="Full Films">🎞️</button>
   <button id="b-browse" onclick="navigate('browse')" title="Browse">☰</button>
-  <button id="b-search" onclick="navigate('search')" title="Search">⌕</button>
-  <button id="b-tv" onclick="toast('TV Shows coming soon')" title="Profile">☆</button>
+  <button id="b-search" onclick="navigate('search')" title="Search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.6" y1="15.6" x2="21" y2="21"></line></svg></button>
+  <button id="b-tv" onclick="navigate('tv')" title="TV Shows">📺</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -414,7 +452,37 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   </div>
 </div>
 
+<!-- YEARS MODAL (was "coming soon") -->
+<div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeYearModal()">
+  <div class="genre-sheet">
+    <h3>Group by Year / Era</h3>
+    <div class="ggrid" id="yearGrid"></div>
+    <div style="margin-top:14px"><button class="btn btn-g" style="width:100%" onclick="closeYearModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- COUNTRIES MODAL (was "coming soon") -->
+<div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeCountryModal()">
+  <div class="genre-sheet">
+    <h3>Group by Country of Origin</h3>
+    <div class="ggrid" id="countryGrid"></div>
+    <div style="margin-top:14px"><button class="btn btn-g" style="width:100%" onclick="closeCountryModal()">Close</button></div>
+  </div>
+</div>
+
+<!-- SORT MODAL (was a dead "Most popular" pill) -->
+<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeSortModal()">
+  <div class="genre-sheet">
+    <h3>Sort / Ranking Equation</h3>
+    <div class="ggrid" id="sortGrid"></div>
+    <div style="margin-top:14px"><button class="btn btn-g" style="width:100%" onclick="closeSortModal()">Close</button></div>
+  </div>
+</div>
+
 <script>
+/* ==============================================================
+   CONFIG
+   ============================================================== */
 const TMDB_KEY  = '3d1cb94d909aab088231f5af899dffdc';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const IMG       = 'https://image.tmdb.org/t/p/w500';
@@ -424,10 +492,62 @@ let currentPage = 1, moviesPage = 1, genrePage = 1, popularPage = 1;
 let allCache = [], currentMovie = null;
 let currentGenre = { id:'all', name:'All' }, currentGenreList = [];
 
+/* Search state */
 let searchQuery = '', searchPage = 1, searchAllResults = [];
 let searchTotalResults = 0, searchTotalPages = 0;
 let searchIsLoading = false;
+let searchToken = 0, _liveT = null;
 
+/* Movies-page grouping state (Years / Countries / Sort) */
+let movieFilters = { genre:null, year:null, country:null, sort:'popularity.desc' };
+let tvLoaded = false;
+
+/* Group definitions */
+const YEAR_GROUPS = [
+  {label:'2026', y0:2026, y1:2026},
+  {label:'2025', y0:2025, y1:2025},
+  {label:'2024', y0:2024, y1:2024},
+  {label:'2023', y0:2023, y1:2023},
+  {label:'2022', y0:2022, y1:2022},
+  {label:'2021', y0:2021, y1:2021},
+  {label:'2020', y0:2020, y1:2020},
+  {label:'2010s', y0:2010, y1:2019},
+  {label:'2000s', y0:2000, y1:2009},
+  {label:'1990s', y0:1990, y1:1999},
+  {label:'1980s', y0:1980, y1:1989},
+  {label:'1970s', y0:1970, y1:1979},
+  {label:'1960s', y0:1960, y1:1969},
+  {label:'1950s & older', y0:1900, y1:1959}
+];
+const COUNTRIES = [
+  {code:'US', label:'United States'},
+  {code:'GB', label:'United Kingdom'},
+  {code:'FR', label:'France'},
+  {code:'DE', label:'Germany'},
+  {code:'ES', label:'Spain'},
+  {code:'IT', label:'Italy'},
+  {code:'IN', label:'India • Bollywood'},
+  {code:'JP', label:'Japan'},
+  {code:'KR', label:'South Korea'},
+  {code:'CN', label:'China'},
+  {code:'CA', label:'Canada'},
+  {code:'AU', label:'Australia'},
+  {code:'ZA', label:'South Africa'},
+  {code:'NG', label:'Nigeria • Nollywood'},
+  {code:'MX', label:'Mexico'},
+  {code:'BR', label:'Brazil'}
+];
+const SORTS = [
+  {key:'popularity.desc',          label:'Most popular'},
+  {key:'vote_average.desc',        label:'Top rated'},
+  {key:'primary_release_date.desc',label:'Newest first'},
+  {key:'primary_release_date.asc', label:'Oldest first'},
+  {key:'revenue.desc',             label:'Box office giants'},
+  {key:'original_title.asc',       label:'A → Z'},
+  {key:'mocha',                    label:'Mocha Score • formula'}
+];
+
+/* Providers */
 const EMBED_PROVIDERS = [
   { name: 'VidLink',    fn: id => `https://vidlink.pro/movie/${id}` },
   { name: 'VidSrc.pm',  fn: id => `https://vidsrc.pm/embed/movie/${id}` },
@@ -467,6 +587,9 @@ const FALLBACK = [
   {id:"metropolis_1927",t:"Metropolis",y:1927,r:"8.3",g:["Sci-Fi","Classic"],gid:[878],d:"A futuristic city built on worker exploitation — full film.",p:"https://archive.org/services/img/Metropolis1927",b:"https://archive.org/services/img/Metropolis1927",yt:"gCcx85zbxz4",arch:"Metropolis1927",arc:true,tmdb:19,pop:27}
 ];
 
+/* ==============================================================
+   DEVICE HELPERS
+   ============================================================== */
 function isIOS(){
   return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
          (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -478,6 +601,9 @@ function escapeHtml(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+/* ==============================================================
+   GENERIC HELPERS
+   ============================================================== */
 function toast(m){
   const e = document.getElementById('toast');
   if(!e) return;
@@ -515,50 +641,106 @@ function cardHTML(m){
   }catch(e){ return ''; }
 }
 
+/* ==============================================================
+   HANG-PROOF NETWORK LAYER
+   iOS Safari has a known keep-alive / HTTP-3 stall bug where an XHR
+   fires NO onload/onerror/ontimeout at all. Every request is wrapped
+   in an external watchdog and all mirrors race in parallel.
+   ============================================================== */
 const _tmdbCache = new Map();
 
-async function fetchWithTimeout(resource, options = {}) {
-  const { timeout = 6000 } = options;
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-  try {
-    const response = await fetch(resource, {
-      ...options,
-      signal: controller.signal
+function watchdog(promise, ms, label){
+  return new Promise((resolve, reject)=>{
+    let settled = false;
+    const t = setTimeout(()=>{
+      if(!settled){ settled = true; reject(new Error((label||'req') + ' watchdog ' + ms + 'ms')); }
+    }, ms);
+    const ok = v => { if(!settled){ settled = true; clearTimeout(t); resolve(v); } };
+    const no = e => { if(!settled){ settled = true; clearTimeout(t); reject(e); } };
+    try{ promise.then(ok, no); }catch(e){ no(e); }
+  });
+}
+
+function xhrFetch(url){
+  return new Promise((resolve, reject)=>{
+    let xhr;
+    try{ xhr = new XMLHttpRequest(); }catch(e){ reject(e); return; }
+    xhr.open('GET', url, true);
+    xhr.timeout = 9000;
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data && data.status_code) {
+            reject(new Error('API Error: ' + data.status_message));
+          } else {
+            resolve(data);
+          }
+        } catch (e) {
+          reject(new Error('Parse error'));
+        }
+      } else {
+        reject(new Error('HTTP error ' + xhr.status));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.ontimeout = () => reject(new Error('Timeout'));
+    xhr.onabort = () => reject(new Error('Aborted'));
+    try{ xhr.send(); }catch(e){ reject(e); }
+  });
+}
+
+function firstSuccess(list, overallMs){
+  return new Promise((resolve, reject)=>{
+    let remaining = list.length, settled = false;
+    if(!remaining){ reject(new Error('no sources')); return; }
+    const t = setTimeout(()=>{
+      if(!settled){ settled = true; reject(new Error('overall timeout ' + overallMs + 'ms')); }
+    }, overallMs);
+    list.forEach(p=>{
+      p.then(v=>{
+        if(v == null){
+          if(--remaining === 0 && !settled){ settled = true; clearTimeout(t); reject(new Error('all sources null')); }
+          return;
+        }
+        if(!settled){ settled = true; clearTimeout(t); resolve(v); }
+      }, e=>{
+        if(--remaining === 0 && !settled){ settled = true; clearTimeout(t); reject(e); }
+      });
     });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
+  });
+}
+
+function mirrorUrls(url){
+  return [
+    url,
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(url),
+    'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(url),
+    'https://corsproxy.io/?url=' + encodeURIComponent(url)
+  ];
+}
+
+async function netGet(url, perTryMs, overallMs){
+  perTryMs  = perTryMs  || 8000;
+  overallMs = overallMs || 9000;
+  if(_tmdbCache.has(url)) return _tmdbCache.get(url);
+  try{
+    const data = await firstSuccess(
+      mirrorUrls(url).map(u => watchdog(xhrFetch(u), perTryMs, 'mirror')),
+      overallMs
+    );
+    _tmdbCache.set(url, data);
+    return data;
+  }catch(e){
+    return null;
   }
 }
 
 async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
   target.searchParams.set('api_key', TMDB_KEY);
-  Object.entries(params).forEach(([k,v]) => {
-    if(v != null && v !== '') target.searchParams.set(k, String(v));
-  });
-  const directUrl = target.href;
-  if(_tmdbCache.has(directUrl)) return _tmdbCache.get(directUrl);
-  let lastErr = null;
-  for(let attempt = 0; attempt < 2; attempt++){
-    try{
-      const res = await fetchWithTimeout(directUrl, { timeout: attempt ? 10000 : 8000 });
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      const data = await res.json();
-      if(!data || data.status_code || data.success === false){
-        throw new Error((data && data.status_message) || 'bad payload');
-      }
-      _tmdbCache.set(directUrl, data);
-      return data;
-    }catch(e){
-      lastErr = e;
-    }
-  }
-  console.warn('TMDB failed', path, lastErr);
-  return null;
+  Object.entries(params).forEach(([k,v]) => target.searchParams.set(k,v));
+  return netGet(target.href);
 }
 
 function mapResult(r){
@@ -579,11 +761,18 @@ function mapResult(r){
     yt : null, arch: null, arc: false,
     tmdb: r.id,
     pop : r.popularity || 0,
+    vc  : r.vote_count || 0,
+    cc  : (r.production_countries || []).map(c => c.iso_3166_1),
     media_type: isTV ? 'tv' : 'movie',
     _tv: isTV
   };
 }
 
+/* ==============================================================
+   RANKING EQUATIONS (The "Best Equations")
+   ============================================================== */
+
+/* Trending Scoring */
 function rankTrending(list){
   if(!list.length) return list;
   const maxP = Math.max(...list.map(x=>x.pop||100), 100);
@@ -599,45 +788,67 @@ function rankTrending(list){
   }).sort((a,b)=>b._T - a._T);
 }
 
-function normTitle(s){
-  return String(s || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim()
-    .replace(/^(the|a|an) /, '')
-    .replace(/^(the|a|an) /, '');
+/* MOCHA SCORE — the grouping/ranking equation for the Movies page.
+   M = 0.40·popNorm + 0.30·voteNorm + 0.15·countNorm + 0.15·recency   */
+function rankMocha(list){
+  if(!list.length) return list;
+  const maxP = Math.max(...list.map(x=>x.pop||1), 1);
+  const nowY = 2026;
+  return list.map(x=>{
+    const popN = Math.log1p(x.pop||0) / Math.log1p(maxP);
+    const vote = (parseFloat(x.r)||0) / 10;
+    const cntN = Math.min(Math.log1p(x.vc||0) / Math.log1p(20000), 1);
+    const recN = Math.exp(-0.06 * Math.max(0, nowY - (x.y||nowY)));
+    const M = 0.40*popN + 0.30*vote + 0.15*cntN + 0.15*recN;
+    return {...x, _M:M};
+  }).sort((a,b)=>b._M - a._M);
 }
 
+/* Search ranking equation */
 function rankSearchResults(list, query){
-  const ql = normTitle(query);
+  const ql = query.toLowerCase().trim();
   const qWords = ql.split(/\s+/).filter(w => w.length > 0);
-  const esc = ql.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const phrase = ql ? new RegExp('(^|\\s)' + esc + '(\\s|$)') : null;
-  const LOG_V = Math.log1p(100000);
-  const LOG_P = Math.log1p(200);
+
   return list.map(item => {
-    const title = normTitle(item.title || item.name || '');
+    const title = (item.title || item.name || '').toLowerCase();
     const overview = (item.overview || '').toLowerCase();
-    let T = 0;
-    if(ql && title === ql) T = 1;
-    else if(ql && title.startsWith(ql + ' ')) T = 0.90;
-    else if(ql && title.startsWith(ql)) T = 0.80;
-    else if(phrase && phrase.test(title)) T = 0.70;
-    else if(ql && title.includes(ql)) T = 0.42;
-    else if(qWords.length){
-      const hit = qWords.filter(w => title.includes(w)).length;
-      T = 0.46 * (hit / qWords.length);
+
+    let titleScore = 0;
+    if (title === ql) {
+      titleScore = 1.0;
+    } else if (title.startsWith(ql)) {
+      titleScore = 0.8;
+    } else if (title.includes(ql)) {
+      titleScore = 0.6;
+    } else {
+      let wordMatches = 0;
+      qWords.forEach(w => {
+        if (title.includes(w)) wordMatches++;
+      });
+      if (qWords.length > 0) {
+        titleScore = (wordMatches / qWords.length) * 0.5;
+      }
     }
-    if(T < 0.5 && ql && overview.includes(ql)) T = Math.min(1, T + 0.02);
-    const votes = item.vote_count || 0;
-    const C = Math.min(1, Math.log1p(votes) / LOG_V);
-    const Q = Math.max(0, Math.min((item.vote_average || 0) / 10, 1));
-    const H = Math.min(1, Math.log1p(item.popularity || 0) / LOG_P);
-    const score = 0.50 * T + 0.34 * C + 0.08 * Q + 0.08 * H;
-    return {...item, _score: score};
-  }).sort((a,b) => (b._score - a._score) || ((b.vote_count || 0) - (a.vote_count || 0)));
+
+    if (overview.includes(ql)) {
+      titleScore += 0.1;
+    }
+
+    const popScore = Math.min(Math.log1p(item.popularity || 0) / Math.log1p(1000), 1.0);
+    const voteScore = (item.vote_average || 0) / 10;
+    const countScore = Math.min(Math.log1p(item.vote_count || 0) / Math.log1p(10000), 1.0);
+
+    const finalScore =
+      (titleScore * 0.70) +
+      (popScore * 0.15) +
+      (voteScore * 0.10) +
+      (countScore * 0.05);
+
+    return {...item, _score: finalScore};
+  }).sort((a,b) => b._score - a._score);
 }
 
+/* Similar Content Jaccard Equation */
 function computeSimilarLocal(base){
   try{
     const baseG = new Set((base.gid || base.genre_ids || []).map(String));
@@ -673,11 +884,129 @@ function computeSimilarLocal(base){
   }catch(e){ return []; }
 }
 
+/* ==============================================================
+   MOVIES-PAGE GROUPING ENGINE (Years / Countries / Sort)
+   ============================================================== */
+function buildDiscoverParams(page){
+  const p = { page: page };
+  const f = movieFilters;
+  let sort = f.sort || 'popularity.desc';
+  if(sort === 'mocha') sort = 'popularity.desc';   // server pre-order, we re-rank client-side
+  p.sort_by = sort;
+  if(sort === 'vote_average.desc') p['vote_count.gte'] = 200;  // quality floor equation
+  if(sort === 'revenue.desc')      p['revenue.gte'] = 1;
+  if(f.genre)   p.with_genres = f.genre;
+  if(f.country) p.with_origin_country = f.country;
+  if(f.year){
+    if(f.year.y0 === f.year.y1){
+      p.primary_release_year = f.year.y0;
+    }else{
+      p['primary_release_date.gte'] = f.year.y0 + '-01-01';
+      p['primary_release_date.lte'] = f.year.y1 + '-12-31';
+    }
+  }
+  return p;
+}
+
+async function loadDiscoverFiltered(page){
+  const params = buildDiscoverParams(page);
+  const d = await tmdb('/discover/movie', params);
+  if(!d || !d.results) return [];
+  let list = d.results.map(mapResult);
+  const f = movieFilters;
+  /* Client-side guarantee: every card truly belongs to its group */
+  if(f.year){
+    list = list.filter(m => !m.y || (m.y >= f.year.y0 && m.y <= f.year.y1));
+  }
+  if(f.country){
+    list = list.filter(m => !m.cc || !m.cc.length || m.cc.indexOf(f.country) !== -1);
+  }
+  if((f.sort||'') === 'mocha') list = rankMocha(list);
+  return list;
+}
+
+async function applyMovieFilters(){
+  moviesPage = 1;
+  document.getElementById('moviesPageNum').textContent = '1';
+  const grid = document.getElementById('moviesGrid');
+  grid.innerHTML = '<div class="empty">⏳ Grouping movies…</div>';
+  updateFilterPills();
+  const list = await loadDiscoverFiltered(1);
+  grid.innerHTML = list.length
+    ? list.map(cardHTML).join('')
+    : '<div class="empty"><b>Nothing found</b>Try removing a filter.</div>';
+  if(list.length) allCache = [...list, ...allCache];
+}
+
+function updateFilterPills(){
+  const f = movieFilters;
+  const py = document.getElementById('pillYear');
+  const pc = document.getElementById('pillCountry');
+  const ps = document.getElementById('pillSort');
+  const pr = document.getElementById('pillReset');
+  if(py){ py.textContent = f.year ? (f.year.label + ' ✓') : 'Years ▾'; py.classList.toggle('active', !!f.year); }
+  if(pc){
+    const c = COUNTRIES.find(x=>x.code===f.country);
+    pc.textContent = c ? (c.label + ' ✓') : 'Countries ▾';
+    pc.classList.toggle('active', !!f.country);
+  }
+  if(ps){
+    const s = SORTS.find(x=>x.key===(f.sort||'popularity.desc'));
+    ps.textContent = (s ? s.label : 'Most popular') + ' ▾';
+    ps.classList.toggle('active', !!f.sort && f.sort !== 'popularity.desc');
+  }
+  if(pr){ pr.style.display = (f.year || f.country || f.genre || (f.sort && f.sort!=='popularity.desc')) ? 'inline-flex' : 'none'; }
+}
+
+/* Modal open/close */
+function openYearModal(){ document.getElementById('yearModal').classList.add('open'); }
+function closeYearModal(){ document.getElementById('yearModal').classList.remove('open'); }
+function openCountryModal(){ document.getElementById('countryModal').classList.add('open'); }
+function closeCountryModal(){ document.getElementById('countryModal').classList.remove('open'); }
+function openSortModal(){ document.getElementById('sortModal').classList.add('open'); }
+function closeSortModal(){ document.getElementById('sortModal').classList.remove('open'); }
+
+/* Group selectors */
+function setYearFilter(i){
+  movieFilters.year = (i < 0) ? null : YEAR_GROUPS[i];
+  closeYearModal();
+  applyMovieFilters();
+}
+function setCountryFilter(i){
+  movieFilters.country = (i < 0) ? null : COUNTRIES[i].code;
+  closeCountryModal();
+  applyMovieFilters();
+}
+function setSortFilter(i){
+  movieFilters.sort = SORTS[i].key;
+  closeSortModal();
+  applyMovieFilters();
+}
+function resetMovieFilters(){
+  movieFilters = { genre:null, year:null, country:null, sort:'popularity.desc' };
+  applyMovieFilters();
+}
+
+function buildFilterModals(){
+  const yg = document.getElementById('yearGrid');
+  if(yg) yg.innerHTML = '<button onclick="setYearFilter(-1)">All years</button>' +
+    YEAR_GROUPS.map((y,i)=>`<button onclick="setYearFilter(${i})">${y.label}</button>`).join('');
+  const cg = document.getElementById('countryGrid');
+  if(cg) cg.innerHTML = '<button onclick="setCountryFilter(-1)">All countries</button>' +
+    COUNTRIES.map((c,i)=>`<button onclick="setCountryFilter(${i})">${c.label}</button>`).join('');
+  const sg = document.getElementById('sortGrid');
+  if(sg) sg.innerHTML = SORTS.map((s,i)=>`<button onclick="setSortFilter(${i})">${s.label}</button>`).join('');
+}
+
+/* ==============================================================
+   LOADERS
+   ============================================================== */
 async function loadTrending(force=false){
   const data = await tmdb('/trending/movie/week', {page:1});
   if(data && data.results){
     const movies = rankTrending(data.results.slice(0,20).map(mapResult));
     document.getElementById('trendingTrack').innerHTML = movies.map(cardHTML).join('');
+
     const h = movies[0];
     if(h){
       document.getElementById('heroBg').src = h.b || h.p;
@@ -736,6 +1065,25 @@ async function loadTop(){
   }
 }
 
+/* TV SHOWS GROUP LOADER (replaces "TV Shows coming soon") */
+async function loadTVOnce(force){
+  if(tvLoaded && !force) return;
+  tvLoaded = true;
+  const [tr, pop, air, top] = await Promise.all([
+    tmdb('/trending/tv/week', {page:1}),
+    tmdb('/tv/popular',       {page:1}),
+    tmdb('/tv/on_the_air',    {page:1}),
+    tmdb('/tv/top_rated',     {page:1})
+  ]);
+  const put = (id, d, n) => {
+    const el = document.getElementById(id);
+    if(el && d && d.results) el.innerHTML = d.results.slice(0, n||20).map(mapResult).map(cardHTML).join('');
+  };
+  put('tvTrending', tr); put('tvPopular', pop); put('tvOnAir', air); put('tvTop', top);
+  const merged = [...(tr&&tr.results||[]), ...(pop&&pop.results||[])].map(mapResult);
+  allCache = [...merged, ...allCache];
+}
+
 async function loadDiscover(p=1, genre=null){
   const params = { sort_by:'popularity.desc', page:p };
   if(genre && genre !== 'all') params.with_genres = genre;
@@ -772,14 +1120,19 @@ function loadHomeIfEmpty(){
   if(!document.getElementById('trendingTrack').innerHTML) loadInitial();
 }
 
+/* ==============================================================
+   MOVIES PAGE
+   ============================================================== */
 async function loadMoviesPage(){
   const grid = document.getElementById('moviesGrid');
   if(grid.innerHTML && grid.innerHTML.length > 50) return;
+
   const [tr, act, com] = await Promise.all([
     tmdb('/trending/movie/week', {page:1}),
     tmdb('/discover/movie', {with_genres:'28', page:1, sort_by:'popularity.desc'}),
     tmdb('/discover/movie', {with_genres:'35', page:1, sort_by:'popularity.desc'})
   ]);
+
   if(tr && tr.results)
     document.getElementById('moviesTrending').innerHTML =
       tr.results.slice(0,20).map(mapResult).map(cardHTML).join('');
@@ -789,21 +1142,34 @@ async function loadMoviesPage(){
   if(com && com.results)
     document.getElementById('moviesComedy').innerHTML =
       com.results.slice(0,12).map(mapResult).map(cardHTML).join('');
-  const disc = await loadDiscover(1);
-  grid.innerHTML = disc.slice(0,40).map(cardHTML).join('');
+
+  const disc = await loadDiscoverFiltered(1);
+  grid.innerHTML = disc.length ? disc.slice(0,40).map(cardHTML).join('') : '';
+  updateFilterPills();
 }
 
 async function loadMoreMovies(){
   moviesPage++;
   document.getElementById('moviesPageNum').textContent = moviesPage;
-  const more = await loadDiscover(moviesPage);
-  if(more.length) document.getElementById('moviesGrid').innerHTML += more.map(cardHTML).join('');
+  const more = await loadDiscoverFiltered(moviesPage);
+  if(more.length){
+    document.getElementById('moviesGrid').innerHTML += more.map(cardHTML).join('');
+    allCache = [...allCache, ...more];
+  }else{
+    toast('No more results');
+  }
 }
 
+/* ==============================================================
+   FULL FILMS
+   ============================================================== */
 function renderFullFilms(){
   document.getElementById('fullGrid').innerHTML = FALLBACK.filter(x=>x.arc).map(cardHTML).join('');
 }
 
+/* ==============================================================
+   BROWSE
+   ============================================================== */
 async function loadBrowse(){
   const grid = document.getElementById('allGrid');
   if(grid.innerHTML && allCache.length > 20) return;
@@ -827,147 +1193,201 @@ async function loadMore(){
   }
 }
 
+/* ==============================================================
+   NAVIGATION
+   ============================================================== */
 function navigate(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const target = document.getElementById('view-' + view);
   if(target) target.classList.add('active');
+
   document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
-  const map = {home:'b-home', movies:'b-movies', fullfilms:'b-full', browse:'b-browse', search:'b-search', genre:'b-movies'};
+  const map = {home:'b-home', movies:'b-movies', fullfilms:'b-full', browse:'b-browse', search:'b-search', genre:'b-movies', tv:'b-tv'};
   const bid = map[view];
   if(bid){ const el = document.getElementById(bid); if(el) el.classList.add('active'); }
+
   window.scrollTo({top:0, behavior:'smooth'});
+
   if(view === 'home')      loadHomeIfEmpty();
   if(view === 'movies')    loadMoviesPage();
   if(view === 'fullfilms') renderFullFilms();
   if(view === 'browse')    loadBrowse();
+  if(view === 'tv')        loadTVOnce();
 }
 
-function handleSearch(e){
-  if(e && e.preventDefault) e.preventDefault();
-  const form  = e && e.target;
-  const input = form && form.querySelector('input');
+/* ==============================================================
+   SEARCH ENGINE (hang-proof, always terminates)
+   ============================================================== */
+function handleSearch(formElement){
+  const input = formElement.querySelector('input');
   const q = ((input && input.value) || '').trim();
-  if(!q) return false;
+  if(!q) return;
+  clearTimeout(_liveT);
+  input.blur();
   doSearch(q);
-  return false;
 }
 
-let _searchToken = 0;
 async function doSearch(q){
   q = (q || '').trim();
   if(!q) return;
-  if(doSearch._last === q && Date.now() - (doSearch._at || 0) < 400) return;
-  doSearch._last = q;
-  doSearch._at = Date.now();
-  const token = ++_searchToken;
+
+  const token = ++searchToken;
+  clearTimeout(_liveT);
+  syncInputs(q);
+  searchQuery = q;
+  searchPage = 1;
+  searchAllResults = [];
+  searchTotalResults = 0;
+  searchTotalPages = 0;
+
+  navigate('search');
+  setSearchHeader('Searching…', `Looking up "${q}" on TMDB`);
+  document.getElementById('searchGrid').innerHTML = '<div class="empty">🔍 Searching…</div>';
+  document.getElementById('searchEmpty').style.display = 'none';
+  document.getElementById('searchError').style.display = 'none';
+  document.getElementById('searchCount').textContent = '0';
+  document.getElementById('searchLoadMore').style.display = 'none';
+  document.getElementById('searchReset').style.display = 'inline-flex';
+
   try{
-    syncInputs(q);
-    searchQuery = q;
-    searchPage = 1;
-    searchAllResults = [];
-    searchTotalResults = 0;
-    searchTotalPages = 0;
-    navigate('search');
-    setSearchHeader('Searching…', 'Looking up "' + q + '" on TMDB');
-    const grid = document.getElementById('searchGrid');
-    const empty = document.getElementById('searchEmpty');
-    const error = document.getElementById('searchError');
-    const count = document.getElementById('searchCount');
-    const more = document.getElementById('searchLoadMore');
-    const reset = document.getElementById('searchReset');
-    if(grid) grid.innerHTML = '<div class="empty" id="searchPending">Searching…</div>';
-    if(empty) empty.style.display = 'none';
-    if(error) error.style.display = 'none';
-    if(count) count.textContent = '0';
-    if(more) more.style.display = 'none';
-    if(reset) reset.style.display = 'inline-flex';
-    const first = await searchTMDB(q, 1);
-    if(token !== _searchToken) return;
-    if(!first){
-      showSearchError(q);
+    const first = await watchdog(searchTMDB(q, 1), 10000, 'search-1');
+    if(token !== searchToken) return;
+    if(first && first.results && first.results.length){
+      searchAllResults   = first.results;
+      searchTotalResults = first.total;
+      searchTotalPages   = first.totalPages;
+      renderSearchResults();
       return;
     }
-    if(!first.results.length){
+    if(first && first.results && first.results.length === 0){
+      const local = localSearch(q);
+      if(local.length){
+        searchAllResults = local; searchTotalResults = local.length; searchTotalPages = 1;
+        renderSearchResults('local cache');
+        return;
+      }
       showNoResults(q);
       return;
     }
-    searchAllResults = first.results;
-    searchTotalResults = first.total;
-    searchTotalPages = first.totalPages;
-    renderSearchResults();
-  }catch(err){
-    console.error('Search failed:', err);
-    if(token === _searchToken) showSearchError(q);
+  }catch(e){
+    console.warn('Search attempt 1 failed:', e && e.message);
   }
+  if(token !== searchToken) return;
+
+  try{
+    const retry = await watchdog(searchTMDB(q, 1), 8000, 'search-2');
+    if(token !== searchToken) return;
+    if(retry && retry.results && retry.results.length){
+      searchAllResults   = retry.results;
+      searchTotalResults = retry.total;
+      searchTotalPages   = retry.totalPages;
+      renderSearchResults('retry ok');
+      return;
+    }
+  }catch(e){
+    console.warn('Search attempt 2 failed:', e && e.message);
+  }
+  if(token !== searchToken) return;
+
+  const local = localSearch(q);
+  if(local.length){
+    searchAllResults = local; searchTotalResults = local.length; searchTotalPages = 1;
+    renderSearchResults('offline cache');
+    toast('Showing cached results');
+    return;
+  }
+
+  showSearchError(q);
 }
 
 async function searchTMDB(q, page){
   const params = { query: q, page: page, include_adult: 'false', language: 'en-US' };
-  const results = await Promise.allSettled([
-    tmdb('/search/movie', params),
-    tmdb('/search/tv', params)
-  ]);
-  const moviesRes = results[0].status === 'fulfilled' ? results[0].value : null;
-  const tvRes     = results[1].status === 'fulfilled' ? results[1].value : null;
-  if(!moviesRes && !tvRes) return null;
-  const seen = new Set();
-  const out  = [];
-  function add(item, type){
-    if(!item || !item.id) return;
-    const key = type + ':' + item.id;
-    if(seen.has(key)) return;
-    seen.add(key);
-    out.push({...item, media_type: type});
+
+  const multi = await tmdb('/search/multi', params);
+  let raw = null, totals = [0], pages = [0];
+
+  if(multi && multi.results){
+    raw = multi.results
+      .filter(r => r && (r.media_type === 'movie' || r.media_type === 'tv'))
+      .map(r => ({...r, media_type: r.media_type}));
+    totals = [multi.total_results || 0];
+    pages  = [multi.total_pages || 0];
+  }else{
+    const pair = await Promise.all([
+      tmdb('/search/movie', params),
+      tmdb('/search/tv', params)
+    ]);
+    const mRes = pair[0], tRes = pair[1];
+    if(!mRes && !tRes) return null;
+    raw = [];
+    if(mRes && mRes.results) mRes.results.forEach(r => raw.push({...r, media_type:'movie'}));
+    if(tRes && tRes.results) tRes.results.forEach(r => raw.push({...r, media_type:'tv'}));
+    totals = [(mRes && mRes.total_results) || 0, (tRes && tRes.total_results) || 0];
+    pages  = [(mRes && mRes.total_pages)  || 0, (tRes && tRes.total_pages)  || 0];
   }
-  if(moviesRes && moviesRes.results) moviesRes.results.forEach(r => add(r, 'movie'));
-  if(tvRes && tvRes.results)         tvRes.results.forEach(r => add(r, 'tv'));
-  const ranked = rankSearchResults(out, q);
-  const totals = [
-    (moviesRes && moviesRes.total_results) || 0,
-    (tvRes && tvRes.total_results) || 0
-  ];
-  const pages = [
-    (moviesRes && moviesRes.total_pages) || 0,
-    (tvRes && tvRes.total_pages) || 0
-  ];
+
+  const ranked = rankSearchResults(raw, q);
   return {
-    results:    ranked,
-    total:      Math.max(...totals),
-    totalPages: Math.min(500, Math.max(...pages))
+    results:    ranked.map(mapResult),
+    total:      Math.max.apply(null, totals),
+    totalPages: Math.min(500, Math.max.apply(null, pages))
   };
 }
 
-function renderSearchResults(){
+function localSearch(q){
+  const ql = q.toLowerCase();
+  const words = ql.split(/\s+/).filter(Boolean);
+  const pool = [...allCache, ...FALLBACK, ...searchAllResults];
+  const seen = new Set();
+  return pool.filter(x=>{
+    const t = String(x.t || x.title || '').toLowerCase();
+    if(!t) return false;
+    return t.includes(ql) || words.every(w => t.includes(w));
+  }).filter(x=>{
+    const k = String(x.id);
+    if(seen.has(k)) return false;
+    seen.add(k); return true;
+  }).slice(0,40);
+}
+
+function renderSearchResults(sourceNote){
   const grid  = document.getElementById('searchGrid');
   const empty = document.getElementById('searchEmpty');
   const error = document.getElementById('searchError');
   const count = document.getElementById('searchCount');
   const load  = document.getElementById('searchLoadMore');
   const pageN = document.getElementById('searchPageNum');
+
   error.style.display = 'none';
+
   if(!searchAllResults.length){
     showNoResults(searchQuery);
     return;
   }
+
   empty.style.display = 'none';
-  grid.innerHTML = searchAllResults.map(mapResult).map(cardHTML).join('');
+  grid.innerHTML = searchAllResults.map(cardHTML).join('');
   count.textContent = searchAllResults.length +
     (searchTotalResults > searchAllResults.length
       ? ' of ' + formatNumber(searchTotalResults) + ' matches'
       : '');
+
   const shown = searchTotalResults > searchAllResults.length
     ? `Showing ${searchAllResults.length} of ${formatNumber(searchTotalResults)} results`
     : `${searchAllResults.length} result${searchAllResults.length === 1 ? '' : 's'} found`;
+
   setSearchHeader(
     'Search: "' + searchQuery + '"',
-    shown + ' • Page ' + searchPage
+    shown + ' • Page ' + searchPage + (sourceNote ? ' • ' + sourceNote : '')
   );
+
   if(searchPage < searchTotalPages){
     load.style.display = 'inline-flex';
     pageN.textContent = searchPage;
   }else{
     load.style.display = 'none';
   }
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
 function setSearchHeader(title, sub){
@@ -996,18 +1416,20 @@ function showSearchError(q){
 async function loadMoreSearch(){
   if(searchIsLoading) return;
   if(searchPage >= searchTotalPages) return;
+
   searchIsLoading = true;
   const nextPage = searchPage + 1;
+
   try{
-    const more = await searchTMDB(searchQuery, nextPage);
+    const more = await watchdog(searchTMDB(searchQuery, nextPage), 10000, 'search-more');
     if(!more || !more.results.length){
       searchIsLoading = false;
       toast('No more results');
       return;
     }
     searchPage = nextPage;
-    const existingKeys = new Set(searchAllResults.map(x => x.media_type + ':' + x.id));
-    const fresh = more.results.filter(x => !existingKeys.has(x.media_type + ':' + x.id));
+    const existingKeys = new Set(searchAllResults.map(x => (x._tv?'tv:':'movie:') + x.id));
+    const fresh = more.results.filter(x => !existingKeys.has((x._tv?'tv:':'movie:') + x.id));
     searchAllResults = [...searchAllResults, ...fresh];
     renderSearchResults();
     toast('+' + fresh.length + ' more results');
@@ -1018,6 +1440,8 @@ async function loadMoreSearch(){
 }
 
 function resetSearch(){
+  searchToken++;
+  clearTimeout(_liveT);
   searchAllResults = [];
   searchQuery = '';
   syncInputs('');
@@ -1041,20 +1465,23 @@ function formatNumber(n){
   return Number(n).toLocaleString('en-US');
 }
 
+/* ==============================================================
+   GENRE
+   ============================================================== */
 function openGenreModal(){ document.getElementById('genreModal').classList.add('open'); }
 function closeGenreModal(){ document.getElementById('genreModal').classList.remove('open'); }
-function openYearModal(){ toast('Years filter coming soon'); }
-function openCountryModal(){ toast('Countries filter coming soon'); }
-function setSort(v){ toast('Sort: ' + v); }
 
 async function openGenrePage(gid, gname){
   closeGenreModal();
   currentGenre = { id:gid, name:gname };
   genrePage = 1;
+
   document.getElementById('genreTitle').textContent = gname || GENRE_MAP[gid] || 'Genre';
   document.getElementById('genreSub').textContent = 'Genre: ' + (gname || GENRE_MAP[gid]) + ' • Page 1';
   document.getElementById('genreGrid').innerHTML = '<div class="empty">Loading ' + gname + '...</div>';
+
   navigate('genre');
+
   const movies = await loadDiscover(1, gid);
   currentGenreList = movies;
   document.getElementById('genreGrid').innerHTML = movies.length
@@ -1097,6 +1524,9 @@ function filterBrowse(g, el){
   openGenrePage(g, GENRE_MAP[g] || g);
 }
 
+/* ==============================================================
+   DETAIL
+   ============================================================== */
 async function openMovie(rawId){
   let isTV = false;
   let id = rawId;
@@ -1104,9 +1534,12 @@ async function openMovie(rawId){
     isTV = true;
     id = rawId.substring(3);
   }
+
   let m = allCache.find(x => String(x.id) === String(id) && (x.media_type === 'tv') === isTV)
+       || searchAllResults.find(x => String(x.id) === String(id) && (x._tv === true) === isTV)
        || FALLBACK.find(x => String(x.id) === String(id) && !isTV)
        || currentGenreList.find(x => String(x.id) === String(id));
+
   if(!m){
     try{
       const endpoint = isTV ? '/tv/' + id : '/movie/' + id;
@@ -1125,6 +1558,7 @@ async function openMovie(rawId){
           b  : d.backdrop_path ? BACKDROP + d.backdrop_path : '',
           yt : null, arch: null, arc: false,
           tmdb: d.id, pop: d.popularity || 0,
+          vc : d.vote_count || 0, cc: (d.production_countries||[]).map(c=>c.iso_3166_1),
           media_type: isTV ? 'tv' : 'movie',
           _tv: isTV
         };
@@ -1132,9 +1566,11 @@ async function openMovie(rawId){
     }catch(e){}
     if(!m) m = FALLBACK[0];
   }
+
   m._tv = isTV;
   m.media_type = isTV ? 'tv' : 'movie';
   currentMovie = m;
+
   document.getElementById('detailTitle').textContent = m.t || m.title;
   document.getElementById('detailTopTitle').textContent = m.t || m.title;
   document.getElementById('detailMeta').innerHTML =
@@ -1149,6 +1585,7 @@ async function openMovie(rawId){
     `<div style="display:flex;justify-content:space-between"><span>TMDB ID</span><span style="color:#c89666">${m.tmdb || m.id}</span></div>` +
     `<div style="display:flex;justify-content:space-between"><span>Type</span><span style="color:#8ba5c4">${isTV ? 'TV Show' : 'Movie'}</span></div>` +
     `<div style="display:flex;justify-content:space-between"><span>Source</span><span style="color:#7fa65e">${m.arc ? 'Archive.org FULL' : 'Third-party embed'}</span></div>`;
+
   const similarEl = document.getElementById('similar');
   similarEl.innerHTML = '<div class="empty">Loading similar...</div>';
   try{
@@ -1172,29 +1609,37 @@ async function openMovie(rawId){
       ? local.map(cardHTML).join('')
       : '<div class="empty">No similar found</div>';
   }
+
   document.getElementById('detail').classList.add('open');
   document.getElementById('fullBtn').style.display  = m.arc ? 'inline-flex' : 'none';
-  document.getElementById('embedBtn').style.display = 'inline-flex';
+  document.getElementById('embedBtn').style.display =
+    (m.tmdb || FULL_EMBED[String(m.id)] || FULL_EMBED[String(m.tmdb)]) ? 'inline-flex' : 'none';
+
   const bar = document.getElementById('serverBar');
   const providers = isTV ? TV_EMBED_PROVIDERS : EMBED_PROVIDERS;
+
   let html = '';
   if(m.arc){
     html += `<button class="srv active" id="srv-archive" onclick="setServer('${m.id}','archive')">Archive FULL</button>`;
-    html += `<button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Trailer</button>`;
+    if(m.yt) html += `<button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Trailer</button>`;
     html += `<button class="srv" id="srv-embed" onclick="setServer('${m.id}','embed')">Full Embed</button>`;
     bar.innerHTML = html;
     setServer(m.id, 'archive');
   }else{
-    html += `<button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Trailer</button>`;
-    providers.forEach((p, i) => {
-      const tid = i === 0 ? 'embed' : ('embed' + (i + 1));
-      const label = i === 0 ? p.name + ' • Full HD' : p.name + ' • Backup';
-      const activeCls = i === 0 ? ' active' : '';
-      html += `<button class="srv${activeCls}" id="srv-${tid}" onclick="setServer('${m.id}','${tid}')">${label}</button>`;
-    });
+    const hasEmbed = !!(m.tmdb || FULL_EMBED[String(m.id)] || FULL_EMBED[String(m.tmdb)]);
+    if(m.yt) html += `<button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Trailer</button>`;
+    if(hasEmbed){
+      providers.forEach((p, i) => {
+        const tid = i === 0 ? 'embed' : ('embed' + (i + 1));
+        const label = i === 0 ? p.name + ' • Full HD' : p.name + ' • Backup';
+        const activeCls = i === 0 ? ' active' : '';
+        html += `<button class="srv${activeCls}" id="srv-${tid}" onclick="setServer('${m.id}','${tid}')">${label}</button>`;
+      });
+    }
     bar.innerHTML = html;
-    setServer(m.id, 'embed');
-    loadProviders(m.tmdb, isTV);
+    if(hasEmbed) setServer(m.id, 'embed');
+    else if(m.yt) setServer(m.id, 'youtube');
+    if(m.tmdb) loadProviders(m.tmdb, isTV);
   }
 }
 
@@ -1224,15 +1669,21 @@ async function loadProviders(tmdbId, isTV){
   }
 }
 
+/* ==============================================================
+   PLAYER
+   ============================================================== */
 function setServer(id, type){
   const m = allCache.find(x => String(x.id) === String(id))
+         || searchAllResults.find(x => String(x.id) === String(id))
          || FALLBACK.find(x => String(x.id) === String(id))
          || currentGenreList.find(x => String(x.id) === String(id))
          || currentMovie;
   if(!m) return;
+
   document.querySelectorAll('.srv').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById('srv-' + type);
   if(btn) btn.classList.add('active');
+
   if(type === 'archive' && m.arch) return renderArchivePlayer(m);
   if(type.indexOf('embed') === 0)  return renderEmbedPlayer(m, type);
   return renderYouTubePlayer(m);
@@ -1298,19 +1749,24 @@ function renderEmbedPlayer(m, type){
   const idxMap = { 'embed': 0, 'embed2': 1, 'embed3': 2, 'embed4': 3, 'embed5': 4 };
   const idx = idxMap[type] || 0;
   const provider = providers[idx % providers.length];
+
   let src = null;
   if(m.tmdb && provider) src = provider.fn(m.tmdb);
   else src = FULL_EMBED[String(m.id)] || FULL_EMBED[String(m.tmdb)];
   if(!src && m.tmdb) src = EMBED_PROVIDERS[0].fn(m.tmdb);
+
   const w    = document.getElementById('playerWrap');
   const note = document.getElementById('playerNote');
+
   if(!src){
     w.innerHTML = '<div class="empty"><b>No embed available</b>Try another server.</div>';
     note.innerHTML = '';
     return;
   }
+
   w.innerHTML = overlayHTML(m);
   bindPlayOverlay(w, src);
+
   const providerName = provider ? provider.name : 'Embed';
   note.innerHTML =
     `<span><span class="warn">⚠</span> ${providerName} • if video doesn't start, try another server</span>` +
@@ -1322,6 +1778,7 @@ function renderYouTubePlayer(m){
   const src  = `https://www.youtube.com/embed/${yt}?playsinline=1&rel=0&modestbranding=1&autoplay=1`;
   const w    = document.getElementById('playerWrap');
   const note = document.getElementById('playerNote');
+
   w.innerHTML = overlayHTML(m);
   bindPlayOverlay(w, src);
   note.innerHTML = `<span>Trailer • YouTube</span><a href="https://www.youtube.com/watch?v=${yt}" target="_blank" rel="noopener">Open on YouTube ↗</a>`;
@@ -1337,16 +1794,41 @@ function closeDetail(){
   document.getElementById('playerNote').innerHTML = '';
 }
 
-document.querySelectorAll('form.search-form').forEach(form => {
-  form.setAttribute('action', '.');
-  form.setAttribute('method', 'get');
-  const input = form.querySelector('input');
-  if(input){
-    input.setAttribute('type', 'search');
-    input.setAttribute('enterkeyhint', 'search');
-    input.setAttribute('name', 'search');
-  }
-});
+/* ==============================================================
+   iOS SEARCH-KEY + LIVE SEARCH BOOT
+   ============================================================== */
+(function initSearchUX(){
+  ['q','q2'].forEach(id=>{
+    const inp = document.getElementById(id);
+    if(!inp) return;
+    inp.setAttribute('type','search');
+    inp.setAttribute('enterkeyhint','search');
+    inp.removeAttribute('inputmode');
+
+    inp.addEventListener('input', ()=>{
+      const v = inp.value;
+      clearTimeout(_liveT);
+      if(v.trim().length >= 3){
+        _liveT = setTimeout(()=>{ doSearch(v); }, 550);
+      }
+    });
+
+    inp.addEventListener('keydown', e=>{
+      if(e.key === 'Enter' || e.keyCode === 13){
+        e.preventDefault();
+        clearTimeout(_liveT);
+        inp.blur();
+        doSearch(inp.value);
+      }
+    });
+  });
+})();
+
+/* ==============================================================
+   BOOT
+   ============================================================== */
+buildFilterModals();
+updateFilterPills();
 loadInitial();
 </script>
 </body>
