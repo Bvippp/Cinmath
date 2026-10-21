@@ -38,7 +38,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 .search-top{flex:1;display:flex;justify-content:flex-end}
 .search-form{display:flex;align-items:center;background:#1e1814;border:1px solid #3a2e26;border-radius:12px;height:40px;padding:0 5px 0 12px;width:100%;max-width:380px;transition:.2s}
 .search-form:focus-within{border-color:#c89666;background:#251e19}
-.search-form input{flex:1;background:transparent;border:0;color:#f0e8dd;outline:none;font-size:13.5px;height:100%}
+.search-form input{flex:1;background:transparent;border:0;color:#f0e8dd;outline:none;font-size:16px;height:100%}
 .search-form input::placeholder{color:#5f5449}
 .search-form button{width:32px;height:32px;border-radius:8px;background:#f5ede3;color:#14100d;border:0;display:grid;place-items:center;cursor:pointer;font-weight:800}
 
@@ -158,9 +158,9 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')"><div class="m">M</div><b>TUBEMOCHA</b></div>
     <div class="search-top">
-      <!-- Fixed iOS Keyboard Search Icon -->
-      <form class="search-form" action="#" onsubmit="return handleSearch(event)">
-        <input id="q" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="Search movies, TV shows..." />
+      <!-- Strict iOS Form Attributes to force Search Button -->
+      <form class="search-form" action="#" method="GET" role="search" onsubmit="return handleSearch(event)">
+        <input id="q" type="search" name="q" inputmode="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows..." />
         <button type="submit">⌕</button>
       </form>
     </div>
@@ -315,8 +315,8 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
         <div style="font-size:12px;color:#7a6e62" id="searchSub">Search TMDB's 1M+ movies and TV shows</div>
       </div>
     </div>
-    <form class="search-form" action="#" style="max-width:520px;margin:8px 0 16px" onsubmit="return handleSearch(event)">
-      <input id="q2" type="search" inputmode="search" enterkeyhint="search" placeholder="Search movies, TV shows, actors..." />
+    <form class="search-form" action="#" method="GET" role="search" style="max-width:520px;margin:8px 0 16px" onsubmit="return handleSearch(event)">
+      <input id="q2" type="search" name="q2" inputmode="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows, actors..." />
       <button type="submit">⌕</button>
     </form>
     <div class="row">
@@ -530,10 +530,29 @@ function cardHTML(m){
 
 /* ==============================================================
    TMDB FETCH ENGINE (The Bulletproof Solution)
-   Uses Promise.any to fire all 3 connections simultaneously.
-   The first one to respond successfully is used. No hanging!
+   Uses AbortController with a hard 6-second timeout, then falls back
+   sequentially to proxies. Guarantees it NEVER hangs forever.
    ============================================================== */
 const _tmdbCache = new Map();
+
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 6000 } = options;
+  
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    const response = await fetch(resource, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(id);
+    return response;
+  } catch (error) {
+    clearTimeout(id);
+    throw error;
+  }
+}
 
 async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
@@ -543,37 +562,31 @@ async function tmdb(path, params = {}){
   const directUrl = target.href;
   if(_tmdbCache.has(directUrl)) return _tmdbCache.get(directUrl);
 
-  const proxyUrl1 = `https://corsproxy.io/?${encodeURIComponent(directUrl)}`;
-  const proxyUrl2 = `https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`;
+  // Use highly reliable proxies
+  const proxyUrl1 = `https://api.allorigins.win/raw?url=${encodeURIComponent(directUrl)}`;
+  const proxyUrl2 = `https://corsproxy.io/?${encodeURIComponent(directUrl)}`;
   
   const urlsToTry = [directUrl, proxyUrl1, proxyUrl2];
 
-  // Helper to fetch with a 5 second timeout limit
-  const fetchWithTimeout = async (url) => {
-    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000));
-    const fetchPromise = fetch(url, { headers: { 'Accept': 'application/json' } });
-    
-    // Wait for the fetch to finish OR the timeout to trigger
-    const res = await Promise.race([fetchPromise, timeoutPromise]);
-    
-    if (!res.ok) throw new Error('HTTP Error');
-    
-    const data = await res.json();
-    if (data && data.status_code) throw new Error('API Error');
-    
-    return data;
-  };
-
-  try {
-    // Promise.any waits for the FIRST successful promise to resolve.
-    // If direct API works, it returns instantly. If it fails, the proxy takes over.
-    const data = await Promise.any(urlsToTry.map(url => fetchWithTimeout(url)));
-    _tmdbCache.set(directUrl, data);
-    return data;
-  } catch (e) {
-    // If all 3 URLs failed or timed out, return null.
-    return null;
+  for (const tryUrl of urlsToTry) {
+    try {
+      const res = await fetchWithTimeout(tryUrl);
+      
+      if (!res.ok) continue;
+      
+      const data = await res.json();
+      if (data && !data.status_code) {
+        _tmdbCache.set(directUrl, data);
+        return data;
+      }
+    } catch (e) {
+      console.warn("Fetch failed for", tryUrl, e);
+      // Ignore error and loop to try next URL
+    }
   }
+  
+  // If all attempts fail, return null
+  return null;
 }
 
 function mapResult(r){
@@ -593,7 +606,7 @@ function mapResult(r){
     b  : r.backdrop_path ? BACKDROP + r.backdrop_path : '',
     yt : null, arch: null, arc: false,
     tmdb: r.id,
-    pop: r.popularity || 0,
+    pop : r.popularity || 0,
     media_type: isTV ? 'tv' : 'movie',
     _tv: isTV
   };
@@ -948,6 +961,12 @@ async function doSearch(q){
   } catch(err) {
     console.error("Search failed:", err);
     showSearchError(q);
+  } finally {
+    // Failsafe: If the grid is still showing "Searching" and we have no results, show error.
+    const grid = document.getElementById('searchGrid');
+    if (grid.innerHTML.includes('Searching…') && searchAllResults.length === 0) {
+        showSearchError(q);
+    }
   }
 }
 
