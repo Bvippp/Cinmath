@@ -1223,7 +1223,7 @@ const EMBED_PROVIDERS = [
 ];
 
 /* ══════════════════════════════════════════════════════════════
-   UTILITIES & BEST EQUATIONS
+   UTILITIES
    ══════════════════════════════════════════════════════════════ */
 function toast(m){
   const e = document.getElementById('toast');
@@ -1249,33 +1249,27 @@ function toggleWatchlist() {
   localStorage.setItem('tubemocha_watchlist', JSON.stringify(watchlist));
 }
 
-/**
- * EQUATION: Fault-Tolerant Image Resolution (Tier 1 -> 2 -> 3)
- * Ensures 100% of cards have a valid, rendered image.
- */
-function getSafeImageUrl(m) {
-  // Tier 1: Standard TMDB Poster
-  if (m.poster_path && m.poster_path !== 'null') {
+// ══════════════════════════════════════════════════════════════
+// THE THUMBNAIL EQUATION: Intelligent Poster Fallback
+// 1. Try official poster (works for 95% of movies & shows)
+// 2. If missing, try backdrop (will be cropped by CSS to fit)
+// 3. If both missing, generate a styled SVG with the title
+// ══════════════════════════════════════════════════════════════
+function getSafeImageUrl(m, isPoster=true) {
+  if (m.poster_path && m.poster_path !== 'null' && m.poster_path !== null) {
     return IMG + m.poster_path;
   }
-  // Tier 2: TMDB Backdrop (if poster fails)
-  if (m.backdrop_path && m.backdrop_path !== 'null') {
+  if (m.backdrop_path && m.backdrop_path !== 'null' && m.backdrop_path !== null) {
+    // Return a high-res backdrop. The CSS `object-fit: cover` handles the crop.
     return BACKDROP + m.backdrop_path;
   }
-  // Tier 3: Deterministic High-Contrast SVG Placeholder
-  // Uses inline SVG to guarantee rendering even offline or if API fails.
-  const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 22);
-  const cleanTitle = title.replace(/[<>&"']/g, ''); // Sanitize for SVG
-  
+  // Final fallback: a styled SVG placeholder with the title
+  const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 24);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
     <rect width="300" height="450" fill="#1e1814"/>
-    <rect x="10" y="10" width="280" height="430" fill="none" stroke="#3a2e26" stroke-width="2" rx="8"/>
-    <circle cx="150" cy="180" r="40" fill="#2a211a"/>
-    <path d="M 120 160 L 180 160 L 150 210 Z" fill="#5f5449" />
-    <text fill="#f0e8dd" x="50%" y="270" font-family="sans-serif" font-size="18" font-weight="bold" text-anchor="middle">${cleanTitle}</text>
-    <text fill="#7a6e62" x="50%" y="300" font-family="sans-serif" font-size="13" text-anchor="middle">Preview Unavailable</text>
+    <text fill="#f0e8dd" x="50%" y="45%" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${title}</text>
+    <text fill="#9a8e80" x="50%" y="55%" font-family="sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">No Poster</text>
   </svg>`;
-  
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
@@ -1283,7 +1277,7 @@ function cardHTML(m){
   try{
     const isTV   = m.media_type === 'tv' || m._tv === true;
     const title  = String(m.t || m.title || m.name || 'Untitled').substring(0,38);
-    const poster = getSafeImageUrl(m);
+    const poster = getSafeImageUrl(m); // Use the Fallback Equation
     const rating = m.r || (m.vote_average ? m.vote_average.toFixed(1) : '7.5');
     const year   = m.y || m.year || (m.release_date ? +m.release_date.slice(0,4) : (m.first_air_date ? +m.first_air_date.slice(0,4) : 2024));
     const genres = (m.g || ['Movie']).slice(0,2).join(' • ');
@@ -1308,6 +1302,8 @@ function cardHTML(m){
 async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
   target.searchParams.set('api_key', TMDB_KEY);
+  // Add cache-buster to ensure fresh auto-updating content
+  target.searchParams.set('t', Date.now());
   Object.entries(params).forEach(([k,v]) => { if(v != null && v !== '') target.searchParams.set(k, String(v)); });
   try{
     const res = await fetch(target.href);
@@ -1324,8 +1320,10 @@ function mapResult(r){
     r  : r.vote_average ? r.vote_average.toFixed(1) : '7.5',
     g  : (r.genre_ids && r.genre_ids.length) ? r.genre_ids.map(id => GENRE_MAP[id] || 'Movie') : ['Movie'],
     d  : r.overview || '', 
-    p  : r.poster_path ? IMG + r.poster_path : '', 
-    b  : r.backdrop_path ? BACKDROP + r.backdrop_path : '',
+    p  : r.poster_path, 
+    b  : r.backdrop_path,
+    poster_path: r.poster_path, // Explicitly carry over for the fallback equation
+    backdrop_path: r.backdrop_path,
     tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV,
     seasons: r.number_of_seasons, episodes: r.number_of_episodes
   };
@@ -1333,7 +1331,7 @@ function mapResult(r){
 
 const GENRE_MAP = { "28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama","10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance","878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western" };
 
-const FALLBACK = [ {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns the truth.",p:"https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",b:"https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",tmdb:603} ];
+const FALLBACK = [ {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns the truth.",poster_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",backdrop_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",tmdb:603} ];
 
 /* ══════════════════════════════════════════════════════════════
    HERO CAROUSEL
@@ -1353,7 +1351,7 @@ function setupHero(movies) {
   heroMovies = movies.slice(0, 5);
   heroMovies.forEach((h, i) => {
     const idx = i + 1;
-    document.getElementById(`heroBg${idx}`).src = getSafeImageUrl(h);
+    document.getElementById(`heroBg${idx}`).src = h.backdrop_path ? BACKDROP + h.backdrop_path : getSafeImageUrl(h);
     document.getElementById(`heroTitle${idx}`).textContent = h.t;
     document.getElementById(`heroDesc${idx}`).textContent = h.d;
     const typeStr = h._tv ? 'TV Show' : 'Movie';
@@ -1485,6 +1483,7 @@ async function loadTVPage(){
   const disc = await tmdb('/discover/tv', {sort_by:'popularity.desc', page:1});
   if(disc && disc.results) grid.innerHTML = disc.results.map(mapResult).map(cardHTML).join('');
 
+  // Auto-Update Logic: Fetches upcoming shows based on current date
   const now = new Date().toISOString().split('T')[0];
   const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': now, page: 1 });
   if(upcoming && upcoming.results) {
@@ -1652,8 +1651,8 @@ async function openMovie(rawId){
   const inList = watchlist.some(x => x.id === currentMovie.id);
   document.getElementById('detailListText').textContent = inList ? 'Added to List' : 'Add to List';
 
-  // Set High-Res Backdrop (Fallback to Poster if missing)
-  const bgUrl = m.b || m.p || getSafeImageUrl(m);
+  // Set High-Res Backdrop using the Fallback Equation
+  const bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
   document.getElementById('detailOverlay').style.background = `url(${bgUrl}) center/cover no-repeat`;
 
   // Inject Autoplay Trailer Background
@@ -1751,10 +1750,11 @@ async function changeSeason(seasonNum) {
   }
   
   listEl.innerHTML = episodes.map(ep => {
-    const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : getSafeImageUrl({ t: ep.name });
+    // Apply fallback equation to episode thumbnails as well
+    const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : getSafeImageUrl({ t: ep.name || `Episode ${ep.episode_number}` });
     return `
       <div class="episode-card" onclick="selectEpisode(${currentSeason}, ${ep.episode_number})">
-        <img src="${thumb}" class="episode-thumb" alt="" onerror="this.onerror=null;this.src='${getSafeImageUrl({ t: 'Episode ' + ep.episode_number })}'">
+        <img src="${thumb}" class="episode-thumb" alt="">
         <div class="episode-info">
           <div class="episode-number">EPISODE ${ep.episode_number}</div>
           <div class="episode-title">${ep.name || 'Untitled Episode'}</div>
@@ -1982,7 +1982,7 @@ function closeDetail(){
 }
 
 /* ══════════════════════════════════════════════════════════════
-   INITIAL LOAD & AUTO-UPDATE LOGIC
+   INITIAL LOAD (AUTO-UPDATE LOGIC)
    ══════════════════════════════════════════════════════════════ */
 async function loadInitial(){
   // Fetch trending content dynamically; this endpoint auto-updates weekly.
@@ -2007,20 +2007,6 @@ async function loadInitial(){
 
 document.querySelectorAll('form.search-form').forEach(form => { form.onsubmit = handleSearch; });
 loadInitial();
-
-// EQUATION: Auto-Update Polling
-// Fetch fresh data every 10 minutes to simulate continuous live updates.
-setInterval(async () => {
-  console.log("Auto-updating database...");
-  await loadInitial();
-  // If user is currently on the Movies or TV tab, refresh them in the background.
-  if (document.getElementById('view-movies').classList.contains('active')) {
-    await loadMoviesPage(true);
-  }
-  if (document.getElementById('view-tv').classList.contains('active')) {
-    await loadTVPage(true);
-  }
-}, 10 * 60 * 1000); // 10 minutes
 </script>
 </body>
 </html>
