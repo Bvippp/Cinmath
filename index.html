@@ -531,29 +531,11 @@ img { display: block; max-width: 100%; }
 }
 .skip-ad-btn svg { margin-top: 4px; }
 
-/* Bottom Bar */
+/* Bottom Bar (Controls Only - No Progress Bar) */
 .player-bottom-bar {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
-  padding: 0 16px 16px;
+  padding: 16px;
   background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
-  display: flex; flex-direction: column; gap: 8px;
-}
-.progress-bar-container {
-  width: 100%; height: 4px;
-  background: rgba(255,255,255,0.2); border-radius: 2px;
-  position: relative; cursor: pointer;
-}
-.progress-bar-fill {
-  height: 100%; width: 0%;
-  background: #fff; border-radius: 2px;
-  position: relative;
-}
-.progress-bar-fill::after {
-  content: ''; position: absolute; right: -6px; top: -4px;
-  width: 12px; height: 12px; border-radius: 50%;
-  background: #fff; box-shadow: 0 0 4px rgba(0,0,0,0.5);
-}
-.player-controls-row {
   display: flex; align-items: center; justify-content: space-between;
 }
 .player-controls-left {
@@ -1034,23 +1016,18 @@ img { display: block; max-width: 100%; }
     <div class="episodes-list" id="episodesDrawerList"></div>
   </div>
 
-  <!-- Bottom Bar -->
+  <!-- Bottom Bar (No Progress Bar) -->
   <div class="player-bottom-bar">
-    <div class="progress-bar-container" id="progressBarContainer">
-      <div class="progress-bar-fill" id="progressBarFill"></div>
+    <div class="player-controls-left">
+      <button class="episodes-toggle-btn" id="episodesToggleBtn" onclick="toggleEpisodesDrawer()">
+        Episodes
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
     </div>
-    <div class="player-controls-row">
-      <div class="player-controls-left">
-        <button class="episodes-toggle-btn" id="episodesToggleBtn" onclick="toggleEpisodesDrawer()">
-          Episodes
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-        </button>
-      </div>
-      <div class="player-controls-right">
-        <button class="player-icon-btn" onclick="toggleFullscreen()">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-        </button>
-      </div>
+    <div class="player-controls-right">
+      <button class="player-icon-btn" onclick="toggleFullscreen()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+      </button>
     </div>
   </div>
 </div>
@@ -1251,19 +1228,14 @@ function toggleWatchlist() {
 
 // ══════════════════════════════════════════════════════════════
 // THE THUMBNAIL EQUATION: Intelligent Poster Fallback
-// 1. Try official poster (works for 95% of movies & shows)
-// 2. If missing, try backdrop (will be cropped by CSS to fit)
-// 3. If both missing, generate a styled SVG with the title
 // ══════════════════════════════════════════════════════════════
 function getSafeImageUrl(m, isPoster=true) {
   if (m.poster_path && m.poster_path !== 'null' && m.poster_path !== null) {
     return IMG + m.poster_path;
   }
   if (m.backdrop_path && m.backdrop_path !== 'null' && m.backdrop_path !== null) {
-    // Return a high-res backdrop. The CSS `object-fit: cover` handles the crop.
     return BACKDROP + m.backdrop_path;
   }
-  // Final fallback: a styled SVG placeholder with the title
   const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 24);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
     <rect width="300" height="450" fill="#1e1814"/>
@@ -1277,7 +1249,7 @@ function cardHTML(m){
   try{
     const isTV   = m.media_type === 'tv' || m._tv === true;
     const title  = String(m.t || m.title || m.name || 'Untitled').substring(0,38);
-    const poster = getSafeImageUrl(m); // Use the Fallback Equation
+    const poster = getSafeImageUrl(m);
     const rating = m.r || (m.vote_average ? m.vote_average.toFixed(1) : '7.5');
     const year   = m.y || m.year || (m.release_date ? +m.release_date.slice(0,4) : (m.first_air_date ? +m.first_air_date.slice(0,4) : 2024));
     const genres = (m.g || ['Movie']).slice(0,2).join(' • ');
@@ -1302,7 +1274,6 @@ function cardHTML(m){
 async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
   target.searchParams.set('api_key', TMDB_KEY);
-  // Add cache-buster to ensure fresh auto-updating content
   target.searchParams.set('t', Date.now());
   Object.entries(params).forEach(([k,v]) => { if(v != null && v !== '') target.searchParams.set(k, String(v)); });
   try{
@@ -1322,7 +1293,7 @@ function mapResult(r){
     d  : r.overview || '', 
     p  : r.poster_path, 
     b  : r.backdrop_path,
-    poster_path: r.poster_path, // Explicitly carry over for the fallback equation
+    poster_path: r.poster_path,
     backdrop_path: r.backdrop_path,
     tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV,
     seasons: r.number_of_seasons, episodes: r.number_of_episodes
@@ -1483,7 +1454,6 @@ async function loadTVPage(){
   const disc = await tmdb('/discover/tv', {sort_by:'popularity.desc', page:1});
   if(disc && disc.results) grid.innerHTML = disc.results.map(mapResult).map(cardHTML).join('');
 
-  // Auto-Update Logic: Fetches upcoming shows based on current date
   const now = new Date().toISOString().split('T')[0];
   const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': now, page: 1 });
   if(upcoming && upcoming.results) {
@@ -1624,7 +1594,6 @@ async function openMovie(rawId){
   document.getElementById('detailTitle').textContent = m.t;
   document.getElementById('detailDesc').textContent = m.d || '';
   
-  // Set exact metadata layout from movy.sx screenshot
   const typeLabel = isTV ? 'TV Series' : 'Movie';
   const durationStr = isTV 
     ? (m.seasons ? `${m.seasons} Season${m.seasons > 1 ? 's' : ''}` : 'TV Show')
@@ -1647,15 +1616,12 @@ async function openMovie(rawId){
     <span style="font-size:13px; color:var(--text-dim); margin-top:4px;">${(m.g || ['Movie']).slice(0,3).join(' · ')}</span>
   `;
 
-  // Reset Watchlist Button
   const inList = watchlist.some(x => x.id === currentMovie.id);
   document.getElementById('detailListText').textContent = inList ? 'Added to List' : 'Add to List';
 
-  // Set High-Res Backdrop using the Fallback Equation
   const bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
   document.getElementById('detailOverlay').style.background = `url(${bgUrl}) center/cover no-repeat`;
 
-  // Inject Autoplay Trailer Background
   const trailerBg = document.getElementById('detailTrailerBg');
   trailerBg.innerHTML = '';
   if (m.videos && m.videos.results) {
@@ -1665,7 +1631,6 @@ async function openMovie(rawId){
     }
   }
 
-  // Render Cast
   const castScroller = document.getElementById('castScroller');
   castScroller.innerHTML = '';
   if (m.credits && m.credits.cast) {
@@ -1680,7 +1645,6 @@ async function openMovie(rawId){
     castScroller.innerHTML = '<div class="empty" style="padding:20px 0">No cast information available.</div>';
   }
 
-  // If TV Show, show the season/episode UI
   if (isTV) {
     document.getElementById('tvSeasonsContainer').style.display = 'block';
     document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S1 E1`;
@@ -1693,7 +1657,7 @@ async function openMovie(rawId){
   }
 
   document.getElementById('detailOverlay').classList.add('open');
-  document.body.style.overflow = 'hidden'; // Prevent background scroll
+  document.body.style.overflow = 'hidden';
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -1709,7 +1673,6 @@ async function setupTVSeasons(showId) {
     return;
   }
   
-  // Filter out season 0 (specials) and sort by season number
   const validSeasons = data.seasons.filter(s => s.season_number > 0).sort((a, b) => a.season_number - b.season_number);
   
   if (validSeasons.length === 0) {
@@ -1720,18 +1683,16 @@ async function setupTVSeasons(showId) {
     ).join('');
   }
   
-  // Load the first season
   changeSeason(validSeasons.length > 0 ? validSeasons[0].season_number : 1);
 }
 
 async function changeSeason(seasonNum) {
   currentSeason = parseInt(seasonNum);
-  currentEpisode = 1; // Reset to episode 1 when changing seasons
+  currentEpisode = 1;
   const listEl = document.getElementById('tvEpisodeList');
   const countEl = document.getElementById('tvEpisodeCount');
   listEl.innerHTML = '<div class="empty">Loading episodes...</div>';
   
-  // Update Play Button text
   document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S${currentSeason} E${currentEpisode}`;
   
   const data = await tmdb(`/tv/${currentMovie.id}/season/${currentSeason}`);
@@ -1750,7 +1711,6 @@ async function changeSeason(seasonNum) {
   }
   
   listEl.innerHTML = episodes.map(ep => {
-    // Apply fallback equation to episode thumbnails as well
     const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : getSafeImageUrl({ t: ep.name || `Episode ${ep.episode_number}` });
     return `
       <div class="episode-card" onclick="selectEpisode(${currentSeason}, ${ep.episode_number})">
@@ -1788,7 +1748,6 @@ function getEmbedUrl(index) {
     url = provider.movie(currentMovie.tmdb);
   }
   
-  // Append autoplay parameters if the provider supports them
   if (url.includes('?')) {
     url += '&autoplay=true&title=false';
   } else {
@@ -1801,7 +1760,6 @@ function getEmbedUrl(index) {
 async function playCurrentMedia(){
   if(!currentMovie) return;
   
-  // Set up the in-page player overlay
   const overlay = document.getElementById('playerOverlay');
   const container = document.getElementById('playerIframeContainer');
   const title = document.getElementById('playerTitle');
@@ -1817,33 +1775,24 @@ async function playCurrentMedia(){
     subtitle.textContent = '';
   }
   
-  // Show overlay
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   
-  // Hide detail overlay visually
   document.getElementById('detailOverlay').style.opacity = '0';
   document.getElementById('detailOverlay').style.pointerEvents = 'none';
   
-  // Reset skip ad button
   const skipBtn = document.getElementById('skipAdBtn');
   skipBtn.style.display = 'flex';
-  setTimeout(() => { skipBtn.style.display = 'none'; }, 5000); // Hide after 5s
+  setTimeout(() => { skipBtn.style.display = 'none'; }, 5000);
   
-  // Populate episodes drawer if TV show
   if (isTV) {
     document.getElementById('episodesToggleBtn').style.display = 'flex';
-    // The episodes drawer will be populated dynamically when opened
   } else {
     document.getElementById('episodesToggleBtn').style.display = 'none';
   }
   
-  // Load the primary provider
   currentProviderIndex = 0;
   loadPlayerSource(currentProviderIndex);
-  
-  // Start simulated progress bar
-  simulateProgress();
 }
 
 function loadPlayerSource(index) {
@@ -1855,10 +1804,8 @@ function loadPlayerSource(index) {
     return;
   }
   
-  // Inject the iframe
   container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen></iframe>`;
   
-  // Health check + fallback logic
   const timeout = setTimeout(() => {
     if (currentProviderIndex === index && index < EMBED_PROVIDERS.length - 1) {
       toast(`Server ${EMBED_PROVIDERS[index].name} is slow. Trying next server...`);
@@ -1881,20 +1828,6 @@ function loadPlayerSource(index) {
   }
 }
 
-function simulateProgress() {
-  const fill = document.getElementById('progressBarFill');
-  let width = 0;
-  const interval = setInterval(() => {
-    if (!document.getElementById('playerOverlay').classList.contains('open')) {
-      clearInterval(interval);
-      return;
-    }
-    width += Math.random() * 0.5; // Slow increment
-    if (width > 95) width = 95; // Cap at 95% until video ends
-    fill.style.width = width + '%';
-  }, 1000);
-}
-
 /* ══════════════════════════════════════════════════════════════
    PLAYER ACTIONS (Skip Ad, Episodes, Next, Fullscreen)
    ══════════════════════════════════════════════════════════════ */
@@ -1909,7 +1842,6 @@ function toggleEpisodesDrawer() {
   const isOpen = drawer.classList.contains('open');
   
   if (!isOpen) {
-    // Populate drawer
     const list = document.getElementById('episodesDrawerList');
     const tvEpisodes = document.getElementById('tvEpisodeList');
     if (tvEpisodes) {
@@ -1928,7 +1860,6 @@ function playNextEpisode() {
     toast('Not a TV show');
     return;
   }
-  // Simple increment - in a real app you'd check against total episodes
   currentEpisode++;
   document.getElementById('playerSubtitle').textContent = `S${currentSeason} E${currentEpisode}`;
   loadPlayerSource(currentProviderIndex);
@@ -1956,28 +1887,22 @@ function closePlayer(){
   const overlay = document.getElementById('playerOverlay');
   const container = document.getElementById('playerIframeContainer');
   
-  // Clear iframe to stop playback
   container.innerHTML = '';
-  
-  // Hide overlay
   overlay.classList.remove('open');
   
-  // Restore detail overlay
   document.getElementById('detailOverlay').style.opacity = '1';
   document.getElementById('detailOverlay').style.pointerEvents = 'auto';
   
-  // Close episodes drawer if open
   document.getElementById('episodesDrawer').classList.remove('open');
   document.getElementById('episodesToggleBtn').classList.remove('open');
 }
 
 function closeDetail(){
-  // If player is open, close it first
   if(document.getElementById('playerOverlay').classList.contains('open')) {
     closePlayer();
   }
   document.getElementById('detailOverlay').classList.remove('open');
-  document.getElementById('detailTrailerBg').innerHTML = ''; // Stop video playback
+  document.getElementById('detailTrailerBg').innerHTML = '';
   document.body.style.overflow = '';
 }
 
@@ -1985,7 +1910,6 @@ function closeDetail(){
    INITIAL LOAD (AUTO-UPDATE LOGIC)
    ══════════════════════════════════════════════════════════════ */
 async function loadInitial(){
-  // Fetch trending content dynamically; this endpoint auto-updates weekly.
   const tr = await tmdb('/trending/movie/week', {page:1});
   if(tr && tr.results){
     const m = tr.results.map(mapResult);
@@ -1993,11 +1917,9 @@ async function loadInitial(){
     document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
   }
 
-  // Fetch latest theatrical releases dynamically.
   const now = await tmdb('/movie/now_playing', {page:1});
   if(now && now.results) document.getElementById('latestTrack').innerHTML = now.results.slice(0,20).map(mapResult).map(cardHTML).join('');
 
-  // Fetch upcoming TV shows dynamically based on today's date.
   const today = new Date().toISOString().split('T')[0];
   const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': today, page: 1 });
   if(upcoming && upcoming.results) {
