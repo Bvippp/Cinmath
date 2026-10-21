@@ -1163,7 +1163,6 @@ let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 /* ══════════════════════════════════════════════════════════════
    MULTI-SERVER EMBED PROVIDERS (Fallback Chain)
-   Using the curated list from tmdb-embed-providers
    ══════════════════════════════════════════════════════════════ */
 const EMBED_PROVIDERS = [
   {
@@ -1250,22 +1249,41 @@ function toggleWatchlist() {
   localStorage.setItem('tubemocha_watchlist', JSON.stringify(watchlist));
 }
 
+// Automatic Thumbnail Fallback Logic
+function getSafeImageUrl(m) {
+  // 1. Try standard poster
+  if (m.poster_path && m.poster_path !== 'null' && m.poster_path !== null) {
+    return IMG + m.poster_path;
+  }
+  // 2. Try backdrop if poster is missing
+  if (m.backdrop_path && m.backdrop_path !== 'null' && m.backdrop_path !== null) {
+    return BACKDROP + m.backdrop_path;
+  }
+  // 3. Deterministic SVG Placeholder based on title
+  const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 20);
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">
+    <rect width="300" height="450" fill="#1e1814"/>
+    <text fill="#5f5449" x="50%" y="50%" font-family="sans-serif" font-size="16" text-anchor="middle" dominant-baseline="middle">${title}</text>
+    <text fill="#3a2e26" x="50%" y="60%" font-family="sans-serif" font-size="12" text-anchor="middle" dominant-baseline="middle">No Image</text>
+  </svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
 function cardHTML(m){
   try{
     const isTV   = m.media_type === 'tv' || m._tv === true;
     const title  = String(m.t || m.title || m.name || 'Untitled').substring(0,38);
-    const poster = m.p || (m.poster_path ? IMG + m.poster_path : '');
+    const poster = getSafeImageUrl(m); // Use the safe fallback logic
     const rating = m.r || (m.vote_average ? m.vote_average.toFixed(1) : '7.5');
     const year   = m.y || m.year || (m.release_date ? +m.release_date.slice(0,4) : (m.first_air_date ? +m.first_air_date.slice(0,4) : 2024));
     const genres = (m.g || ['Movie']).slice(0,2).join(' • ');
     const badgeClass = isTV ? 'tv' : 'hd';
     const badgeText  = isTV ? 'TV' : 'HD';
     const clickId    = isTV ? ('tv-' + m.id) : m.id;
-    const svgFallback = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Crect fill='%231e1814' width='300' height='450'/%3E%3Ctext fill='%235f5449' x='50%25' y='50%25' font-family='sans-serif' font-size='14' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
 
     return `<div class="card" onclick="openMovie('${clickId}')">
       <div class="poster">
-        <img src="${poster}" loading="lazy" alt="" onerror="this.onerror=null;this.src='${svgFallback}'">
+        <img src="${poster}" loading="lazy" alt="" onerror="this.onerror=null;this.src='${getSafeImageUrl({ t: title })}'">
         <span class="badge ${badgeClass}">${badgeText}</span>
         <span class="badge rating"><span>★</span> ${rating}</span>
       </div>
@@ -1295,7 +1313,9 @@ function mapResult(r){
     y  : r.release_date ? +r.release_date.slice(0,4) : (r.first_air_date ? +r.first_air_date.slice(0,4) : 2024),
     r  : r.vote_average ? r.vote_average.toFixed(1) : '7.5',
     g  : (r.genre_ids && r.genre_ids.length) ? r.genre_ids.map(id => GENRE_MAP[id] || 'Movie') : ['Movie'],
-    d  : r.overview || '', p  : r.poster_path ? IMG + r.poster_path : '', b  : r.backdrop_path ? BACKDROP + r.backdrop_path : '',
+    d  : r.overview || '', 
+    p  : r.poster_path ? IMG + r.poster_path : '', 
+    b  : r.backdrop_path ? BACKDROP + r.backdrop_path : '',
     tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV,
     seasons: r.number_of_seasons, episodes: r.number_of_episodes
   };
@@ -1323,7 +1343,7 @@ function setupHero(movies) {
   heroMovies = movies.slice(0, 5);
   heroMovies.forEach((h, i) => {
     const idx = i + 1;
-    document.getElementById(`heroBg${idx}`).src = h.b || h.p;
+    document.getElementById(`heroBg${idx}`).src = h.b || h.p || getSafeImageUrl(h);
     document.getElementById(`heroTitle${idx}`).textContent = h.t;
     document.getElementById(`heroDesc${idx}`).textContent = h.d;
     const typeStr = h._tv ? 'TV Show' : 'Movie';
@@ -1623,7 +1643,7 @@ async function openMovie(rawId){
   document.getElementById('detailListText').textContent = inList ? 'Added to List' : 'Add to List';
 
   // Set High-Res Backdrop
-  document.getElementById('detailOverlay').style.background = `url(${m.b || m.p}) center/cover no-repeat`;
+  document.getElementById('detailOverlay').style.background = `url(${m.b || m.p || getSafeImageUrl(m)}) center/cover no-repeat`;
 
   // Inject Autoplay Trailer Background
   const trailerBg = document.getElementById('detailTrailerBg');
@@ -1720,7 +1740,7 @@ async function changeSeason(seasonNum) {
   }
   
   listEl.innerHTML = episodes.map(ep => {
-    const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'169\' viewBox=\'0 0 300 169\'%3E%3Crect fill=\'%231e1814\' width=\'300\' height=\'169\'/%3E%3Ctext fill=\'%235f5449\' x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'14\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3ENo Image%3C/text%3E%3C/svg%3E';
+    const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : getSafeImageUrl({ t: ep.name });
     return `
       <div class="episode-card" onclick="selectEpisode(${currentSeason}, ${ep.episode_number})">
         <img src="${thumb}" class="episode-thumb" alt="">
@@ -1883,8 +1903,6 @@ function toggleEpisodesDrawer() {
     const tvEpisodes = document.getElementById('tvEpisodeList');
     if (tvEpisodes) {
       list.innerHTML = tvEpisodes.innerHTML;
-      // Add active class to current episode if possible
-      // This is a simplified version; in production you'd match by ID
     }
     drawer.classList.add('open');
     btn.classList.add('open');
@@ -1953,9 +1971,10 @@ function closeDetail(){
 }
 
 /* ══════════════════════════════════════════════════════════════
-   INITIAL LOAD
+   INITIAL LOAD (AUTO-UPDATE LOGIC)
    ══════════════════════════════════════════════════════════════ */
 async function loadInitial(){
+  // Fetch trending content dynamically; this endpoint auto-updates weekly.
   const tr = await tmdb('/trending/movie/week', {page:1});
   if(tr && tr.results){
     const m = tr.results.map(mapResult);
@@ -1963,9 +1982,11 @@ async function loadInitial(){
     document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
   }
 
+  // Fetch latest theatrical releases dynamically.
   const now = await tmdb('/movie/now_playing', {page:1});
   if(now && now.results) document.getElementById('latestTrack').innerHTML = now.results.slice(0,20).map(mapResult).map(cardHTML).join('');
 
+  // Fetch upcoming TV shows dynamically based on today's date.
   const today = new Date().toISOString().split('T')[0];
   const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': today, page: 1 });
   if(upcoming && upcoming.results) {
