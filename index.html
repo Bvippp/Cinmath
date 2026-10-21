@@ -359,13 +359,13 @@ img { display: block; max-width: 100%; }
 }
 .player-overlay.open { display: flex; }
 
-/* Top Bar (Pointer-events passed through to iframe) */
+/* Top Bar (Only navigation & title, pointer-events passed through) */
 .player-top-bar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
-  pointer-events: none;
+  pointer-events: none; /* Let clicks pass through to iframe */
 }
 .player-top-bar > * { pointer-events: auto; }
 
@@ -881,7 +881,7 @@ img { display: block; max-width: 100%; }
   </div>
 </div>
 
-<!-- ═══════════════ IN-PAGE PLAYER OVERLAY (Clean, Native Controls Only) ═══════════════ -->
+<!-- ═══════════════ IN-PAGE PLAYER OVERLAY (Clean Native Controls) ═══════════════ -->
 <div class="player-overlay" id="playerOverlay">
   <div class="player-top-bar">
     <button class="player-back-btn" onclick="closePlayer()">
@@ -901,6 +901,7 @@ img { display: block; max-width: 100%; }
     </div>
   </div>
 
+  <!-- Full-screen Video Area - No custom bottom bar overlapping -->
   <div class="player-video-container" id="playerIframeContainer"></div>
 
   <button class="skip-ad-btn" id="skipAdBtn" onclick="skipAd()">
@@ -1578,11 +1579,8 @@ function loadPlayerSource(index) {
     return;
   }
   
-  // USING THE SANDBOX ATTRIBUTE TO BLOCK POP-UP ADS
-  // "allow-popups" is intentionally omitted to stop the fullscreen ad redirects.
-  const sandboxStr = "allow-scripts allow-same-origin allow-forms allow-presentation";
-  
-  container.innerHTML = `<iframe src="${url}" sandbox="${sandboxStr}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;"></iframe>`;
+  // Inject iframe - Full screen, no custom overlay controls blocking it
+  container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;"></iframe>`;
   
   const timeout = setTimeout(() => {
     if (currentProviderIndex === index && index < EMBED_PROVIDERS.length - 1) {
