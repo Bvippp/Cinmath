@@ -96,6 +96,15 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 .view.active{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
+/* PAGE HEADERS (FIXED) */
+.page-header{position:relative;border-radius:16px;overflow:hidden;height:240px;background:linear-gradient(135deg,#2a211a 0%,#14100d 100%);margin-bottom:16px;display:flex;align-items:flex-end}
+.page-header-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.6;transition:opacity .3s}
+.page-header-overlay{position:absolute;inset:0;background:linear-gradient(0deg,#14100d 0%,transparent 80%)}
+.page-header-content{position:relative;z-index:2;padding:20px}
+.page-header-title{font-size:34px;font-weight:900;color:#f5ede3;display:flex;gap:12px;align-items:center}
+.page-header-title span.line{width:4px;height:36px;background:#c89666;display:inline-block;border-radius:2px}
+.page-header-sub{color:#b8ac9e;font-size:13px;margin-top:6px}
+
 /* DETAIL */
 .detail{position:fixed;inset:0;z-index:300;background:#14100d;overflow-y:auto;display:none}
 .detail.open{display:block}
@@ -171,7 +180,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 <!-- HOME VIEW -->
 <div id="view-home" class="view active">
   <div class="hero" id="hero">
-    <img id="heroBg" src="https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="">
+    <img id="heroBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="background:linear-gradient(135deg,#2a211a,#14100d)" alt="">
     <div class="hero-c">
       <div class="hero-title" id="heroTitle">Loading...</div>
       <div class="meta-pills" id="heroMeta"></div>
@@ -216,21 +225,20 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   </div>
 </div>
 
-<!-- MOVIES VIEW (UPDATED WITH FULL FILTERS) -->
+<!-- MOVIES VIEW -->
 <div id="view-movies" class="view">
   <div class="main">
-    <div style="position:relative;border-radius:16px;overflow:hidden;height:280px;background:#1e1814;margin-bottom:16px">
-      <img src="https://image.tmdb.org/t/p/original/7RyHsO4yDXtBv1zUU3mTpHeQWU.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5" alt="">
-      <div style="position:absolute;inset:0;background:linear-gradient(0deg,#14100d 0%,transparent 60%)"></div>
-      <div style="position:absolute;bottom:0;left:0;padding:18px">
-        <div style="font-size:34px;font-weight:900;color:#f5ede3;display:flex;gap:12px;align-items:center">
-          <span style="width:4px;height:36px;background:#c89666;display:inline-block;border-radius:2px"></span>Movies
-        </div>
-        <div style="color:#b8ac9e;font-size:13px;margin-top:6px">Discover the latest and greatest films</div>
+    <!-- DYNAMIC HEADER (Fixes the broken image) -->
+    <div class="page-header">
+      <img class="page-header-img" id="moviesHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="">
+      <div class="page-header-overlay"></div>
+      <div class="page-header-content">
+        <div class="page-header-title"><span class="line"></span>Movies</div>
+        <div class="page-header-sub">Discover the latest and greatest films</div>
       </div>
     </div>
     
-    <!-- DYNAMIC FILTER BAR -->
+    <!-- FILTER BAR -->
     <div class="filters">
       <button class="fpill" id="fGenre" onclick="openGenreModal()">Genres ▾</button>
       <button class="fpill" id="fYear" onclick="openYearModal()">Years ▾</button>
@@ -263,16 +271,15 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   </div>
 </div>
 
-<!-- TV SHOWS VIEW (NEW) -->
+<!-- TV SHOWS VIEW -->
 <div id="view-tv" class="view">
   <div class="main">
-    <div style="position:relative;border-radius:16px;overflow:hidden;height:280px;background:#1e1814;margin-bottom:16px">
-      <div style="position:absolute;inset:0;background:linear-gradient(0deg,#14100d 0%,transparent 60%)"></div>
-      <div style="position:absolute;bottom:0;left:0;padding:18px">
-        <div style="font-size:34px;font-weight:900;color:#f5ede3;display:flex;gap:12px;align-items:center">
-          <span style="width:4px;height:36px;background:#8ba5c4;display:inline-block;border-radius:2px"></span>TV Shows
-        </div>
-        <div style="color:#b8ac9e;font-size:13px;margin-top:6px">Binge the best series on the web</div>
+    <div class="page-header">
+      <img class="page-header-img" id="tvHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="">
+      <div class="page-header-overlay"></div>
+      <div class="page-header-content">
+        <div class="page-header-title"><span class="line" style="background:#8ba5c4"></span>TV Shows</div>
+        <div class="page-header-sub">Binge the best series on the web</div>
       </div>
     </div>
     <div class="row">
@@ -421,12 +428,12 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 
 <div class="toast" id="toast"></div>
 
-<!-- GENRE MODAL -->
+<!-- MODALS -->
 <div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')">
   <div class="genre-sheet">
     <h3>Select Genre</h3>
-    <div class="ggrid" id="genreModalGrid">
-      <button onclick="setFilter('genre','','All')">All Genres</button>
+    <div class="ggrid">
+      <button onclick="setFilter('genre','','All Genres')">All Genres</button>
       <button onclick="setFilter('genre','28','Action')">Action</button>
       <button onclick="setFilter('genre','12','Adventure')">Adventure</button>
       <button onclick="setFilter('genre','16','Animation')">Animation</button>
@@ -449,7 +456,6 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   </div>
 </div>
 
-<!-- YEAR MODAL -->
 <div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')">
   <div class="genre-sheet">
     <h3>Select Year</h3>
@@ -472,7 +478,6 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
   </div>
 </div>
 
-<!-- COUNTRY MODAL -->
 <div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')">
   <div class="genre-sheet">
     <h3>Select Country</h3>
@@ -489,15 +494,10 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
       <button onclick="setFilter('country','IN','India')">India</button>
       <button onclick="setFilter('country','CN','China')">China</button>
       <button onclick="setFilter('country','IT','Italy')">Italy</button>
-      <button onclick="setFilter('country','ES','Spain')">Spain</button>
-      <button onclick="setFilter('country','BR','Brazil')">Brazil</button>
-      <button onclick="setFilter('country','MX','Mexico')">Mexico</button>
-      <button onclick="setFilter('country','RU','Russia')">Russia</button>
     </div>
   </div>
 </div>
 
-<!-- SORT MODAL -->
 <div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')">
   <div class="genre-sheet">
     <h3>Sort By</h3>
@@ -516,28 +516,17 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 const IMG       = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP  = 'https://image.tmdb.org/t/p/original';
 
-// Global state for filtering logic (The "Best Equation" inputs)
-let filterState = {
-  genre: '',
-  year: '',
-  country: '',
-  sort: 'popularity.desc',
-  page: 1
-};
-
+let filterState = { genre: '', year: '', country: '', sort: 'popularity.desc', page: 1 };
 let currentPage = 1, moviesPage = 1, tvPage = 1, genrePage = 1, popularPage = 1;
 let allCache = [], currentMovie = null;
 let currentGenre = { id:'all', name:'All' }, currentGenreList = [];
-
 let searchQuery = '', searchPage = 1, searchAllResults = [];
 let searchTotalResults = 0, searchTotalPages = 0;
-let searchIsLoading = false;
 
 const EMBED_PROVIDERS = [
   { name: 'VidLink',    fn: id => `https://vidlink.pro/movie/${id}` },
   { name: 'VidSrc.pm',  fn: id => `https://vidsrc.pm/embed/movie/${id}` },
   { name: 'VidSrc.xyz', fn: id => `https://vidsrc.xyz/embed/movie?tmdb=${id}` },
-  { name: 'VidSrc.to',  fn: id => `https://vidsrc.to/embed/movie/${id}` },
   { name: '2Embed',     fn: id => `https://2embed.cc/embed/${id}` }
 ];
 
@@ -562,15 +551,8 @@ const GENRE_MAP = {
 };
 
 const FALLBACK = [
-  {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],gid:[28,878],d:"A computer hacker learns about the true nature of reality.",p:"https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",b:"https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",yt:"vKQi3bBA1y8",arch:null,arc:false,tmdb:603,pop:85},
-  {id:155,t:"The Dark Knight",y:2008,r:"8.5",g:["Action","Crime"],gid:[28,80],d:"Batman raises the stakes against the Joker.",p:"https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",b:"https://image.tmdb.org/t/p/original/nMKdUUepR0i5zn0Y1gMf4e0thwV.jpg",yt:"EXeTwQWrcwY",arch:null,arc:false,tmdb:155,pop:90},
-  {id:27205,t:"Inception",y:2010,r:"8.3",g:["Action","Sci-Fi"],gid:[28,878],d:"A thief steals secrets through dream-sharing.",p:"https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",b:"https://image.tmdb.org/t/p/original/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",yt:"YoHD9XEInc0",arch:null,arc:false,tmdb:27205,pop:88},
-  {id:157336,t:"Interstellar",y:2014,r:"8.4",g:["Sci-Fi","Drama"],gid:[878,18],d:"Explorers travel through a wormhole.",p:"https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",b:"https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5KhQW2bpQ.jpg",yt:"zSWdZVtXT7E",arch:null,arc:false,tmdb:157336,pop:87}
+  {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],gid:[28,878],d:"A computer hacker learns about the true nature of reality.",p:"https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",b:"https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",yt:"vKQi3bBA1y8",arch:null,arc:false,tmdb:603,pop:85}
 ];
-
-function escapeHtml(s){
-  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
 
 function toast(m){
   const e = document.getElementById('toast');
@@ -581,6 +563,7 @@ function toast(m){
   e._t = setTimeout(()=>e.classList.remove('show'), 3200);
 }
 
+// FIXED: Fault-Tolerant Image Rendering Equation
 function cardHTML(m){
   try{
     const isTV   = m.media_type === 'tv' || m._tv === true;
@@ -588,15 +571,18 @@ function cardHTML(m){
     const poster = m.p || (m.poster_path ? IMG + m.poster_path : '');
     const rating = m.r || (m.vote_average ? m.vote_average.toFixed(1) : '7.5');
     const year   = m.y || m.year || (m.release_date ? +m.release_date.slice(0,4) : (m.first_air_date ? +m.first_air_date.slice(0,4) : 2024));
-    const isFull = !!(m.arc || FULL_EMBED[String(m.id)] || FULL_EMBED[String(m.tmdb)]);
+    const isFull = !!(m.arc || FULL_EMBED[String(m.id)]);
     const genres = (m.g || ['Movie']).slice(0,2).join(' • ');
     const badgeClass = isTV ? 'tv' : (isFull ? 'full' : 'hd');
     const badgeText  = isTV ? 'TV' : (isFull ? 'FULL' : 'HD');
     const clickId    = isTV ? ('tv-' + m.id) : m.id;
     
+    // Inline SVG placeholder if image fails
+    const svgFallback = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='450' viewBox='0 0 300 450'%3E%3Crect fill='%231e1814' width='300' height='450'/%3E%3Ctext fill='%235f5449' x='50%25' y='50%25' font-family='sans-serif' font-size='14' text-anchor='middle' dominant-baseline='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
+
     return `<div class="card" onclick="openMovie('${clickId}')">
       <div class="poster">
-        <img src="${poster}" loading="lazy" alt="" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x450/1e1814/7a6e62?text=No+Image'">
+        <img src="${poster}" loading="lazy" alt="" onerror="this.onerror=null;this.src='${svgFallback}'">
         <span class="badge ${badgeClass}">${badgeText}</span>
         <span class="badge rating">★ ${rating}</span>
       </div>
@@ -617,8 +603,7 @@ async function tmdb(path, params = {}){
   try{
     const res = await fetch(target.href);
     if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    return data;
+    return await res.json();
   }catch(e){
     console.warn('TMDB Error:', path, e);
     return null;
@@ -628,52 +613,32 @@ async function tmdb(path, params = {}){
 function mapResult(r){
   const isTV = r.media_type === 'tv' || (!r.title && !!r.name);
   return {
-    id : r.id,
-    t  : r.title || r.name || 'Untitled',
+    id : r.id, t  : r.title || r.name || 'Untitled',
     y  : r.release_date ? +r.release_date.slice(0,4) : (r.first_air_date ? +r.first_air_date.slice(0,4) : 2024),
     r  : r.vote_average ? r.vote_average.toFixed(1) : '7.5',
     g  : (r.genre_ids && r.genre_ids.length) ? r.genre_ids.map(id => GENRE_MAP[id] || 'Movie') : ['Movie'],
-    gid: r.genre_ids || [],
-    d  : r.overview || '',
+    gid: r.genre_ids || [], d  : r.overview || '',
     p  : r.poster_path ? IMG + r.poster_path : '',
     b  : r.backdrop_path ? BACKDROP + r.backdrop_path : '',
-    yt : null, arch: null, arc: false,
-    tmdb: r.id,
-    pop : r.popularity || 0,
-    media_type: isTV ? 'tv' : 'movie',
-    _tv: isTV
+    yt : null, arch: null, arc: false, tmdb: r.id, pop : r.popularity || 0,
+    media_type: isTV ? 'tv' : 'movie', _tv: isTV
   };
 }
 
 // ---------------------------------------------------------
-// EQUATION 1: Filter & Grouping Logic for Discover API
+// EQUATION 1: Intersection Filtering (Genre, Year, Country)
 // ---------------------------------------------------------
 async function loadDiscover(page = 1, isTv = false) {
-  const params = {
-    sort_by: filterState.sort,
-    page: page,
-    'vote_count.gte': 50 // Ensure we don't get 0-vote unreleased garbage
-  };
-
+  const params = { sort_by: filterState.sort, page: page, 'vote_count.gte': 50 };
   if (filterState.genre) params.with_genres = filterState.genre;
-  
-  if (filterState.year) {
-    if (isTv) params.first_air_date_year = filterState.year;
-    else params.primary_release_year = filterState.year;
-  }
-  
-  if (filterState.country) {
-    params.with_origin_country = filterState.country;
-  }
+  if (filterState.year) params[isTv ? 'first_air_date_year' : 'primary_release_year'] = filterState.year;
+  if (filterState.country) params.with_origin_country = filterState.country;
 
   const endpoint = isTv ? '/discover/tv' : '/discover/movie';
   const d = await tmdb(endpoint, params);
   return d && d.results ? d.results.map(mapResult) : [];
 }
 
-// ---------------------------------------------------------
-// FILTER ACTIONS
-// ---------------------------------------------------------
 function openGenreModal(){ document.getElementById('genreModal').classList.add('open'); }
 function openYearModal(){ document.getElementById('yearModal').classList.add('open'); }
 function openCountryModal(){ document.getElementById('countryModal').classList.add('open'); }
@@ -690,7 +655,6 @@ function setFilter(key, value, label) {
   filterState[key] = value;
   filterState.page = 1;
   
-  // Update button text based on label
   const btnMap = { genre: 'fGenre', year: 'fYear', country: 'fCountry', sort: 'fSort' };
   const btn = document.getElementById(btnMap[key]);
   if (btn) {
@@ -699,14 +663,11 @@ function setFilter(key, value, label) {
     btn.style.color = value ? '#14100d' : '#9a8e80';
   }
   
-  // Close modals
   ['genreModal', 'yearModal', 'countryModal', 'sortModal'].forEach(closeModal);
   
-  // Check if any filter is active
   const hasFilter = filterState.genre || filterState.year || filterState.country || filterState.sort !== 'popularity.desc';
   document.getElementById('fClear').style.display = hasFilter ? 'block' : 'none';
 
-  // Reload grid
   loadMoviesPage(true);
 }
 
@@ -724,15 +685,22 @@ function updateFilterUI() {
   document.getElementById('fClear').style.display = 'none';
 }
 
-// ---------------------------------------------------------
-// MOVIES PAGE LOAD
-// ---------------------------------------------------------
+// FIXED: Dynamic Header Backdrop Equation
 async function loadMoviesPage(force = false){
   const grid = document.getElementById('moviesGrid');
-  
   if (!force && grid.innerHTML && grid.innerHTML.length > 50) return;
 
-  // Hide trending rows if filtering
+  // Inject dynamic backdrop if empty
+  const headerBg = document.getElementById('moviesHeaderBg');
+  if (!headerBg.src || headerBg.src.includes('base64')) {
+    const tr = await tmdb('/trending/movie/week', {page:1});
+    if (tr && tr.results && tr.results.length > 0) {
+      // Equation: Find the first movie with a backdrop and apply it
+      const withBackdrop = tr.results.find(m => m.backdrop_path);
+      if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path;
+    }
+  }
+
   const hasFilter = filterState.genre || filterState.year || filterState.country || filterState.sort !== 'popularity.desc';
   document.getElementById('moviesTrendingRow').style.display = hasFilter ? 'none' : 'block';
   document.getElementById('moviesActionRow').style.display = hasFilter ? 'none' : 'block';
@@ -743,7 +711,6 @@ async function loadMoviesPage(force = false){
     : `All Movies • Page <span id="moviesPageNum">1</span>`;
 
   if (!hasFilter && !document.getElementById('moviesTrending').innerHTML) {
-    // Load initial trending rows
     const [tr, act, com] = await Promise.all([
       tmdb('/trending/movie/week', {page:1}),
       tmdb('/discover/movie', {with_genres:'28', page:1, sort_by:'popularity.desc'}),
@@ -773,12 +740,18 @@ async function loadMoreMovies(){
   else toast('No more results');
 }
 
-// ---------------------------------------------------------
-// TV SHOWS PAGE (New)
-// ---------------------------------------------------------
 async function loadTVPage(){
   const grid = document.getElementById('tvGrid');
   if(grid.innerHTML && grid.innerHTML.length > 50) return;
+
+  const headerBg = document.getElementById('tvHeaderBg');
+  if (!headerBg.src || headerBg.src.includes('base64')) {
+    const tr = await tmdb('/trending/tv/week', {page:1});
+    if (tr && tr.results && tr.results.length > 0) {
+      const withBackdrop = tr.results.find(m => m.backdrop_path);
+      if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path;
+    }
+  }
 
   const tr = await tmdb('/trending/tv/week', {page:1});
   if(tr && tr.results) document.getElementById('tvTrending').innerHTML = tr.results.slice(0,20).map(mapResult).map(cardHTML).join('');
@@ -794,9 +767,6 @@ async function loadMoreTV(){
   if(d && d.results) document.getElementById('tvGrid').innerHTML += d.results.map(mapResult).map(cardHTML).join('');
 }
 
-// ---------------------------------------------------------
-// NAVIGATION & UTILS
-// ---------------------------------------------------------
 function navigate(view){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const target = document.getElementById('view-' + view);
@@ -816,7 +786,7 @@ function navigate(view){
 }
 
 function renderFullFilms(){
-  document.getElementById('fullGrid').innerHTML = FALLBACK.filter(x=>x.arc).map(cardHTML).join('');
+  document.getElementById('fullGrid').innerHTML = FALLBACK.filter(x=>x.arc || FULL_EMBED[x.id]).map(cardHTML).join('');
 }
 
 async function loadBrowse(){
@@ -839,9 +809,7 @@ async function loadMore(){
   }
 }
 
-// ---------------------------------------------------------
-// SEARCH ENGINE (Kept intact from your working version)
-// ---------------------------------------------------------
+// SEARCH ENGINE
 function handleSearch(e){
   if(e && e.preventDefault) e.preventDefault();
   const form  = e && e.target;
@@ -854,8 +822,6 @@ function handleSearch(e){
 
 let _searchToken = 0;
 async function doSearch(q){
-  q = (q || '').trim();
-  if(!q) return;
   const token = ++_searchToken;
   try{
     syncInputs(q);
@@ -879,17 +845,12 @@ async function doSearch(q){
     searchTotalResults = first.total;
     searchTotalPages = first.totalPages;
     renderSearchResults();
-  }catch(err){
-    console.error(err);
-  }
+  }catch(err){ console.error(err); }
 }
 
 async function searchTMDB(q, page){
   const params = { query: q, page: page, include_adult: 'false', language: 'en-US' };
-  const results = await Promise.allSettled([
-    tmdb('/search/movie', params),
-    tmdb('/search/tv', params)
-  ]);
+  const results = await Promise.allSettled([ tmdb('/search/movie', params), tmdb('/search/tv', params) ]);
   const moviesRes = results[0].status === 'fulfilled' ? results[0].value : null;
   const tvRes     = results[1].status === 'fulfilled' ? results[1].value : null;
   
@@ -935,9 +896,7 @@ function resetSearch(){
   document.getElementById('searchGrid').innerHTML = '';
 }
 
-// ---------------------------------------------------------
 // MOVIE DETAILS & PLAYER
-// ---------------------------------------------------------
 async function openMovie(rawId){
   let isTV = false;
   let id = rawId;
@@ -1039,17 +998,13 @@ function closeDetail(){
   document.getElementById('playerWrap').innerHTML = '';
 }
 
-// ---------------------------------------------------------
 // BOOTSTRAP INIT
-// ---------------------------------------------------------
 async function loadInitial(){
-  // Load home page data
   const tr = await tmdb('/trending/movie/week', {page:1});
   if(tr && tr.results){
     const m = tr.results.slice(0,20).map(mapResult);
     document.getElementById('trendingTrack').innerHTML = m.map(cardHTML).join('');
     
-    // Hero
     const h = m[0];
     if(h){
       document.getElementById('heroBg').src = h.b || h.p;
@@ -1073,17 +1028,14 @@ async function loadInitial(){
   const top = await tmdb('/movie/top_rated', {page:1});
   if(top && top.results) document.getElementById('topTrack').innerHTML = top.results.slice(0,20).map(mapResult).map(cardHTML).join('');
 
-  // Load fallback grid
   document.getElementById('allGrid').innerHTML = FALLBACK.map(cardHTML).join('');
-  document.getElementById('homeFull').innerHTML = FALLBACK.filter(x=>x.arc).map(cardHTML).join('');
+  document.getElementById('homeFull').innerHTML = FALLBACK.filter(x=>x.arc || FULL_EMBED[x.id]).map(cardHTML).join('');
 }
 
-// Event Listeners
 document.querySelectorAll('form.search-form').forEach(form => {
   form.onsubmit = handleSearch;
 });
 
-// Start
 loadInitial();
 </script>
 </body>
