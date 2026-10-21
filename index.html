@@ -492,6 +492,57 @@ img { display: block; max-width: 100%; }
 .player-iframe-container iframe {
   position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
 }
+
+/* ═══════════════════════════════════════════
+   TV SHOW SEASONS & EPISODES UI
+   ═══════════════════════════════════════════ */
+.tv-seasons-container {
+  margin-top: 30px;
+  padding-bottom: 20px;
+}
+.tv-seasons-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.tv-season-select {
+  background: rgba(30,24,20,0.6); border: 1px solid var(--border);
+  color: var(--text-main); font-size: 20px; font-weight: 800;
+  padding: 8px 12px; border-radius: var(--radius-md);
+  outline: none; cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23f0e8dd%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat; background-position: right 12px top 50%;
+  background-size: 14px auto; padding-right: 40px;
+}
+.tv-episode-count {
+  font-size: 13px; color: var(--text-dim); font-weight: 600;
+}
+.tv-episode-list {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.episode-card {
+  display: flex; gap: 16px; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  padding: 12px; cursor: pointer; transition: 0.2s;
+}
+.episode-card:active { background: var(--bg-elevated); }
+.episode-thumb {
+  width: 140px; aspect-ratio: 16/9; border-radius: var(--radius-sm);
+  object-fit: cover; flex-shrink: 0; background: var(--bg-elevated);
+}
+.episode-info {
+  display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0;
+}
+.episode-number {
+  font-size: 10px; font-weight: 800; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;
+}
+.episode-title {
+  font-size: 15px; font-weight: 700; color: var(--text-main);
+  margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.episode-runtime {
+  font-size: 12px; color: var(--text-dim); font-weight: 500;
+}
 </style>
 </head>
 <body>
@@ -778,7 +829,7 @@ img { display: block; max-width: 100%; }
       
       <!-- Action Buttons -->
       <div class="detail-actions">
-        <button class="btn-detail-play" onclick="playMovie()">
+        <button class="btn-detail-play" id="detailPlayBtn" onclick="playCurrentMedia()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play
         </button>
         <button class="btn-detail-secondary" id="detailListBtn" onclick="toggleWatchlist()">
@@ -790,6 +841,20 @@ img { display: block; max-width: 100%; }
           Download
         </button>
       </div>
+    </div>
+
+    <!-- TV SHOW SEASONS & EPISODES UI -->
+    <div class="tv-seasons-container" id="tvSeasonsContainer" style="display:none;">
+      <div class="section-head" style="padding:0; margin-bottom:16px;">
+        <div class="section-accent"></div>
+        <div class="section-title-box">
+          <div class="tv-seasons-header" style="width:100%;">
+            <select class="tv-season-select" id="tvSeasonSelect" onchange="changeSeason(this.value)"></select>
+            <div class="tv-episode-count" id="tvEpisodeCount"></div>
+          </div>
+        </div>
+      </div>
+      <div class="tv-episode-list" id="tvEpisodeList"></div>
     </div>
 
     <!-- Cast Section -->
@@ -933,8 +998,8 @@ const EMBED_PROVIDERS = [
   { name: '2Embed',     fn: id => `https://2embed.cc/embed/${id}` }
 ];
 const TV_EMBED_PROVIDERS = [
-  { name: 'VidLink',    fn: id => `https://vidlink.pro/tv/${id}/1/1` },
-  { name: 'VidSrc.pm',  fn: id => `https://vidsrc.pm/embed/tv/${id}/1/1` }
+  { name: 'VidLink',    fn: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
+  { name: 'VidSrc.pm',  fn: (id, s, e) => `https://vidsrc.pm/embed/tv/${id}/${s}/${e}` }
 ];
 
 const GENRE_MAP = { "28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama","10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance","878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western" };
@@ -1014,7 +1079,8 @@ function mapResult(r){
     r  : r.vote_average ? r.vote_average.toFixed(1) : '7.5',
     g  : (r.genre_ids && r.genre_ids.length) ? r.genre_ids.map(id => GENRE_MAP[id] || 'Movie') : ['Movie'],
     d  : r.overview || '', p  : r.poster_path ? IMG + r.poster_path : '', b  : r.backdrop_path ? BACKDROP + r.backdrop_path : '',
-    tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV
+    tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV,
+    seasons: r.number_of_seasons, episodes: r.number_of_episodes
   };
 }
 
@@ -1039,7 +1105,7 @@ function setupHero(movies) {
     document.getElementById(`heroBg${idx}`).src = h.b || h.p;
     document.getElementById(`heroTitle${idx}`).textContent = h.t;
     document.getElementById(`heroDesc${idx}`).textContent = h.d;
-    const typeStr = h._tv ? 'Show' : 'Movie';
+    const typeStr = h._tv ? 'TV Show' : 'Movie';
     const genresStr = h.g.slice(0, 2).join(' & ');
     document.getElementById(`heroMeta${idx}`).innerHTML = `
       <span class="star">★ ${h.r}</span>
@@ -1279,8 +1345,11 @@ async function loadMoreSearch(){
 }
 
 /* ══════════════════════════════════════════════════════════════
-   MOVIE DETAILS PAGE & BACKGROUND TRAILER (Movy.sx Style)
+   MOVIE & TV DETAILS PAGE (Movy.sx Style)
    ══════════════════════════════════════════════════════════════ */
+let currentSeason = 1;
+let currentEpisode = 1;
+
 async function openMovie(rawId){
   let isTV = false, id = rawId;
   if(typeof rawId === 'string' && rawId.indexOf('tv-') === 0){ isTV = true; id = rawId.substring(3); }
@@ -1305,6 +1374,12 @@ async function openMovie(rawId){
   document.getElementById('detailDesc').textContent = m.d || '';
   
   // Set exact metadata layout from movy.sx screenshot
+  const typeLabel = isTV ? 'TV Series' : 'Movie';
+  const durationStr = isTV 
+    ? (m.seasons ? `${m.seasons} Season${m.seasons > 1 ? 's' : ''}` : 'TV Show')
+    : (m.runtime ? `${m.runtime}m` : '2h 10m');
+  const ratingStr = isTV ? 'M18' : 'R';
+  
   document.getElementById('detailMeta').innerHTML = `
     <span class="star">★ ${m.r}</span>
     <span class="divider">·</span>
@@ -1313,10 +1388,10 @@ async function openMovie(rawId){
     <span class="divider">·</span>
     <span>${m.y}</span>
     <span class="divider">·</span>
-    <span>${m.runtime ? m.runtime + 'm' : '2h 10m'}</span>
+    <span>${durationStr}</span>
     <span class="divider">·</span>
     <span class="vote-box" style="color:#fff; border-color:#fff;">4K</span>
-    <span class="vote-box" style="color:#fff; border-color:#fff;">R</span>
+    <span class="vote-box" style="color:#fff; border-color:#fff;">${ratingStr}</span>
     <br>
     <span style="font-size:13px; color:var(--text-dim); margin-top:4px;">${(m.g || ['Movie']).slice(0,3).join(' · ')}</span>
   `;
@@ -1353,11 +1428,101 @@ async function openMovie(rawId){
     castScroller.innerHTML = '<div class="empty" style="padding:20px 0">No cast information available.</div>';
   }
 
+  // If TV Show, show the season/episode UI
+  if (isTV) {
+    document.getElementById('tvSeasonsContainer').style.display = 'block';
+    document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S1 E1`;
+    currentSeason = 1;
+    currentEpisode = 1;
+    await setupTVSeasons(m.id);
+  } else {
+    document.getElementById('tvSeasonsContainer').style.display = 'none';
+    document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play`;
+  }
+
   document.getElementById('detailOverlay').classList.add('open');
   document.body.style.overflow = 'hidden'; // Prevent background scroll
 }
 
-function playMovie(){
+/* ══════════════════════════════════════════════════════════════
+   TV SEASONS & EPISODES LOGIC
+   ══════════════════════════════════════════════════════════════ */
+async function setupTVSeasons(showId) {
+  const select = document.getElementById('tvSeasonSelect');
+  select.innerHTML = '<option value="1">Loading...</option>';
+  
+  const data = await tmdb(`/tv/${showId}`);
+  if (!data || !data.seasons) {
+    select.innerHTML = '<option value="1">Season 1</option>';
+    return;
+  }
+  
+  // Filter out season 0 (specials) and sort by season number
+  const validSeasons = data.seasons.filter(s => s.season_number > 0).sort((a, b) => a.season_number - b.season_number);
+  
+  if (validSeasons.length === 0) {
+    select.innerHTML = '<option value="1">Season 1</option>';
+  } else {
+    select.innerHTML = validSeasons.map(s => 
+      `<option value="${s.season_number}">Season ${s.season_number}</option>`
+    ).join('');
+  }
+  
+  // Load the first season
+  changeSeason(validSeasons.length > 0 ? validSeasons[0].season_number : 1);
+}
+
+async function changeSeason(seasonNum) {
+  currentSeason = parseInt(seasonNum);
+  currentEpisode = 1; // Reset to episode 1 when changing seasons
+  const listEl = document.getElementById('tvEpisodeList');
+  const countEl = document.getElementById('tvEpisodeCount');
+  listEl.innerHTML = '<div class="empty">Loading episodes...</div>';
+  
+  // Update Play Button text
+  document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S${currentSeason} E${currentEpisode}`;
+  
+  const data = await tmdb(`/tv/${currentMovie.id}/season/${currentSeason}`);
+  if (!data || !data.episodes) {
+    listEl.innerHTML = '<div class="empty">Failed to load episodes.</div>';
+    countEl.textContent = '0 episodes';
+    return;
+  }
+  
+  const episodes = data.episodes;
+  countEl.textContent = `${episodes.length} episodes`;
+  
+  if (episodes.length === 0) {
+    listEl.innerHTML = '<div class="empty">No episodes available for this season.</div>';
+    return;
+  }
+  
+  listEl.innerHTML = episodes.map(ep => {
+    const thumb = ep.still_path ? `https://image.tmdb.org/t/p/w300${ep.still_path}` : 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'169\' viewBox=\'0 0 300 169\'%3E%3Crect fill=\'%231e1814\' width=\'300\' height=\'169\'/%3E%3Ctext fill=\'%235f5449\' x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'14\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3ENo Image%3C/text%3E%3C/svg%3E';
+    return `
+      <div class="episode-card" onclick="selectEpisode(${currentSeason}, ${ep.episode_number})">
+        <img src="${thumb}" class="episode-thumb" alt="">
+        <div class="episode-info">
+          <div class="episode-number">EPISODE ${ep.episode_number}</div>
+          <div class="episode-title">${ep.name || 'Untitled Episode'}</div>
+          <div class="episode-runtime">${ep.runtime ? ep.runtime + ' min' : 'N/A'}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectEpisode(season, episode) {
+  currentSeason = season;
+  currentEpisode = episode;
+  document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S${currentSeason} E${currentEpisode}`;
+  playCurrentMedia();
+}
+
+/* ══════════════════════════════════════════════════════════════
+   IN-PAGE PLAYER (Movy.sx Style)
+   ══════════════════════════════════════════════════════════════ */
+function playCurrentMedia(){
   if(!currentMovie) return;
   
   // Set up the in-page player overlay
@@ -1365,11 +1530,21 @@ function playMovie(){
   const container = document.getElementById('playerIframeContainer');
   const title = document.getElementById('playerTitle');
   
-  title.textContent = currentMovie.t;
-  
   const isTV = currentMovie._tv;
-  const provider = isTV ? TV_EMBED_PROVIDERS[0] : EMBED_PROVIDERS[0];
-  const src = provider.fn(currentMovie.tmdb) + '?autoplay=true&title=false';
+  let src = '';
+  
+  if (isTV) {
+    title.textContent = `${currentMovie.t} - S${currentSeason} E${currentEpisode}`;
+    const provider = TV_EMBED_PROVIDERS[0];
+    src = provider.fn(currentMovie.tmdb, currentSeason, currentEpisode);
+  } else {
+    title.textContent = currentMovie.t;
+    const provider = EMBED_PROVIDERS[0];
+    src = provider.fn(currentMovie.tmdb);
+  }
+  
+  // Add autoplay param
+  src += '?autoplay=true&title=false';
   
   // Inject the iframe with fullscreen support
   container.innerHTML = `<iframe src="${src}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen></iframe>`;
