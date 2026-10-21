@@ -159,7 +159,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
     <div class="logo" onclick="navigate('home')"><div class="m">M</div><b>TUBEMOCHA</b></div>
     <div class="search-top">
       <!-- Strict iOS Form Attributes to force Search Button -->
-      <form class="search-form" action="#" method="GET" role="search" onsubmit="return handleSearch(event)">
+      <form class="search-form" action="#" method="GET" role="search" onsubmit="event.preventDefault(); handleSearch(this);">
         <input id="q" type="search" name="q" inputmode="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows..." />
         <button type="submit">⌕</button>
       </form>
@@ -315,7 +315,7 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
         <div style="font-size:12px;color:#7a6e62" id="searchSub">Search TMDB's 1M+ movies and TV shows</div>
       </div>
     </div>
-    <form class="search-form" action="#" method="GET" role="search" style="max-width:520px;margin:8px 0 16px" onsubmit="return handleSearch(event)">
+    <form class="search-form" action="#" method="GET" role="search" style="max-width:520px;margin:8px 0 16px" onsubmit="event.preventDefault(); handleSearch(this);">
       <input id="q2" type="search" name="q2" inputmode="search" enterkeyhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows, actors..." />
       <button type="submit">⌕</button>
     </form>
@@ -529,29 +529,38 @@ function cardHTML(m){
 }
 
 /* ==============================================================
-   TMDB FETCH ENGINE (The Bulletproof Solution)
-   Uses AbortController with a hard 6-second timeout, then falls back
-   sequentially to proxies. Guarantees it NEVER hangs forever.
+   TMDB FETCH ENGINE (XHR Solution for iOS Safari)
+   This completely bypasses the broken iOS fetch() timeout bug.
    ============================================================== */
 const _tmdbCache = new Map();
 
-async function fetchWithTimeout(resource, options = {}) {
-  const { timeout = 6000 } = options;
-  
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), timeout);
-
-  try {
-    const response = await fetch(resource, {
-      ...options,
-      signal: controller.signal
-    });
-    clearTimeout(id);
-    return response;
-  } catch (error) {
-    clearTimeout(id);
-    throw error;
-  }
+function xhrFetch(url) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.timeout = 5000; // 5 seconds hard timeout
+    
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          const data = JSON.parse(xhr.responseText);
+          if (data && data.status_code) {
+            reject(new Error('API Error: ' + data.status_message));
+          } else {
+            resolve(data);
+          }
+        } catch (e) {
+          reject(new Error('Parse error'));
+        }
+      } else {
+        reject(new Error('HTTP error ' + xhr.status));
+      }
+    };
+    
+    xhr.onerror = () => reject(new Error('Network error'));
+    xhr.ontimeout = () => reject(new Error('Timeout'));
+    xhr.send();
+  });
 }
 
 async function tmdb(path, params = {}){
@@ -570,22 +579,15 @@ async function tmdb(path, params = {}){
 
   for (const tryUrl of urlsToTry) {
     try {
-      const res = await fetchWithTimeout(tryUrl);
-      
-      if (!res.ok) continue;
-      
-      const data = await res.json();
-      if (data && !data.status_code) {
-        _tmdbCache.set(directUrl, data);
-        return data;
-      }
+      const data = await xhrFetch(tryUrl);
+      _tmdbCache.set(directUrl, data);
+      return data;
     } catch (e) {
-      console.warn("Fetch failed for", tryUrl, e);
-      // Ignore error and loop to try next URL
+      console.warn("Fetch failed for", tryUrl, e.message);
+      // Loop continues to next URL immediately because XHR rejects on timeout
     }
   }
   
-  // If all attempts fail, return null
   return null;
 }
 
@@ -910,14 +912,15 @@ function navigate(view){
 /* ==============================================================
    SEARCH ENGINE
    ============================================================== */
-function handleSearch(e){
-  if(e && e.preventDefault) e.preventDefault();
-  const form  = e && e.target;
-  const input = form && form.querySelector('input');
+function handleSearch(formElement){
+  const input = formElement.querySelector('input');
   const q = ((input && input.value) || '').trim();
-  if(!q) return false;
+  if(!q) return;
+  
+  // Dismiss keyboard on iOS
+  input.blur();
+  
   doSearch(q);
-  return false;
 }
 
 async function doSearch(q){
