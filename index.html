@@ -326,6 +326,9 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
       <div id="searchEmpty" class="empty" style="display:none">
         <b>No results</b>Try a different spelling or a shorter query.
       </div>
+      <div id="searchError" class="empty" style="display:none">
+        <b>Connection failed</b>Could not reach TMDB. Check your connection and try again.
+      </div>
       <div style="display:flex;gap:8px;justify-content:center;padding:20px 0;flex-wrap:wrap">
         <button class="btn btn-g" id="searchLoadMore" style="display:none" onclick="loadMoreSearch()">
           Load More • Page <span id="searchPageNum">1</span>
@@ -525,11 +528,11 @@ function cardHTML(m){
 }
 
 /* ==============================================================
-   TMDB fetch — direct first, then proxies. Caches successful responses.
+   TMDB fetch — multi-proxy fallback chain with timeout
    ============================================================== */
 const _tmdbCache = new Map();
 const CORS_PROXIES = [
-  u => u,                                                              // direct — TMDB supports CORS
+  u => u,                                                              // direct
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
@@ -877,7 +880,7 @@ function navigate(view){
 }
 
 /* ==============================================================
-   SEARCH ENGINE (v4) — corrected endpoint + pagination
+   SEARCH ENGINE (v5 — multi-proxy, timeout, fallback)
    ============================================================== */
 function handleSearch(e){
   if(e && e.preventDefault) e.preventDefault();
@@ -904,12 +907,17 @@ function doSearch(q){
   setSearchHeader('Searching…', `Looking up "${q}" on TMDB`);
   document.getElementById('searchGrid').innerHTML = '<div class="empty">🔍 Searching…</div>';
   document.getElementById('searchEmpty').style.display = 'none';
+  document.getElementById('searchError').style.display = 'none';
   document.getElementById('searchCount').textContent = '0';
   document.getElementById('searchLoadMore').style.display = 'none';
   document.getElementById('searchReset').style.display = 'inline-flex';
 
   searchTMDB(q, 1).then(first => {
-    if(!first || first.results.length === 0){
+    if(!first){
+      showSearchError(q);
+      return;
+    }
+    if(first.results.length === 0){
       showNoResults(q);
       return;
     }
@@ -920,7 +928,6 @@ function doSearch(q){
   });
 }
 
-/* Correct TMDB search: /search/movie + /search/tv in parallel */
 async function searchTMDB(q, page){
   const params = { query: q, page: page, include_adult: 'false', language: 'en-US' };
 
@@ -928,6 +935,8 @@ async function searchTMDB(q, page){
     tmdb('/search/movie', params),
     tmdb('/search/tv', params)
   ]);
+
+  if(!movies && !tv) return null;
 
   const seen = new Set();
   const out  = [];
@@ -964,9 +973,12 @@ async function searchTMDB(q, page){
 function renderSearchResults(){
   const grid  = document.getElementById('searchGrid');
   const empty = document.getElementById('searchEmpty');
+  const error = document.getElementById('searchError');
   const count = document.getElementById('searchCount');
   const load  = document.getElementById('searchLoadMore');
   const pageN = document.getElementById('searchPageNum');
+
+  error.style.display = 'none';
 
   if(!searchAllResults.length){
     showNoResults(searchQuery);
@@ -1005,9 +1017,19 @@ function setSearchHeader(title, sub){
 function showNoResults(q){
   document.getElementById('searchGrid').innerHTML = '';
   document.getElementById('searchEmpty').style.display = 'block';
+  document.getElementById('searchError').style.display = 'none';
   document.getElementById('searchCount').textContent = '0';
   document.getElementById('searchLoadMore').style.display = 'none';
   setSearchHeader('Search: "' + q + '"', 'No matches found');
+}
+
+function showSearchError(q){
+  document.getElementById('searchGrid').innerHTML = '';
+  document.getElementById('searchEmpty').style.display = 'none';
+  document.getElementById('searchError').style.display = 'block';
+  document.getElementById('searchCount').textContent = '0';
+  document.getElementById('searchLoadMore').style.display = 'none';
+  setSearchHeader('Search: "' + q + '"', 'Connection failed');
 }
 
 async function loadMoreSearch(){
@@ -1019,7 +1041,7 @@ async function loadMoreSearch(){
 
   try{
     const more = await searchTMDB(searchQuery, nextPage);
-    if(!more.results.length){
+    if(!more || !more.results.length){
       searchIsLoading = false;
       toast('No more results');
       return;
@@ -1043,6 +1065,7 @@ function resetSearch(){
   document.getElementById('searchGrid').innerHTML = '';
   document.getElementById('searchCount').textContent = '0';
   document.getElementById('searchEmpty').style.display = 'none';
+  document.getElementById('searchError').style.display = 'none';
   document.getElementById('searchLoadMore').style.display = 'none';
   document.getElementById('searchReset').style.display = 'none';
   setSearchHeader('Search', "Search TMDB's 1M+ movies and TV shows");
@@ -1260,7 +1283,7 @@ async function loadProviders(tmdbId, isTV){
 }
 
 /* ==============================================================
-   PLAYER — SANDBOX REMOVED (fixes "sandbox" errors on many titles)
+   PLAYER — NO SANDBOX (fixes the "sandbox" error)
    ============================================================== */
 function setServer(id, type){
   const m = allCache.find(x => String(x.id) === String(id))
@@ -1278,7 +1301,6 @@ function setServer(id, type){
   return renderYouTubePlayer(m);
 }
 
-/* No sandbox attribute — players need allow-same-origin to function */
 function makeIframe(src){
   const iframe = document.createElement('iframe');
   iframe.src = src;
