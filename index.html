@@ -3,9 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
 <title>TUBEMOCHA • Watch Free Movies & TV Shows Online</title>
 
-<!-- ✅ FIX 1: dynamic base href so the site works at /Cinmath/ (or at root) -->
+<!-- ✅ FIX 1: dynamic base href so the site works at /Cinmath/ -->
 <script>
 (function(){
   try{
@@ -22,7 +25,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{background:#070708;color:#f1e9df;font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:78px}
+body{background:#070708;color:#f1e9df;font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 ::-webkit-scrollbar{width:0;height:0}
@@ -98,10 +101,25 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 .detail.open{display:block}
 .detail-top{position:sticky;top:0;z-index:5;height:56px;display:flex;align-items:center;gap:10px;padding:0 12px;background:rgba(7,7,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid #1e1e1e}
 .back{width:36px;height:36px;border-radius:10px;background:#141416;border:1px solid #232326;display:grid;place-items:center;cursor:pointer;color:#fff}
-.player{max-width:1100px;margin:0 auto;background:#000;aspect-ratio:16/9;position:relative}
-.player iframe{width:100%;height:100%;border:0}
-.player-note{max-width:1100px;margin:0 auto;padding:8px 12px;font-size:11px;color:#7a7a80;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.player-note a{color:#e50914;text-decoration:underline}
+
+/* ===== PLAYER (mobile-first) ===== */
+.player{max-width:1100px;margin:0 auto;background:#000;aspect-ratio:16/9;position:relative;overflow:hidden;-webkit-transform:translateZ(0)}
+.player iframe{position:absolute;inset:0;width:100%;height:100%;border:0;display:block;background:#000}
+
+/* Tap-to-play overlay — required for iOS Safari autoplay gesture */
+.play-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;z-index:10;-webkit-tap-highlight-color:transparent;user-select:none;padding:16px;text-align:center}
+.play-overlay:active .play-icon{transform:scale(.94)}
+.play-icon{width:74px;height:74px;border-radius:50%;background:#fff;color:#000;display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:12px;box-shadow:0 12px 32px rgba(255,255,255,.25);transition:transform .15s;animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 12px 32px rgba(255,255,255,.25)}50%{box-shadow:0 12px 44px rgba(229,9,20,.55)}}
+.play-label{color:#fff;font-size:15px;font-weight:800;letter-spacing:.02em}
+.play-sub{color:#b8b2a8;font-size:12px;margin-top:6px;max-width:85%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Fallback "Open ↗" pill - always visible after iframe loads */
+.player-fallback{position:absolute;top:8px;right:8px;z-index:9;background:rgba(0,0,0,.82);border:1px solid #2a2a2e;border-radius:8px;padding:6px 10px;color:#fff;font-size:11px;font-weight:800;text-decoration:none;-webkit-tap-highlight-color:transparent}
+.player-fallback:active{background:#e50914}
+
+.player-note{max-width:1100px;margin:0 auto;padding:10px 12px;font-size:11px;color:#7a7a80;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.player-note a{color:#e50914;text-decoration:underline;font-weight:700}
 .servers{display:flex;gap:6px;padding:10px 12px;max-width:1100px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
 .servers::-webkit-scrollbar{display:none}
 .srv{height:32px;padding:0 12px;border-radius:999px;background:#141416;border:1px solid #232326;color:#9a9aa0;font-weight:600;font-size:11px;cursor:pointer;white-space:nowrap}
@@ -115,8 +133,8 @@ button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 .box h4{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7a7a80;margin-bottom:8px;font-weight:700}
 .box div{font-size:12px;line-height:1.6;color:#9a9aa0}
 
-/* BOTTOM NAV */
-.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:250;background:rgba(20,20,22,.92);backdrop-filter:blur(20px);border:1px solid #2a2a2e;border-radius:28px;padding:6px 8px;display:flex;gap:6px;box-shadow:0 20px 40px rgba(0,0,0,.6)}
+/* BOTTOM NAV (safe area aware) */
+.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:250;background:rgba(20,20,22,.92);backdrop-filter:blur(20px);border:1px solid #2a2a2e;border-radius:28px;padding:6px 8px;display:flex;gap:6px;box-shadow:0 20px 40px rgba(0,0,0,.6)}
 .bottom button{width:46px;height:46px;border-radius:16px;background:transparent;border:0;display:grid;place-items:center;color:#7a7a80;cursor:pointer;transition:.2s;font-size:18px}
 .bottom button.active{background:#fff;color:#000}
 .bottom button:hover{color:#fff}
@@ -409,25 +427,25 @@ let currentPage = 1, moviesPage = 1, genrePage = 1, popularPage = 1;
 let allCache = [], currentMovie = null;
 let currentGenre = { id:'all', name:'All' }, currentGenreList = [];
 
-/* ✅ FIX 3a: refreshed embed provider list */
+/* ✅ Mobile-friendly providers first (vidlink & vidfast work best on iPhone) */
 const EMBED_PROVIDERS = [
-  id => `https://vidsrc.to/embed/movie/${id}`,
-  id => `https://vidsrc.pm/embed/movie/${id}`,
   id => `https://vidlink.pro/movie/${id}`,
   id => `https://vidfast.pro/movie/${id}?autoPlay=false`,
+  id => `https://vidsrc.to/embed/movie/${id}`,
+  id => `https://vidsrc.pm/embed/movie/${id}`,
   id => `https://2embed.cc/embed/${id}`,
   id => `https://vidsrc.xyz/embed/movie?tmdb=${id}`
 ];
 
 const FULL_EMBED = {
-  "603":"https://vidsrc.to/embed/movie/603",
-  "155":"https://vidsrc.to/embed/movie/155",
-  "27205":"https://vidsrc.to/embed/movie/27205",
-  "157336":"https://vidsrc.to/embed/movie/157336",
-  "550":"https://vidsrc.to/embed/movie/550",
-  "13":"https://vidsrc.to/embed/movie/13",
-  "238":"https://vidsrc.to/embed/movie/238",
-  "680":"https://vidsrc.to/embed/movie/680"
+  "603":"https://vidlink.pro/movie/603",
+  "155":"https://vidlink.pro/movie/155",
+  "27205":"https://vidlink.pro/movie/27205",
+  "157336":"https://vidlink.pro/movie/157336",
+  "550":"https://vidlink.pro/movie/550",
+  "13":"https://vidlink.pro/movie/13",
+  "238":"https://vidlink.pro/movie/238",
+  "680":"https://vidlink.pro/movie/680"
 };
 
 const GENRE_MAP = {
@@ -448,7 +466,23 @@ const FALLBACK = [
   {id:"metropolis_1927",t:"Metropolis",y:1927,r:"8.3",g:["Sci-Fi","Classic"],gid:[878],d:"A futuristic city built on worker exploitation — full film.",p:"https://archive.org/services/img/Metropolis1927",b:"https://archive.org/services/img/Metropolis1927",yt:"gCcx85zbxz4",arch:"Metropolis1927",arc:true,tmdb:19,pop:27}
 ];
 
-/* ================= HELPERS ================= */
+/* ================= DEVICE HELPERS ================= */
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function isMobile(){
+  return /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || isIOS();
+}
+function escapeHtml(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function iframeAttrs(){
+  return 'frameborder="0" allowfullscreen playsinline webkit-playsinline ' +
+         'allow="autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; gyroscope; accelerometer"';
+}
+
+/* ================= GENERIC HELPERS ================= */
 function toast(m){
   const e = document.getElementById('toast');
   if(!e) return;
@@ -480,10 +514,10 @@ function cardHTML(m){
   }catch(e){ return ''; }
 }
 
-/* ✅ FIX 2: TMDB fetch with multi-proxy CORS fallback + cache */
+/* ✅ TMDB fetch with multi-proxy CORS fallback + cache */
 const _tmdbCache = new Map();
 const CORS_PROXIES = [
-  u => u,                                                              // direct (works locally & on some hosts)
+  u => u,
   u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
   u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
   u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
@@ -493,7 +527,6 @@ async function tmdb(path, params = {}){
   const target = new URL(TMDB_BASE + path);
   target.searchParams.set('api_key', TMDB_KEY);
   Object.entries(params).forEach(([k,v]) => target.searchParams.set(k,v));
-
   const href = target.href;
   if(_tmdbCache.has(href)) return _tmdbCache.get(href);
 
@@ -506,7 +539,7 @@ async function tmdb(path, params = {}){
         _tmdbCache.set(href, data);
         return data;
       }
-    }catch(e){ /* try next proxy */ }
+    }catch(e){}
   }
   return null;
 }
@@ -676,7 +709,7 @@ async function loadInitial(){
     document.getElementById('allGrid').innerHTML = allCache.slice(0,40).map(cardHTML).join('');
     document.getElementById('pageNum').textContent = currentPage;
     document.getElementById('homeFull').innerHTML = FALLBACK.filter(x=>x.arc).map(cardHTML).join('');
-  }catch(e){ /* silent */ }
+  }catch(e){}
 }
 
 function loadHomeIfEmpty(){
@@ -889,7 +922,7 @@ async function openMovie(id){
           tmdb: d.id, pop: d.popularity || 0
         };
       }
-    }catch(e){ /* ignore */ }
+    }catch(e){}
     if(!m) m = FALLBACK[0];
   }
 
@@ -979,6 +1012,8 @@ async function loadProviders(tmdbId){
   }
 }
 
+/* ================= PLAYER (the mobile-critical part) ================= */
+
 function setServer(id, type){
   const m = allCache.find(x=>String(x.id) === String(id))
          || FALLBACK.find(x=>String(x.id) === String(id))
@@ -990,39 +1025,130 @@ function setServer(id, type){
   const btn = document.getElementById('srv-' + type);
   if(btn) btn.classList.add('active');
 
-  const w    = document.getElementById('playerWrap');
+  if(type === 'archive' && m.arch) return renderArchivePlayer(m);
+  if(type.startsWith('embed'))     return renderEmbedPlayer(m, type);
+  return renderYouTubePlayer(m);
+}
+
+/* Build a tap-to-play overlay HTML string with optional backdrop */
+function overlayHTML(m){
+  const bg = m.b
+    ? `background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.9)),url('${m.b}') center/cover`
+    : `background:linear-gradient(135deg,#0a0a0c 0%,#1a1a1d 100%)`;
+  return `
+    <div class="play-overlay" style="${bg};-webkit-tap-highlight-color:transparent">
+      <div class="play-icon">▶</div>
+      <div class="play-label">Tap to Play</div>
+      <div class="play-sub">${escapeHtml(m.t || m.title || 'Movie')}</div>
+    </div>`;
+}
+
+/* Wire up the tap → replaces overlay with actual iframe */
+function bindPlayOverlay(container, src, onFailNote){
+  const overlay = container.querySelector('.play-overlay');
+  if(!overlay) return;
+  overlay.addEventListener('click', function(){
+    activateMobilePlayer(container, src);
+  }, { once:true });
+}
+
+/* Actually inject the iframe after a user gesture */
+function activateMobilePlayer(container, src){
+  container.innerHTML = '';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = src;
+  iframe.frameBorder = '0';
+  iframe.allowFullscreen = true;
+  iframe.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; gyroscope; accelerometer');
+  iframe.setAttribute('playsinline', '');
+  iframe.setAttribute('webkit-playsinline', '');
+  iframe.setAttribute('moz-playsinline', '');
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
+  container.appendChild(iframe);
+
+  const fallback = document.createElement('a');
+  fallback.href = src;
+  fallback.target = '_blank';
+  fallback.rel = 'noopener';
+  fallback.className = 'player-fallback';
+  fallback.textContent = 'Open ↗';
+  container.appendChild(fallback);
+}
+
+/* On desktop we skip the overlay and inject the iframe directly */
+function desktopPlayer(container, src){
+  container.innerHTML = '';
+  const iframe = document.createElement('iframe');
+  iframe.src = src;
+  iframe.frameBorder = '0';
+  iframe.allowFullscreen = true;
+  iframe.setAttribute('allow', 'autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write; gyroscope; accelerometer');
+  iframe.setAttribute('playsinline', '');
+  iframe.setAttribute('webkit-playsinline', '');
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
+  container.appendChild(iframe);
+
+  const fallback = document.createElement('a');
+  fallback.href = src;
+  fallback.target = '_blank';
+  fallback.rel = 'noopener';
+  fallback.className = 'player-fallback';
+  fallback.textContent = 'Open ↗';
+  container.appendChild(fallback);
+}
+
+function renderArchivePlayer(m){
+  const w = document.getElementById('playerWrap');
   const note = document.getElementById('playerNote');
-  note.innerHTML = '';
+  const src = `https://archive.org/embed/${m.arch}`;
 
-  if(type === 'archive' && m.arch){
-    w.innerHTML = `<iframe src="https://archive.org/embed/${m.arch}" frameborder="0" allowfullscreen allow="autoplay; fullscreen"></iframe>`;
-    note.innerHTML = `<span>Server: Archive.org (legal full film)</span><a href="https://archive.org/details/${m.arch}" target="_blank" rel="noopener">Open on Archive.org ↗</a>`;
+  if(isMobile()){
+    w.innerHTML = overlayHTML(m);
+    bindPlayOverlay(w, src);
+  }else{
+    desktopPlayer(w, src);
+  }
+  note.innerHTML = `<span>Archive.org • legal full film</span><a href="https://archive.org/details/${m.arch}" target="_blank" rel="noopener">Open on Archive.org ↗</a>`;
+}
+
+function renderEmbedPlayer(m, type){
+  const idx = type === 'embed' ? 0 : type === 'embed2' ? 1 : 2;
+  let src = null;
+  if(m.tmdb) src = EMBED_PROVIDERS[idx % EMBED_PROVIDERS.length](m.tmdb);
+  else       src = FULL_EMBED[String(m.id)] || FULL_EMBED[String(m.tmdb)];
+  if(!src && m.tmdb) src = EMBED_PROVIDERS[0](m.tmdb);
+
+  const w = document.getElementById('playerWrap');
+  const note = document.getElementById('playerNote');
+
+  if(!src){
+    w.innerHTML = '<div class="empty"><b>No embed available</b>Try another server.</div>';
+    note.innerHTML = '';
     return;
   }
 
-  if(type === 'embed' || type === 'embed2' || type === 'embed3'){
-    let idx = 0;
-    if(type === 'embed2') idx = 1;
-    if(type === 'embed3') idx = 2;
-
-    let src = null;
-    if(m.tmdb) src = EMBED_PROVIDERS[idx % EMBED_PROVIDERS.length](m.tmdb);
-    else       src = FULL_EMBED[String(m.id)] || FULL_EMBED[String(m.tmdb)];
-
-    if(!src && m.tmdb) src = EMBED_PROVIDERS[0](m.tmdb);
-
-    if(src){
-      w.innerHTML = `<iframe src="${src}" frameborder="0" allowfullscreen allow="autoplay; fullscreen; encrypted-media"></iframe>`;
-      note.innerHTML = `<span>Full HD • third-party embed (client-side proxy)</span><a href="${src}" target="_blank" rel="noopener">Open in new tab ↗</a>`;
-    }else{
-      w.innerHTML = '<div class="empty"><b>No embed available</b>Try Trailer.</div>';
-    }
-    return;
+  if(isMobile()){
+    w.innerHTML = overlayHTML(m);
+    bindPlayOverlay(w, src);
+  }else{
+    desktopPlayer(w, src);
   }
+  note.innerHTML = `<span>Full HD • third-party embed</span><a href="${src}" target="_blank" rel="noopener">Open in new tab ↗</a>`;
+}
 
-  /* Trailer */
-  const yt = m.yt || 'dQw4w9WgXcQ';
-  w.innerHTML = `<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe>`;
+function renderYouTubePlayer(m){
+  const yt  = m.yt || 'dQw4w9WgXcQ';
+  const src = `https://www.youtube.com/embed/${yt}?playsinline=1&rel=0&modestbranding=1&autoplay=1`;
+  const w   = document.getElementById('playerWrap');
+  const note = document.getElementById('playerNote');
+
+  if(isMobile()){
+    w.innerHTML = overlayHTML(m);
+    bindPlayOverlay(w, src);
+  }else{
+    desktopPlayer(w, src);
+  }
   note.innerHTML = `<span>Trailer • YouTube</span><a href="https://www.youtube.com/watch?v=${yt}" target="_blank" rel="noopener">Open on YouTube ↗</a>`;
 }
 
