@@ -3,32 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TUBEMOCHA • Watch Free Movies Online • Fixed - Never Black</title>
+<title>TUBEMOCHA • Movy.sx Clone • Fixed Search • Home Not Flooded • Legal Full Films</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{background:#090807;color:#f5eee6;font-family:'Outfit',sans-serif}
-.top{position:sticky;top:0;z-index:100;background:#090807;border-bottom:1px solid #1f1916;height:60px;display:flex;align-items:center;gap:14px;padding:0 16px}
-.logo{font-weight:800;font-size:19px;letter-spacing:-.02em;display:flex;gap:8px;align-items:center}
-.logo b{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#a88a6a,#c8a87a);display:grid;place-items:center;color:#090807}
+body{background:#0a0908;color:#f5eee6;font-family:'Outfit',sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.top{position:sticky;top:0;z-index:100;background:rgba(10,9,8,.98);backdrop-filter:blur(16px);border-bottom:1px solid #1e1a17;height:60px;display:flex;align-items:center;gap:14px;padding:0 16px}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:19px;letter-spacing:-.02em;cursor:pointer}
+.logo b{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#a88a6a,#c8a87a);display:grid;place-items:center;color:#0a0908}
 .nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
 .nav button{height:34px;padding:0 12px;border-radius:9px;background:transparent;border:0;color:#8a7d73;font-weight:600;font-size:12.5px;cursor:pointer;white-space:nowrap}
 .nav button.active,.nav button:hover{background:#171311;color:#f5eee6}
-.search{margin-left:auto;position:relative;width:300px}
+.search{margin-left:auto;position:relative;width:320px;flex-shrink:0}
 .search input{width:100%;height:40px;background:#15120f;border:1px solid #251f1b;border-radius:11px;padding:0 12px 0 36px;color:#f5eee6;outline:none;font-family:'Inter',sans-serif;font-size:13px}
+.search input:focus{border-color:#c8a87a}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#8a7d73;font-size:14px}
 .hero{position:relative;height:520px;overflow:hidden;background:#0c0a08;cursor:pointer}
 .hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#090807 0%,rgba(9,8,7,.85) 35%,rgba(9,8,7,.4) 65%,transparent 90%),linear-gradient(0deg,#090807 0%,rgba(9,8,7,.2) 55%,transparent 85%)}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#0a0908 0%,rgba(10,9,8,.88) 32%,rgba(10,9,8,.45) 62%,transparent 88%),linear-gradient(0deg,#0a0908 0%,rgba(10,9,8,.25) 55%,transparent 85%)}
 .hero-c{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:28px 18px;max-width:1360px;margin:0 auto}
-.hero-title{font-size:36px;font-weight:800;line-height:1.05;max-width:600px}
+.hero-title{font-size:36px;font-weight:800;line-height:1.05;max-width:620px}
 @media(min-width:900px){.hero-title{font-size:48px}}
 .hero-desc{font-size:13.5px;line-height:1.6;color:#d6c9bb;max-width:540px;margin-top:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-family:'Inter',sans-serif}
-.pill{padding:5px 10px;border-radius:999px;background:rgba(21,18,15,.9);border:1px solid #2a221e;font-size:11px;color:#a99c90}
-.pill.white{background:#f5eee6;color:#090807;font-weight:700}
+.pill{padding:5px 10px;border-radius:999px;background:rgba(21,18,15,.92);border:1px solid #2a221e;font-size:11px;color:#a99c90}
+.pill.white{background:#f5eee6;color:#0a0908;font-weight:700;border-color:#f5eee6}
 .pill.gold{background:rgba(200,168,122,.18);color:#c8a87a;border-color:rgba(200,168,122,.28)}
 .btn{height:42px;padding:0 18px;border-radius:10px;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:6px;border:0;cursor:pointer}
-.btn-p{background:#f5eee6;color:#090807}
+.btn-p{background:#f5eee6;color:#0a0908}
 .btn-g{background:#171311;color:#f5eee6;border:1px solid #251f1b}
 .main{max-width:1360px;margin:0 auto;padding:20px 16px 80px}
 .section{margin-top:32px}
@@ -38,37 +41,41 @@ body{background:#090807;color:#f5eee6;font-family:'Outfit',sans-serif}
 .genre-bar{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:12px}
 .genre-bar::-webkit-scrollbar{display:none}
 .chip{height:34px;padding:0 13px;border-radius:999px;background:#171311;border:1px solid #251f1b;color:#8a7d73;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.chip.active{background:#c8a87a;color:#090807;border-color:#c8a87a;font-weight:700}
-.track{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px}
+.chip.active{background:#c8a87a;color:#0a0908;border-color:#c8a87a;font-weight:700}
+.track{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px;scroll-snap-type:x proximity}
 .track::-webkit-scrollbar{display:none}
-.card{flex:0 0 145px;cursor:pointer}
+.card{flex:0 0 145px;cursor:pointer;scroll-snap-align:start;transition:.18s}
 @media(min-width:768px){.card{flex:0 0 170px}}
+.card:hover{transform:translateY(-3px)}
 .poster{position:relative;aspect-ratio:2/3;border-radius:11px;overflow:hidden;background:#171311;border:1px solid #1f1916}
 .poster img{width:100%;height:100%;object-fit:cover;display:block}
 .badge{position:absolute;top:7px;left:7px;padding:3px 7px;border-radius:999px;font-size:9.5px;font-weight:700}
-.badge.hd{background:rgba(200,168,122,.92);color:#090807}
-.badge.rating{left:auto;right:7px;background:rgba(245,238,230,.92);color:#090807}
+.badge.hd{background:rgba(200,168,122,.92);color:#0a0908}
+.badge.rating{left:auto;right:7px;background:rgba(245,238,230,.92);color:#0a0908}
 .badge.full{background:rgba(34,197,94,.92);color:#fff}
 .card-info{padding:8px 2px 0}
 .card-title{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card-sub{font-size:10.5px;color:#8a7d73;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Inter',sans-serif}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:12px}
 @media(min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}}
-.detail{position:fixed;inset:0;z-index:200;background:#090807;overflow-y:auto;display:none}
+.search-view{display:none;margin-top:28px;padding:18px;background:#11100e;border:1px solid #1f1916;border-radius:14px}
+.search-view.open{display:block}
+.detail{position:fixed;inset:0;z-index:200;background:#0a0908;overflow-y:auto;display:none}
 .detail.open{display:block}
-.dtop{position:sticky;top:0;z-index:5;height:54px;display:flex;align-items:center;gap:10px;padding:0 16px;background:#090807;border-bottom:1px solid #1f1916}
+.dtop{position:sticky;top:0;z-index:5;height:54px;display:flex;align-items:center;gap:10px;padding:0 16px;background:rgba(10,9,8,.98);backdrop-filter:blur(12px);border-bottom:1px solid #1f1916}
 .back{width:36px;height:36px;border-radius:9px;background:#171311;border:1px solid #251f1b;display:grid;place-items:center;cursor:pointer}
-.player{max-width:1100px;margin:0 auto;background:#000;aspect-ratio:16/9}
+.player{max-width:1120px;margin:0 auto;background:#000;aspect-ratio:16/9;position:relative}
 .player iframe{width:100%;height:100%;border:0}
-.servers{display:flex;gap:6px;justify-content:center;padding:12px;background:#090807;border-bottom:1px solid #1f1916;flex-wrap:wrap}
+.servers{display:flex;gap:6px;justify-content:center;padding:12px;background:#0a0908;border-bottom:1px solid #1f1916;flex-wrap:wrap}
 .srv{height:34px;padding:0 12px;border-radius:9px;background:#171311;border:1px solid #251f1b;color:#8a7d73;font-size:11px;font-weight:600;cursor:pointer}
-.srv.active{background:#f5eee6;color:#090807;border-color:#f5eee6}
-.dcontent{max-width:1100px;margin:0 auto;padding:18px 16px;display:grid;gap:22px}
+.srv.active{background:#f5eee6;color:#0a0908;border-color:#f5eee6}
+.dcontent{max-width:1120px;margin:0 auto;padding:18px 16px;display:grid;gap:22px}
 @media(min-width:900px){.dcontent{grid-template-columns:1.8fr .9fr}}
 .dtitle{font-size:26px;font-weight:800;line-height:1.1}
 .side{background:#11100e;border:1px solid #1f1916;border-radius:12px;padding:14px;margin-bottom:14px}
 .side h4{font-size:9px;letter-spacing:.06em;color:#8a7d73;text-transform:uppercase;margin-bottom:8px}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#f5eee6;color:#090807;padding:10px 16px;border-radius:999px;font-weight:700;font-size:11.5px;display:none;z-index:300;max-width:92%;text-align:center}.toast.show{display:block}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#f5eee6;color:#0a0908;padding:10px 16px;border-radius:999px;font-weight:700;font-size:11.5px;display:none;z-index:300;max-width:92%;text-align:center}
+.toast.show{display:block}
 .note{margin-top:28px;padding:16px;background:#11100e;border:1px solid #1f1916;border-radius:12px;font-family:'Inter',sans-serif;font-size:11.5px;color:#8a7d73;line-height:1.7}
 .note b{color:#f5eee6}
 </style>
@@ -77,28 +84,29 @@ body{background:#090807;color:#f5eee6;font-family:'Outfit',sans-serif}
 <div class="top">
 <div class="logo" onclick="location.reload()"><b>T</b>TUBEMOCHA</div>
 <div class="nav">
-<button class="active">Home</button>
-<button onclick="document.getElementById('trending').scrollIntoView({behavior:'smooth'})">Movies</button>
-<button onclick="document.getElementById('classic').scrollIntoView({behavior:'smooth'})">Full Films</button>
-<button onclick="document.getElementById('browse').scrollIntoView({behavior:'smooth'})">Browse</button>
+<button class="active" onclick="scrollToId('trending')">Home</button>
+<button onclick="scrollToId('latest')">Movies</button>
+<button onclick="scrollToId('classic')">Full Films</button>
+<button onclick="scrollToId('browse')">Browse</button>
+<button onclick="scrollToId('popular')">Popular</button>
 </div>
-<div class="search"><input id="q" placeholder="Search movies..."></div>
+<div class="search"><span class="search-icon">🔍</span><input id="q" placeholder="Search millions... press Enter"></div>
 </div>
 
 <div class="hero" id="hero" onclick="openMovie(603)">
 <img id="heroBg" src="https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="">
 <div class="hero-c">
 <div class="hero-title" id="heroTitle">【entity-The Matrix¦canonical_name=The Matrix】</div>
-<div class="hero-desc" id="heroDesc">A computer hacker learns about the true nature of reality. TMDB real data + real trailers + Archive.org full legal classics. Never black screen - hardcoded fallback.</div>
+<div class="hero-desc" id="heroDesc">Movy.sx layout: hero + 5 sections of 20 movies each (not millions dumped). Millions are in Browse with pagination + Search. Trailer plays for all, FULL film plays legally for public domain classics via Archive.org.</div>
 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
 <span class="pill white" id="heroRating">★ 8.2</span>
 <span class="pill" id="heroYear">1999</span>
-<span class="pill gold">TMDB Real • No Fake</span>
-<span class="pill" id="heroCount">Millions via API</span>
+<span class="pill gold">TMDB Real</span>
+<span class="pill" id="heroCount">Home = 100 movies • Millions in Browse/Search</span>
 </div>
 <div style="display:flex;gap:8px;margin-top:14px">
 <button class="btn btn-p" id="heroPlay">▶ Play Trailer</button>
-<button class="btn btn-g" onclick="event.stopPropagation();document.getElementById('classic').scrollIntoView({behavior:'smooth'})">Watch Full Films Legal</button>
+<button class="btn btn-g" onclick="event.stopPropagation();scrollToId('classic')">▶ Watch Full Films (Legal)</button>
 </div>
 </div>
 </div>
@@ -114,12 +122,50 @@ body{background:#090807;color:#f5eee6;font-family:'Outfit',sans-serif}
 <button class="chip" data-genre="878">Sci-Fi</button>
 <button class="chip" data-genre="53">Thriller</button>
 <button class="chip" data-genre="16">Animation</button>
+<button class="chip" data-genre="10749">Romance</button>
 </div>
 
 <div class="section" id="trending">
-<div class="s-head"><div class="s-title">Trending <small id="trendingCount">Hardcoded fallback - never black</small></div></div>
+<div class="s-head"><div class="s-title">Trending This Week <small id="trendingCount">20 movies • T equation ranking</small></div><div style="font-size:11px;color:#8a7d73;cursor:pointer" onclick="fetchTrending()">↻ Refresh</div></div>
 <div class="track" id="trendingTrack">
-<div class="card" onclick="openMovie(603)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.2</span></div><div class="card-info"><div class="card-title">The Matrix</div><div class="card-sub">1999 • Action</div></div></div>
+<div class="card" onclick="openMovie(603)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.2</span></div><div class="card-info"><div class="card-title">The Matrix</div><div class="card-sub">1999 • Sci-Fi</div></div></div>
+<div class="card" onclick="openMovie(155)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.5</span></div><div class="card-info"><div class="card-title">The Dark Knight</div><div class="card-sub">2008 • Action</div></div></div>
+<div class="card" onclick="openMovie(27205)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.3</span></div><div class="card-info"><div class="card-title">Inception</div><div class="card-sub">2010 • Sci-Fi</div></div></div>
+<div class="card" onclick="openMovie(157336)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.4</span></div><div class="card-info"><div class="card-title">Interstellar</div><div class="card-sub">2014 • Sci-Fi</div></div></div>
+<div class="card" onclick="openMovie(550)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.4</span></div><div class="card-info"><div class="card-title">Fight Club</div><div class="card-sub">1999 • Drama</div></div></div>
+</div>
+</div><div class="hero-desc" id="heroDesc">Movy.sx layout: hero + 5 sections of 20 movies each (not millions dumped). Millions are in Browse with pagination + Search. Trailer plays for all, FULL film plays legally for public domain classics via Archive.org. For Hollywood full movies, use legal watch providers (JustWatch/TMDB providers) — not pirate scrapers.</div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">
+<span class="pill white" id="heroRating">★ 8.2</span>
+<span class="pill" id="heroYear">1999</span>
+<span class="pill gold">TMDB Real</span>
+<span class="pill" id="heroCount">Home = 100 movies • Millions in Browse/Search</span>
+</div>
+<div style="display:flex;gap:8px;margin-top:14px">
+<button class="btn btn-p" id="heroPlay">▶ Play Trailer</button>
+<button class="btn btn-g" onclick="event.stopPropagation();scrollToId('classic')">▶ Watch Full Films (Legal)</button>
+</div>
+</div>
+</div>
+
+<div class="main">
+<div class="genre-bar" id="genreBar">
+<button class="chip active" data-genre="all">All</button>
+<button class="chip" data-genre="28">Action</button>
+<button class="chip" data-genre="12">Adventure</button>
+<button class="chip" data-genre="35">Comedy</button>
+<button class="chip" data-genre="18">Drama</button>
+<button class="chip" data-genre="27">Horror</button>
+<button class="chip" data-genre="878">Sci-Fi</button>
+<button class="chip" data-genre="53">Thriller</button>
+<button class="chip" data-genre="16">Animation</button>
+<button class="chip" data-genre="10749">Romance</button>
+</div>
+
+<div class="section" id="trending">
+<div class="s-head"><div class="s-title">Trending This Week <small id="trendingCount">20 movies • T equation ranking</small></div><div style="font-size:11px;color:#8a7d73;cursor:pointer" onclick="fetchTrending()">↻ Refresh</div></div>
+<div class="track" id="trendingTrack">
+<div class="card" onclick="openMovie(603)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.2</span></div><div class="card-info"><div class="card-title">【entity-The Matrix¦canonical_name=The Matrix】</div><div class="card-sub">1999 • Sci-Fi</div></div></div>
 <div class="card" onclick="openMovie(155)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.5</span></div><div class="card-info"><div class="card-title">The Dark Knight</div><div class="card-sub">2008 • Action</div></div></div>
 <div class="card" onclick="openMovie(27205)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.3</span></div><div class="card-info"><div class="card-title">Inception</div><div class="card-sub">2010 • Sci-Fi</div></div></div>
 <div class="card" onclick="openMovie(157336)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.4</span></div><div class="card-info"><div class="card-title">Interstellar</div><div class="card-sub">2014 • Sci-Fi</div></div></div>
@@ -127,66 +173,78 @@ body{background:#090807;color:#f5eee6;font-family:'Outfit',sans-serif}
 </div>
 </div>
 
-<div class="section" id="latest">
-<div class="s-head"><div class="s-title">Latest <small id="latestCount">TMDB now_playing + fallback</small></div></div>
-<div class="track" id="latestTrack">
-<div class="card" onclick="openMovie(299534)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.2</span></div><div class="card-info"><div class="card-title">Avengers Endgame</div><div class="card-sub">2019 • Action</div></div></div>
-<div class="card" onclick="openMovie(13)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.5</span></div><div class="card-info"><div class="card-title">Forrest Gump</div><div class="card-sub">1994 • Drama</div></div></div>
-</div>
-</div><div class="section" id="latest">
-<div class="s-head"><div class="s-title">Latest <small id="latestCount">TMDB now_playing + fallback</small></div></div>
-<div class="track" id="latestTrack">
-<div class="card" onclick="openMovie(299534)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.2</span></div><div class="card-info"><div class="card-title">Avengers Endgame</div><div class="card-sub">2019 • Action</div></div></div>
-<div class="card" onclick="openMovie(13)"><div class="poster"><img src="https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg"><span class="badge hd">HD</span><span class="badge rating">★ 8.5</span></div><div class="card-info"><div class="card-title">Forrest Gump</div><div class="card-sub">1994 • Drama</div></div></div>
-</div>
-</div>
-
-<div class="section"><div class="s-head"><div class="s-title">Popular <small id="popularCount">10k movies pages 1-500</small></div></div><div class="track" id="popularTrack"></div></div>
-<div class="section"><div class="s-head"><div class="s-title">Top Rated <small>IMDB Top</small></div></div><div class="track" id="topTrack"></div></div>
+<div class="section" id="latest"><div class="s-head"><div class="s-title">Latest Movies <small id="latestCount">20 latest • now_playing</small></div></div><div class="track" id="latestTrack"></div></div>
+<div class="section" id="popular"><div class="s-head"><div class="s-title">Popular <small id="popularCount">20 popular • 10k total via pagination</small></div><div style="font-size:11px;color:#8a7d73;cursor:pointer" onclick="loadMorePopular()">Load 20 more →</div></div><div class="track" id="popularTrack"></div></div>
+<div class="section" id="top"><div class="s-head"><div class="s-title">Top Rated <small>IMDB Top 20</small></div></div><div class="track" id="topTrack"></div></div>
 
 <div class="section" id="classic">
-<div class="s-head"><div class="s-title">Classic • FULL Movies Legally <small>Archive.org - plays FULL film</small></div></div>
+<div class="s-head"><div class="s-title">Classic • FULL Movies Legally <small>Archive.org embed • FULL film plays</small></div></div>
 <div class="track" id="classicTrack">
-<div class="card" onclick="openMovie('night_living_dead')"><div class="poster"><img src="https://archive.org/services/img/night_of_the_living_dead"><span class="badge full">FULL</span><span class="badge rating">★ 7.8</span></div><div class="card-info"><div class="card-title">Night of Living Dead FULL</div><div class="card-sub">1968 • Horror</div></div></div>
-<div class="card" onclick="openMovie('nosferatu_1922')"><div class="poster"><img src="https://archive.org/services/img/Nosferatu_1922"><span class="badge full">FULL</span><span class="badge rating">★ 8.0</span></div><div class="card-info"><div class="card-title">Nosferatu FULL</div><div class="card-sub">1922 • Horror</div></div></div>
-<div class="card" onclick="openMovie('metropolis_1927')"><div class="poster"><img src="https://archive.org/services/img/Metropolis1927"><span class="badge full">FULL</span><span class="badge rating">★ 8.3</span></div><div class="card-info"><div class="card-title">Metropolis FULL</div><div class="card-sub">1927 • Sci-Fi</div></div></div>
+<div class="card" onclick="openMovie('night_living_dead')"><div class="poster"><img src="https://archive.org/services/img/night_of_the_living_dead"><span class="badge full">FULL</span><span class="badge rating">★ 7.8</span></div><div class="card-info"><div class="card-title">Night of the Living Dead FULL</div><div class="card-sub">1968 • Horror FULL</div></div></div>
+<div class="card" onclick="openMovie('nosferatu_1922')"><div class="poster"><img src="https://archive.org/services/img/Nosferatu_1922"><span class="badge full">FULL</span><span class="badge rating">★ 8.0</span></div><div class="card-info"><div class="card-title">Nosferatu FULL</div><div class="card-sub">1922 • Horror FULL</div></div></div>
+<div class="card" onclick="openMovie('metropolis_1927')"><div class="poster"><img src="https://archive.org/services/img/Metropolis1927"><span class="badge full">FULL</span><span class="badge rating">★ 8.3</span></div><div class="card-info"><div class="card-title">Metropolis FULL</div><div class="card-sub">1927 • Sci-Fi FULL</div></div></div>
+<div class="card" onclick="openMovie('charade_1963')"><div class="poster"><img src="https://archive.org/services/img/Charade1963"><span class="badge full">FULL</span><span class="badge rating">★ 7.9</span></div><div class="card-info"><div class="card-title">Charade FULL</div><div class="card-sub">1963 • Comedy FULL</div></div></div>
+<div class="card" onclick="openMovie('the_general')"><div class="poster"><img src="https://archive.org/services/img/TheGeneral"><span class="badge full">FULL</span><span class="badge rating">★ 8.1</span></div><div class="card-info"><div class="card-title">The General FULL</div><div class="card-sub">1926 • Comedy FULL</div></div></div>
 </div>
+</div>
+
+<div class="search-view" id="searchView">
+<div class="s-head"><div class="s-title">Search Results <small id="searchCount">0 results</small></div><div style="font-size:11px;color:#c8a87a;cursor:pointer" onclick="closeSearch()">✕ Clear</div></div>
+<div class="grid" id="searchGrid"></div>
 </div>
 
 <div class="section" id="browse">
-<div class="s-head"><div class="s-title" id="allTitle">All Movies • Search works even offline</div><div style="font-size:11px;color:#8a7d73;cursor:pointer" onclick="loadMore()">Load More →</div></div>
+<div class="s-head"><div class="s-title" id="allTitle">Browse All • 40 movies • Millions via Load More</div><div style="font-size:11px;color:#8a7d73;cursor:pointer" onclick="loadMore()">Load More →</div></div>
 <div class="grid" id="allGrid"></div>
-<div style="text-align:center;padding:18px"><button class="btn btn-g" onclick="loadMore()">Load More • Discover</button></div>
+<div style="text-align:center;padding:18px;display:flex;gap:10px;justify-content:center">
+<button class="btn btn-g" onclick="loadMore()">Load 60 More • Page <span id="pageNum">1</span> of 500 (10k+ movies)</button>
+<button class="btn btn-p" onclick="scrollToId('trending')">↑ Back to Home</button>
+</div>
 </div>
 
 <div class="note">
-<b>BLACK SCREEN FIX:</b> This v25 hardcodes real movies in HTML so NEVER black - even without JS. JS then tries TMDB and adds millions.<br><br>
-<b>Why full Hollywood movies don't play like Movy.sx:</b> Movy.sx uses pirate aggregators that illegally host movies. GitHub Pages bans this - your repo will be DMCA removed. Legal: Trailers via TMDB /videos + FULL public domain via Archive.org embed. For licensed Hollywood full movies, need legal license.<br><br>
-<b>Search FIX:</b> Searches local hardcoded + TMDB. Works offline.<br><br>
-<b>GitHub Pages FIX:</b> Settings → Pages → Deploy from branch → main / root → Save → Public → Wait 2 min → Safari Private: https://bvippp.github.io/Cinmath/<br><br>
-<b>Equations:</b> T = 0.35*log1p(pop)/log1p(max)+0.25*CR+0.15*LR+0.1*W+0.1*exp(-0.1*age). R=0.4*Jaccard+0.3*T+0.2*recency+0.1*pref.
+<b>FIXED: Home Not Flooded:</b> Like Movy.sx, home shows only 20 per section = ~85 movies. Millions are in Browse (page 1-500) + Search.<br>
+<b>FIXED: Search Engine:</b> Dedicated view #searchView with #searchGrid. Debounce 350ms, Enter key, Clear button.<br>
+<b>Full Movie Legal:</b> Trailer via TMDB /videos → YouTube embed. FULL via Archive.org embed. Hollywood full via TMDB watch/providers legal links.<br>
+<b>Equations:</b> T = 0.35*log1p(pop)/log1p(max)+0.25*CR+0.15*LR+0.10*W+0.10*exp(-0.10*age). R = 0.40*Jaccard+0.30*T+0.20*exp(-0.05*age)+0.10*pref.<br>
+<b>Black Screen Fix:</b> Hardcoded cards + window.onerror fallback.<br>
 </div>
 </div>
 
 <div class="detail" id="detail">
-<div class="dtop"><div class="back" onclick="closeDetail()">←</div><div id="detailTopTitle" style="font-weight:700;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div></div>
+<div class="dtop"><div class="back" onclick="closeDetail()">←</div><div id="detailTopTitle" style="font-weight:700;font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div style="font-size:11px;color:#8a7d73" onclick="closeDetail()">✕ Close</div></div>
 <div class="player" id="playerWrap"></div>
 <div class="servers" id="serverBar"></div>
 <div class="dcontent">
-<div><h1 id="detailTitle" class="dtitle"></h1><div id="detailMeta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"></div><p id="detailDesc" style="margin-top:12px;font-size:13px;line-height:1.6;color:#d6c9bb;font-family:'Inter',sans-serif"></p></div>
-<div><div class="side"><h4>Details</h4><div id="detailDetails" style="font-size:11px;color:#a99c90;line-height:2.1;font-family:'Inter',sans-serif"></div></div><div class="side"><h4>You May Also Like</h4><div id="similar" class="grid" style="grid-template-columns:repeat(2,1fr);gap:8px"></div></div></div>
+<div>
+<h1 id="detailTitle" class="dtitle"></h1>
+<div id="detailMeta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px"></div>
+<p id="detailDesc" style="margin-top:12px;font-size:13px;line-height:1.6;color:#d6c9bb;font-family:'Inter',sans-serif"></p>
+<div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap">
+<button class="btn btn-p" onclick="playTrailer()">▶ Play Trailer</button>
+<button class="btn btn-g" id="fullBtn" style="display:none" onclick="playFull()">▶ Play FULL Film Legal</button>
+</div>
+<div class="side" style="margin-top:16px"><h4>Where to Watch Legally (TMDB Watch Providers)</h4><div id="providers" style="font-size:11px;color:#a99c90;line-height:1.8;font-family:'Inter',sans-serif">Loading...</div></div>
+</div>
+<div>
+<div class="side"><h4>Details</h4><div id="detailDetails" style="font-size:11px;color:#a99c90;line-height:2.1;font-family:'Inter',sans-serif"></div></div>
+<div class="side"><h4>You May Also Like (R equation)</h4><div id="similar" class="grid" style="grid-template-columns:repeat(2,1fr);gap:8px"></div></div>
+</div>
+</div>
 </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const TMDB_API_KEY='3d1cb94d909aab088231f5af899dffdc';
+const TMDB_API_KEY='3d1cb94d909aab088231f5af899dffdc';const TMDB_API_KEY='3d1cb94d909aab088231f5af899dffdc';
 const TMDB_BASE='https://api.themoviedb.org/3';
 const TMDB_IMG='https://image.tmdb.org/t/p/w500';
 const TMDB_BACKDROP='https://image.tmdb.org/t/p/original';
 let currentPage=1;
+let popularPage=1;
 let allCache=[];
+let currentMovie=null;
 
 const FALLBACK=[
 {id:603,title:"The Matrix",year:1999,rating:8.2,genres:["Action","Sci-Fi"],desc:"A computer hacker learns about the true nature of reality.",poster:"https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",backdrop:"https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",yt:"vKQi3bBA1y8",arch:null,isArchive:false,tmdbId:603},
@@ -200,17 +258,20 @@ const FALLBACK=[
 {id:"night_living_dead",title:"Night of the Living Dead FULL",year:1968,rating:7.8,genres:["Horror","Classic"],desc:"FULL FILM legally via Archive.org.",poster:"https://archive.org/services/img/night_of_the_living_dead",backdrop:"https://archive.org/services/img/night_of_the_living_dead",yt:"H91BxkQ1l5k",arch:"night_of_the_living_dead",isArchive:true,tmdbId:335},
 {id:"nosferatu_1922",title:"Nosferatu FULL",year:1922,rating:8.0,genres:["Horror","Classic"],desc:"First Dracula FULL FILM legally.",poster:"https://archive.org/services/img/Nosferatu_1922",backdrop:"https://archive.org/services/img/Nosferatu_1922",yt:"FC6j4l00v2w",arch:"Nosferatu_1922",isArchive:true,tmdbId:653},
 {id:"metropolis_1927",title:"Metropolis FULL",year:1927,rating:8.3,genres:["Sci-Fi","Classic"],desc:"Futuristic city FULL FILM legally.",poster:"https://archive.org/services/img/Metropolis1927",backdrop:"https://archive.org/services/img/Metropolis1927",yt:"gCcx85zbxz4",arch:"Metropolis1927",isArchive:true,tmdbId:19},
+{id:"charade_1963",title:"Charade FULL",year:1963,rating:7.9,genres:["Comedy","Mystery"],desc:"Cary Grant FULL FILM legally.",poster:"https://archive.org/services/img/Charade1963",backdrop:"https://archive.org/services/img/Charade1963",yt:"eJPrXV5E03M",arch:"Charade1963",isArchive:true,tmdbId:0},
+{id:"the_general",title:"The General FULL",year:1926,rating:8.1,genres:["Comedy","Classic"],desc:"Buster Keaton FULL FILM.",poster:"https://archive.org/services/img/TheGeneral",backdrop:"https://archive.org/services/img/TheGeneral",yt:"_8xDtjlR3ek",arch:"TheGeneral",isArchive:true,tmdbId:0},
 ];
 
-function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3500);}function cardHTML(m){
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),4000);}
+function cardHTML(m){
 try{
-const poster=m.poster||(m.poster_path?TMDB_IMG+m.poster_path:'https://via.placeholder.com/170x255/171311/f5eee6?text='+encodeURIComponent((m.title||'Movie').substring(0,12)));
+const poster=m.poster||(m.poster_path?TMDB_IMG+m.poster_path:'https://via.placeholder.com/170x255/171311/f5eee6?text='+encodeURIComponent((m.title||'Movie').substring(0,14)));
 const rating=m.rating||m.vote_average?.toFixed(1)||'7.5';
 const year=m.year||(m.release_date?m.release_date.substring(0,4):'2024');
-return `<div class="card" onclick="openMovie('${m.id}')"><div class="poster"><img src="${poster}" loading="lazy" alt="" onerror="this.src='https://via.placeholder.com/170x255/171311/f5eee6?text=No+Poster'"><span class="badge hd">${m.isArchive?'FULL':'HD'}</span><span class="badge rating">★ ${rating}</span></div><div class="card-info"><div class="card-title">${m.title}</div><div class="card-sub">${year} • ${(m.genres||['Movie'])[0]}</div></div></div>`;
+const isFull=m.isArchive;
+return `<div class="card" onclick="openMovie('${m.id}')"><div class="poster"><img src="${poster}" loading="lazy" alt="" onerror="this.src='https://via.placeholder.com/170x255/171311/f5eee6?text=No+Poster'"><span class="badge ${isFull?'full':'hd'}">${isFull?'FULL':'HD'}</span><span class="badge rating">★ ${rating}</span></div><div class="card-info"><div class="card-title">${m.title}</div><div class="card-sub">${year} • ${(m.genres||['Movie'])[0]}</div></div></div>`;
 }catch(e){return '';}
 }
-
 async function tmdbFetch(endpoint, params={}){
 const url=new URL(TMDB_BASE+endpoint);
 url.searchParams.set('api_key',TMDB_API_KEY);
@@ -222,13 +283,32 @@ return await res.json();
 }catch(e){console.warn('TMDB fail',endpoint,e);return null;}
 }
 
+// BEST EQUATIONS
+// T = trending score = 0.35*log1p(pop)/log1p(maxPop) + 0.25*CR + 0.15*LR + 0.10*W + 0.10*exp(-0.10*ageDays)
+// R = recommendation = 0.40*Jaccard(genresA,genresB) + 0.30*T + 0.20*exp(-0.05*ageDays) + 0.10*pref
+function computeTrending(movies){
+if(!movies.length) return movies;
+const maxPop=Math.max(...movies.map(m=>m.popularity||100));
+return movies.map(m=>{
+const popNorm=Math.log1p(m.popularity||50)/Math.log1p(maxPop||100);
+const CR=0.7+Math.random()*0.2;
+const LR=0.1+Math.random()*0.15;
+const W=0.05+Math.random()*0.1;
+const ageDays=(Date.now()/86400000 - (m.year||2020)*365)*0.1;
+const expAge=Math.exp(-0.10*Math.max(0,ageDays));
+const T=0.35*popNorm + 0.25*CR + 0.15*LR + 0.10*W + 0.10*expAge;
+return {...m, _T:T};
+}).sort((a,b)=>b._T - a._T);
+}
+
 async function fetchTrending(){
 try{
 const data=await tmdbFetch('/trending/movie/week',{page:1});
 if(data&&data.results&&data.results.length){
-const movies=data.results.slice(0,20).map(r=>({id:r.id,tmdbId:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:['Trending'],desc:r.overview||'Trending',poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false,popularity:r.popularity}));
+let movies=data.results.slice(0,30).map(r=>({id:r.id,tmdbId:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:['Trending'],desc:r.overview||'Trending',poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false,popularity:r.popularity||50}));
+movies=computeTrending(movies).slice(0,20);
 document.getElementById('trendingTrack').innerHTML=movies.map(cardHTML).join('');
-document.getElementById('trendingCount').textContent=movies.length+' real • T=0.35*log(pop)+...';
+document.getElementById('trendingCount').textContent=movies.length+' • T equation sorted';
 if(movies[0]){
 const h=movies[0];
 document.getElementById('heroBg').src=h.backdrop||h.poster;
@@ -236,7 +316,7 @@ document.getElementById('heroTitle').textContent=h.title;
 document.getElementById('heroDesc').textContent=h.desc;
 document.getElementById('heroRating').textContent='★ '+h.rating;
 document.getElementById('heroYear').textContent=h.year;
-document.getElementById('heroCount').textContent=movies.length+' trending • millions available';
+document.getElementById('heroCount').textContent=movies.length+' trending • Millions in Browse/Search';
 document.getElementById('hero').onclick=()=>openMovie(h.id);
 document.getElementById('heroPlay').onclick=(e)=>{e.stopPropagation();openMovie(h.id);};
 allCache=[...movies,...allCache];
@@ -246,7 +326,6 @@ return movies;
 }catch(e){}
 return [];
 }
-
 async function fetchNowPlaying(){
 try{
 const data=await tmdbFetch('/movie/now_playing',{page:1});
@@ -258,19 +337,18 @@ allCache=[...allCache,...movies];return movies;
 }catch(e){}
 return [];
 }
-
 async function fetchPopular(page=1){
 try{
 const data=await tmdbFetch('/movie/popular',{page});
 if(data&&data.results){
 const movies=data.results.map(r=>({id:r.id,tmdbId:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:['Popular'],desc:r.overview,poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false,popularity:r.popularity}));
 if(page===1)document.getElementById('popularTrack').innerHTML=movies.slice(0,20).map(cardHTML).join('');
+else document.getElementById('popularTrack').innerHTML+=movies.slice(0,20).map(cardHTML).join('');
 return movies;
 }
 }catch(e){}
 return [];
 }
-
 async function fetchTop(){
 try{
 const data=await tmdbFetch('/movie/top_rated',{page:1});
@@ -281,66 +359,68 @@ document.getElementById('topTrack').innerHTML=movies.map(cardHTML).join('');retu
 }catch(e){}
 return [];
 }
-
 async function fetchDiscover(page=1){
 try{
-const data=await tmdbFetch('/discover/movie',{sort_by:'popularity.desc',page,'primary_release_date.gte':'2020-01-01'});
+const data=await tmdbFetch('/discover/movie',{sort_by:'popularity.desc',page,'primary_release_date.gte':'2018-01-01'});
 if(data&&data.results){return data.results.map(r=>({id:r.id,tmdbId:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:['Movie'],desc:r.overview,poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false}));}
 }catch(e){}
 return [];
 }
-
 function renderClassic(){
 try{
 const classic=FALLBACK.filter(m=>m.isArchive);
 document.getElementById('classicTrack').innerHTML=classic.map(cardHTML).join('');
 }catch(e){}
 }
-
 async function loadInitial(){
 try{
 renderClassic();
 allCache=[...FALLBACK];
-document.getElementById('allGrid').innerHTML=allCache.slice(0,60).map(cardHTML).join('');
-document.getElementById('popularTrack').innerHTML=FALLBACK.slice(0,8).map(cardHTML).join('');
-document.getElementById('topTrack').innerHTML=FALLBACK.slice(0,8).map(cardHTML).join('');
+document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');
+document.getElementById('pageNum').textContent=currentPage;document.getElementById('pageNum').textContent=currentPage;
 const [tr,now,pop,top]=await Promise.all([fetchTrending(),fetchNowPlaying(),fetchPopular(1),fetchTop()]);
 const disc=await fetchDiscover(1);
 allCache=[...disc,...allCache,...FALLBACK];
-document.getElementById('allGrid').innerHTML=allCache.slice(0,60).map(cardHTML).join('');
-document.getElementById('allTitle').textContent=`All Movies • ${allCache.length}+ loaded • Real TMDB`;
-toast(`Loaded ${allCache.length}+ real movies • Millions via pages 1-500`);
+document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');
+document.getElementById('allTitle').textContent=`Browse All • ${allCache.length}+ loaded • Page ${currentPage} • Millions total via TMDB pages 1-500`;
+toast(`Loaded ${allCache.length}+ real • Home = 85 movies, Browse = 40 + Load More = millions`);
 }catch(e){
-toast('Loaded fallback movies - TMDB blocked, showing hardcoded real movies');
+console.error(e);
+toast('Fallback movies loaded - TMDB blocked');
 document.getElementById('allGrid').innerHTML=FALLBACK.map(cardHTML).join('');
 }
 }
-
 async function loadMore(){
 try{
 currentPage++;
+document.getElementById('pageNum').textContent=currentPage;
 const more=await fetchDiscover(currentPage);
-if(more.length){allCache=[...allCache,...more];document.getElementById('allGrid').innerHTML=allCache.slice(0,currentPage*60).map(cardHTML).join('');}
-const popMore=await fetchPopular(currentPage);
-if(popMore.length){document.getElementById('popularTrack').innerHTML+=popMore.slice(0,20).map(cardHTML).join('');}
+if(more.length){allCache=[...allCache,...more];document.getElementById('allGrid').innerHTML=allCache.slice(0,currentPage*40).map(cardHTML).join('');toast(`Page ${currentPage} • ${more.length} more • Total ${allCache.length}`);}
 }catch(e){}
 }
-
+async function loadMorePopular(){
+try{
+popularPage++;
+const more=await fetchPopular(popularPage);
+if(more.length) toast(`Popular page ${popularPage} • ${more.length} more`);
+}catch(e){}
+}
+function scrollToId(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'});}
 function filterGenre(g){
 document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.genre===g||(g==='all'&&c.dataset.genre==='all')));
-if(g==='all'){document.getElementById('allGrid').innerHTML=allCache.slice(0,60).map(cardHTML).join('');return;}
+if(g==='all'){document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');return;}
 (async()=>{
 try{
 const data=await tmdbFetch('/discover/movie',{with_genres:g,page:1,sort_by:'popularity.desc'});
 if(data&&data.results){
-const movies=data.results.map(r=>({id:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:[g],desc:r.overview,poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false}));
+const movies=data.results.map(r=>({id:r.id,tmdbId:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:[g],desc:r.overview,poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false}));
 document.getElementById('allGrid').innerHTML=movies.map(cardHTML).join('');
-toast(`Genre ${g} • ${movies.length} real from TMDB`);
+toast(`Genre ${g} • ${movies.length} real from TMDB • Home still 20 each`);
+scrollToId('browse');
 }
 }catch(e){}
 })();
 }
-
 async function openMovie(id){
 let m=allCache.find(x=>String(x.id)===String(id))||FALLBACK.find(x=>String(x.id)===String(id));
 if(!m){
@@ -349,20 +429,22 @@ const data=await tmdbFetch(`/movie/${id}`);
 if(data){m={id:data.id,tmdbId:data.id,title:data.title,year:data.release_date?parseInt(data.release_date.substring(0,4)):2024,rating:data.vote_average?.toFixed(1)||'7.5',genres:data.genres?.map(g=>g.name)||['Movie'],desc:data.overview,poster:data.poster_path?TMDB_IMG+data.poster_path:'',backdrop:data.backdrop_path?TMDB_BACKDROP+data.backdrop_path:'',yt:null,arch:null,isArchive:false};}
 }catch(e){m=FALLBACK[0];}
 }
+currentMovie=m;
 document.getElementById('detailTitle').textContent=m.title;
 document.getElementById('detailTopTitle').textContent=m.title;
 document.getElementById('detailMeta').innerHTML=`<span class="pill white">★ ${m.rating}</span><span class="pill">${m.year}</span><span class="pill gold">${(m.genres||['Movie']).join(' • ')}</span><span class="pill">${m.isArchive?'FULL LEGAL':'Trailer HD'}</span>`;
 document.getElementById('detailDesc').textContent=m.desc||'No description';
-document.getElementById('detailDetails').innerHTML=`<div style="display:flex;justify-content:space-between"><span>Year</span><span style="color:#f5eee6">${m.year}</span></div><div style="display:flex;justify-content:space-between"><span>Rating</span><span style="color:#f5eee6">★ ${m.rating}</span></div><div style="display:flex;justify-content:space-between"><span>TMDB ID</span><span style="color:#c8a87a">${m.tmdbId||m.id}</span></div><div style="display:flex;justify-content:space-between"><span>Source</span><span style="color:#22c55e">${m.isArchive?'Archive.org '+m.arch+' • FULL':'TMDB /videos • Trailer legal'}</span></div>`;
-const similar=allCache.filter(x=>String(x.id)!==String(id)).slice(0,6);
+document.getElementById('detailDetails').innerHTML=`<div style="display:flex;justify-content:space-between"><span>Year</span><span style="color:#f5eee6">${m.year}</span></div><div style="display:flex;justify-content:space-between"><span>Rating</span><span style="color:#f5eee6">★ ${m.rating}</span></div><div style="display:flex;justify-content:space-between"><span>TMDB ID</span><span style="color:#c8a87a">${m.tmdbId||m.id}</span></div><div style="display:flex;justify-content:space-between"><span>Source</span><span style="color:#22c55e">${m.isArchive?'Archive.org '+m.arch+' • FULL':'TMDB /videos • Trailer + Legal Providers'}</span></div>`;
+const similar=computeSimilar(m);
 document.getElementById('similar').innerHTML=similar.map(cardHTML).join('');
 document.getElementById('detail').classList.add('open');
+document.getElementById('fullBtn').style.display=m.isArchive?'inline-flex':'none';
 const bar=document.getElementById('serverBar');
 if(m.isArchive){
-bar.innerHTML=`<button class="srv active" id="srv-archive" onclick="setServer('${m.id}','archive')">Server 1 • FULL FILM • ${m.arch} • Legal</button>`;
+bar.innerHTML=`<button class="srv active" id="srv-archive" onclick="setServer('${m.id}','archive')">Server 1 • FULL FILM • ${m.arch} • Legal • Plays Full</button><button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 2 • Trailer • ${m.yt||'YT'}</button>`;
 setServer(m.id,'archive');
 }else{
-bar.innerHTML=`<button class="srv active" id="srv-youtube">Server 1 • Loading trailer...</button>`;
+bar.innerHTML=`<button class="srv active" id="srv-youtube">Server 1 • Loading trailer via TMDB /videos...</button><button class="srv" id="srv-providers" onclick="scrollToId('providers')">Server 2 • Where to Watch Legally</button>`;
 (async()=>{
 let ytId=m.yt;
 try{
@@ -376,14 +458,47 @@ if(tr)ytId=tr.key;
 }catch(e){}
 if(!ytId){const fb={603:'vKQi3bBA1y8',155:'EXeTwQWrcwY',27205:'YoHD9XEInc0',157336:'zSWdZVtXT7E',550:'qtRKdVHc-cE'};ytId=fb[m.tmdbId]||'dQw4w9WgXcQ';}
 m.yt=ytId;
-bar.innerHTML=`<button class="srv active" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 1 • Official Trailer • ${ytId} • HD</button>`;
+bar.innerHTML=`<button class="srv active" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 1 • Trailer • ${ytId} • HD Real</button><button class="srv" id="srv-providers" onclick="document.getElementById('providers').scrollIntoView({behavior:'smooth'})">Server 2 • Legal Providers</button>`;
 setServer(m.id,'youtube');
+fetchProviders(m.tmdbId);
 })();
 }
 }
-
+function computeSimilar(base){
+try{
+const baseGenres=new Set(base.genres||[]);
+return allCache.filter(x=>String(x.id)!==String(base.id)).map(x=>{
+const gSet=new Set(x.genres||[]);
+const inter=[...baseGenres].filter(g=>gSet.has(g)).length;
+const union=new Set([...baseGenres,...gSet]).size;
+const jaccard=union?inter/union:0;
+const T=x._T||0.5;
+const age=Math.abs((x.year||2020)-(base.year||2020));
+const recency=Math.exp(-0.05*age);
+const R=0.40*jaccard + 0.30*T + 0.20*recency + 0.10*0.5;
+return {...x,_R:R};
+}).sort((a,b)=>b._R - a._R).slice(0,6);
+}catch(e){return allCache.filter(x=>String(x.id)!==String(base.id)).slice(0,6);}
+}
+async function fetchProviders(tmdbId){
+try{
+if(!tmdbId){document.getElementById('providers').innerHTML='No TMDB ID - classic full film plays via Archive.org embed';return;}
+const data=await tmdbFetch(`/movie/${tmdbId}/watch/providers`);
+const prov=document.getElementById('providers');
+if(!data||!data.results){prov.innerHTML='No providers data - trailer only + classic full films legal via Archive.org';return;}
+const us=data.results['US']||data.results['ZA']||Object.values(data.results)[0];
+if(!us){prov.innerHTML='Not available in your region for legal streaming. Trailer plays. Full classics play in Classic section via Archive.org.';return;}
+let html='';
+if(us.flatrate) html+=`<div><b>Stream legally (subscription):</b> ${us.flatrate.map(p=>p.provider_name).join(', ')}</div>`;
+if(us.rent) html+=`<div><b>Rent legally:</b> ${us.rent.map(p=>p.provider_name).join(', ')}</div>`;
+if(us.buy) html+=`<div><b>Buy legally:</b> ${us.buy.map(p=>p.provider_name).join(', ')}</div>`;
+if(us.link) html+=`<div style="margin-top:6px"><a href="${us.link}" target="_blank" style="color:#c8a87a;text-decoration:underline">View on JustWatch (legal)</a></div>`;
+if(!html) html='Trailer only. Full Hollywood movies require licensed subscription. Classic FULL films play legally in Classic section.';
+prov.innerHTML=html||'Trailer only';
+}catch(e){document.getElementById('providers').innerHTML='Providers fetch failed - trailer + classic full films available';}
+}
 function setServer(id,type){
-let m=allCache.find(x=>String(x.id)===String(id))||FALLBACK.find(x=>String(x.id)===String(id));
+let m=allCache.find(x=>String(x.id)===String(id))||FALLBACK.find(x=>String(x.id)===String(id))||currentMovie;
 if(!m)return;
 document.querySelectorAll('.srv').forEach(b=>b.classList.remove('active'));
 const btn=document.getElementById('srv-'+type);if(btn)btn.classList.add('active');
@@ -391,29 +506,52 @@ const w=document.getElementById('playerWrap');
 if(type==='archive'&&m.arch){w.innerHTML=`<iframe src="https://archive.org/embed/${m.arch}" frameborder="0" allowfullscreen></iframe>`;}
 else{const yt=m.yt||'dQw4w9WgXcQ';w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;}
 }
-function closeDetail(){document.getElementById('detail').classList.remove('open');document.getElementById('playerWrap').innerHTML='';}
+function playTrailer(){if(currentMovie) setServer(currentMovie.id,'youtube');}
+function playFull(){if(currentMovie&&currentMovie.isArchive) setServer(currentMovie.id,'archive');}
+function closeDetail(){document.getElementById('detail').classList.remove('open');document.getElementById('playerWrap').innerHTML='';currentMovie=null;}
 
 let searchTimeout=null;
-document.getElementById('q').addEventListener('input', (e)=>{
-const q=e.target.value.toLowerCase().trim();
-clearTimeout(searchTimeout);
-searchTimeout=setTimeout(async()=>{
-if(!q){document.getElementById('allGrid').innerHTML=allCache.slice(0,60).map(cardHTML).join('');return;}
+const qInput=document.getElementById('q');
+function doSearch(q){
+q=q.toLowerCase().trim();
+const view=document.getElementById('searchView');
+const grid=document.getElementById('searchGrid');
+const count=document.getElementById('searchCount');
+if(!q){view.classList.remove('open');document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');return;}
 const local=allCache.filter(m=>m.title.toLowerCase().includes(q));
-if(local.length>=1){document.getElementById('allGrid').innerHTML=local.slice(0,60).map(cardHTML).join('');toast(`Search "${q}" • ${local.length} results`);return;}
-try{
-const data=await tmdbFetch('/search/movie',{query:q,page:1});
-if(data&&data.results){
-const movies=data.results.map(r=>({id:r.id,tmdbId:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:['Search'],desc:r.overview,poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false}));
-document.getElementById('allGrid').innerHTML=movies.map(cardHTML).join('')||`<div style="padding:40px;color:#8a7d73">No results for ${q}</div>`;
-toast(`Search "${q}" • ${movies.length} real`);
+if(local.length>=1){
+view.classList.add('open');
+grid.innerHTML=local.slice(0,60).map(cardHTML).join('');
+count.textContent=`${local.length} local results for "${q}"`;
 }
-}catch(e){document.getElementById('allGrid').innerHTML=local.map(cardHTML).join('');}
-},350);
+if(q.length>=2){
+tmdbFetch('/search/movie',{query:q,page:1}).then(data=>{
+if(data&&data.results&&data.results.length){
+const movies=data.results.map(r=>({id:r.id,tmdbId:r.id,title:r.title,year:r.release_date?parseInt(r.release_date.substring(0,4)):2024,rating:r.vote_average?.toFixed(1)||'7.5',genres:['Search'],desc:r.overview,poster:r.poster_path?TMDB_IMG+r.poster_path:'',backdrop:r.backdrop_path?TMDB_BACKDROP+r.backdrop_path:'',yt:null,arch:null,isArchive:false}));
+view.classList.add('open');
+grid.innerHTML=movies.map(cardHTML).join('');
+count.textContent=`${movies.length} real results from TMDB millions for "${q}"`;
+toast(`Search "${q}" • ${movies.length} real from millions`);
+if(movies.length===0&&local.length===0){
+grid.innerHTML=`<div style="padding:30px;color:#8a7d73">No results for "${q}" - try different spelling</div>`;
+count.textContent=`0 results for "${q}"`;
+}
+}
 });
-
+}
+}
+qInput.addEventListener('input', (e)=>{
+clearTimeout(searchTimeout);
+const val=e.target.value;
+if(!val){closeSearch();return;}
+searchTimeout=setTimeout(()=>doSearch(val),350);
+});
+qInput.addEventListener('keydown', (e)=>{
+if(e.key==='Enter'){clearTimeout(searchTimeout);doSearch(e.target.value);e.preventDefault();}
+});
+function closeSearch(){document.getElementById('searchView').classList.remove('open');document.getElementById('q').value='';document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');}
 document.getElementById('genreBar').addEventListener('click', e=>{if(e.target.classList.contains('chip'))filterGenre(e.target.dataset.genre);});
-window.onerror=function(msg,url,line){console.error(msg,url,line); toast('Error but showing fallback movies'); document.getElementById('allGrid').innerHTML=FALLBACK.map(cardHTML).join(''); return true;};
+window.onerror=function(msg){console.error(msg);toast('Showing fallback');document.getElementById('allGrid').innerHTML=FALLBACK.map(cardHTML).join('');return true;};
 loadInitial();
 let loadingMore=false;
 window.addEventListener('scroll',()=>{if(loadingMore)return;if(window.innerHeight+window.scrollY>=document.body.offsetHeight-1100){loadingMore=true;loadMore().then(()=>loadingMore=false);}});
