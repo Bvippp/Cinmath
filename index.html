@@ -3,440 +3,505 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TUBEMOCHA • Watch Free Movies</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>TUBEMOCHA • Watch Free Movies & TV Shows Online</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{background:#0c0a08;color:#f5eee6;font-family:'Outfit',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{background:#070708;color:#f1e9df;font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:78px}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;-webkit-tap-highlight-color:transparent}
 ::-webkit-scrollbar{width:0;height:0}
 
-/* HEADER brown luxury */
-.header{position:sticky;top:0;z-index:120;background:rgba(12,10,8,.94);backdrop-filter:blur(20px);border-bottom:1px solid #231e17}
-.header-inner{height:60px;display:flex;align-items:center;gap:14px;padding:0 14px;max-width:1400px;margin:0 auto}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.03em;cursor:pointer}
-.logo b{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#c8a87a,#a88a6a);display:grid;place-items:center;color:#0c0a08;font-size:15px}
-.nav{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}
-.nav::-webkit-scrollbar{display:none}
-.nav button{height:36px;padding:0 14px;border-radius:999px;border:1px solid transparent;background:transparent;color:#9a8a78;font-weight:600;font-size:12.5px;white-space:nowrap;cursor:pointer;transition:.2s}
-.nav button.active{background:#1d1812;color:#f5eee6;border-color:#2c241b}
-.nav button:hover{background:#1d1812;color:#f5eee6}
-.header-search{padding:0 14px 12px;max-width:1400px;margin:0 auto}
-.search-form{position:relative;display:flex;align-items:center;background:#17130f;border:1px solid #2a231c;border-radius:12px;height:46px;padding:0 6px 0 14px;transition:.2s}
-.search-form:focus-within{border-color:#c8a87a;background:#1d1812}
-.search-form input{flex:1;background:transparent;border:0;color:#f5eee6;outline:none;font-family:'Inter',sans-serif;font-size:14.5px;height:100%}
-.search-form input::placeholder{color:#7a6f63}
-.search-form button{width:38px;height:36px;border-radius:9px;background:#f5eee6;color:#0c0a08;border:0;display:grid;place-items:center;cursor:pointer;font-weight:800;font-size:14px}
-@media(min-width:768px){
-.header-inner{height:64px;padding:0 18px}
-.header-search{padding:0 0 0 20px;flex:1;display:flex;justify-content:flex-end}
-.search-form{width:380px;height:42px}
-.header{display:flex;align-items:center;max-width:1400px;margin:0 auto;padding:0 18px;border-bottom:1px solid #231e17;background:rgba(12,10,8,.94)}
-.header-inner{padding:0;flex:0 0 auto}
-}
-
-/* VIEWS - each nav is unique page */
-.view{display:none;animation:fadeIn .25s}
-.view.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+/* TOP BAR like movy.sx */
+.topbar{position:sticky;top:0;z-index:120;background:rgba(7,7,8,.96);backdrop-filter:blur(18px);border-bottom:1px solid #1e1e1e}
+.topbar-inner{height:56px;display:flex;align-items:center;gap:12px;padding:0 12px;max-width:1400px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:20px;letter-spacing:-.03em;cursor:pointer}
+.logo .m{width:38px;height:38px;border-radius:9px;background:#e50914;color:#fff;display:grid;place-items:center;font-size:24px;font-weight:900;line-height:1;font-family:'Outfit',sans-serif}
+.logo b{color:#fff}
+.search-top{flex:1;display:flex;justify-content:flex-end}
+.search-form{display:flex;align-items:center;background:#141416;border:1px solid #232326;border-radius:12px;height:40px;padding:0 5px 0 12px;width:100%;max-width:380px;transition:.2s}
+.search-form:focus-within{border-color:#e50914;background:#1a1a1d}
+.search-form input{flex:1;background:transparent;border:0;color:#fff;outline:none;font-size:13.5px;height:100%}
+.search-form input::placeholder{color:#6b6b71}
+.search-form button{width:32px;height:32px;border-radius:8px;background:#fff;color:#000;border:0;display:grid;place-items:center;cursor:pointer;font-weight:800}
 
 /* HERO */
-.hero{position:relative;height:66vh;min-height:420px;max-height:580px;overflow:hidden;background:#0c0a08;cursor:pointer}
-.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.9)}
-.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,#0c0a08 0%,rgba(12,10,8,.92) 28%,rgba(12,10,8,.5) 58%,rgba(12,10,8,.18) 85%),linear-gradient(0deg,#0c0a08 0%,rgba(12,10,8,.15) 55%,rgba(12,10,8,.92) 100%)}
-.hero-c{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:22px 14px 28px;max-width:1400px;margin:0 auto}
-.hero-title{font-size:30px;font-weight:800;line-height:1.06;max-width:660px;letter-spacing:-.02em;color:#fff7ed}
-.hero-desc{font-size:13.5px;line-height:1.55;color:#c9b8a3;max-width:580px;margin-top:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-family:'Inter',sans-serif}
-.pill{padding:6px 12px;border-radius:999px;background:rgba(29,24,18,.9);border:1px solid #2c241b;font-size:11px;color:#b8a898;display:inline-flex;align-items:center;font-weight:600}
-.pill.white{background:#f5eee6;color:#0c0a08;border-color:#f5eee6;font-weight:700}
-.pill.gold{background:rgba(200,168,122,.18);color:#c8a87a;border-color:rgba(200,168,122,.28)}
-.btn{height:42px;padding:0 18px;border-radius:11px;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer;transition:.18s}
-.btn:active{transform:scale(.98)}
-.btn-p{background:#f5eee6;color:#0c0a08}
-.btn-g{background:#1d1812;color:#f5eee6;border:1px solid #2c241b}
-.btn-g:hover{background:#241e17}
-@media(min-width:768px){.hero{height:540px}.hero-c{padding:32px 18px}.hero-title{font-size:48px}.hero-desc{font-size:14px}}
+.hero{position:relative;height:62vh;min-height:380px;max-height:520px;overflow:hidden;background:#070708;cursor:pointer}
+.hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#070708 0%,rgba(7,7,8,.2) 40%,rgba(7,7,8,.55) 100%),linear-gradient(90deg,#070708 0%,rgba(7,7,8,.85) 22%,rgba(7,7,8,.15) 70%)}
+.hero-c{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:18px 14px 26px;max-width:1400px;margin:0 auto}
+.hero-title{font-size:28px;font-weight:800;line-height:1.05;max-width:640px;letter-spacing:-.02em;color:#fff}
+.hero-desc{font-size:13px;line-height:1.5;color:#b8b2a8;max-width:560px;margin-top:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta-pills{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.pill{padding:5px 10px;border-radius:999px;background:rgba(20,20,22,.9);border:1px solid #2a2a2e;font-size:11px;color:#a8a2a0;display:inline-flex;align-items:center;font-weight:600}
+.pill.white{background:#fff;color:#000;border-color:#fff;font-weight:700}
+.pill.red{background:#e50914;color:#fff;border-color:#e50914}
+.btn{height:40px;padding:0 16px;border-radius:10px;font-weight:700;font-size:13px;display:inline-flex;align-items:center;gap:8px;border:0;cursor:pointer}
+.btn-p{background:#fff;color:#000}
+.btn-g{background:#1c1c1f;color:#fff;border:1px solid #2a2a2e}
+@media(min-width:768px){.hero{height:520px}.hero-c{padding:28px 18px}.hero-title{font-size:42px}}
 
 /* MAIN */
-.main{max-width:1400px;margin:0 auto;padding:16px 14px 70px}
-@media(min-width:768px){.main{padding:22px 18px 80px}}
-.page-head{padding:18px 0 6px}
-.page-title{font-size:28px;font-weight:800;letter-spacing:-.02em}
-.page-sub{font-size:13px;color:#9a8a78;margin-top:6px;font-family:'Inter',sans-serif;line-height:1.5;max-width:680px}
-.row{margin-top:32px}
-.row-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.row-title{font-size:16px;font-weight:700;display:flex;gap:10px;align-items:center}
-.row-title small{font-size:9px;background:#1d1812;border:1px solid #2c241b;color:#8a7d6f;padding:4px 9px;border-radius:999px;font-weight:600}
-.row-action{font-size:11.5px;color:#8a7d6f;cursor:pointer;padding:6px 12px;border-radius:999px;background:#17130f;border:1px solid #2a231c;transition:.2s}
-.row-action:hover{color:#f5eee6;background:#1d1812;border-color:#c8a87a}
-.scroller{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:8px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.main{max-width:1400px;margin:0 auto;padding:12px 12px 30px}
+@media(min-width:768px){.main{padding:18px 18px 40px}}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:10px 0 14px;scrollbar-width:none}
+.filters::-webkit-scrollbar{display:none}
+.fpill{height:36px;padding:0 14px;border-radius:999px;background:#141416;border:1px solid #232326;color:#9a9aa0;font-weight:600;font-size:12.5px;white-space:nowrap;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s}
+.fpill.active{background:#fff;color:#000;border-color:#fff}
+.fpill:hover{background:#1e1e22;color:#fff}
+.row{margin-top:26px}
+.row-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.row-title{font-size:15px;font-weight:700;color:#fff}
+.row-action{font-size:11px;color:#7a7a80;cursor:pointer;padding:6px 10px;border-radius:999px;background:#141416;border:1px solid #232326}
+.row-action:hover{color:#fff;border-color:#e50914}
+.scroller{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px;-webkit-overflow-scrolling:touch}
 .scroller::-webkit-scrollbar{display:none}
-.card{flex:0 0 128px;cursor:pointer;scroll-snap-align:start;transition:.2s}
+.card{flex:0 0 124px;cursor:pointer;transition:.2s}
 .card:active{transform:scale(.97)}
 @media(min-width:390px){.card{flex:0 0 138px}}
-@media(min-width:768px){.card{flex:0 0 172px}}
-.card:hover{transform:translateY(-3px)}
-.poster{position:relative;aspect-ratio:2/3;border-radius:12px;overflow:hidden;background:#17130f;border:1px solid #231e17}
-.poster img{width:100%;height:100%;object-fit:cover;display:block;transition:.35s}
-.card:hover .poster img{transform:scale(1.06)}
-.badge{position:absolute;top:8px;left:8px;padding:3px 8px;border-radius:999px;font-size:9px;font-weight:800;letter-spacing:.04em}
-.badge.hd{background:rgba(200,168,122,.95);color:#0c0a08}
+@media(min-width:768px){.card{flex:0 0 168px}}
+.card:hover{transform:translateY(-2px)}
+.poster{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:#141416;border:1px solid #1f1f23}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.badge{position:absolute;top:6px;left:6px;padding:3px 7px;border-radius:6px;font-size:9px;font-weight:800}
+.badge.hd{background:rgba(229,9,20,.95);color:#fff}
 .badge.full{background:rgba(34,197,94,.95);color:#fff}
-.badge.rating{left:auto;right:8px;background:rgba(245,238,230,.95);color:#0c0a08;font-size:10px}
-.card-info{padding:9px 2px 0}
-.card-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;color:#f5eee6}
-.card-sub{font-size:10.5px;color:#8a7d6f;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Inter',sans-serif}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:12px}
-@media(min-width:390px){.grid{grid-template-columns:repeat(auto-fill,minmax(126px,1fr))}}
-@media(min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:14px}}
-.genre-bar{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:8px 0 16px;-webkit-overflow-scrolling:touch}
-.genre-bar::-webkit-scrollbar{display:none}
-.chip{height:36px;padding:0 15px;border-radius:999px;background:#17130f;border:1px solid #2a231c;color:#8a7d6f;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:.2s}
-.chip.active{background:#c8a87a;color:#0c0a08;border-color:#c8a87a;font-weight:700}
-.empty{padding:40px 20px;text-align:center;color:#8a7d6f}
-.empty b{color:#f5eee6;display:block;font-size:16px;margin-bottom:6px}x;display:grid;gap:22px}
-@media(min-width:900px){.detail-body{grid-template-columns:1.7fr .9fr;padding:22px 16px}}
-.detail-title{font-size:26px;font-weight:800;line-height:1.1;color:#fff7ed}
-.detail-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.detail-desc{margin-top:14px;font-size:13.5px;line-height:1.65;color:#b8a898;font-family:'Inter',sans-serif}
-.box{background:#17130f;border:1px solid #231e17;border-radius:14px;padding:16px;margin-top:16px}
-.box h4{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#7a6f63;margin-bottom:10px;font-weight:700}
-.box div{font-size:12px;line-height:1.7;color:#9a8a78}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#f5eee6;color:#0c0a08;padding:11px 18px;border-radius:999px;font-weight:700;font-size:12px;display:none;z-index:300;box-shadow:0 12px 30px rgba(0,0,0,.6)}
+.badge.rating{left:auto;right:6px;background:rgba(255,255,255,.95);color:#000;font-size:10px}
+.card-info{padding:8px 2px 0}
+.card-title{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;line-height:1.3}
+.card-sub{font-size:11px;color:#7a7a80;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+@media(min-width:390px){.grid{grid-template-columns:repeat(auto-fill,minmax(124px,1fr))}}
+@media(min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}}
+
+.view{display:none;animation:fade .2s}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* DETAIL */
+.detail{position:fixed;inset:0;z-index:300;background:#070708;overflow-y:auto;display:none}
+.detail.open{display:block}
+.detail-top{position:sticky;top:0;z-index:5;height:56px;display:flex;align-items:center;gap:10px;padding:0 12px;background:rgba(7,7,8,.97);backdrop-filter:blur(16px);border-bottom:1px solid #1e1e1e}
+.back{width:36px;height:36px;border-radius:10px;background:#141416;border:1px solid #232326;display:grid;place-items:center;cursor:pointer;color:#fff}
+.player{max-width:1100px;margin:0 auto;background:#000;aspect-ratio:16/9;position:relative}
+.player iframe{width:100%;height:100%;border:0}
+.servers{display:flex;gap:6px;padding:10px 12px;max-width:1100px;margin:0 auto;overflow-x:auto;scrollbar-width:none}
+.servers::-webkit-scrollbar{display:none}
+.srv{height:32px;padding:0 12px;border-radius:999px;background:#141416;border:1px solid #232326;color:#9a9aa0;font-weight:600;font-size:11px;cursor:pointer;white-space:nowrap}
+.srv.active{background:#e50914;color:#fff;border-color:#e50914}
+.detail-body{max-width:1100px;margin:0 auto;padding:14px 12px;display:grid;gap:18px}
+@media(min-width:900px){.detail-body{grid-template-columns:1.7fr .9fr;padding:18px 14px}}
+.dtitle{font-size:22px;font-weight:800;color:#fff;line-height:1.1}
+.dmeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.ddesc{margin-top:12px;font-size:13px;line-height:1.6;color:#b8b2a8}
+.box{background:#141416;border:1px solid #1e1e1e;border-radius:12px;padding:14px;margin-top:14px}
+.box h4{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#7a7a80;margin-bottom:8px;font-weight:700}
+.box div{font-size:12px;line-height:1.6;color:#9a9aa0}
+
+/* BOTTOM NAV like movy.sx screenshot */
+.bottom{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:250;background:rgba(20,20,22,.92);backdrop-filter:blur(20px);border:1px solid #2a2a2e;border-radius:28px;padding:6px 8px;display:flex;gap:6px;box-shadow:0 20px 40px rgba(0,0,0,.6)}
+.bottom button{width:46px;height:46px;border-radius:16px;background:transparent;border:0;display:grid;place-items:center;color:#7a7a80;cursor:pointer;transition:.2s;font-size:18px}
+.bottom button.active{background:#fff;color:#000}
+.bottom button:hover{color:#fff}
+
+/* FOOTER */
+.footer{margin-top:40px;padding:22px 12px 90px;border-top:1px solid #1e1e1e;color:#6b6b71;font-size:11px;line-height:1.6;max-width:1400px;margin-left:auto;margin-right:auto}
+.footer a{color:#9a9aa0;text-decoration:underline}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:10px 16px;border-radius:999px;font-weight:700;font-size:12px;display:none;z-index:400}
 .toast.show{display:block}
+.empty{padding:30px 16px;text-align:center;color:#7a7a80}
+.empty b{color:#fff;display:block;margin-bottom:6px}
+.genre-modal{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:none;align-items:flex-end}
+.genre-modal.open{display:flex}
+.genre-sheet{background:#141416;border-top:1px solid #2a2a2e;border-radius:22px 22px 0 0;width:100%;max-height:78vh;overflow-y:auto;padding:16px 12px 30px}
+.genre-sheet h3{font-size:16px;font-weight:800;color:#fff;margin-bottom:12px}
+.ggrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.ggrid button{height:44px;border-radius:12px;background:#1c1c1f;border:1px solid #232326;color:#9a9aa0;font-weight:600;font-size:13px;cursor:pointer;text-align:left;padding:0 14px}
+.ggrid button:hover{background:#232326;color:#fff}
+.ggrid button.active{background:#e50914;color:#fff;border-color:#e50914}
 </style>
 </head>
 <body>
-<div class="header">
-<div class="header-inner">
-<div class="logo" onclick="navigate('home')"><b>T</b>TUBEMOCHA</div>
-<div class="nav">
-<button id="nav-home" class="active" onclick="navigate('home')">Home</button>
-<button id="nav-movies" onclick="navigate('movies')">Movies</button>
-<button id="nav-fullfilms" onclick="navigate('fullfilms')">Full Films</button>
-<button id="nav-browse" onclick="navigate('browse')">Browse</button>
+
+<div class="topbar">
+<div class="topbar-inner">
+<div class="logo" onclick="navigate('home')"><div class="m">M</div><b>TUBEMOCHA</b></div>
+<div class="search-top">
+<form class="search-form" onsubmit="handleSearch(event)"><input id="q" type="search" autocomplete="off" placeholder="Search movies..." /><button type="submit">⌕</button></form>
 </div>
-</div>
-<div class="header-search">
-<form class="search-form" onsubmit="handleSearch(event)"><input id="q" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search 10,000+ movies..." /><button type="submit">⌕</button></form>
 </div>
 </div>
 
-<!-- HOME PAGE -->
+<!-- HOME -->
 <div id="view-home" class="view active">
-<div class="hero" id="hero" onclick="if(currentMovie) openMovie(currentMovie.tmdb||currentMovie.id)">
-<img id="heroBg" src="https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt="">
-<div class="hero-c">
-<div class="hero-title" id="heroTitle">Spider-Man: Brand New Day</div>
-<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap" id="heroMeta"><span class="pill white">★ 8.5</span><span class="pill">2026</span><span class="pill gold">HD</span></div>
-<div class="hero-desc" id="heroDesc">Fighting crime full-time as Spider-Man in a world that doesn't remember him — and the pressure of seeing his friends live their lives.</div>
-<div style="display:flex;gap:10px;margin-top:16px"><button class="btn btn-p" id="heroPlay">▶ Play</button><button class="btn btn-g" onclick="event.stopPropagation();navigate('fullfilms')">Full Films</button></div>
-</div>
-</div>
+<div class="hero" id="hero"><img id="heroBg" src="https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt=""><div class="hero-c"><div class="hero-title" id="heroTitle">Loading...</div><div class="meta-pills" id="heroMeta"></div><div class="hero-desc" id="heroDesc"></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-p" id="heroPlay">▶ Play</button><button class="btn btn-g" onclick="navigate('movies')">Movies</button></div></div></div>
 <div class="main">
-<div class="genre-bar" id="genreBarHome">
-<button class="chip active" data-g="all">All</button>
-<button class="chip" data-g="28">Action</button>
-<button class="chip" data-g="12">Adventure</button>
-<button class="chip" data-g="35">Comedy</button>
-<button class="chip" data-g="18">Drama</button>
-<button class="chip" data-g="27">Horror</button>
-<button class="chip" data-g="878">Sci-Fi</button>
+<div class="filters" id="homeFilters">
+<button class="fpill active" data-g="all" onclick="filterHome('all',this)">All</button>
+<button class="fpill" data-g="28" onclick="filterHome('28',this)">Action</button>
+<button class="fpill" data-g="12" onclick="filterHome('12',this)">Adventure</button>
+<button class="fpill" data-g="35" onclick="filterHome('35',this)">Comedy</button>
+<button class="fpill" data-g="18" onclick="filterHome('18',this)">Drama</button>
+<button class="fpill" data-g="27" onclick="filterHome('27',this)">Horror</button>
+<button class="fpill" data-g="878" onclick="filterHome('878',this)">Sci-Fi</button>
+<button class="fpill" data-g="53" onclick="filterHome('53',this)">Thriller</button>
+</div>q" type="search" autocomplete="off" placeholder="Search movies..." /><button type="submit">⌕</button></form>
 </div>
-<div class="row"><div class="row-head"><div class="row-title">Trending This Week <small>Top 20</small></div><div class="row-action" onclick="loadTrending()">Refresh</div></div><div class="scroller" id="trendingTrack"></div></div>
-<div class="row"><div class="row-head"><div class="row-title">Latest Movies <small>Now Playing</small></div></div><div class="scroller" id="latestTrack"></div></div>
-<div class="row"><div class="row-head"><div class="row-title">Popular <small>Most watched</small></div><div class="row-action" onclick="loadMorePopular()">Load +20</div></div><div class="scroller" id="popularTrack"></div></div>
-<div class="row"><div class="row-head"><div class="row-title">Top Rated <small>IMDb Top</small></div></div><div class="scroller" id="topTrack"></div></div>
 </div>
 </div>
 
-<!-- MOVIES PAGE - unique -->
+<!-- HOME -->
+<div id="view-home" class="view active">
+<div class="hero" id="hero"><img id="heroBg" src="https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg" alt=""><div class="hero-c"><div class="hero-title" id="heroTitle">Loading...</div><div class="meta-pills" id="heroMeta"></div><div class="hero-desc" id="heroDesc"></div><div style="display:flex;gap:8px;margin-top:14px"><button class="btn btn-p" id="heroPlay">▶ Play</button><button class="btn btn-g" onclick="navigate('movies')">Movies</button></div></div></div>
+<div class="main">
+<div class="filters" id="homeFilters">
+<button class="fpill active" data-g="all" onclick="filterHome('all',this)">All</button>
+<button class="fpill" data-g="28" onclick="filterHome('28',this)">Action</button>
+<button class="fpill" data-g="12" onclick="filterHome('12',this)">Adventure</button>
+<button class="fpill" data-g="35" onclick="filterHome('35',this)">Comedy</button>
+<button class="fpill" data-g="18" onclick="filterHome('18',this)">Drama</button>
+<button class="fpill" data-g="27" onclick="filterHome('27',this)">Horror</button>
+<button class="fpill" data-g="878" onclick="filterHome('878',this)">Sci-Fi</button>
+<button class="fpill" data-g="53" onclick="filterHome('53',this)">Thriller</button>
+</div>
+<div class="row"><div class="row-head"><div class="row-title">Trending This Week</div><div class="row-action" onclick="loadTrending(true)">Refresh</div></div><div class="scroller" id="trendingTrack"></div></div>
+<div class="row"><div class="row-head"><div class="row-title">Latest • Now Playing</div></div><div class="scroller" id="latestTrack"></div></div>
+<div class="row"><div class="row-head"><div class="row-title">Popular • Most Watched</div><div class="row-action" onclick="loadMorePopular()">+20</div></div><div class="scroller" id="popularTrack"></div></div>
+<div class="row"><div class="row-head"><div class="row-title">Top Rated</div></div><div class="scroller" id="topTrack"></div></div>
+<div class="row"><div class="row-head"><div class="row-title">Full Films • Archive.org Legal FULL</div><div class="row-action" onclick="navigate('fullfilms')">View All</div></div><div class="grid" id="homeFull"></div></div>
+</div>
+</div>
+
+<!-- MOVIES PAGE like movy.sx screenshot -->
 <div id="view-movies" class="view">
 <div class="main">
-<div class="page-head"><div class="page-title">Movies</div><div class="page-sub">Discover the latest and greatest films • Trending, new releases, and timeless classics. All trailers play free.</div></div>
-<div class="genre-bar" id="genreBarMovies">
-<button class="chip active" data-g="all">All</button>
-<button class="chip" data-g="28">Action</button>
-<button class="chip" data-g="12">Adventure</button>
-<button class="chip" data-g="35">Comedy</button>
-<button class="chip" data-g="18">Drama</button>
-<button class="chip" data-g="27">Horror</button>
-<button class="chip" data-g="878">Sci-Fi</button>
-<button class="chip" data-g="53">Thriller</button>
-<button class="chip" data-g="16">Animation</button>
-<button class="chip" data-g="10749">Romance</button>
+<div style="position:relative;border-radius:16px;overflow:hidden;height:280px;background:#141416;margin-bottom:16px"><img src="https://image.tmdb.org/t/p/original/7RyHsO4yDXtBv1zUU3mTpHeQWU.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5"><div style="position:absolute;inset:0;background:linear-gradient(0deg,#070708 0%,transparent 60%)"></div><div style="position:absolute;bottom:0;left:0;padding:18px"><div style="font-size:34px;font-weight:900;color:#fff;display:flex;gap:12px;align-items:center"><span style="width:4px;height:36px;background:#e50914;display:inline-block;border-radius:2px"></span>Movies</div><div style="color:#b8b2a8;font-size:13px;margin-top:6px">Discover the latest and greatest films</div></div></div>
+<div class="filters">
+<button class="fpill" onclick="openGenreModal()">Genres ▾</button>
+<button class="fpill" onclick="openYearModal()">Years ▾</button>
+<button class="fpill" onclick="openCountryModal()">Countries ▾</button>
+<button class="fpill" onclick="setSort('popular')">Most popular ▾</button>
 </div>
-<div class="row"><div class="row-head"><div class="row-title">Trending This Week</div><div class="row-action" onclick="loadMoviesPage()">Refresh</div></div><div class="scroller" id="moviesTrending"></div></div>
-<div class="row"><div class="row-head"><div class="row-title">Discover • Action</div><div class="row-action" onclick="filterMoviesPage('28')">View All</div></div><div class="grid" id="moviesAction"></div></div>
-<div class="row"><div class="row-head"><div class="row-title">Discover • Comedy</div><div class="row-action" onclick="filterMoviesPage('35')">View All</div></div><div class="grid" id="moviesComedy"></div></div>
-<div class="row"><div class="row-head"><div class="row-title">All Movies • Page <span id="moviesPageNum">1</span></div><div class="row-action" onclick="loadMoreMovies()">Load More</div></div><div class="grid" id="moviesGrid"></div><div style="display:flex;gap:10px;justify-content:center;padding:24px 0"><button class="btn btn-g" onclick="loadMoreMovies()">Load More • Page <span id="moviesPageNum2">1</span></button><button class="btn btn-p" onclick="navigate('home')">↑ Home</button></div></div>
+<div class="row"><div class="row-head"><div class="row-title">Trending in United States</div></div><div class="scroller" id="moviesTrending"></div></div>
+<div class="row"><div class="row-head"><div class="row-title">Action</div><div class="row-action" onclick="openGenrePage('28','Action')">View All</div></div><div class="grid" id="moviesAction"></div></div>
+<div class="row"><div class="row-head"><div class="row-title">Comedy</div><div class="row-action" onclick="openGenrePage('35','Comedy')">View All</div></div><div class="grid" id="moviesComedy"></div></div>
+<div class="row"><div class="row-head"><div class="row-title">All Movies • Page <span id="moviesPageNum">1</span></div><div class="row-action" onclick="loadMoreMovies()">Load More</div></div><div class="grid" id="moviesGrid"></div></div>
 </div>
 </div>
 
-<!-- FULL FILMS PAGE - unique -->
+<!-- GENRE PAGE -->
+<div id="view-genre" class="view">
+<div class="main">
+<div style="display:flex;align-items:center;gap:10px;padding:12px 0"><div class="back" onclick="navigate('movies')">←</div><div><div id="genreTitle" style="font-size:22px;font-weight:800;color:#fff">Genre</div><div id="genreSub" style="font-size:12px;color:#7a7a80">Browse by genre • Best ranking equation</div></div></div>
+<div class="grid" id="genreGrid"></div>
+<div style="display:flex;gap:8px;justify-content:center;padding:20px 0"><button class="btn btn-g" onclick="loadMoreGenre()">Load More</button><button class="btn btn-p" onclick="navigate('movies')">Back</button></div>
+</div>
+</div>
+
+<!-- FULL FILMS -->
 <div id="view-fullfilms" class="view">
 <div class="main">
-<div class="page-head"><div class="page-title">Full Films • Plays Full Legally</div><div class="page-sub">Classic public-domain movies that play full movie via Archive.org embed. No piracy. For Hollywood movies, trailer + legal streaming options + optional third-party embed (like Movy.sx) as Server 3.</div></div>
-<div class="row"><div class="row-head"><div class="row-title">Classic Full Movies <small>Archive.org</small></div></div><div class="grid" id="fullGrid"></div></div>
-<div class="row"><div class="row-head"><div class="row-title">Full Films Explained</div></div><div class="box"><h4>How full playback works</h4><div><b>Server 1 • Archive.org FULL:</b> Public-domain classics (1920s-1960s) play full legal via archive.org/embed — same as Internet Archive.<br><br><b>Server 2 • Trailer HD:</b> Official YouTube trailers for all modern movies.<br><br><b>Server 3 • Full Embed (like Movy.sx):</b> Uses third-party aggregator embed (VidSrc-style: vidsrc.to / vidsrc.in / vidcore). Movy.sx uses same pattern — scraping third-party sources client-side. Enable by adding TMDB ID to FULL_EMBED list. We include working examples for testing. All Hollywood full playback depends on third-party availability.<br><br>For a published site, keep Server 1 + 2 as legal default. Server 3 requires user responsibility similar to Movy.sx DMCA note.</div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:12px 0"><div class="back" onclick="navigate('home')">←</div><div><div style="font-size:22px;font-weight:800;color:#fff">Full Films • Legal Archive.org</div><div style="font-size:12px;color:#7a7a80">Public domain classics play full movie legally</div></div></div>
+<div class="grid" id="fullGrid"></div>
 </div>
 </div>
 
-<!-- BROWSE PAGE - unique -->
+<!-- BROWSE -->
 <div id="view-browse" class="view">
 <div class="main">
-<div class="page-head"><div class="page-title">Browse All</div><div class="page-sub" id="browseSub">Browse 10,000+ movies • Filter by genre, load more pages for millions via TMDB. Uses popularity + freshness ranking.</div></div>
-<div class="genre-bar" id="genreBarBrowse">
-<button class="chip active" data-g="all">All</button>
-<button class="chip" data-g="28">Action</button>
-<button class="chip" data-g="12">Adventure</button>
-<button class="chip" data-g="35">Comedy</button>
-<button class="chip" data-g="18">Drama</button>
-<button class="chip" data-g="27">Horror</button>
-<button class="chip" data-g="878">Sci-Fi</button>
-<button class="chip" data-g="53">Thriller</button>
+<div style="display:flex;align-items:center;gap:10px;padding:12px 0"><div class="back" onclick="navigate('home')">←</div><div><div style="font-size:22px;font-weight:800;color:#fff">Browse All</div><div style="font-size:12px;color:#7a7a80" id="browseSub">10,000+ movies • Page 1/500</div></div></div>
+<div class="filters" id="browseFilters">
+<button class="fpill active" data-g="all" onclick="filterBrowse('all',this)">All</button>
+<button class="fpill" data-g="28" onclick="filterBrowse('28',this)">Action</button>
+<button class="fpill" data-g="35" onclick="filterBrowse('35',this)">Comedy</button>
+<button class="fpill" data-g="27" onclick="filterBrowse('27',this)">Horror</button>
+<button class="fpill" data-g="878" onclick="filterBrowse('878',this)">Sci-Fi</button>
+<button class="fpill" data-g="18" onclick="filterBrowse('18',this)">Drama</button>
 </div>
 <div class="grid" id="allGrid"></div>
-<div style="display:flex;gap:10px;justify-content:center;padding:26px 0"><button class="btn btn-g" onclick="loadMore()">Load More • Page <span id="pageNum">1</span> / 500</button><button class="btn btn-p" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑ Top</button></div>
+<div style="display:flex;gap:8px;justify-content:center;padding:22px 0"><button class="btn btn-g" onclick="loadMore()">Load More • Page <span id="pageNum">1</span></button></div>
 </div>
 </div>
 
-<!-- SEARCH PAGE - unique separate page -->
+<!-- SEARCH -->
 <div id="view-search" class="view">
 <div class="main">
-<div class="page-head"><div class="page-title">Search</div><div class="page-sub" id="searchSub">Type a movie name above and press search. Results show from millions via TMDB + local cache.</div>
-<div style="display:flex;gap:10px;margin-top:12px"><form class="search-form" style="flex:1;max-width:500px" onsubmit="handleSearch(event)"><input id="q2" type="search" placeholder="Search movies..." /><button type="submit">⌕</button></form><button class="btn btn-g" onclick="navigate('home')">Clear</button></div>
-</div>
-<div class="row"><div class="row-head"><div class="row-title" id="searchTitle">Results <small id="searchCount">0 movies</small></div></div><div class="grid" id="searchGrid"></div><div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try different spelling or browse all movies.</div></div>
-</div>
-</div>ll></div></div><div class="grid" id="searchGrid"></div><div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try different spelling or browse all movies.</div></div>
+<div style="display:flex;align-items:center;gap:10px;padding:12px 0"><div class="back" onclick="navigate('home')">←</div><div><div style="font-size:22px;font-weight:800;color:#fff">Search</div><div style="font-size:12px;color:#7a7a80" id="searchSub">Type and search millions via TMDB</div></div></div>
+<form class="search-form" style="max-width:520px;margin:8px 0 16px" onsubmit="handleSearch(event)"><input id="q2" type="search" placeholder="Search movies..." /><button type="submit">⌕</button></form>
+<div class="row"><div class="row-head"><div class="row-title" id="searchTitle">Results <small id="searchCount">0</small></div></div><div class="grid" id="searchGrid"></div><div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try different spelling.</div></div>
 </div>
 </div>
 
 <!-- DETAIL -->
 <div class="detail" id="detail">
-<div class="detail-top"><div class="back" onclick="closeDetail()">←</div><div id="detailTopTitle" style="font-weight:700;font-size:14px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div class="row-action" onclick="closeDetail()">Close</div></div>
+<div class="detail-top"><div class="back" onclick="closeDetail()">←</div><div id="detailTopTitle" style="flex:1;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"></div><div class="row-action" onclick="closeDetail()">Close</div></div>
 <div class="player" id="playerWrap"></div>
 <div class="servers" id="serverBar"></div>
 <div class="detail-body">
 <div>
-<div class="detail-title" id="detailTitle"></div>
-<div class="detail-meta" id="detailMeta"></div>
-<div class="detail-desc" id="detailDesc"></div>
-<div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap"><button class="btn btn-p" onclick="playTrailer()">▶ Trailer</button><button class="btn btn-g" id="fullBtn" style="display:none" onclick="playFull()">▶ Full Film</button><button class="btn btn-g" id="embedBtn" style="display:none" onclick="playEmbed()">▶ Full Embed</button></div>
-<div class="box"><h4>Where to watch</h4><div id="providers">Loading...</div></div>
+<div class="dtitle" id="detailTitle"></div>
+<div class="dmeta" id="detailMeta"></div>
+<div class="ddesc" id="detailDesc"></div>
+<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap"><button class="btn btn-p" onclick="playTrailer()">▶ Trailer</button><button class="btn btn-g" id="fullBtn" style="display:none" onclick="playFull()">▶ Full Film</button><button class="btn btn-g" id="embedBtn" onclick="playEmbed()">▶ Full HD</button></div>
+<div class="box"><h4>Where to watch • TMDB providers</h4><div id="providers">Loading...</div></div>
+<div class="box"><h4>Disclaimer • Like Movy.sx</h4><div>Tubemocha does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links. All content is fetched via TMDB API and public third-party embeds (Archive.org, YouTube, VidSrc-style). We act as a client-side directory similar to Google Search.</div></div>
 </div>
 <div>
-<div class="box"><h4>Details</h4><div id="detailDetails"></div></div>
-<div class="box"><h4>You may also like</h4><div id="similar" class="grid" style="grid-template-columns:repeat(2,1fr);gap:10px"></div></div>
+<div class="box"><h4>Details • Best equations</h4><div id="detailDetails"></div></div>
+<div class="box"><h4>You may also like • R = 0.40*Jaccard + 0.30*T + 0.20*recency + 0.10*pop • TMDB similar API</h4><div id="similar" class="grid" style="grid-template-columns:repeat(2,1fr);gap:10px"></div></div>
 </div>
 </div>
 </div>
 
+<!-- FOOTER with movy.sx disclaimer -->
+<div class="footer">
+<div style="font-weight:800;color:#fff;font-size:13px;margin-bottom:8px">TUBEMOCHA • Watch Free Movies & TV Shows Online</div>
+Movy does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.<br><br>
+<strong>DMCA Notice:</strong> Tubemocha functions strictly as an automated search engine and metadata aggregator. We DO NOT host, store, stream, or upload any video, media file, or copyrighted material on our servers. All media content, streams, and downloads accessible via Tubemocha are scraped, indexed, and fetched in real-time from unaffiliated third-party websites and APIs (TMDB, YouTube, Archive.org, VidSrc-style providers). Tubemocha acts merely as a client-side directory and proxy tool, similar to Google Search, linking you to content that is already publicly accessible on the internet. We have absolutely no control over the content hosted by these third parties.<br><br>
+<a href="#" onclick="navigate('home')">Home</a> • <a href="#" onclick="navigate('movies')">Movies</a> • <a href="#" onclick="navigate('fullfilms')">Full Films</a> • <a href="#" onclick="navigate('browse')">Browse</a> • <a href="https://www.themoviedb.org/" target="_blank">TMDB</a> • <a href="https://archive.org/" target="_blank">Archive.org</a><br><br>
+© 2026 Tubemocha. Uses TMDB API but is not endorsed or certified by TMDB. All trademarks are property of their owners.
+</div>
+
+<!-- BOTTOM NAV like movy.sx -->
+<div class="bottom" id="bottomNav">
+<button id="b-home" class="active" onclick="navigate('home')" title="Home">⌂</button>
+<button id="b-movies" onclick="navigate('movies')" title="Movies">🎬</button>
+<button id="b-full" onclick="navigate('fullfilms')" title="Full Films">🎞️</button>
+<button id="b-browse" onclick="navigate('browse')" title="Browse">☰</button>
+<button id="b-search" onclick="navigate('search')" title="Search">⌕</button>
+<button id="b-tv" onclick="toast('TV Shows coming soon • same TMDB API')" title="Profile">☆</button>
+</div>
+
 <div class="toast" id="toast"></div>
+
+<!-- GENRE MODAL -->
+<div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeGenreModal()">
+<div class="genre-sheet">
+<h3>Select Genre • Best Equation: R = 0.30*cosine + 0.25*Jaccard + 0.20*T</h3>
+<div class="ggrid" id="genreModalGrid">
+<button onclick="openGenrePage('28','Action')">Action</button>
+<button onclick="openGenrePage('12','Adventure')">Adventure</button>
+<button onclick="openGenrePage('16','Animation')">Animation</button>
+<button onclick="openGenrePage('35','Comedy')">Comedy</button>
+<button onclick="openGenrePage('80','Crime')">Crime</button>
+<button onclick="openGenrePage('99','Documentary')">Documentary</button>
+<button onclick="openGenrePage('18','Drama')">Drama</button>
+<button onclick="openGenrePage('10751','Family')">Family</button>
+<button onclick="openGenrePage('14','Fantasy')">Fantasy</button>
+<button onclick="openGenrePage('36','History')">History</button>
+<button onclick="openGenrePage('27','Horror')">Horror</button>
+<button onclick="openGenrePage('10402','Music')">Music</button>
+<button onclick="openGenrePage('9648','Mystery')">Mystery</button>
+<button onclick="openGenrePage('10749','Romance')">Romance</button>
+<button onclick="openGenrePage('878','Science Fiction')">Sci-Fi</button>
+<button onclick="openGenrePage('10770','TV Movie')">TV Movie</button>
+<button onclick="openGenrePage('53','Thriller')">Thriller</button>
+<button onclick="openGenrePage('10752','War')">War</button>
+<button onclick="openGenrePage('37','Western')">Western</button>
+</div>
+<div style="margin-top:14px"><button class="btn btn-g" style="width:100%" onclick="closeGenreModal()">Close</button></div>
+</div>
+</div>
 
 <script>
 const TMDB_KEY='3d1cb94d909aab088231f5af899dffdc';
 const TMDB_BASE='https://api.themoviedb.org/3';
 const IMG='https://image.tmdb.org/t/p/w500';
 const BACKDROP='https://image.tmdb.org/t/p/original';
-let currentPage=1,moviesPage=1,popularPage=1,allCache=[],currentMovie=null,currentView='home';
+let currentPage=1,moviesPage=1,genrePage=1,popularPage=1,allCache=[],currentMovie=null,currentGenre={id:'all',name:'All'},currentGenreList=[];
 
-// Full embed list - how Movy.sx does it: TMDB ID -> embed. Uses VidSrc-style third-party proxy. For demo we include a few that work.
 const FULL_EMBED={
-"603":"https://vidsrc.to/embed/movie/603",
-"155":"https://vidsrc.to/embed/movie/155",
-"27205":"https://vidsrc.to/embed/movie/27205",
-"157336":"https://vidsrc.to/embed/movie/157336",
-"550":"https://vidsrc.to/embed/movie/550",
-"13":"https://vidsrc.to/embed/movie/13",
-"238":"https://vidsrc.to/embed/movie/238",
-"680":"https://vidsrc.to/embed/movie/680",
-"120":"https://vidsrc.to/embed/movie/120",
-"122":"https://vidsrc.to/embed/movie/122"
+"603":"https://vidsrc.to/embed/movie/603","155":"https://vidsrc.to/embed/movie/155","27205":"https://vidsrc.to/embed/movie/27205","157336":"https://vidsrc.to/embed/movie/157336","550":"https://vidsrc.to/embed/movie/550","13":"https://vidsrc.to/embed/movie/13","238":"https://vidsrc.to/embed/movie/238","680":"https://vidsrc.to/embed/movie/680"
 };
 
-const FALLBACK=[
-{id:603,t:"【entity-Matrix¦canonical_name=The Matrix】",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns reality is a simulation.",p:"https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",b:"https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",yt:"vKQi3bBA1y8",arch:null,arc:false,tmdb:603},
-{id:155,t:"Dark Knight",y:2008,r:"8.5",g:["Action","Crime"],d:"Batman faces Joker.",p:"https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",b:"https://image.tmdb.org/t/p/original/qJ2tW6WMUDux911r6m7haRef0WH.jpg",yt:"EXeTwQWrcwY",arch:null,arc:false,tmdb:155},
-{id:27205,t:"Inception",y:2010,r:"8.3",g:["Sci-Fi"],d:"Thief steals secrets in dreams.",p:"https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",b:"https://image.tmdb.org/t/p/original/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",yt:"YoHD9XEInc0",arch:null,arc:false,tmdb:27205},
-{id:157336,t:"Interstellar",y:2014,r:"8.4",g:["Sci-Fi"],d:"Explorers travel through wormhole.",p:"https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",b:"https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5KhQW2bpQ.jpg",yt:"zSWdZVtXT7E",arch:null,arc:false,tmdb:157336},
-{id:550,t:"Fight Club",y:1999,r:"8.4",g:["Drama"],d:"Underground fight club.",p:"https://image.tmdb.org/t/p/w500/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg",b:"https://image.tmdb.org/t/p/original/hZkgoQYusQyetw8ONQxjRckgFe.jpg",yt:"qtRKdVHc-cE",arch:null,arc:false,tmdb:550},
-{id:13,t:"Forrest Gump",y:1994,r:"8.5",g:["Drama"],d:"Life story of Forrest.",p:"https://image.tmdb.org/t/p/w500/arw2vcBveWOVZr6pxd9XTd1TdQa.jpg",b:"https://image.tmdb.org/t/p/original/3h1JZGDhZ8OBhgvYu7V5MfDiK2a.jpg",yt:"bLvqoHBptjg",arch:null,arc:false,tmdb:13},
-{id:238,t:"【entity-Godfather¦canonical_name=The Godfather】",y:1972,r:"8.7",g:["Crime"],d:"Crime family saga.",p:"https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",b:"https://image.tmdb.org/t/p/original/tmU7GeKVybM9dTE4rC4q4T1d6d.jpg",yt:"sY1S34973zA",arch:null,arc:false,tmdb:238},
-{id:"night_living_dead",t:"Night of Living Dead",y:1968,r:"7.8",g:["Horror","Classic"],d:"Survive the night - FULL FILM legal via Archive.org",p:"https://archive.org/services/img/night_of_the_living_dead",b:"https://archive.org/services/img/night_of_the_living_dead",yt:"H91BxkQ1l5k",arch:"night_of_the_living_dead",arc:true,tmdb:335},
-{id:"nosferatu_1922",t:"Nosferatu",y:1922,r:"8.0",g:["Horror","Classic"],d:"First Dracula - FULL FILM",p:"https://archive.org/services/img/Nosferatu_1922",b:"https://archive.org/services/img/Nosferatu_1922",yt:"FC6j4l00v2w",arch:"Nosferatu_1922",arc:true,tmdb:653},
-{id:"metropolis_1927",t:"Metropolis",y:1927,r:"8.3",g:["Sci-Fi","Classic"],d:"Futuristic city - FULL FILM",p:"https://archive.org/services/img/Metropolis1927",b:"https://archive.org/services/img/Metropolis1927",yt:"gCcx85zbxz4",arch:"Metropolis1927",arc:true,tmdb:19},
-{id:"charlie_chaplin",t:"The Kid - Chaplin",y:1921,r:"8.2",g:["Comedy","Classic"],d:"Chaplin classic - FULL",p:"https://archive.org/services/img/the_kid_1921",b:"https://archive.org/services/img/the_kid_1921",yt:"7kQv2d7F8kQ",arch:"the_kid_1921",arc:true,tmdb:10020},
-{id:"sherlock_1916",t:"Sherlock Holmes 1916",y:1916,r:"7.1",g:["Mystery","Classic"],d:"Original Sherlock - FULL",p:"https://archive.org/services/img/sherlock_holmes_1916",b:"https://archive.org/services/img/sherlock_holmes_1916",yt:"qQeJ3d",arch:"sherlock_holmes_1916",arc:true,tmdb:12345}
+// Multiple embed providers like movy.sx does - client-side directory proxy
+const EMBED_PROVIDERS = [
+  (id)=>`https://vidsrc.to/embed/movie/${id}`,
+  (id)=>`https://vidsrc.me/embed/movie?tmdb=${id}`,
+  (id)=>`https://vidlink.pro/movie/${id}`,
+  (id)=>`https://moviesapi.club/movie/${id}`,
+  (id)=>`https://vidfast.pro/movie/${id}?autoPlay=false`,
+  (id)=>`https://vidsrc.xyz/embed/movie?tmdb=${id}`,
+  (id)=>`https://player.vid4u.pro/embed/movie/${id}`
 ];
 
-function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}
+const GENRE_MAP={"28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama","10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance","878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western"};
 
-function navigate(view){
- document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
- document.getElementById('view-'+view).classList.add('active');
- document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
- const nb=document.getElementById('nav-'+view); if(nb) nb.classList.add('active'); else if(view==='search') document.getElementById('nav-browse').classList.add('active');
- currentView=view;
- window.scrollTo({top:0,behavior:'smooth'});
- if(view==='home') loadHomeIfEmpty();
- if(view==='movies') loadMoviesPage();
- if(view==='fullfilms') renderFullFilms();
- if(view==='browse') loadBrowse();
-}
+const FALLBACK=[
+{id:603,t:"【entity-The Matrix¦canonical_name=The Matrix】",y:1999,r:"8.2",g:["Action","Sci-Fi"],gid:[28,878],d:"A computer hacker learns about the true nature of reality.",p:"https://image.tmdb.org/t/p/w500/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",b:"https://image.tmdb.org/t/p/original/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",yt:"vKQi3bBA1y8",arch:null,arc:false,tmdb:603,pop:85},
+{id:155,t:"The Dark Knight",y:2008,r:"8.5",g:["Action","Crime"],gid:[28,80],d:"Batman raises stakes against Joker.",p:"https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg",b:"https://image.tmdb.org/t/p/original/nMKdUUepR0i5zn0Y1gMf4e0thwV.jpg",yt:"EXeTwQWrcwY",arch:null,arc:false,tmdb:155,pop:90},
+{id:27205,t:"Inception",y:2010,r:"8.3",g:["Action","Sci-Fi"],gid:[28,878],d:"Thief steals secrets through dream-sharing.",p:"https://image.tmdb.org/t/p/w500/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",b:"https://image.tmdb.org/t/p/original/9gk7adHYeDvHkCSEqAvQNLV5Uge.jpg",yt:"YoHD9XEInc0",arch:null,arc:false,tmdb:27205,pop:88},
+{id:157336,t:"Interstellar",y:2014,r:"8.4",g:["Sci-Fi","Drama"],gid:[878,18],d:"Explorers travel through wormhole.",p:"https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg",b:"https://image.tmdb.org/t/p/original/xJHokMbljvjADYdit5KhQW2bpQ.jpg",yt:"zSWdZVtXT7E",arch:null,arc:false,tmdb:157336,pop:87},
+{id:238,t:"The Godfather",y:1972,r:"8.7",g:["Crime","Drama"],gid:[80,18],d:"Aging patriarch transfers empire.",p:"https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",b:"https://image.tmdb.org/t/p/original/tmU7GeKVybM9dTE4rC4q4T1d6d.jpg",yt:"sY1S34973zA",arch:null,arc:false,tmdb:238,pop:82},
+{id:"night_living_dead",t:"Night of the Living Dead",y:1968,r:"7.8",g:["Horror","Classic"],gid:[27],d:"Group barricaded survives undead - FULL FILM Archive.org legal",p:"https://archive.org/services/img/night_of_the_living_dead",b:"https://archive.org/services/img/night_of_the_living_dead",yt:"H91BxkQ1l5k",arch:"night_of_the_living_dead",arc:true,tmdb:335,pop:30},
+{id:"nosferatu_1922",t:"Nosferatu",y:1922,r:"8.0",g:["Horror","Classic"],gid:[27],d:"First Dracula - FULL FILM",p:"https://archive.org/services/img/Nosferatu_1922",b:"https://archive.org/services/img/Nosferatu_1922",yt:"FC6j4l00v2w",arch:"Nosferatu_1922",arc:true,tmdb:653,pop:28},
+{id:"metropolis_1927",t:"Metropolis",y:1927,r:"8.3",g:["Sci-Fi","Classic"],gid:[878],d:"Futuristic city worker exploitation - FULL",p:"https://archive.org/services/img/Metropolis1927",b:"https://archive.org/services/img/Metropolis1927",yt:"gCcx85zbxz4",arch:"Metropolis1927",arc:true,tmdb:19,pop:27}
+];
 
+function toast(m){const e=document.getElementById('toast');e.textContent=m;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200);}
 function cardHTML(m){
  try{
-  const title=(m.t||m.title||'Movie').replace(/</g,'').replace(/>/g,'');
+  const title=(m.t||m.title||'Movie').replace(/</g,'').substring(0,38);
   const poster=m.p||m.poster||(m.poster_path?IMG+m.poster_path:'');
   const rating=m.r||m.rating||'7.5';
-  const year=m.y||m.year||'2024';
-  const isFull=m.arc||FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)];
-  return `<div class="card" onclick="openMovie('${m.id}')"><div class="poster"><img src="${poster}" loading="lazy" alt="" onerror="this.src='https://via.placeholder.com/300x450?text=No+Image'"><span class="badge ${isFull?'full':'hd'}">${isFull?'FULL':'HD'}</span><span class="badge rating">★ ${rating}</span></div><div class="card-info"><div class="card-title">${title}</div><div class="card-sub">${year} • ${(m.g||m.genres||['Movie']).slice(0,2).join(' • ')}</div></div></div>`;
+  const year=m.y||m.year||2024;
+  const isFull=m.arc||FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)]||m.tmdb;
+  return `<div class="card" onclick="openMovie('${m.id}')"><div class="poster"><img src="${poster}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x450?text=No+Image'"><span class="badge ${isFull?'full':'hd'}">${isFull?'FULL':'HD'}</span><span class="badge rating">★ ${rating}</span></div><div class="card-info"><div class="card-title">${title}</div><div class="card-sub">${year} • ${(m.g||['Movie']).slice(0,2).join(' • ')}</div></div></div>`;
  }catch(e){return '';}
 }
-
 async function tmdb(path,params={}){
  const u=new URL(TMDB_BASE+path);u.searchParams.set('api_key',TMDB_KEY);Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v));
  try{const r=await fetch(u);if(!r.ok) throw 0;return await r.json();}catch(e){return null;}
 }
-
-// Best ranking equation - T score
+// Best equation for trending: T = 0.35*popNorm + 0.25*freshness + 0.15*engagement + 0.10*weight + 0.15*decay
 function rankTrending(list){
  if(!list.length) return list;
- const maxP=Math.max(...list.map(x=>x.pop||100),100);
+ const maxP=Math.max(...list.map(x=>x.pop||x.popularity||100),100);
  return list.map(x=>{
-  const popNorm=Math.log1p(x.pop||50)/Math.log1p(maxP);
-  const freshness=0.7+Math.random()*0.2, engagement=0.1+Math.random()*0.1, weight=0.05+Math.random()*0.05;
-  const ageDays=Math.max(0,(Date.now()/86400000)-(x.y||2020)*365);
+  const popNorm=Math.log1p(x.pop||x.popularity||50)/Math.log1p(maxP);
+  const freshness=0.75+Math.random()*0.15;
+  const engagement=0.1+Math.random()*0.08;
+  const weight=0.05+Math.random()*0.05;
+  const ageDays=Math.max(0,(Date.now()/86400000)-(x.y||x.year||2020)*365);
   const decay=Math.exp(-0.08*ageDays/365);
   const T=0.35*popNorm+0.25*freshness+0.15*engagement+0.1*weight+0.15*decay;
   return {...x,_T:T};
  }).sort((a,b)=>b._T-a._T);
 }
-
-function computeSimilar(base){
+// Best equation for similar: R = 0.40*Jaccard(genre) + 0.30*T + 0.20*recency + 0.10*popNorm
+function computeSimilarLocal(base){
  try{
-  const baseGenres=new Set((base.g||base.genres||[]).map(s=>s.toLowerCase()));
+  const baseG=new Set((base.gid||base.genre_ids||[]).map(String));
+  if(baseG.size===0 && base.g) base.g.forEach(g=>{const id=Object.keys(GENRE_MAP).find(k=>GENRE_MAP[k].toLowerCase()===g.toLowerCase()); if(id) baseG.add(id);});
   return allCache.filter(x=>String(x.id)!==String(base.id)).map(x=>{
-   const gs=new Set((x.g||x.genres||[]).map(s=>s.toLowerCase()));
-   const inter=[...baseGenres].filter(g=>gs.has(g)).length;
-   const union=new Set([...baseGenres,...gs]).size;
+   const gs=new Set((x.gid||x.genre_ids||[]).map(String));
+   if(gs.size===0 && x.g) x.g.forEach(g=>{const id=Object.keys(GENRE_MAP).find(k=>GENRE_MAP[k].toLowerCase()===g.toLowerCase()); if(id) gs.add(id);});
+   const inter=[...baseG].filter(g=>gs.has(g)).length;
+   const union=new Set([...baseG,...gs]).size;
    const jaccard=union?inter/union:0;
    const T=x._T||0.5;
    const age=Math.abs((x.y||x.year||2020)-(base.y||base.year||2020));
    const recency=Math.exp(-0.05*age);
-   const R=0.4*jaccard+0.3*T+0.2*recency+0.1*0.5;
-   return {...x,_R:R};
-  }).sort((a,b)=>b._R-a._R).slice(0,6);
- }catch(e){return allCache.slice(0,6);}
+   const popNorm=Math.log1p(x.pop||50)/Math.log1p(100);
+   const R=0.40*jaccard+0.30*T+0.20*recency+0.10*popNorm;
+   return {...x,_R:R,jaccard};
+  }).filter(x=>x.jaccard>0).sort((a,b)=>b._R-a._R).slice(0,8);
+ }catch(e){return [];}
 }
 
-async function loadTrending(){
+async function loadTrending(force=false){
  const data=await tmdb('/trending/movie/week',{page:1});
- if(data&&data.results){r.id,t:r.title,y:r.release_date?+r.release_date.slice(0,4):2024,r:r.vote_average?r.vote_average.toFixed(1):'7.5',g:['Trending'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
+ if(data&&data.results){
+  let movies=data.results.slice(0,20).map(r=>({id:r.id,t:r.title,y:r.release_date?+r.release_date.slice(0,4):2024,r:r.vote_average?r.vote_average.toFixed(1):'7.5',g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie').slice(0,3):['Trending'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
   movies=rankTrending(movies);
   document.getElementById('trendingTrack').innerHTML=movies.map(cardHTML).join('');
-  const h=movies[0];if(h){
+  const h=movies[0];
+  if(h){
    document.getElementById('heroBg').src=h.b||h.p;
    document.getElementById('heroTitle').textContent=h.t;
    document.getElementById('heroDesc').textContent=h.d||'';
-   document.getElementById('heroMeta').innerHTML=`<span class="pill white">★ ${h.r}</span><span class="pill">${h.y}</span><span class="pill gold">Trending</span>`;
+   document.getElementById('heroMeta').innerHTML=`<span class="pill white">★ ${h.r}</span><span class="pill">${h.y}</span><span class="pill red">${h.g.slice(0,2).join(' • ')}</span>`;
    document.getElementById('hero').onclick=()=>openMovie(h.id);
    document.getElementById('heroPlay').onclick=(e)=>{e.stopPropagation();openMovie(h.id);};
    currentMovie=h;
   }
   allCache=[...movies,...allCache];
   return movies;
+ }else if(force){
+  const movies=rankTrending(FALLBACK.slice(0,6));
+  document.getElementById('trendingTrack').innerHTML=movies.map(cardHTML).join('');
  }
  return [];
 }
 async function loadNow(){
- const d=await tmdb('/movie/now_playing',{page:1});if(d&&d.results){const m=d.results.slice(0,20).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Latest'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));document.getElementById('latestTrack').innerHTML=m.map(cardHTML).join('');allCache=[...allCache,...m];}
+ const d=await tmdb('/movie/now_playing',{page:1});
+ if(d&&d.results){
+  const m=d.results.slice(0,20).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Latest'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
+  document.getElementById('latestTrack').innerHTML=m.map(cardHTML).join('');
+  allCache=[...allCache,...m];
+ }
 }
 async function loadPopular(p=1){
- const d=await tmdb('/movie/popular',{page:p});if(d&&d.results){const m=d.results.map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Popular'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));if(p===1)document.getElementById('popularTrack').innerHTML=m.slice(0,20).map(cardHTML).join('');else document.getElementById('popularTrack').innerHTML+=m.slice(0,20).map(cardHTML).join('');return m;}return [];
+ const d=await tmdb('/movie/popular',{page:p});
+ if(d&&d.results){
+  const m=d.results.map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Popular'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
+  if(p===1) document.getElementById('popularTrack').innerHTML=m.slice(0,20).map(cardHTML).join(''); else document.getElementById('popularTrack').innerHTML+=m.slice(0,20).map(cardHTML).join('');
+  return m;
+ }
+ return [];
 }
 async function loadTop(){
- const d=await tmdb('/movie/top_rated',{page:1});if(d&&d.results){const m=d.results.slice(0,20).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Top'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));document.getElementById('topTrack').innerHTML=m.map(cardHTML).join('');}
+ const d=await tmdb('/movie/top_rated',{page:1});
+ if(d&&d.results){
+  const m=d.results.slice(0,20).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Top'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
+  document.getElementById('topTrack').innerHTML=m.map(cardHTML).join('');
+ }
 }
-async function loadDiscover(p=1){
- const d=await tmdb('/discover/movie',{sort_by:'popularity.desc',page:p});if(d&&d.results){return d.results.map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Movie'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));}return [];
+async function loadDiscover(p=1,genre=null){
+ const params={sort_by:'popularity.desc',page:p};
+ if(genre&&genre!=='all') params.with_genres=genre;
+ const d=await tmdb('/discover/movie',params);
+ if(d&&d.results){
+  return d.results.map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Movie'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
+ }
+ return [];
 }
-function loadHomeIfEmpty(){
- if(!document.getElementById('trendingTrack').innerHTML) loadInitial();
+function renderFallback(){
+ const h=FALLBACK.map(cardHTML).join('');
+ ['trendingTrack','latestTrack','popularTrack','topTrack'].forEach(id=>{if(!document.getElementById(id).innerHTML) document.getElementById(id).innerHTML=h;});
+ if(!document.getElementById('homeFull').innerHTML) document.getElementById('homeFull').innerHTML=FALLBACK.filter(x=>x.arc).map(cardHTML).join('');
+ if(!document.getElementById('allGrid').innerHTML) document.getElementById('allGrid').innerHTML=FALLBACK.map(cardHTML).join('');
 }
 async function loadInitial(){
  renderFallback();
  try{
   await Promise.all([loadTrending(),loadNow(),loadPopular(1),loadTop()]);
-  const disc=await loadDiscover(1);allCache=[...disc,...allCache,...FALLBACK];
+  const disc=await loadDiscover(1);
+  allCache=[...disc,...allCache,...FALLBACK];
   document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');
   document.getElementById('pageNum').textContent=currentPage;
+  document.getElementById('homeFull').innerHTML=FALLBACK.filter(x=>x.arc).map(cardHTML).join('');
  }catch(e){}
 }
-function renderFallback(){
- const h=FALLBACK.slice(0,12).map(cardHTML).join('');
- if(!document.getElementById('trendingTrack').innerHTML) document.getElementById('trendingTrack').innerHTML=h;
- if(!document.getElementById('latestTrack').innerHTML) document.getElementById('latestTrack').innerHTML=h;
- if(!document.getElementById('popularTrack').innerHTML) document.getElementById('popularTrack').innerHTML=h;
- if(!document.getElementById('topTrack').innerHTML) document.getElementById('topTrack').innerHTML=h;
- if(!document.getElementById('allGrid').innerHTML) document.getElementById('allGrid').innerHTML=FALLBACK.map(cardHTML).join('');
-}
+function loadHomeIfEmpty(){if(!document.getElementById('trendingTrack').innerHTML) loadInitial();}
 
-// Movies Page unique
 async function loadMoviesPage(){
- if(document.getElementById('moviesGrid').innerHTML) return;
- document.getElementById('moviesTrending').innerHTML='<div class="empty">Loading...</div>';
- const [tr,pop]=await Promise.all([tmdb('/trending/movie/week',{page:1}),tmdb('/discover/movie',{with_genres:'28',page:1,sort_by:'popularity.desc'})]);
+ if(document.getElementById('moviesGrid').innerHTML && document.getElementById('moviesGrid').innerHTML.length>50) return;
+ const [tr,act,com]=await Promise.all([tmdb('/trending/movie/week',{page:1}),tmdb('/discover/movie',{with_genres:'28',page:1,sort_by:'popularity.desc'}),tmdb('/discover/movie',{with_genres:'35',page:1,sort_by:'popularity.desc'})]);
  if(tr&&tr.results){
-  const m=tr.results.slice(0,20).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Trending'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));
+  const m=tr.results.slice(0,20).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Trending'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
   document.getElementById('moviesTrending').innerHTML=m.map(cardHTML).join('');
  }
- if(pop&&pop.results){
-  const m=pop.results.slice(0,12).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Action'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));
+ if(act&&act.results){
+  const m=act.results.slice(0,12).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Action'],gid:r.genre_ids||[28],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
   document.getElementById('moviesAction').innerHTML=m.map(cardHTML).join('');
  }
- const comedy=await tmdb('/discover/movie',{with_genres:'35',page:1,sort_by:'popularity.desc'});
- if(comedy&&comedy.results){
-  const m=comedy.results.slice(0,12).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Comedy'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));
+ if(com&&com.results){
+  const m=com.results.slice(0,12).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:['Comedy'],gid:r.genre_ids||[35],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
   document.getElementById('moviesComedy').innerHTML=m.map(cardHTML).join('');
  }
  const disc=await loadDiscover(1);
  document.getElementById('moviesGrid').innerHTML=disc.slice(0,40).map(cardHTML).join('');
 }
-async function filterMoviesPage(g){
- const d=await tmdb('/discover/movie',{with_genres:g,page:1,sort_by:'popularity.desc'});
- if(d&&d.results){
-  const m=d.results.map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:[g],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));
-  document.getElementById('moviesGrid').innerHTML=m.map(cardHTML).join('');
-  document.getElementById('moviesGrid').scrollIntoView({behavior:'smooth'});
- }
-}
-async function loadMoreMovies(){
- try{moviesPage++;document.getElementById('moviesPageNum').textContent=moviesPage;document.getElementById('moviesPageNum2').textContent=moviesPage;const more=await loadDiscover(moviesPage);if(more.length){document.getElementById('moviesGrid').innerHTML+=more.map(cardHTML).join('');}}catch(e){}
-}
+async function loadMoreMovies(){moviesPage++;document.getElementById('moviesPageNum').textContent=moviesPage;const more=await loadDiscover(moviesPage);if(more.length) document.getElementById('moviesGrid').innerHTML+=more.map(cardHTML).join('');}
+function renderFullFilms(){document.getElementById('fullGrid').innerHTML=FALLBACK.filter(x=>x.arc).map(cardHTML).join('');}
+async function loadBrowse(){if(document.getElementById('allGrid').innerHTML && allCache.length>20) return;const disc=await loadDiscover(1);if(disc.length){allCache=[...disc,...FALLBACK];document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');}}
+async function loadMore(){currentPage++;document.getElementById('pageNum').textContent=currentPage;const more=await loadDiscover(currentPage);if(more.length){allCache=[...allCache,...more];document.getElementById('allGrid').innerHTML=allCache.slice(0,currentPage*40).map(cardHTML).join('');toast('Page '+currentPage+' • +'+more.length);}}
+async function loadMorePopular(){popularPage++;const m=await loadPopular(popularPage);if(m.length) toast('Popular +'+m.length);}
 
-// Full Films Page
-function renderFullFilms(){
- document.getElementById('fullGrid').innerHTML=FALLBACK.filter(x=>x.arc).map(cardHTML).join('');
+function navigate(view){
+ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+ document.getElementById('view-'+view).classList.add('active');
+ document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
+ const map={'home':'b-home','movies':'b-movies','fullfilms':'b-full','browse':'b-browse','search':'b-search','genre':'b-movies'};
+ const bid=map[view]; if(bid){const el=document.getElementById(bid); if(el) el.classList.add('active');}
+ window.scrollTo({top:0,behavior:'smooth'});
+ if(view==='home') loadHomeIfEmpty();
+ if(view==='movies') loadMoviesPage();
+ if(view==='fullfilms') renderFullFilms();
+ if(view==='browse') loadBrowse();
 }
-
-// Browse Page
-async function loadBrowse(){
- if(document.getElementById('allGrid').innerHTML && allCache.length>20) return;
- const disc=await loadDiscover(1);
- if(disc.length){allCache=[...disc,...FALLBACK];document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');}
-}
-async function loadMore(){
- try{currentPage++;document.getElementById('pageNum').textContent=currentPage;const more=await loadDiscover(currentPage);if(more.length){allCache=[...allCache,...more];document.getElementById('allGrid').innerHTML=allCache.slice(0,currentPage*40).map(cardHTML).join('');toast('Page '+currentPage+' • +'+more.length);}}catch(e){}
-}
-async function loadMorePopular(){try{popularPage++;const m=await loadPopular(popularPage);if(m.length) toast('Popular +'+m.length);}catch(e){}}
-
-// Search - goes to new page
 function handleSearch(e){
  e.preventDefault();
  const q=(document.getElementById('q').value||document.getElementById('q2').value||'').trim();
@@ -448,67 +513,137 @@ function doSearch(q){
  if(!q) q=(document.getElementById('q').value||'').trim();
  if(!q) return;
  document.getElementById('q').value=q;
- document.getElementById('q2').value=q;
+ const q2=document.getElementById('q2'); if(q2) q2.value=q;
  navigate('search');
  document.getElementById('searchTitle').textContent='Search: "'+q+'"';
- document.getElementById('searchSub').textContent='Showing results for "'+q+'" • from millions via TMDB';
+ document.getElementById('searchSub').textContent='Results for "'+q+'" • millions via TMDB';
  document.getElementById('searchGrid').innerHTML='<div class="empty">Searching...</div>';
  document.getElementById('searchEmpty').style.display='none';
- const local=allCache.filter(m=>(m.t||'').toLowerCase().includes(q.toLowerCase()));
- if(local.length>=4){
-  document.getElementById('searchGrid').innerHTML=local.map(cardHTML).join('');
-  document.getElementById('searchCount').textContent=local.length+' local';
- }
  tmdb('/search/movie',{query:q,page:1}).then(data=>{
   if(data&&data.results&&data.results.length){
-   const movies=data.results.map(r=>({id:r.id,t:r.title,y:r.release_date?+r.release_date.slice(0,4):2024,r:r.vote_average?r.vote_average.toFixed(1):'7.5',g:['Search'],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));
+   const movies=data.results.map(r=>({id:r.id,t:r.title,y:r.release_date?+r.release_date.slice(0,4):2024,r:r.vote_average?r.vote_average.toFixed(1):'7.5',g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Search'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));function renderFullFilms(){document.getElementById('fullGrid').innerHTML=FALLBACK.filter(x=>x.arc).map(cardHTML).join('');}
+async function loadBrowse(){if(document.getElementById('allGrid').innerHTML && allCache.length>20) return;const disc=await loadDiscover(1);if(disc.length){allCache=[...disc,...FALLBACK];document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');}}
+async function loadMore(){currentPage++;document.getElementById('pageNum').textContent=currentPage;const more=await loadDiscover(currentPage);if(more.length){allCache=[...allCache,...more];document.getElementById('allGrid').innerHTML=allCache.slice(0,currentPage*40).map(cardHTML).join('');toast('Page '+currentPage+' • +'+more.length);}}
+async function loadMorePopular(){popularPage++;const m=await loadPopular(popularPage);if(m.length) toast('Popular +'+m.length);}
+
+function navigate(view){
+ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+ document.getElementById('view-'+view).classList.add('active');
+ document.querySelectorAll('.bottom button').forEach(b=>b.classList.remove('active'));
+ const map={'home':'b-home','movies':'b-movies','fullfilms':'b-full','browse':'b-browse','search':'b-search','genre':'b-movies'};
+ const bid=map[view]; if(bid){const el=document.getElementById(bid); if(el) el.classList.add('active');}
+ window.scrollTo({top:0,behavior:'smooth'});
+ if(view==='home') loadHomeIfEmpty();
+ if(view==='movies') loadMoviesPage();
+ if(view==='fullfilms') renderFullFilms();
+ if(view==='browse') loadBrowse();
+}
+function handleSearch(e){
+ e.preventDefault();
+ const q=(document.getElementById('q').value||document.getElementById('q2').value||'').trim();
+ if(!q) return;
+ doSearch(q);
+ return false;
+}
+function doSearch(q){
+ if(!q) q=(document.getElementById('q').value||'').trim();
+ if(!q) return;
+ document.getElementById('q').value=q;
+ const q2=document.getElementById('q2'); if(q2) q2.value=q;
+ navigate('search');
+ document.getElementById('searchTitle').textContent='Search: "'+q+'"';
+ document.getElementById('searchSub').textContent='Results for "'+q+'" • millions via TMDB';
+ document.getElementById('searchGrid').innerHTML='<div class="empty">Searching...</div>';
+ document.getElementById('searchEmpty').style.display='none';
+ tmdb('/search/movie',{query:q,page:1}).then(data=>{
+  if(data&&data.results&&data.results.length){
+   const movies=data.results.map(r=>({id:r.id,t:r.title,y:r.release_date?+r.release_date.slice(0,4):2024,r:r.vote_average?r.vote_average.toFixed(1):'7.5',g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Search'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
    document.getElementById('searchGrid').innerHTML=movies.map(cardHTML).join('');
    document.getElementById('searchCount').textContent=movies.length+' movies';
-   document.getElementById('searchEmpty').style.display='none';
-  }else if(local.length===0){
+  }else{
    document.getElementById('searchGrid').innerHTML='';
    document.getElementById('searchEmpty').style.display='block';
-   document.getElementById('searchCount').textContent='0 movies';
   }
  });
 }
+function openGenreModal(){document.getElementById('genreModal').classList.add('open');}
+function closeGenreModal(){document.getElementById('genreModal').classList.remove('open');}
+function openYearModal(){toast('Years filter: Use Browse • Years 2026,2025... coming soon');}
+function openCountryModal(){toast('Countries filter: US, UK, ZA coming soon');}
+function setSort(v){toast('Sort: '+v);}
 
-// Detail + players - includes VidSrc-like embed as Server 3 (like Movy.sx)
+async function openGenrePage(gid,gname){
+ closeGenreModal();
+ currentGenre={id:gid,name:gname};
+ genrePage=1;
+ document.getElementById('genreTitle').textContent=gname||GENRE_MAP[gid]||'Genre';
+ document.getElementById('genreSub').textContent='Genre: '+gname+' • Best equation T = 0.35*pop + 0.25*freshness + ... • Page 1';
+ document.getElementById('genreGrid').innerHTML='<div class="empty">Loading '+gname+'...</div>';
+ navigate('genre');
+ const movies=await loadDiscover(1,gid);
+ currentGenreList=movies;
+ document.getElementById('genreGrid').innerHTML=movies.map(cardHTML).join('');
+ allCache=[...allCache,...movies];
+}
+async function loadMoreGenre(){
+ genrePage++;
+ const more=await loadDiscover(genrePage,currentGenre.id);
+ if(more.length){currentGenreList=[...currentGenreList,...more];document.getElementById('genreGrid').innerHTML=currentGenreList.map(cardHTML).join('');document.getElementById('genreSub').textContent='Genre: '+currentGenre.name+' • Page '+genrePage; toast('+'+more.length+' '+currentGenre.name);}
+}
+function filterHome(g,el){
+ document.querySelectorAll('#homeFilters .fpill').forEach(b=>b.classList.remove('active'));
+ if(el) el.classList.add('active');
+ if(g==='all'){document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join(''); navigate('browse'); return;}
+ openGenrePage(g,GENRE_MAP[g]||g);
+}
+function filterBrowse(g,el){
+ document.querySelectorAll('#browseFilters .fpill').forEach(b=>b.classList.remove('active'));
+ if(el) el.classList.add('active');
+ if(g==='all'){document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');return;}
+ openGenrePage(g,GENRE_MAP[g]||g);
+}
+
 async function openMovie(id){
- let m=allCache.find(x=>String(x.id)===String(id))||FALLBACK.find(x=>String(x.id)===String(id));
+ let m=allCache.find(x=>String(x.id)===String(id))||FALLBACK.find(x=>String(x.id)===String(id))||currentGenreList.find(x=>String(x.id)===String(id));
  if(!m){
-  try{const d=await tmdb('/movie/'+id);if(d)m={id:d.id,t:d.title,y:+d.release_date.slice(0,4),r:d.vote_average.toFixed(1),g:d.genres?.map(x=>x.name)||['Movie'],d:d.overview,p:d.poster_path?IMG+d.poster_path:'',b:d.backdrop_path?BACKDROP+d.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:d.id};}catch(e){m=FALLBACK[0];}
+  try{const d=await tmdb('/movie/'+id);if(d)m={id:d.id,t:d.title,y:+d.release_date.slice(0,4),r:d.vote_average.toFixed(1),g:d.genres?.map(x=>x.name)||['Movie'],gid:d.genres?.map(x=>String(x.id))||[],d:d.overview,p:d.poster_path?IMG+d.poster_path:'',b:d.backdrop_path?BACKDROP+d.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:d.id,pop:d.popularity};}catch(e){m=FALLBACK[0];}
  }
  currentMovie=m;
  document.getElementById('detailTitle').textContent=m.t||m.title;
  document.getElementById('detailTopTitle').textContent=m.t||m.title;
- document.getElementById('detailMeta').innerHTML=`<span class="pill white">★ ${m.r||m.rating}</span><span class="pill">${m.y||m.year}</span><span class="pill gold">${(m.g||m.genres||['Movie']).slice(0,3).join(' • ')}</span><span class="pill">${m.arc?'FULL LEGAL':FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)]?'FULL • EMBED':'Trailer HD'}</span>`;
+ document.getElementById('detailMeta').innerHTML=`<span class="pill white">★ ${m.r||m.rating}</span><span class="pill">${m.y||m.year}</span><span class="pill red">${(m.g||['Movie']).slice(0,3).join(' • ')}</span><span class="pill">${m.arc?'FULL LEGAL':FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)]||m.tmdb?'FULL • EMBED':'Trailer HD'}</span>`;
  document.getElementById('detailDesc').textContent=m.d||m.desc||'';
- document.getElementById('detailDetails').innerHTML=`<div style="display:flex;justify-content:space-between"><span>Year</span><span style="color:#f5eee6">${m.y||m.year}</span></div><div style="display:flex;justify-content:space-between"><span>Rating</span><span style="color:#f5eee6">★ ${m.r||m.rating}</span></div><div style="display:flex;justify-content:space-between"><span>TMDB</span><span style="color:#c8a87a">${m.tmdb||m.id}</span></div><div style="display:flex;justify-content:space-between"><span>Source</span><span style="color:#22c55e">${m.arc?'Archive.org FULL':FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)]?'Archive + Trailer + Embed (Movy.sx style)':'Trailer + Legal Providers'}</span></div>`;
- document.getElementById('similar').innerHTML=computeSimilar(m).map(cardHTML).join('');
+ document.getElementById('detailDetails').innerHTML=`<div style="display:flex;justify-content:space-between"><span>Year</span><span style="color:#fff">${m.y||m.year}</span></div><div style="display:flex;justify-content:space-between"><span>Rating</span><span style="color:#fff">★ ${m.r||m.rating}</span></div><div style="display:flex;justify-content:space-between"><span>TMDB ID</span><span style="color:#e50914">${m.tmdb||m.id}</span></div><div style="display:flex;justify-content:space-between"><span>Source</span><span style="color:#22c55e">${m.arc?'Archive.org FULL':FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)]||m.tmdb?'Third-party embed (like Movy.sx)':'Trailer + Providers'}</span></div><div style="margin-top:8px;color:#7a7a80;font-size:11px">Ranked by best equations: T = 0.35*log1p(pop)/log1p(max) + 0.25*freshness + 0.15*engagement + ... • R = 0.40*Jaccard + 0.30*T + 0.20*recency + 0.10*pop</div>`;
+ // You May Also Like - use TMDB similar API first, fallback to local Jaccard
+ document.getElementById('similar').innerHTML='<div class="empty">Loading similar...</div>';
+ try{
+  let similar=[];
+  if(m.tmdb){
+   const data=await tmdb('/movie/'+m.tmdb+'/similar',{page:1});
+   if(data&&data.results&&data.results.length){
+    similar=data.results.slice(0,8).map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:r.genre_ids?r.genre_ids.map(id=>GENRE_MAP[id]||'Movie'):['Similar'],gid:r.genre_ids||[],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id,pop:r.popularity}));
+   }
+  }
+  if(similar.length<4){
+   const local=computeSimilarLocal(m);
+   similar=[...similar,...local].slice(0,8);
+  }
+  document.getElementById('similar').innerHTML=similar.length?similar.map(cardHTML).join(''):'<div class="empty">No similar found</div>';
+ }catch(e){
+  const local=computeSimilarLocal(m);
+  document.getElementById('similar').innerHTML=local.map(cardHTML).join('');
+ }
  document.getElementById('detail').classList.add('open');
  document.getElementById('fullBtn').style.display=m.arc?'inline-flex':'none';
- document.getElementById('embedBtn').style.display=(FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)]||m.tmdb)?'inline-flex':'none';
- const hasArch=m.arc;
- const hasEmbed=FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)]||m.tmdb;
+ document.getElementById('embedBtn').style.display='inline-flex';
  const bar=document.getElementById('serverBar');
- if(hasArch){
-  bar.innerHTML=`<button class="srv active" id="srv-archive" onclick="setServer('${m.id}','archive')">Server 1 • Archive FULL • ${m.arch}</button><button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 2 • Trailer</button>${hasEmbed?`<button class="srv" id="srv-embed" onclick="setServer('${m.id}','embed')">Server 3 • Full Embed</button>`:''}`;
+ if(m.arc){
+  bar.innerHTML=`<button class="srv active" id="srv-archive" onclick="setServer('${m.id}','archive')">Server 1 • Archive FULL</button><button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 2 • Trailer</button><button class="srv" id="srv-embed" onclick="setServer('${m.id}','embed')">Server 3 • Full Embed</button>`;
   setServer(m.id,'archive');
- }else if(hasEmbed){
-  bar.innerHTML=`<button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 1 • Trailer</button><button class="srv active" id="srv-embed" onclick="setServer('${m.id}','embed')">Server 2 • Full Embed • Like Movy.sx</button>`;
-  setServer(m.id,'embed');
  }else{
-  bar.innerHTML=`<button class="srv active" id="srv-youtube">Loading trailer...</button>`;
-  (async()=>{
-   let yt=m.yt;
-   try{if(m.tmdb){const v=await tmdb('/movie/'+m.tmdb+'/videos');if(v&&v.results){const tr=v.results.find(x=>x.type==='Trailer'&&x.site==='YouTube')||v.results[0];if(tr)yt=tr.key;}}}catch(e){}
-   if(!yt){const fb={603:'vKQi3bBA1y8',155:'EXeTwQWrcwY'};yt=fb[m.tmdb]||'dQw4w9WgXcQ';}
-   m.yt=yt;
-   bar.innerHTML=`<button class="srv active" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 1 • Trailer</button><button class="srv" id="srv-embed" onclick="setServer('${m.id}','embed')">Server 2 • Full Embed</button><button class="srv" id="srv-providers" onclick="document.getElementById('providers').scrollIntoView({behavior:'smooth'})">Legal Providers</button>`;
-   setServer(m.id,'youtube');
-   loadProviders(m.tmdb);
-  })();
+  bar.innerHTML=`<button class="srv" id="srv-youtube" onclick="setServer('${m.id}','youtube')">Server 1 • Trailer</button><button class="srv active" id="srv-embed" onclick="setServer('${m.id}','embed')">Server 2 • Full HD • Like Movy.sx</button><button class="srv" id="srv-embed2" onclick="setServer('${m.id}','embed2')">Server 3 • Backup</button><button class="srv" id="srv-embed3" onclick="setServer('${m.id}','embed3')">Server 4 • Vidlink</button>`;
+  setServer(m.id,'embed');
+  loadProviders(m.tmdb);
  }
 }
 async function loadProviders(tmdbId){
@@ -516,48 +651,48 @@ async function loadProviders(tmdbId){
   const el=document.getElementById('providers');
   if(!tmdbId){el.textContent='Full film via Archive.org';return;}
   const data=await tmdb('/movie/'+tmdbId+'/watch/providers');
-  if(!data||!data.results){el.textContent='Trailer available. Check legal providers.';return;}
+  if(!data||!data.results){el.textContent='Trailer • Check JustWatch for legal options • Full embed uses third-party proxy like Movy.sx';return;}
   const us=data.results['US']||data.results['ZA']||Object.values(data.results)[0];
-  if(!us||(!us.flatrate&&!us.rent&&!us.buy)){el.textContent='Not on legal streaming. Trailer + Archive classics available. Full embed via Server 3 uses third-party proxy like Movy.sx.';return;}
+  if(!us||(!us.flatrate&&!us.rent&&!us.buy)){el.textContent='Not on legal streaming in your region. Trailer available. Full embed via Server 2/3 uses third-party proxy like Movy.sx (client-side directory).';return;}
   let html='';
   if(us.flatrate) html+=`<div><b>Stream:</b> ${us.flatrate.map(p=>p.provider_name).join(', ')}</div>`;
   if(us.rent) html+=`<div><b>Rent:</b> ${us.rent.map(p=>p.provider_name).join(', ')}</div>`;
   if(us.buy) html+=`<div><b>Buy:</b> ${us.buy.map(p=>p.provider_name).join(', ')}</div>`;
-  if(us.link) html+=`<div style="margin-top:6px"><a href="${us.link}" target="_blank" style="color:#c8a87a;text-decoration:underline">View on JustWatch</a></div>`;
+  if(us.link) html+=`<div style="margin-top:6px"><a href="${us.link}" target="_blank" style="color:#e50914;text-decoration:underline">View on JustWatch</a></div>`;
   el.innerHTML=html||'Trailer only';
  }catch(e){document.getElementById('providers').textContent='Loading...';}
 }
 function setServer(id,type){
- let m=allCache.find(x=>String(x.id)===String(id))||FALLBACK.find(x=>String(x.id)===String(id))||currentMovie;
+ let m=allCache.find(x=>String(x.id)===String(id))||FALLBACK.find(x=>String(x.id)===String(id))||currentGenreList.find(x=>String(x.id)===String(id))||currentMovie;
  if(!m) return;
  document.querySelectorAll('.srv').forEach(b=>b.classList.remove('active'));
- const btn=document.getElementById('srv-'+type);if(btn)btn.classList.add('active');
+ const btn=document.getElementById('srv-'+type); if(btn) btn.classList.add('active');
  const w=document.getElementById('playerWrap');
  if(type==='archive'&&m.arch){w.innerHTML=`<iframe src="https://archive.org/embed/${m.arch}" frameborder="0" allowfullscreen></iframe>`;}
- else if(type==='embed'){
-  let src=FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)];
-  if(!src&&m.tmdb) src=`https://vidsrc.to/embed/movie/${m.tmdb}`;
-  if(src) w.innerHTML=`<iframe src="${src}" frameborder="0" allowfullscreen allow="autoplay; fullscreen"></iframe><div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.75);padding:4px 8px;border-radius:6px;font-size:10px;color:#c8a87a;border:1px solid #2c241b">Full Embed • Like Movy.sx • Third-party proxy</div>`;
+ else if(type==='embed' || type==='embed2' || type==='embed3'){
+  let idx=0;
+  if(type==='embed2') idx=1;
+  if(type==='embed3') idx=2;
+  let src=null;
+  if(m.tmdb){
+   const provider = EMBED_PROVIDERS[idx % EMBED_PROVIDERS.length];
+   src=provider(m.tmdb);
+  }else{
+   src=FULL_EMBED[String(m.id)]||FULL_EMBED[String(m.tmdb)];
+  }
+  if(!src&&m.tmdb) src=EMBED_PROVIDERS[0](m.tmdb);
+  if(src) w.innerHTML=`<iframe src="${src}" frameborder="0" allowfullscreen allow="autoplay; fullscreen"></iframe><div style="position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);padding:4px 8px;border-radius:6px;font-size:10px;color:#e50914;border:1px solid #2a2a2e">Full Embed • Like Movy.sx • ${src.includes('vidsrc.to')?'vidsrc.to':src.includes('vidlink')?'vidlink.pro':'third-party'} • Client-side proxy</div>`;
+  else w.innerHTML='<div class="empty"><b>No embed</b>Try Trailer</div>';
  }
- else{const yt=m.yt||'dQw4w9WgXcQ';w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;}
+ else{
+  const yt=m.yt||'dQw4w9WgXcQ';
+  w.innerHTML=`<iframe src="https://www.youtube.com/embed/${yt}?autoplay=1&rel=0&modestbranding=1&playsinline=1" allow="autoplay; fullscreen" allowfullscreen></iframe>`;
+ }
 }
 function playTrailer(){if(currentMovie) setServer(currentMovie.id,'youtube');}
 function playFull(){if(currentMovie&&currentMovie.arc) setServer(currentMovie.id,'archive');}
 function playEmbed(){if(currentMovie) setServer(currentMovie.id,'embed');}
-function closeDetail(){document.getElementById('detail').classList.remove('open');document.getElementById('playerWrap').innerHTML='';currentMovie=null;}
-
-document.getElementById('genreBarHome').addEventListener('click',e=>{if(e.target.classList.contains('chip')){document.querySelectorAll('#genreBarHome .chip').forEach(c=>c.classList.remove('active'));e.target.classList.add('active');filterGenre(e.target.dataset.g);}});
-document.getElementById('genreBarMovies').addEventListener('click',e=>{if(e.target.classList.contains('chip')){document.querySelectorAll('#genreBarMovies .chip').forEach(c=>c.classList.remove('active'));e.target.classList.add('active');filterMoviesPage(e.target.dataset.g);}});
-document.getElementById('genreBarBrowse').addEventListener('click',e=>{if(e.target.classList.contains('chip')){document.querySelectorAll('#genreBarBrowse .chip').forEach(c=>c.classList.remove('active'));e.target.classList.add('active');if(e.target.dataset.g==='all'){document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');}else{filterGenreBrowse(e.target.dataset.g);}}});
-async function filterGenre(g){
- if(g==='all'){document.getElementById('allGrid').innerHTML=allCache.slice(0,40).map(cardHTML).join('');return;}
- const d=await tmdb('/discover/movie',{with_genres:g,page:1,sort_by:'popularity.desc'});
- if(d&&d.results){const m=d.results.map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:[g],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));document.getElementById('allGrid').innerHTML=m.map(cardHTML).join('');navigate('browse');}
-}
-async function filterGenreBrowse(g){
- const d=await tmdb('/discover/movie',{with_genres:g,page:1,sort_by:'popularity.desc'});
- if(d&&d.results){const m=d.results.map(r=>({id:r.id,t:r.title,y:+r.release_date.slice(0,4),r:r.vote_average.toFixed(1),g:[g],d:r.overview,p:r.poster_path?IMG+r.poster_path:'',b:r.backdrop_path?BACKDROP+r.backdrop_path:'',yt:null,arch:null,arc:false,tmdb:r.id}));document.getElementById('allGrid').innerHTML=m.map(cardHTML).join('');}
-}
+function closeDetail(){document.getElementById('detail').classList.remove('open');document.getElementById('playerWrap').innerHTML='';}
 loadInitial();
 </script>
 </body>
