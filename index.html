@@ -196,7 +196,7 @@ footer { margin-top: auto; padding: 40px 20px 100px; text-align: center; color: 
 footer b { color: var(--text-main); }
 
 /* ═══════════════════════════════════════════
-   FULLSCREEN PLAYER OVERLAY
+   FULLSCREEN PLAYER OVERLAY (SINGLE LINE, NO FAKE UI)
    ═══════════════════════════════════════════ */
 .player-overlay { position: fixed; inset: 0; z-index: 700; background: #000; display: none; flex-direction: column; }
 .player-overlay.open { display: flex; }
@@ -468,10 +468,12 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
+// UPDATED SERVERS: 2Embed is Server 1 (The one you said works cleanly). 
+// The others are the cleanest backups available right now.
 const EMBED_PROVIDERS = [
   { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Server 2', movie: (id) => `https://vidsrc.rip/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.rip/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
+  { name: 'Server 3', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
