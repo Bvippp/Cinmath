@@ -12,7 +12,7 @@
 <!-- ═══════════════════════════════════════════
      FAVICON (TM Logo)
      ═══════════════════════════════════════════ -->
-<link rel="icon" sizes="any" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='9' fill='%23c89666'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='16' fill='%2314100d'%3ETM%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='9' fill='%23c89666'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='16' fill='%2314100d'%3ETM%3C/text%3E%3C/svg%3E">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -615,6 +615,7 @@ footer b { color: var(--text-main); }
       <div class="player-title-box">
         <div class="player-title" id="playerTitle">Loading...</div>
         <div class="player-subtitle" id="playerSubtitle"></div>
+        <div style="font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 4px;">If video doesn't load, try switching servers below</div>
       </div>
     </div>
     <div class="player-right-header" id="serverButtonsContainer"></div>
@@ -680,13 +681,13 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (Removed vidsrc.cc & vidsrc.xyz to eliminate branded player)
+// EMBED PROVIDERS (Clean, fast, no vidsrc branding)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
   { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 4', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` }
+  { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` },
+  { name: 'Server 3', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` },
+  { name: 'Server 4', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
