@@ -681,13 +681,13 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (Strictly No Vidsrc / No Vidsrc Layouts)
+// EMBED PROVIDERS (Strictly No Vidsrc, No Autoembed, No Histats tracking)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://autoembed.co/movie/tmdb/${id}`, tv: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}` },
-  { name: 'Server 2', movie: (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1`, tv: (id, s, e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}` },
-  { name: 'Server 3', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` },
-  { name: 'Server 4', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 1', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` },
+  { name: 'Server 2', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 3', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` },
+  { name: 'Server 4', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1442,7 +1442,7 @@ function loadPlayerSource(index) {
   if (!url) { toast('Server unavailable'); return; }
   
   // referrerpolicy="no-referrer" helps reduce targeted ad tracking.
-  // Removed vidsrc providers entirely.
+  // Replaced autoembed and multiembed with vidlink, smashy, 2embed, and embed.su.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       referrerpolicy="no-referrer"
