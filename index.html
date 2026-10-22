@@ -478,11 +478,12 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// THE MOST RECENT SERVER SOLUTION YOU REQUESTED
+// 4 SERVERS RESTORED: 2Embed is Server 1 (The clean one you tested)
 const EMBED_PROVIDERS = [
   { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
   { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 3', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 4', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1032,7 +1033,7 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // We add allowfullscreen explicitly and standard attributes
+  // We add allowfullscreen explicitly to fix the fullscreen issue
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       allowfullscreen="true" 
