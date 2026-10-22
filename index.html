@@ -43,6 +43,9 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 20px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 a { color: inherit; text-decoration: none; }
 button { font-family: inherit; -webkit-tap-highlight-color: transparent; border: none; background: none; cursor: pointer; }
@@ -167,7 +170,7 @@ img { display: block; max-width: 100%; }
 /* ═══════════════════════════════════════════
    SECTION HEADERS & LAYOUT
    ═══════════════════════════════════════════ */
-.main { max-width: 1400px; margin: 0 auto; padding: 0 0 30px; }
+.main { max-width: 1400px; margin: 0 auto; padding: 0 0 30px; flex: 1; }
 .section-head {
   display: flex; align-items: center; gap: 12px;
   padding: 0 20px; margin: 30px 0 16px;
@@ -350,6 +353,36 @@ img { display: block; max-width: 100%; }
 }
 
 /* ═══════════════════════════════════════════
+   DISCLAIMER BLOCK (Inside Details & Footer)
+   ═══════════════════════════════════════════ */
+.site-disclaimer {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.site-disclaimer p { margin: 0; }
+
+footer {
+  margin-top: auto;
+  padding: 40px 20px 100px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.6;
+  border-top: 1px solid var(--border);
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+footer b { color: var(--text-main); }
+
+/* ═══════════════════════════════════════════
    IN-PAGE PLAYER OVERLAY (Clean, Native Controls Only)
    ═══════════════════════════════════════════ */
 .player-overlay {
@@ -359,7 +392,6 @@ img { display: block; max-width: 100%; }
 }
 .player-overlay.open { display: flex; }
 
-/* Top Bar (Pointer-events passed through to iframe) */
 .player-top-bar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
@@ -395,7 +427,6 @@ img { display: block; max-width: 100%; }
   display: grid; place-items: center;
 }
 
-/* Video Area */
 .player-video-container {
   flex: 1; width: 100%; height: 100%;
   position: relative;
@@ -861,10 +892,15 @@ img { display: block; max-width: 100%; }
       </div>
       <div class="cast-scroller" id="castScroller"></div>
     </div>
+
+    <!-- Disclaimer inside Movie Details -->
+    <div class="site-disclaimer">
+      <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
+    </div>
   </div>
 </div>
 
-<!-- ═══════════════ IN-PAGE PLAYER OVERLAY (Clean, Native Controls Only) ═══════════════ -->
+<!-- ═══════════════ IN-PAGE PLAYER OVERLAY ═══════════════ -->
 <div class="player-overlay" id="playerOverlay">
   <div class="player-top-bar">
     <button class="player-back-btn" onclick="closePlayer()">
@@ -975,6 +1011,13 @@ img { display: block; max-width: 100%; }
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ═══════════════ GLOBAL FOOTER (Disclaimer) ═══════════════ -->
+<footer>
+  <div class="site-disclaimer" style="border:none; margin:0 auto;">
+    <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
+  </div>
+</footer>
 
 <script>
 const TMDB_KEY  = '3d1cb94d909aab088231f5af899dffdc';
@@ -1552,7 +1595,7 @@ function loadPlayerSource(index) {
     return;
   }
   
-  // REMOVED SANDBOX to fix "disable sandbox" error and allow native controls to function.
+  // Clean iframe injection with native controls, no sandbox to allow playback
   container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;"></iframe>`;
   
   const timeout = setTimeout(() => {
