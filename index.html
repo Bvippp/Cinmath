@@ -194,7 +194,7 @@ footer { margin-top: auto; padding: 40px 20px 100px; text-align: center; color: 
 footer b { color: var(--text-main); }
 
 /* ═══════════════════════════════════════════
-   FULLSCREEN PLAYER OVERLAY
+   FULLSCREEN PLAYER OVERLAY (Custom UI)
    ═══════════════════════════════════════════ */
 .player-overlay {
   position: fixed; inset: 0; z-index: 700;
@@ -218,6 +218,7 @@ footer b { color: var(--text-main); }
   z-index: 1;
 }
 
+/* Top Bar (Sleek, like movy.sx) */
 .player-top-bar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 10;
   display: flex; align-items: flex-start; justify-content: space-between;
@@ -225,9 +226,13 @@ footer b { color: var(--text-main); }
   background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
   pointer-events: none;
   opacity: 1;
+  transition: opacity 0.3s;
 }
+/* Auto-hide top bar after a few seconds */
+.player-overlay.idle .player-top-bar { opacity: 0; }
 .player-top-bar > * { pointer-events: auto; }
 
+.player-left-header { display: flex; align-items: center; gap: 16px; }
 .player-back-btn {
   width: 40px; height: 40px; border-radius: 50%;
   background: rgba(0,0,0,0.6); color: #fff;
@@ -235,32 +240,23 @@ footer b { color: var(--text-main); }
   backdrop-filter: blur(4px);
 }
 .player-back-btn:hover { background: rgba(255,255,255,0.2); }
+.player-title-box { display: flex; flex-direction: column; gap: 2px; }
+.player-title { font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+.player-subtitle { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 
-.server-controls {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
-}
+.player-right-header { display: flex; align-items: center; gap: 12px; }
 .player-pill-btn {
   display: flex; align-items: center; gap: 6px;
-  background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
-  border: 1px solid var(--accent);
-  padding: 8px 16px; border-radius: 20px;
-  color: #fff; font-size: 13px; font-weight: 700;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 6px 14px; border-radius: 20px;
+  color: #fff; font-size: 13px; font-weight: 600;
   transition: 0.2s; cursor: pointer;
 }
-.player-pill-btn:hover { background: var(--accent); color: #000; }
-.player-pill-btn.active { background: var(--accent); color: #000; }
+.player-pill-btn:hover { background: rgba(255,255,255,0.2); }
+.player-pill-btn svg { width: 16px; height: 16px; }
 
-.server-tip {
-  position: absolute; top: 70px; right: 20px;
-  background: rgba(0,0,0,0.85); border: 1px solid var(--accent);
-  color: #fff; padding: 10px 16px; border-radius: var(--radius-md);
-  font-size: 13px; font-weight: 500; pointer-events: none;
-  animation: fadeUp 0.5s ease, fadeOut 0.5s ease 4s forwards;
-  z-index: 20;
-}
-@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
-
+/* Loading Spinner */
 .loader {
   position: absolute; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
@@ -491,14 +487,19 @@ footer b { color: var(--text-main); }
   </div>
 
   <div class="player-top-bar">
-    <button class="player-back-btn" onclick="closePlayer()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    </button>
-    
-    <div class="server-controls" id="serverButtonsContainer"></div>
+    <div class="player-left-header">
+      <button class="player-back-btn" onclick="closePlayer()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="player-title-box">
+        <div class="player-title" id="playerTitle">Loading...</div>
+        <div class="player-subtitle" id="playerSubtitle"></div>
+      </div>
+    </div>
+    <div class="player-right-header" id="serverButtonsContainer">
+      <!-- Server buttons injected here -->
+    </div>
   </div>
-
-  <div class="server-tip" id="serverTip">Tip: If this server fails, click a different one at the top right.</div>
 </div>
 
 <!-- ═══════════════ BOTTOM NAVIGATION ═══════════════ -->
@@ -536,10 +537,10 @@ let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 // THE FRESH SERVER LIST (Current Top Performers)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
-  { name: 'Server 1 (2Embed)', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Server 2 (VidLink)', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'Server 3 (VidSrc)', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 4 (Backup)', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 1 (Clean)', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+  { name: 'Server 2', movie: (id) => `https://vidsrc.rip/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.rip/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 3', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 4', movie: (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1`, tv: (id, s, e) => `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1042,14 +1043,28 @@ async function playCurrentMedia(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   
-  const tip = document.getElementById('serverTip');
-  tip.style.display = 'block';
-  tip.style.animation = 'fadeUp 0.5s ease, fadeOut 0.5s ease 4s forwards';
+  // Set the Title and Subtitle for the top bar
+  document.getElementById('playerTitle').textContent = currentMovie.t;
+  document.getElementById('playerSubtitle').textContent = currentMovie._tv ? `S${currentSeason} E${currentEpisode}` : (currentMovie.runtime ? currentMovie.runtime + 'm' : 'Movie');
   
   renderServerButtons();
   
   currentProviderIndex = 0;
   loadPlayerSource(currentProviderIndex);
+  
+  // Auto-hide top bar logic
+  clearTimeout(window._idleTimer);
+  overlay.classList.remove('idle');
+  const resetTimer = () => {
+    overlay.classList.remove('idle');
+    clearTimeout(window._idleTimer);
+    window._idleTimer = setTimeout(() => {
+      if (overlay.classList.contains('open')) overlay.classList.add('idle');
+    }, 3000);
+  };
+  document.addEventListener('mousemove', resetTimer);
+  document.addEventListener('touchstart', resetTimer);
+  resetTimer();
 }
 
 function renderServerButtons() {
@@ -1073,11 +1088,11 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
+  // We removed the referrerpolicy and use a standard iframe to ensure max compatibility.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       allowfullscreen 
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
-      referrerpolicy="no-referrer"
       style="width:100%;height:100%;border:0;position:absolute;inset:0;z-index:1;">
     </iframe>`;
   
@@ -1095,7 +1110,7 @@ function closePlayer(){
   const overlay = document.getElementById('playerOverlay');
   document.getElementById('playerIframeContainer').innerHTML = '';
   overlay.classList.remove('open');
-  document.getElementById('serverTip').style.display = 'none';
+  clearTimeout(window._idleTimer);
 }
 
 function closeDetail(){
