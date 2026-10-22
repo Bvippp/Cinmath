@@ -194,7 +194,7 @@ footer { margin-top: auto; padding: 40px 20px 100px; text-align: center; color: 
 footer b { color: var(--text-main); }
 
 /* ═══════════════════════════════════════════
-   FULLSCREEN PLAYER OVERLAY (No Fake UI, Real Video)
+   FULLSCREEN PLAYER OVERLAY
    ═══════════════════════════════════════════ */
 .player-overlay {
   position: fixed; inset: 0; z-index: 700;
@@ -225,7 +225,7 @@ footer b { color: var(--text-main); }
   padding: 16px 20px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
   pointer-events: none;
-  opacity: 1; /* Always visible now */
+  opacity: 1;
 }
 .player-top-bar > * { pointer-events: auto; }
 
@@ -250,7 +250,18 @@ footer b { color: var(--text-main); }
 }
 .player-pill-btn:hover { background: var(--accent); color: #000; }
 .player-pill-btn.active { background: var(--accent); color: #000; }
-.player-pill-btn svg { width: 16px; height: 16px; }
+
+/* Server Tip Overlay */
+.server-tip {
+  position: absolute; top: 70px; right: 20px;
+  background: rgba(0,0,0,0.85); border: 1px solid var(--accent);
+  color: #fff; padding: 10px 16px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500; pointer-events: none;
+  animation: fadeUp 0.5s ease, fadeOut 0.5s ease 4s forwards;
+  z-index: 20;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
 /* Loading Spinner */
 .loader {
@@ -446,7 +457,6 @@ footer b { color: var(--text-main); }
       <div class="detail-meta" id="detailMeta"></div>
       <p class="detail-desc" id="detailDesc"></p>
       <div class="detail-actions">
-        <!-- THIS IS THE PLAY BUTTON -->
         <button class="btn-detail-play" id="detailPlayBtn" onclick="playCurrentMedia()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now
         </button>
@@ -479,21 +489,19 @@ footer b { color: var(--text-main); }
 <!-- ═══════════════ FULLSCREEN PLAYER OVERLAY ═══════════════ -->
 <div class="player-overlay" id="playerOverlay">
   
-  <!-- The Video Iframe Container -->
   <div class="player-video-container" id="playerIframeContainer">
      <div class="loader" id="playerLoader"></div>
   </div>
 
-  <!-- Persistent Top Bar (Back + Server Selector) -->
   <div class="player-top-bar">
     <button class="player-back-btn" onclick="closePlayer()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
     
-    <div class="server-controls" id="serverButtonsContainer">
-      <!-- Buttons will be injected here by JavaScript -->
-    </div>
+    <div class="server-controls" id="serverButtonsContainer"></div>
   </div>
+
+  <div class="server-tip" id="serverTip">Tip: If this server fails, click a different one at the top right.</div>
 </div>
 
 <!-- ═══════════════ BOTTOM NAVIGATION ═══════════════ -->
@@ -527,12 +535,15 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// The absolute most stable servers currently on the web
+// ═════════════════════════════════════════════════════════════════
+// THE GOLDEN SERVERS (Based on User Testing)
+// Server 1 is now 2Embed (the one that worked perfectly for you)
+// ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 2', movie: (id) => `https://vidsrc.icu/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.icu/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Server 4', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 1 (Clean)', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+  { name: 'Server 2 (Fast)', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
+  { name: 'Server 3 (Backup)', movie: (id) => `https://vidsrc.pro/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.pro/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 4', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1035,7 +1046,10 @@ async function playCurrentMedia(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   
-  // Draw the server buttons
+  const tip = document.getElementById('serverTip');
+  tip.style.display = 'block';
+  tip.style.animation = 'fadeUp 0.5s ease, fadeOut 0.5s ease 4s forwards';
+  
   renderServerButtons();
   
   currentProviderIndex = 0;
@@ -1063,8 +1077,6 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // We add allow="fullscreen" so the provider's player can do its thing, 
-  // but we keep referrerpolicy to block targeted ads.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       allowfullscreen 
@@ -1077,8 +1089,6 @@ function loadPlayerSource(index) {
   const loader = document.getElementById('playerLoader');
   
   if (iframe) {
-    // Hide the spinner as soon as the iframe loads the provider page.
-    // (The user will still see the provider's own play button).
     iframe.onload = () => { 
       if (loader) loader.style.display = 'none'; 
     };
@@ -1089,6 +1099,7 @@ function closePlayer(){
   const overlay = document.getElementById('playerOverlay');
   document.getElementById('playerIframeContainer').innerHTML = '';
   overlay.classList.remove('open');
+  document.getElementById('serverTip').style.display = 'none';
 }
 
 function closeDetail(){
