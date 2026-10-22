@@ -196,7 +196,7 @@ footer { margin-top: auto; padding: 40px 20px 100px; text-align: center; color: 
 footer b { color: var(--text-main); }
 
 /* ═══════════════════════════════════════════
-   FULLSCREEN PLAYER OVERLAY (SINGLE LINE, NO FAKE UI)
+   FULLSCREEN PLAYER OVERLAY (Fixed Fullscreen)
    ═══════════════════════════════════════════ */
 .player-overlay { position: fixed; inset: 0; z-index: 700; background: #000; display: none; flex-direction: column; }
 .player-overlay.open { display: flex; }
@@ -211,10 +211,20 @@ footer b { color: var(--text-main); }
 .player-title-box { display: flex; flex-direction: column; gap: 2px; }
 .player-title { font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 .player-subtitle { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+
+/* Server Buttons - Styled clearly with White text and Brown Active state */
 .player-right-header { display: flex; align-items: center; gap: 12px; }
-.player-pill-btn { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.15); padding: 6px 14px; border-radius: 20px; color: #fff; font-size: 13px; font-weight: 600; transition: 0.2s; cursor: pointer; }
+.player-pill-btn { 
+  display: flex; align-items: center; gap: 6px; 
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); 
+  border: 1px solid rgba(255,255,255,0.2); 
+  padding: 6px 14px; border-radius: 20px; 
+  color: #fff; font-size: 13px; font-weight: 600; 
+  transition: 0.2s; cursor: pointer; 
+}
 .player-pill-btn:hover { background: rgba(255,255,255,0.2); }
-.player-pill-btn svg { width: 16px; height: 16px; }
+.player-pill-btn.active { background: var(--accent); color: var(--bg-main); border-color: var(--accent); }
+
 .loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; z-index: 5; }
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--accent-light); color: var(--bg-main); padding: 10px 20px; border-radius: var(--radius-pill); font-weight: 700; font-size: 13px; display: none; z-index: 900; }
@@ -468,8 +478,7 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// UPDATED SERVERS: 2Embed is Server 1 (The one you said works cleanly). 
-// The others are the cleanest backups available right now.
+// THE MOST RECENT SERVER SOLUTION YOU REQUESTED
 const EMBED_PROVIDERS = [
   { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
   { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
@@ -1023,9 +1032,12 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
+  // We add allowfullscreen explicitly and standard attributes
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
-      allowfullscreen 
+      allowfullscreen="true" 
+      webkitallowfullscreen="true" 
+      mozallowfullscreen="true"
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
       style="width:100%;height:100%;border:0;position:absolute;inset:0;z-index:1;">
     </iframe>`;
