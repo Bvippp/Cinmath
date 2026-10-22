@@ -359,15 +359,43 @@ img { display: block; max-width: 100%; }
 }
 .player-overlay.open { display: flex; }
 
-/* Only a minimal back button, no custom bottom bar overlapping the iframe controls */
+/* Top Bar (Pointer-events passed through to iframe) */
+.player-top-bar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
+  pointer-events: none;
+}
+.player-top-bar > * { pointer-events: auto; }
+
 .player-back-btn {
-  position: absolute; top: 16px; left: 16px; z-index: 10;
   width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
-  color: #fff; display: grid; place-items: center;
+  background: transparent; color: #fff;
+  display: grid; place-items: center;
+}
+.player-title-box {
+  flex: 1; margin: 0 16px; text-align: left;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.player-title {
+  font-size: 16px; font-weight: 700; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.player-subtitle {
+  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.player-top-actions {
+  display: flex; align-items: center; gap: 12px;
+}
+.player-icon-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: transparent; color: #fff;
+  display: grid; place-items: center;
 }
 
-/* Video Area fills entire container */
+/* Video Area */
 .player-video-container {
   flex: 1; width: 100%; height: 100%;
   position: relative;
@@ -855,10 +883,23 @@ img { display: block; max-width: 100%; }
 
 <!-- ═══════════════ IN-PAGE PLAYER OVERLAY (Clean, Native Controls Only) ═══════════════ -->
 <div class="player-overlay" id="playerOverlay">
-  <!-- Only a back button, no custom bottom controls overlapping iframe -->
-  <button class="player-back-btn" onclick="closePlayer()">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-  </button>
+  <div class="player-top-bar">
+    <button class="player-back-btn" onclick="closePlayer()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    <div class="player-title-box">
+      <div class="player-title" id="playerTitle">Loading...</div>
+      <div class="player-subtitle" id="playerSubtitle"></div>
+    </div>
+    <div class="player-top-actions">
+      <button class="player-icon-btn" onclick="toast('Subtitles menu')">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><line x1="7" y1="15" x2="11" y2="15"></line><line x1="15" y1="15" x2="17" y2="15"></line><line x1="7" y1="11" x2="9" y2="11"></line><line x1="11" y1="11" x2="17" y2="11"></line></svg>
+      </button>
+      <button class="player-icon-btn" onclick="playNextEpisode()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+      </button>
+    </div>
+  </div>
 
   <div class="player-video-container" id="playerIframeContainer"></div>
 
@@ -1501,6 +1542,18 @@ async function playCurrentMedia(){
   
   const overlay = document.getElementById('playerOverlay');
   const container = document.getElementById('playerIframeContainer');
+  const title = document.getElementById('playerTitle');
+  const subtitle = document.getElementById('playerSubtitle');
+  
+  const isTV = currentMovie._tv;
+  
+  if (isTV) {
+    title.textContent = currentMovie.t;
+    subtitle.textContent = `S${currentSeason} E${currentEpisode}`;
+  } else {
+    title.textContent = currentMovie.t;
+    subtitle.textContent = '';
+  }
   
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1525,7 +1578,8 @@ function loadPlayerSource(index) {
     return;
   }
   
-  // Sandbox attribute blocks pop-up ads while keeping the native controls functional
+  // USING THE SANDBOX ATTRIBUTE TO BLOCK POP-UP ADS
+  // "allow-popups" is intentionally omitted to stop the fullscreen ad redirects.
   const sandboxStr = "allow-scripts allow-same-origin allow-forms allow-presentation";
   
   container.innerHTML = `<iframe src="${url}" sandbox="${sandboxStr}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;"></iframe>`;
@@ -1555,6 +1609,17 @@ function loadPlayerSource(index) {
 function skipAd() {
   document.getElementById('skipAdBtn').style.display = 'none';
   toast('Ad skipped');
+}
+
+function playNextEpisode() {
+  if (!currentMovie || !currentMovie._tv) {
+    toast('Not a TV show');
+    return;
+  }
+  currentEpisode++;
+  document.getElementById('playerSubtitle').textContent = `S${currentSeason} E${currentEpisode}`;
+  loadPlayerSource(currentProviderIndex);
+  toast(`Playing S${currentSeason} E${currentEpisode}`);
 }
 
 function closePlayer(){
