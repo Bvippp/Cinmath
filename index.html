@@ -196,7 +196,7 @@ footer { margin-top: auto; padding: 40px 20px 100px; text-align: center; color: 
 footer b { color: var(--text-main); }
 
 /* ═══════════════════════════════════════════
-   FULLSCREEN PLAYER OVERLAY (Fixed Fullscreen)
+   FULLSCREEN PLAYER OVERLAY
    ═══════════════════════════════════════════ */
 .player-overlay { position: fixed; inset: 0; z-index: 700; background: #000; display: none; flex-direction: column; }
 .player-overlay.open { display: flex; }
@@ -212,6 +212,7 @@ footer b { color: var(--text-main); }
 .player-title { font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 .player-subtitle { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 
+/* Server Buttons */
 .player-right-header { display: flex; align-items: center; gap: 12px; }
 .player-pill-btn { 
   display: flex; align-items: center; gap: 6px; 
@@ -223,6 +224,18 @@ footer b { color: var(--text-main); }
 }
 .player-pill-btn:hover { background: rgba(255,255,255,0.2); }
 .player-pill-btn.active { background: var(--accent); color: var(--bg-main); border-color: var(--accent); }
+
+/* Server Tip Overlay */
+.server-tip {
+  position: absolute; top: 70px; right: 20px;
+  background: rgba(0,0,0,0.85); border: 1px solid var(--accent);
+  color: #fff; padding: 10px 16px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 500; pointer-events: none;
+  animation: fadeUp 0.5s ease, fadeOut 0.5s ease 4s forwards;
+  z-index: 20;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
 .loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; z-index: 5; }
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
@@ -444,6 +457,8 @@ footer b { color: var(--text-main); }
     </div>
     <div class="player-right-header" id="serverButtonsContainer"></div>
   </div>
+  
+  <div class="server-tip" id="serverTip">Tip: If this server fails, click a different one at the top right.</div>
 </div>
 
 <!-- ═══════════════ BOTTOM NAVIGATION ═══════════════ -->
@@ -477,14 +492,13 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// THE "CLEANEST SERVERS" EQUATION
-// We removed 2Embed and VidSrc.to (they became too spammy). 
-// These are currently the most premium, ad-light servers available for frontend use.
+// THE RESEARCH-BASED SOLUTION
+// We prioritize VidSrc and VidLink first, as they support sandboxing better.
+// 2Embed is the final fallback because it breaks under sandbox.
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://vidsrc.rip/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.rip/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 4', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 1', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}`, sandbox: true },
+  { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`, sandbox: true },
+  { name: 'Server 3', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`, sandbox: false }
 ];
 
 let currentProviderIndex = 0;
@@ -977,11 +991,7 @@ function getEmbedUrl(index) {
   const provider = EMBED_PROVIDERS[index];
   if (!provider) return '';
   let url = currentMovie._tv ? provider.tv(currentMovie.tmdb, currentSeason, currentEpisode) : provider.movie(currentMovie.tmdb);
-  
-  // We REMOVED autoplay=true here. Many ad networks trigger their most aggressive pop-unders
-  // when an iframe tries to autoplay. Forcing the user to click play inside the iframe 
-  // drastically reduces the amount of spam ads.
-  return url;
+  return url + (url.includes('?') ? '&autoplay=true' : '?autoplay=true');
 }
 
 async function playCurrentMedia(){
@@ -1035,12 +1045,18 @@ function switchServer(index) {
 
 function loadPlayerSource(index) {
   const container = document.getElementById('playerIframeContainer');
+  const provider = EMBED_PROVIDERS[index];
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // We add allowfullscreen explicitly and standard attributes
+  let sandboxAttr = '';
+  if (provider.sandbox) {
+    sandboxAttr = 'sandbox="allow-scripts allow-same-origin allow-presentation allow-forms"';
+  }
+
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
+      ${sandboxAttr}
       allowfullscreen="true" 
       webkitallowfullscreen="true" 
       mozallowfullscreen="true"
