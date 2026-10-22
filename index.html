@@ -76,7 +76,7 @@ img { display: block; max-width: 100%; }
   background: var(--accent); color: var(--bg-main);
   display: grid; place-items: center; 
   font-size: 16px; font-weight: 900; line-height: 1;
-  letter-spacing: -0.05em; /* Adjusted for TM */
+  letter-spacing: -0.05em;
 }
 .logo b { color: var(--text-main); }
 .search-top { flex: 1; display: flex; justify-content: flex-end; }
@@ -172,6 +172,14 @@ img { display: block; max-width: 100%; }
 .btn-detail-play { height: 50px; padding: 0 36px; border-radius: var(--radius-pill); background: var(--accent-light); color: var(--bg-main); font-weight: 800; font-size: 16px; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
 .btn-detail-play:hover { transform: scale(1.02); }
 .btn-detail-secondary { height: 50px; padding: 0 24px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
+
+/* Recommendations Section */
+.recommendations-container { margin-top: 40px; padding-bottom: 20px; }
+.rec-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.rec-title span { color: var(--accent); }
+.rec-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; margin-left: 4px; }
+.rec-scroller { display: flex; gap: 12px; overflow-x: auto; padding: 0 0 10px; scrollbar-width: none; }
+.rec-scroller::-webkit-scrollbar { display: none; }
 
 .tv-seasons-container { margin-top: 30px; padding-bottom: 20px; }
 .tv-seasons-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
@@ -425,6 +433,14 @@ footer b { color: var(--text-main); }
       <div class="section-head" style="padding:0; margin-bottom:16px;"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Cast</h2><div class="section-sub">The cast behind this title</div></div></div>
       <div class="cast-scroller" id="castScroller"></div>
     </div>
+
+    <!-- ═══════════════ RECOMMENDATIONS SECTION ═══════════════ -->
+    <div class="recommendations-container" id="recommendationsContainer" style="display:none;">
+      <div class="rec-title"><span>|</span> More Like This</div>
+      <div class="rec-sub" id="recSub">Because you clicked this title</div>
+      <div class="rec-scroller" id="recommendationsScroller"></div>
+    </div>
+
     <div class="site-disclaimer"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div>
   </div>
 </div>
@@ -900,8 +916,38 @@ async function openMovie(rawId){
     document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now`;
   }
 
+  // Fetch Recommendations and update subtext
+  loadRecommendations(currentMovie);
+
   document.getElementById('detailOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+async function loadRecommendations(movie) {
+  const container = document.getElementById('recommendationsContainer');
+  const scroller = document.getElementById('recommendationsScroller');
+  const recSub = document.getElementById('recSub');
+  
+  container.style.display = 'block';
+  recSub.textContent = `Because you clicked "${movie.t}"`; // Personalize subtext
+  scroller.innerHTML = '<div class="empty" style="padding:20px 0">Finding similar titles...</div>';
+  
+  const endpoint = movie._tv ? `/tv/${movie.tmdb}/recommendations` : `/movie/${movie.tmdb}/recommendations`;
+  const data = await tmdb(endpoint, {page: 1});
+  
+  if (data && data.results && data.results.length > 0) {
+    const validResults = data.results.filter(r => r.poster_path != null).slice(0, 10);
+    if (validResults.length > 0) {
+      scroller.innerHTML = validResults.map(r => {
+        const mapped = mapResult(r);
+        return cardHTML(mapped);
+      }).join('');
+    } else {
+      container.style.display = 'none';
+    }
+  } else {
+    container.style.display = 'none';
+  }
 }
 
 async function setupTVSeasons(showId) {
