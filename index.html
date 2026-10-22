@@ -300,7 +300,7 @@ footer b { color: var(--text-main); }
   top: 0; 
   left: 0; 
   width: 100%; 
-  height: calc(100% + 35px); /* Reduced crop to 35px to preserve more controls */
+  height: calc(100% + 45px); /* Crops the bottom 45px to hide server buttons/branding */
   border: 0; 
   z-index: 1; 
 }
@@ -698,19 +698,19 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (Clean Backends, High Availability)
+// EMBED PROVIDERS (Clean Backends, Minimal Pre-rolls)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://vidfast.vc/movie/${id}`, tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` },
-  { name: 'Server 2', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` },
-  { name: 'Server 4', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` }
+  { name: 'Server 1', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` },
+  { name: 'Server 2', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+  { name: 'Server 3', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 4', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
 
 // ═════════════════════════════════════════════════════════════════
-// CUSTOM FULLSCREEN LOGIC
+// CUSTOM FULLSCREEN LOGIC (Fixes the ad-loop bug)
 // ═════════════════════════════════════════════════════════════════
 function toggleFullscreen() {
   const overlay = document.getElementById('playerOverlay');
@@ -1490,7 +1490,7 @@ function loadPlayerSource(index) {
       webkitallowfullscreen="true" 
       mozallowfullscreen="true"
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
-      style="width:100%;height:calc(100% + 35px);border:0;position:absolute;top:0;left:0;z-index:1;">
+      style="width:100%;height:calc(100% + 45px);border:0;position:absolute;top:0;left:0;z-index:1;">
     </iframe>`;
   
   const iframe = container.querySelector('iframe');
