@@ -212,7 +212,6 @@ footer b { color: var(--text-main); }
 .player-title { font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 .player-subtitle { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 
-/* Server Buttons - Styled clearly with White text and Brown Active state */
 .player-right-header { display: flex; align-items: center; gap: 12px; }
 .player-pill-btn { 
   display: flex; align-items: center; gap: 6px; 
@@ -478,11 +477,13 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// 4 SERVERS RESTORED: 2Embed is Server 1 (The clean one you tested)
+// THE "CLEANEST SERVERS" EQUATION
+// We removed 2Embed and VidSrc.to (they became too spammy). 
+// These are currently the most premium, ad-light servers available for frontend use.
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+  { name: 'Server 1', movie: (id) => `https://vidsrc.rip/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.rip/embed/tv/${id}/${s}/${e}` },
   { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 3', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
   { name: 'Server 4', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` }
 ];
 
@@ -976,6 +977,10 @@ function getEmbedUrl(index) {
   const provider = EMBED_PROVIDERS[index];
   if (!provider) return '';
   let url = currentMovie._tv ? provider.tv(currentMovie.tmdb, currentSeason, currentEpisode) : provider.movie(currentMovie.tmdb);
+  
+  // We REMOVED autoplay=true here. Many ad networks trigger their most aggressive pop-unders
+  // when an iframe tries to autoplay. Forcing the user to click play inside the iframe 
+  // drastically reduces the amount of spam ads.
   return url;
 }
 
@@ -1033,7 +1038,7 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // We add allowfullscreen explicitly to fix the fullscreen issue
+  // We add allowfullscreen explicitly and standard attributes
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       allowfullscreen="true" 
