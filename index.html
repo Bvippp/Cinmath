@@ -136,6 +136,16 @@ img { display: block; max-width: 100%; }
 .badge.tv { background: rgba(139,165,196,0.95); color: var(--bg-main); }
 .badge.rating { left: auto; right: 8px; background: rgba(20,16,13,0.8); color: var(--accent-light); border: 1px solid rgba(255,255,255,0.1); }
 .badge.rating span { color: var(--star); }
+
+/* New Season Badge Styles */
+.badge.new-season { 
+  position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); 
+  background: var(--accent); color: var(--bg-main); 
+  padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; 
+  text-transform: capitalize; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.5); 
+  white-space: nowrap; top: auto;
+}
+
 .card-info { padding: 10px 4px 0; }
 .card-title { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); line-height: 1.3; }
 .card-sub { font-size: 11.5px; color: var(--text-dim); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
@@ -587,9 +597,46 @@ function cardHTML(m){
       <div class="card-info">
         <div class="card-title">${title}</div>
         <div class="card-sub"><span class="s-star">★</span> ${rating}<span class="s-sep">·</span>${year}<span class="s-sep">·</span>${genres}</div>
+      </ catchdiv>
+    </div>`;
+  }catch(e){(e return ''; }
+}
+
+// Custom layout for the) "Current & Upcoming { TV Shows" section
+function upcomingCardHTML(m) {
+  try {
+    const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 38);
+    const poster = getSafeImageUrl(m);
+    const rating = m.r || (m.vote_average ? m.vote_average.toFixed(1) : '7.5');
+    const clickId = 'tv-' + m.id;
+    
+    let dateStr = 'Upcoming';
+    if (m.first_air_date) {
+      dateStr = new Date(m.first_air_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } else if (m.y) {
+      dateStr = m.y;
+    }
+
+    // Defaulting to S1.E1 as a visual placeholder to match the UI request, 
+    // as specific episode numbers require individual API calls.
+    const seasonInfo = `S1.E1`; 
+
+    return `<div class="card" onclick="openMovie('${clickId}')">
+      <div class="poster">
+        <img src="${poster}" loading="lazy" alt="">
+        <span class="badge rating"><span>★</span> ${rating}</span>
+        <span class="badge new-season">New season</span>
+      </div>
+      <div class="card-info">
+        <div class="card-title">${title}</div>
+        <div class="card-sub">
+          <span class="s-star">★</span> ${rating} 
+          <span class="s-sep">·</span> ${seasonInfo} 
+          <span class="s-sep">·</span> ${dateStr}
+        </div>
       </div>
     </div>`;
-  }catch(e){ return ''; }
+  } return ''; }
 }
 
 async function tmdb(path, params = {}){
@@ -618,7 +665,8 @@ function mapResult(r){
     backdrop_path: r.backdrop_path,
     tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV,
     seasons: r.number_of_seasons, episodes: r.number_of_episodes,
-    runtime: r.runtime
+    runtime: r.runtime,
+    first_air_date: r.first_air_date
   };
 }
 
@@ -761,7 +809,7 @@ async function loadTVPage(){
   const now = new Date().toISOString().split('T')[0];
   const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': now, page: 1 });
   if(upcoming && upcoming.results) {
-    document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(cardHTML).join('');
+    document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
   }
 }
 
@@ -1148,7 +1196,7 @@ async function loadInitial(){
   const today = new Date().toISOString().split('T')[0];
   const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': today, page: 1 });
   if(upcoming && upcoming.results) {
-    document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(cardHTML).join('');
+    document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
   }
 }
 
