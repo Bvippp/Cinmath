@@ -131,43 +131,24 @@ img { display: block; max-width: 100%; }
 /* ═══════════════════════════════════════════
    SCROLLER & ARROWS
    ═══════════════════════════════════════════ */
-.scroller-wrapper {
-  position: relative;
-}
+.scroller-wrapper { position: relative; }
 .scroller { display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none; padding: 0 20px 10px; -webkit-overflow-scrolling: touch; }
 .scroller::-webkit-scrollbar { display: none; }
 
 .scroll-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(30, 24, 20, 0.85);
-  border: 1px solid var(--border);
-  color: var(--text-main);
-  display: none; /* Hidden on mobile */
-  place-items: center;
-  z-index: 10;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(30, 24, 20, 0.85); border: 1px solid var(--border);
+  color: var(--text-main); display: none; place-items: center; z-index: 10;
+  cursor: pointer; backdrop-filter: blur(8px);
   transition: opacity 0.2s, background 0.2s, color 0.2s;
   box-shadow: 0 4px 10px rgba(0,0,0,0.5);
 }
-.scroll-arrow:hover {
-  background: var(--accent);
-  color: var(--bg-main);
-  border-color: var(--accent);
-}
+.scroll-arrow:hover { background: var(--accent); color: var(--bg-main); border-color: var(--accent); }
 .scroll-arrow.left { left: 10px; }
 .scroll-arrow.right { right: 10px; }
 
-@media (min-width: 768px) {
-  .scroll-arrow {
-    display: grid;
-  }
-}
+@media (min-width: 768px) { .scroll-arrow { display: grid; } }
 
 .card { flex: 0 0 140px; cursor: pointer; transition: 0.2s; position: relative; }
 @media (min-width: 390px) { .card { flex: 0 0 155px; } }
@@ -181,7 +162,6 @@ img { display: block; max-width: 100%; }
 .badge.rating { left: auto; right: 8px; background: rgba(20,16,13,0.8); color: var(--accent-light); border: 1px solid rgba(255,255,255,0.1); }
 .badge.rating span { color: var(--star); }
 
-/* New Season Badge Styles */
 .badge.new-season { 
   position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); 
   background: var(--accent); color: var(--bg-main); 
@@ -194,31 +174,16 @@ img { display: block; max-width: 100%; }
    POPULAR GENRES SECTION
    ═══════════════════════════════════════════ */
 .genre-card {
-  flex: 0 0 280px;
-  aspect-ratio: 16/9;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  position: relative;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  transition: transform 0.2s;
+  flex: 0 0 280px; aspect-ratio: 16/9; border-radius: var(--radius-lg);
+  overflow: hidden; position: relative; cursor: pointer;
+  border: 1px solid var(--border); transition: transform 0.2s;
 }
 @media (min-width: 390px) { .genre-card { flex: 0 0 320px; } }
 @media (min-width: 768px) { .genre-card { flex: 0 0 380px; } }
 .genre-card:active { transform: scale(0.97); }
-.genre-card img {
-  width: 100%; height: 100%; object-fit: cover;
-  position: absolute; inset: 0;
-}
-.genre-card::after {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
-}
-.genre-card-title {
-  position: absolute; bottom: 16px; left: 20px; right: 20px;
-  font-size: 22px; font-weight: 800; color: #fff;
-  z-index: 2; text-shadow: 0 2px 5px rgba(0,0,0,0.6);
-}
+.genre-card img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.genre-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); }
+.genre-card-title { position: absolute; bottom: 16px; left: 20px; right: 20px; font-size: 22px; font-weight: 800; color: #fff; z-index: 2; text-shadow: 0 2px 5px rgba(0,0,0,0.6); }
 
 .card-info { padding: 10px 4px 0; }
 .card-title { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); line-height: 1.3; }
@@ -257,7 +222,6 @@ img { display: block; max-width: 100%; }
 .btn-detail-play:hover { transform: scale(1.02); }
 .btn-detail-secondary { height: 50px; padding: 0 24px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
 
-/* Recommendations Section */
 .recommendations-container { margin-top: 40px; padding-bottom: 20px; }
 .rec-title { font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
 .rec-title span { color: var(--accent); }
@@ -296,13 +260,8 @@ footer b { color: var(--text-main); }
 .player-overlay.open { display: flex; }
 .player-video-container { flex: 1; width: 100%; height: 100%; position: relative; background: #000; overflow: hidden; }
 .player-video-container iframe { 
-  position: absolute; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%; 
-  border: 0; 
-  z-index: 1; 
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  border: 0; z-index: 1; 
 }
 .player-top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%); pointer-events: none; opacity: 1; transition: opacity 0.3s; }
 .player-overlay.idle .player-top-bar { opacity: 0; }
@@ -314,7 +273,6 @@ footer b { color: var(--text-main); }
 .player-title { font-size: 20px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 .player-subtitle { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 
-/* Server Buttons & Fullscreen Button */
 .player-right-header { display: flex; align-items: center; gap: 12px; }
 .player-pill-btn { 
   display: flex; align-items: center; gap: 6px; 
@@ -348,19 +306,10 @@ footer b { color: var(--text-main); }
 .fpill { height: 36px; padding: 0 16px; border-radius: var(--radius-pill); background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 13px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
 .fpill.active { background: var(--accent-light); color: var(--bg-main); border-color: var(--accent-light); }
 
-/* Badge for active filters */
 .fpill-badge {
-  background: var(--accent-red);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: 4px;
+  background: var(--accent-red); color: #fff; font-size: 10px; font-weight: 800;
+  width: 16px; height: 16px; border-radius: 50%; display: inline-flex;
+  align-items: center; justify-content: center; margin-left: 4px;
 }
 
 .bottom { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 250; background: rgba(30,24,20,0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 12px; display: flex; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: calc(100% - 32px); max-width: 440px; justify-content: space-between; }
@@ -434,7 +383,6 @@ footer b { color: var(--text-main); }
       <button class="scroll-arrow right" onclick="scrollRow('upcomingTvTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
     </div>
     
-    <!-- ═══════════════ POPULAR GENRES SECTION ═══════════════ -->
     <div class="section-head"><div class="section-accent red"></div><div class="section-title-box"><h2 class="section-title">Popular Genres</h2><div class="section-sub">Find something by mood</div></div></div>
     <div class="scroller-wrapper">
       <button class="scroll-arrow left" onclick="scrollRow('genresTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
@@ -457,7 +405,6 @@ footer b { color: var(--text-main); }
       </div>
     </div>
     
-    <!-- Trending in Region Row (Dynamically updates based on location) -->
     <div class="section-head" id="moviesTrendingHead"><div class="section-accent red"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
     <div class="scroller-wrapper" style="margin-bottom: 20px;">
       <button class="scroll-arrow left" onclick="scrollRow('moviesRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
@@ -565,7 +512,6 @@ footer b { color: var(--text-main); }
 <div class="detail-overlay" id="detailOverlay">
   <div class="detail-trailer-bg" id="detailTrailerBg"></div>
   <div class="detail-content">
-    <!-- Trigger history.back() so iPhone back button and this button behave the same -->
     <button class="detail-back" onclick="history.back()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
@@ -600,7 +546,6 @@ footer b { color: var(--text-main); }
       <div class="cast-scroller" id="castScroller"></div>
     </div>
 
-    <!-- ═══════════════ RECOMMENDATIONS SECTION ═══════════════ -->
     <div class="recommendations-container" id="recommendationsContainer" style="display:none;">
       <div class="rec-title"><span>|</span> More Like This</div>
       <div class="rec-sub" id="recSub">Because you clicked this title</div>
@@ -619,7 +564,6 @@ footer b { color: var(--text-main); }
 
   <div class="player-top-bar">
     <div class="player-left-header">
-      <!-- Trigger history.back() to close player via popstate -->
       <button class="player-back-btn" onclick="history.back()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
@@ -631,7 +575,6 @@ footer b { color: var(--text-main); }
     </div>
     <div class="player-right-header">
       <div id="serverButtonsContainer" style="display:flex; gap:8px;"></div>
-      <!-- Custom Fullscreen Button -->
       <button class="fs-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
       </button>
@@ -658,26 +601,18 @@ footer b { color: var(--text-main); }
 <footer><div class="site-disclaimer" style="border:none; margin:0 auto;"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div></footer>
 
 <script>
-// ═════════════════════════════════════════════════════════════════
-// HISTORY API & SAFARI UI FIX
-// ═════════════════════════════════════════════════════════════════
 history.replaceState({ page: 'home' }, '', window.location.pathname);
 
-// Listen for the native back button/swipe
 window.addEventListener('popstate', function(event) {
   if (document.getElementById('playerOverlay').classList.contains('open')) {
-    // Player is open, close it
     document.getElementById('playerIframeContainer').innerHTML = '';
     document.getElementById('playerOverlay').classList.remove('open');
     clearTimeout(window._idleTimer);
-    document.body.style.overflow = ''; // Restore scroll when player closes
+    document.body.style.overflow = ''; 
   } 
   else if (document.getElementById('detailOverlay').classList.contains('open')) {
-    // Detail page is open, close it
     document.getElementById('detailOverlay').classList.remove('open');
     document.getElementById('detailTrailerBg').innerHTML = '';
-    
-    // Force Safari bar to show again now that we are back on the home page
     if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         window.scrollTo(0, 1);
         setTimeout(() => { window.scrollTo(0, 0); }, 50);
@@ -698,54 +633,43 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (Vidsrc.cc is default for stability)
+// EMBED PROVIDERS (Independent providers - no VidSrc branding)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
   { 
     name: 'Server 1', 
-    movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}?autoplay=true`, 
-    tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}?autoplay=true` 
+    movie: (id) => `https://vidfast.vc/movie/${id}?autoplay=true`, 
+    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}?autoplay=true` 
   },
   { 
     name: 'Server 2', 
-    movie: (id) => `https://vidsrc.net/embed/movie?tmdb=${id}`, 
-    tv: (id, s, e) => `https://vidsrc.net/embed/tv?tmdb=${id}&season=${s}&episode=${e}` 
+    movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, 
+    tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` 
   },
   { 
     name: 'Server 3', 
-    movie: (id) => `https://embed.su/embed/movie/${id}`, 
-    tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` 
+    movie: (id) => `https://embed.su/embed/movie/${id}?autoplay=true`, 
+    tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}?autoplay=true` 
   },
   { 
     name: 'Server 4', 
-    movie: (id) => `https://vidfast.vc/movie/${id}`, 
-    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` 
+    movie: (id) => `https://autoembed.co/movie/tmdb/${id}?autoplay=true`, 
+    tv: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}?autoplay=true` 
   }
 ];
 
 let currentProviderIndex = 0;
 
-// ═════════════════════════════════════════════════════════════════
-// CUSTOM FULLSCREEN LOGIC
-// ═════════════════════════════════════════════════════════════════
 function toggleFullscreen() {
   const overlay = document.getElementById('playerOverlay');
   if (!document.fullscreenElement) {
-    if (overlay.requestFullscreen) {
-      overlay.requestFullscreen();
-    } else if (overlay.webkitRequestFullscreen) { /* Safari */
-      overlay.webkitRequestFullscreen();
-    } else if (overlay.msRequestFullscreen) { /* IE11 */
-      overlay.msRequestFullscreen();
-    }
+    if (overlay.requestFullscreen) overlay.requestFullscreen();
+    else if (overlay.webkitRequestFullscreen) overlay.webkitRequestFullscreen();
+    else if (overlay.msRequestFullscreen) overlay.msRequestFullscreen();
   } else {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) { /* Safari */
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) { /* IE11 */
-      document.msExitFullscreen();
-    }
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
   }
 }
 
@@ -807,26 +731,20 @@ function cardHTML(m){
   }catch(e){ return ''; }
 }
 
-// Custom layout for the "Current & Upcoming TV Shows" section with dynamic "New season" logic
 function upcomingCardHTML(m) {
   try {
     const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 38);
     const poster = getSafeImageUrl(m);
     const rating = m.r || (m.vote_average ? m.vote_average.toFixed(1) : '7.5');
     const clickId = 'tv-' + m.id;
-    
     let dateStr = 'Upcoming';
     let isNewSeason = false;
 
-    // Check if the show premiered recently or is upcoming
     if (m.first_air_date) {
       const airDate = new Date(m.first_air_date);
       dateStr = airDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-      
       const today = new Date();
       const diffDays = Math.ceil((today - airDate) / (1000 * 60 * 60 * 24));
-      
-      // If it premiered in the last 90 days or is in the future (up to 30 days out)
       if ((diffDays >= 0 && diffDays <= 90) || (diffDays < 0 && diffDays >= -30)) {
         isNewSeason = true;
       }
@@ -890,7 +808,6 @@ function mapResult(r){
 
 const GENRE_MAP = { "28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama","10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance","878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western" };
 
-// Fallback data to prevent "Loading..." infinite loop if TMDB is blocked
 const FALLBACK = [
   {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns the truth.",poster_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",backdrop_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",tmdb:603,media_type:'movie'},
   {id:1396,t:"Breaking Bad",y:2008,r:"8.9",g:["Drama","Crime"],d:"A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine.",poster_path:"/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg",backdrop_path:"/tsRy63Mu5rtwnKf3MoN5L6j8u2a.jpg",tmdb:1396,media_type:'tv',first_air_date:'2008-01-20'},
@@ -994,13 +911,11 @@ async function getUserCountry() {
 
 async function loadMoviesPage(force = false){
   const grid = document.getElementById('moviesGrid');
-  
-  // Hide the trending row when filters are active
   const hasFilter = filterState.genre || filterState.year || filterState.country || filterState.sort !== 'popularity.desc';
+  
   document.getElementById('moviesTrendingHead').style.display = hasFilter ? 'none' : 'flex';
   document.getElementById('moviesRegionTrending').parentElement.style.display = hasFilter ? 'none' : 'block';
 
-  // 1. DYNAMIC REGION TRENDING
   const regionTrendingTrack = document.getElementById('moviesRegionTrending');
   if ((regionTrendingTrack.innerHTML === '' || force) && !hasFilter) {
       const geo = await getUserCountry();
@@ -1023,10 +938,8 @@ async function loadMoviesPage(force = false){
       }
   }
 
-  // If already loaded and not forced, return
   if (!force && grid.innerHTML && grid.innerHTML.length > 50) return;
 
-  // 2. HEADER BACKGROUND
   const headerBg = document.getElementById('moviesHeaderBg');
   if (!headerBg.src || headerBg.src.includes('base64')) {
     const tr = await tmdb('/trending/movie/week', {page:1});
@@ -1092,7 +1005,6 @@ async function loadTVPage(){
   const disc = await tmdb('/discover/tv', {sort_by:'popularity.desc', page:1});
   if(disc && disc.results) grid.innerHTML = disc.results.map(mapResult).map(cardHTML).join('');
 
-  // Fetch Current & Upcoming TV Shows
   const today = new Date().toISOString().split('T')[0];
   const [onAir, upcoming] = await Promise.all([
     tmdb('/tv/on_the_air', { page: 1 }),
@@ -1103,7 +1015,6 @@ async function loadTVPage(){
   if (onAir && onAir.results) combinedTv.push(...onAir.results);
   if (upcoming && upcoming.results) combinedTv.push(...upcoming.results);
   
-  // Deduplicate
   const uniqueTv = Array.from(new Map(combinedTv.map(item => [item.id, item])).values());
   
   if(uniqueTv.length > 0) {
@@ -1137,13 +1048,11 @@ function navigate(view){
   if(view === 'search')    document.getElementById('q').focus();
 }
 
-// Function to handle the "Popular Genres" cards
 function openGenrePage(genreId, genreName) {
   navigate('movies');
   setFilter('genre', genreId, genreName);
 }
 
-// Fetch a backdrop for the genre cards
 async function loadPopularGenres() {
   const genres = [
     { id: '35', name: 'Comedy', color: 'from-blue-900' },
@@ -1157,7 +1066,6 @@ async function loadPopularGenres() {
   track.innerHTML = '';
   
   for (const g of genres) {
-    // Fetch a popular movie in this genre to use as a background
     const data = await tmdb('/discover/movie', { with_genres: g.id, sort_by: 'popularity.desc', page: 1 });
     let bgUrl = '';
     if (data && data.results && data.results.length > 0) {
@@ -1165,20 +1073,17 @@ async function loadPopularGenres() {
       if (movie) bgUrl = BACKDROP + movie.backdrop_path;
     }
     
-    // Fallback image if no backdrop is found
     if (!bgUrl) bgUrl = 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1000&auto=format&fit=crop';
     
     const card = document.createElement('div');
     card.className = 'genre-card';
     card.onclick = () => openGenrePage(g.id, g.name);
     
-    // We use a CSS gradient overlay via a pseudo-element
     card.innerHTML = `
       <img src="${bgUrl}" alt="${g.name}">
       <div class="genre-card-title">${g.name}</div>
     `;
     
-    // Add a color tint based on the genre
     if (g.name === 'Comedy') card.style.boxShadow = 'inset 0 0 100px rgba(30, 58, 138, 0.6)';
     if (g.name === 'Action') card.style.boxShadow = 'inset 0 0 100px rgba(153, 27, 27, 0.6)';
     if (g.name === 'Drama') card.style.boxShadow = 'inset 0 0 100px rgba(88, 28, 135, 0.6)';
@@ -1190,7 +1095,6 @@ async function loadPopularGenres() {
   setTimeout(() => updateScrollArrows('genresTrack'), 50);
 }
 
-// Function to handle search logic
 function handleSearch(e){
   e.preventDefault();
   const q = e.target.querySelector('input').value.trim();
@@ -1323,18 +1227,13 @@ async function openMovie(rawId){
     document.getElementById('detailPlayBtn').innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now`;
   }
 
-  // Fetch Recommendations and update subtext
   loadRecommendations(currentMovie);
-
   document.getElementById('detailOverlay').classList.add('open');
   
-  // Force Safari bottom bar to appear immediately when opening a movie
   if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
       window.scrollTo(0, 1);
       setTimeout(() => { window.scrollTo(0, 0); }, 50);
   }
-
-  // PUSH STATE: Add to history so the iPhone back button works
   history.pushState({ page: 'movie', id: rawId }, '', '#movie-' + id);
 }
 
@@ -1344,7 +1243,7 @@ async function loadRecommendations(movie) {
   const recSub = document.getElementById('recSub');
   
   container.style.display = 'block';
-  recSub.textContent = `Because you clicked "${movie.t}"`; // Personalize subtext
+  recSub.textContent = `Because you clicked "${movie.t}"`; 
   scroller.innerHTML = '<div class="empty" style="padding:20px 0">Finding similar titles...</div>';
   
   const endpoint = movie._tv ? `/tv/${movie.tmdb}/recommendations` : `/movie/${movie.tmdb}/recommendations`;
@@ -1444,13 +1343,11 @@ function getEmbedUrl(index) {
 async function playCurrentMedia(){
   if(!currentMovie) return;
   
-  // --- MONETAG POPUNDER TRIGGER ---
   (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-  // --------------------------------
   
   const overlay = document.getElementById('playerOverlay');
   overlay.classList.add('open');
-  document.body.style.overflow = 'hidden'; // Lock scroll for full screen player
+  document.body.style.overflow = 'hidden'; 
   
   document.getElementById('playerTitle').textContent = currentMovie.t;
   document.getElementById('playerSubtitle').textContent = currentMovie._tv ? `S${currentSeason} E${currentEpisode}` : (currentMovie.runtime ? currentMovie.runtime + 'm' : 'Movie');
@@ -1473,7 +1370,6 @@ async function playCurrentMedia(){
   document.addEventListener('touchstart', resetTimer);
   resetTimer();
 
-  // PUSH STATE: Add to history so the iPhone back button works from player
   history.pushState({ page: 'player' }, '', '#playing');
 }
 
@@ -1498,8 +1394,6 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // referrerpolicy="origin" passes the domain origin to satisfy anti-hotlink checks.
-  // sandbox attribute has been REMOVED to prevent "Please remove sandbox" errors from the player.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       referrerpolicy="origin"
@@ -1515,7 +1409,6 @@ function loadPlayerSource(index) {
   if (iframe) { iframe.onload = () => { if (loader) loader.style.display = 'none'; }; }
 }
 
-// Scroll Arrow Logic
 function scrollRow(id, direction) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -1533,7 +1426,6 @@ function updateScrollArrows(id) {
   
   if (!leftArrow || !rightArrow) return;
 
-  // Only show if there's actually overflow and we are on desktop
   if (el.scrollWidth <= el.clientWidth + 10 || window.innerWidth < 768) {
     leftArrow.style.opacity = '0';
     leftArrow.style.pointerEvents = 'none';
@@ -1542,7 +1434,6 @@ function updateScrollArrows(id) {
     return;
   }
 
-  // Left arrow
   if (el.scrollLeft <= 10) {
     leftArrow.style.opacity = '0';
     leftArrow.style.pointerEvents = 'none';
@@ -1551,7 +1442,6 @@ function updateScrollArrows(id) {
     leftArrow.style.pointerEvents = 'auto';
   }
 
-  // Right arrow
   if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
     rightArrow.style.opacity = '0';
     rightArrow.style.pointerEvents = 'none';
@@ -1561,13 +1451,11 @@ function updateScrollArrows(id) {
   }
 }
 
-// Setup resize listener for arrows
 window.addEventListener('resize', () => {
     document.querySelectorAll('.scroller').forEach(el => updateScrollArrows(el.id));
 });
 
 async function loadInitial(){
-  // 1. TOP 10 on Tubemocha (Mixed Movies & TV)
   const tr = await tmdb('/trending/all/week', {page:1});
   if(tr && tr.results){
     const m = tr.results.map(mapResult);
@@ -1579,7 +1467,6 @@ async function loadInitial(){
     document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
   }
 
-  // 2. Latest & Trending (Movies now playing + TV airing today)
   const [nowPlaying, airingToday] = await Promise.all([
     tmdb('/movie/now_playing', {page:1}),
     tmdb('/tv/airing_today', {page:1})
@@ -1597,7 +1484,6 @@ async function loadInitial(){
     document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join('');
   }
 
-  // 3. Current & Upcoming TV Shows (On Air + Upcoming Discover)
   const today = new Date().toISOString().split('T')[0];
   const [onAir, upcoming] = await Promise.all([
     tmdb('/tv/on_the_air', { page: 1 }),
@@ -1617,7 +1503,6 @@ async function loadInitial(){
     document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(m => m.media_type === 'tv').map(upcomingCardHTML).join('');
   }
 
-  // 4. Popular Genres
   loadPopularGenres();
 }
 
