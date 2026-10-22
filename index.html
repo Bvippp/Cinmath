@@ -698,29 +698,30 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (Reordered by stability & referrer compatibility)
+// EMBED PROVIDERS (Switched to query-parameter based routing)
 // ═════════════════════════════════════════════════════════════════
-// Updated: VixSrc requires referrerpolicy="origin". VidLink & VidFast are also strong.
+// Server 1 (VidSrc.net) uses direct query parameters which prevents 
+// the 404 path-routing errors seen with VidLink for certain TV shows.
 const EMBED_PROVIDERS = [
   { 
     name: 'Server 1', 
-    movie: (id) => `https://vixsrc.to/movie/${id}`, 
-    tv: (id, s, e) => `https://vixsrc.to/tv/${id}/${s}/${e}` 
+    movie: (id) => `https://vidsrc.net/embed/movie?tmdb=${id}`, 
+    tv: (id, s, e) => `https://vidsrc.net/embed/tv?tmdb=${id}&season=${s}&episode=${e}` 
   },
   { 
     name: 'Server 2', 
-    movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, 
-    tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` 
+    movie: (id) => `https://embed.su/embed/movie/${id}`, 
+    tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` 
   },
   { 
     name: 'Server 3', 
-    movie: (id) => `https://vidfast.vc/movie/${id}`, 
-    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` 
+    movie: (id) => `https://autoembed.co/movie/tmdb/${id}`, 
+    tv: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}` 
   },
   { 
     name: 'Server 4', 
-    movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, 
-    tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` 
+    movie: (id) => `https://www.2embed.cc/embed/${id}`, 
+    tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` 
   }
 ];
 
