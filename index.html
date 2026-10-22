@@ -218,16 +218,15 @@ footer b { color: var(--text-main); }
   z-index: 1;
 }
 
-/* Minimal Top Bar for Back & Server Switch */
+/* Persistent Top Bar for Server Switching */
 .player-top-bar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 10;
   display: flex; align-items: flex-start; justify-content: space-between;
   padding: 16px 20px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
   pointer-events: none;
-  opacity: 0; transition: opacity 0.3s;
+  opacity: 1; /* Always visible now */
 }
-.player-overlay:hover .player-top-bar, .player-overlay:focus-within .player-top-bar { opacity: 1; }
 .player-top-bar > * { pointer-events: auto; }
 
 .player-back-btn {
@@ -237,15 +236,21 @@ footer b { color: var(--text-main); }
   backdrop-filter: blur(4px);
 }
 .player-back-btn:hover { background: rgba(255,255,255,0.2); }
+
+.server-controls {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end;
+}
 .player-pill-btn {
   display: flex; align-items: center; gap: 6px;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(4px);
+  border: 1px solid var(--accent);
   padding: 8px 16px; border-radius: 20px;
-  color: #fff; font-size: 13px; font-weight: 600;
+  color: #fff; font-size: 13px; font-weight: 700;
   transition: 0.2s; cursor: pointer;
 }
-.player-pill-btn:hover { background: rgba(255,255,255,0.2); }
+.player-pill-btn:hover { background: var(--accent); color: #000; }
+.player-pill-btn.active { background: var(--accent); color: #000; }
+.player-pill-btn svg { width: 16px; height: 16px; }
 
 /* Loading Spinner */
 .loader {
@@ -479,14 +484,14 @@ footer b { color: var(--text-main); }
      <div class="loader" id="playerLoader"></div>
   </div>
 
-  <!-- Minimal Top Bar -->
+  <!-- Persistent Top Bar (Back + Server Selector) -->
   <div class="player-top-bar">
     <button class="player-back-btn" onclick="closePlayer()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <div class="player-pill-btn" onclick="nextServer()">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-      Next Server
+    
+    <div class="server-controls" id="serverButtonsContainer">
+      <!-- Buttons will be injected here by JavaScript -->
     </div>
   </div>
 </div>
@@ -522,12 +527,12 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// UPDATED: The absolute most stable servers currently on the web
+// The absolute most stable servers currently on the web
 const EMBED_PROVIDERS = [
-  { name: 'VidSrc CC', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
-  { name: 'VidSrc ICU', movie: (id) => `https://vidsrc.icu/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.icu/embed/tv/${id}/${s}/${e}` },
-  { name: '2Embed CC', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'VidSrc TO', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 1', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 2', movie: (id) => `https://vidsrc.icu/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.icu/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 3', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+  { name: 'Server 4', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1030,20 +1035,27 @@ async function playCurrentMedia(){
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   
+  // Draw the server buttons
+  renderServerButtons();
+  
   currentProviderIndex = 0;
   loadPlayerSource(currentProviderIndex);
 }
 
-function nextServer() {
-  if (currentProviderIndex < EMBED_PROVIDERS.length - 1) {
-    currentProviderIndex++;
-    toast(`Switched to ${EMBED_PROVIDERS[currentProviderIndex].name}`);
-    loadPlayerSource(currentProviderIndex);
-  } else {
-    currentProviderIndex = 0;
-    toast(`Restarted with ${EMBED_PROVIDERS[0].name}`);
-    loadPlayerSource(currentProviderIndex);
-  }
+function renderServerButtons() {
+  const container = document.getElementById('serverButtonsContainer');
+  container.innerHTML = EMBED_PROVIDERS.map((p, i) => `
+    <button class="player-pill-btn ${i === currentProviderIndex ? 'active' : ''}" onclick="switchServer(${i})">
+      ${p.name}
+    </button>
+  `).join('');
+}
+
+function switchServer(index) {
+  currentProviderIndex = index;
+  renderServerButtons();
+  loadPlayerSource(currentProviderIndex);
+  toast(`Switched to ${EMBED_PROVIDERS[index].name}`);
 }
 
 function loadPlayerSource(index) {
@@ -1051,6 +1063,8 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
+  // We add allow="fullscreen" so the provider's player can do its thing, 
+  // but we keep referrerpolicy to block targeted ads.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       allowfullscreen 
@@ -1062,21 +1076,12 @@ function loadPlayerSource(index) {
   const iframe = container.querySelector('iframe');
   const loader = document.getElementById('playerLoader');
   
-  // If it loads, hide the spinner. If it errors out (DNS, blocked), automatically switch server.
   if (iframe) {
-    iframe.onload = () => { if (loader) loader.style.display = 'none'; };
-    
-    clearTimeout(window._iframeTimeout);
-    window._iframeTimeout = setTimeout(() => {
-      // If the spinner is still visible after 6 seconds, the server is likely dead/blocked.
-      if (loader && loader.style.display !== 'none') {
-        if (index < EMBED_PROVIDERS.length - 1) {
-          toast(`Server taking too long. Auto-switching...`);
-          currentProviderIndex = index + 1;
-          loadPlayerSource(currentProviderIndex);
-        }
-      }
-    }, 6000);
+    // Hide the spinner as soon as the iframe loads the provider page.
+    // (The user will still see the provider's own play button).
+    iframe.onload = () => { 
+      if (loader) loader.style.display = 'none'; 
+    };
   }
 }
 
@@ -1084,7 +1089,6 @@ function closePlayer(){
   const overlay = document.getElementById('playerOverlay');
   document.getElementById('playerIframeContainer').innerHTML = '';
   overlay.classList.remove('open');
-  clearTimeout(window._iframeTimeout);
 }
 
 function closeDetail(){
