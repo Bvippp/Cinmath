@@ -1432,8 +1432,11 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
+  // Removed sandbox to prevent "Please remove sandbox" errors from the player.
+  // Kept referrerpolicy="no-referrer" to help block targeted ad tracking.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
+      referrerpolicy="no-referrer"
       allowfullscreen="true" 
       webkitallowfullscreen="true" 
       mozallowfullscreen="true"
