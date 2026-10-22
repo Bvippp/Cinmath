@@ -146,6 +146,36 @@ img { display: block; max-width: 100%; }
   white-space: nowrap; top: auto;
 }
 
+/* ═══════════════════════════════════════════
+   POPULAR GENRES SECTION
+   ═══════════════════════════════════════════ */
+.genre-card {
+  flex: 0 0 280px;
+  aspect-ratio: 16/9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: transform 0.2s;
+}
+@media (min-width: 390px) { .genre-card { flex: 0 0 320px; } }
+@media (min-width: 768px) { .genre-card { flex: 0 0 380px; } }
+.genre-card:active { transform: scale(0.97); }
+.genre-card img {
+  width: 100%; height: 100%; object-fit: cover;
+  position: absolute; inset: 0;
+}
+.genre-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+}
+.genre-card-title {
+  position: absolute; bottom: 16px; left: 20px; right: 20px;
+  font-size: 22px; font-weight: 800; color: #fff;
+  z-index: 2; text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+}
+
 .card-info { padding: 10px 4px 0; }
 .card-title { font-size: 13.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); line-height: 1.3; }
 .card-sub { font-size: 11.5px; color: var(--text-dim); margin-top: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
@@ -262,6 +292,22 @@ footer b { color: var(--text-main); }
 .filters::-webkit-scrollbar { display: none; }
 .fpill { height: 36px; padding: 0 16px; border-radius: var(--radius-pill); background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 13px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
 .fpill.active { background: var(--accent-light); color: var(--bg-main); border-color: var(--accent-light); }
+
+/* Badge for active filters */
+.fpill-badge {
+  background: var(--accent-red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+}
+
 .bottom { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 250; background: rgba(30,24,20,0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 12px; display: flex; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: calc(100% - 32px); max-width: 440px; justify-content: space-between; }
 .bottom button { flex: 1; height: 48px; border-radius: var(--radius-md); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--text-dim); }
 .bottom button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
@@ -269,7 +315,7 @@ footer b { color: var(--text-main); }
 .bottom button.active svg { stroke: var(--accent-light); }
 .genre-modal { position: fixed; inset: 0; z-index: 500; background: rgba(10,8,6,0.85); backdrop-filter: blur(8px); display: none; align-items: flex-end; }
 .genre-modal.open { display: flex; }
-.genre-sheet { background: var(--bg-card); border-top: 1px solid var(--border); border-radius: 22px 22px 0 0; width: 100%; max-height: 80vh; overflow-y: auto; padding: bar20px 16px 40px; }
+.genre-sheet { background: var(--bg-card); border-top: 1px solid var(--border); border-radius: 22px 22px 0 0; width: 100%; max-height: 80vh; overflow-y: auto; padding: 20px 16px 40px; }
 .genre-sheet h3 { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 16px; }
 .ggrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .ggrid button { height: 46px; border-radius: var(--radius-md); background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 14px; text-align: left; padding: 0 16px; }
@@ -279,7 +325,7 @@ footer b { color: var(--text-main); }
 <body>
 
 <!-- ═══════════ TOP BAR ═══════════ -->
-<div class="top">
+<div class="topbar">
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')">
       <div class="m">TM</div><b>TUBEMOCHA</b>
@@ -318,6 +364,11 @@ footer b { color: var(--text-main); }
     <div class="scroller" id="latestTrack"></div>
     <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Current &amp; upcoming TV shows</h2><div class="section-sub">New episodes and premieres on the way</div></div></div>
     <div class="scroller" id="upcomingTvTrack"></div>
+    
+    <!-- ═══════════════ POPULAR GENRES SECTION ═══════════════ -->
+    <div class="section-head"><div class="section-accent red"></div><div class="section-title-box"><h2 class="section-title">Popular Genres</h2><div class="section-sub">Find something by mood</div></div></div>
+    <div class="scroller" id="genresTrack"></div>
+    
   </div>
 </div>
 
@@ -332,6 +383,11 @@ footer b { color: var(--text-main); }
         <div class="page-header-sub">Discover the latest and greatest films</div>
       </div>
     </div>
+    
+    <!-- Trending in Region Row (To match movy.sx) -->
+    <div class="section-head" id="moviesTrendingHead"><div class="section-accent red"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+    <div class="scroller" id="moviesRegionTrending" style="margin-bottom: 20px;"></div>
+
     <div class="filters">
       <button class="fpill" id="fGenre" onclick="openModal('genreModal')">Genres ▾</button>
       <button class="fpill" id="fYear" onclick="openModal('yearModal')">Years ▾</button>
@@ -339,6 +395,7 @@ footer b { color: var(--text-main); }
       <button class="fpill" id="fSort" onclick="openModal('sortModal')">Most popular ▾</button>
       <button class="fpill" style="background:transparent;border-color:transparent;color:var(--accent);display:none" id="fClear" onclick="clearFilters()">✕ Clear</button>
     </div>
+    
     <div class="section-head" id="moviesFilteredHead" style="display:none">
       <div class="section-accent brown"></div>
       <div class="section-title-box">
@@ -738,10 +795,10 @@ function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
 function clearFilters() {
   filterState = { genre: '', year: '', country: '', sort: 'popularity.desc', page: 1 };
-  document.getElementById('fGenre').textContent = 'Genres ▾';
-  document.getElementById('fYear').textContent = 'Years ▾';
-  document.getElementById('fCountry').textContent = 'Countries ▾';
-  document.getElementById('fSort').textContent = 'Most popular ▾';
+  document.getElementById('fGenre').innerHTML = 'Genres ▾';
+  document.getElementById('fYear').innerHTML = 'Years ▾';
+  document.getElementById('fCountry').innerHTML = 'Countries ▾';
+  document.getElementById('fSort').innerHTML = 'Most popular ▾';
   ['fGenre','fYear','fCountry','fSort'].forEach(id => {
     document.getElementById(id).style.background = 'var(--bg-card)';
     document.getElementById(id).style.color = 'var(--text-muted)';
@@ -755,11 +812,19 @@ function setFilter(key, value, label) {
   filterState.page = 1;
   const btnMap = { genre: 'fGenre', year: 'fYear', country: 'fCountry', sort: 'fSort' };
   const btn = document.getElementById(btnMap[key]);
+  
   if (btn) {
-    btn.textContent = label + ' ▾';
-    btn.style.background = value ? 'var(--accent-light)' : 'var(--bg-card)';
-    btn.style.color = value ? 'var(--bg-main)' : 'var(--text-muted)';
+    if (value) {
+      btn.innerHTML = `${label} <span class="fpill-badge">1</span> ▾`;
+      btn.style.background = 'var(--accent-light)';
+      btn.style.color = 'var(--bg-main)';
+    } else {
+      btn.innerHTML = `${label} ▾`;
+      btn.style.background = 'var(--bg-card)';
+      btn.style.color = 'var(--text-muted)';
+    }
   }
+  
   ['genreModal', 'yearModal', 'countryModal', 'sortModal'].forEach(closeModal);
   const hasFilter = filterState.genre || filterState.year || filterState.country || filterState.sort !== 'popularity.desc';
   document.getElementById('fClear').style.display = hasFilter ? 'block' : 'none';
@@ -768,6 +833,12 @@ function setFilter(key, value, label) {
 
 async function loadMoviesPage(force = false){
   const grid = document.getElementById('moviesGrid');
+  
+  // Hide the trending row when filters are active
+  const hasFilter = filterState.genre || filterState.year || filterState.country || filterState.sort !== 'popularity.desc';
+  document.getElementById('moviesTrendingHead').style.display = hasFilter ? 'none' : 'flex';
+  document.getElementById('moviesRegionTrending').style.display = hasFilter ? 'none' : 'flex';
+
   if (!force && grid.innerHTML && grid.innerHTML.length > 50) return;
 
   const headerBg = document.getElementById('moviesHeaderBg');
@@ -776,10 +847,10 @@ async function loadMoviesPage(force = false){
     if (tr && tr.results) {
       const withBackdrop = tr.results.find(m => m.backdrop_path);
       if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path;
+      document.getElementById('moviesRegionTrending').innerHTML = tr.results.slice(0,10).map(mapResult).map(cardHTML).join('');
     }
   }
 
-  const hasFilter = filterState.genre || filterState.year || filterState.country || filterState.sort !== 'popularity.desc';
   document.getElementById('moviesStandardRows').style.display = hasFilter ? 'none' : 'block';
   document.getElementById('moviesFilteredHead').style.display = hasFilter ? 'flex' : 'none';
 
@@ -871,29 +942,59 @@ function navigate(view){
   if(view === 'search')    document.getElementById('q').focus();
 }
 
-async function filterByGenre(el, genreId, genreName) {
-  document.querySelectorAll('#homeFilters .fpill').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
+// Function to handle the "Popular Genres" cards
+function openGenrePage(genreId, genreName) {
+  navigate('movies');
+  setFilter('genre', genreId, genreName);
+}
 
-  const scroller = document.getElementById('latestTrack');
-  scroller.innerHTML = '<div class="empty">Loading...</div>';
-
-  if (genreId === 'all') {
-    const tr = await tmdb('/trending/movie/week', {page:1});
-    if(tr && tr.results) scroller.innerHTML = tr.results.slice(0,20).map(mapResult).map(cardHTML).join('');
-  } else {
-    const d = await tmdb('/discover/movie', {with_genres: genreId, page:1, sort_by:'popularity.desc'});
-    if(d && d.results) scroller.innerHTML = d.results.slice(0,20).map(mapResult).map(cardHTML).join('');
+// Fetch a backdrop for the genre cards
+async function loadPopularGenres() {
+  const genres = [
+    { id: '35', name: 'Comedy', color: 'from-blue-900' },
+    { id: '28', name: 'Action', color: 'from-red-900' },
+    { id: '18', name: 'Drama', color: 'from-purple-900' },
+    { id: '27', name: 'Horror', color: 'from-black' },
+    { id: '878', name: 'Sci-Fi', color: 'from-cyan-900' }
+  ];
+  
+  const track = document.getElementById('genresTrack');
+  track.innerHTML = '';
+  
+  for (const g of genres) {
+    // Fetch a popular movie in this genre to use as a background
+    const data = await tmdb('/discover/movie', { with_genres: g.id, sort_by: 'popularity.desc', page: 1 });
+    let bgUrl = '';
+    if (data && data.results && data.results.length > 0) {
+      const movie = data.results.find(m => m.backdrop_path);
+      if (movie) bgUrl = BACKDROP + movie.backdrop_path;
+    }
+    
+    // Fallback image if no backdrop is found
+    if (!bgUrl) bgUrl = 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1000&auto=format&fit=crop';
+    
+    const card = document.createElement('div');
+    card.className = 'genre-card';
+    card.onclick = () => openGenrePage(g.id, g.name);
+    
+    // We use a CSS gradient overlay via a pseudo-element
+    card.innerHTML = `
+      <img src="${bgUrl}" alt="${g.name}">
+      <div class="genre-card-title">${g.name}</div>
+    `;
+    
+    // Add a color tint based on the genre
+    if (g.name === 'Comedy') card.style.boxShadow = 'inset 0 0 100px rgba(30, 58, 138, 0.6)';
+    if (g.name === 'Action') card.style.boxShadow = 'inset 0 0 100px rgba(153, 27, 27, 0.6)';
+    if (g.name === 'Drama') card.style.boxShadow = 'inset 0 0 100px rgba(88, 28, 135, 0.6)';
+    if (g.name === 'Horror') card.style.boxShadow = 'inset 0 0 100px rgba(0, 0, 0, 0.8)';
+    if (g.name === 'Sci-Fi') card.style.boxShadow = 'inset 0 0 100px rgba(22, 78, 99, 0.6)';
+    
+    track.appendChild(card);
   }
 }
 
-function renderWatchlist() {
-  const grid = document.getElementById('watchlistGrid');
-  const empty = document.getElementById('watchlistEmpty');
-  if(watchlist.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; }
-  else { empty.style.display = 'none'; grid.innerHTML = watchlist.map(cardHTML).join(''); }
-}
-
+// Function to handle search logic
 function handleSearch(e){
   e.preventDefault();
   const q = e.target.querySelector('input').value.trim();
@@ -1262,6 +1363,9 @@ async function loadInitial(){
   } else {
     document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(m => m.media_type === 'tv').map(upcomingCardHTML).join('');
   }
+
+  // 4. Popular Genres
+  loadPopularGenres();
 }
 
 document.querySelectorAll('form.search-form').forEach(form => { form.onsubmit = handleSearch; });
