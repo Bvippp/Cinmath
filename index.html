@@ -9,6 +9,11 @@
 <meta name="monetag" content="52e38885034f09b41235e3ffa0100d30">
 <title>TUBEMOCHA • Watch Free Movies & TV Shows Online</title>
 
+<!-- ═══════════════════════════════════════════
+     FAVICON (TM Logo)
+     ═══════════════════════════════════════════ -->
+<link rel="icon" sizes="any" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Crect width='36' height='36' rx='9' fill='%23c89666'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-weight='900' font-size='16' fill='%2314100d'%3ETM%3C/text%3E%3C/svg%3E">
+
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
@@ -674,12 +679,14 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// Updated Providers: Removed vidsrc.xyz and vidsrc.cc to eliminate the "connecting to vidsrc" message and branding.
-// Replaced with embed.su and vidlink.pro which offer cleaner, instant-loading players.
+// ═════════════════════════════════════════════════════════════════
+// EMBED PROVIDERS (Removed vidsrc.cc & vidsrc.xyz to eliminate branded player)
+// ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
   { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
   { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 3', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 4', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1433,8 +1440,8 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // Removed vidsrc providers entirely. Using 2embed, vidlink, and embed.su for a clean, instant-loading player.
   // referrerpolicy="no-referrer" helps reduce targeted ad tracking.
+  // Removed vidsrc providers entirely.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       referrerpolicy="no-referrer"
