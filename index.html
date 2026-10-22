@@ -294,13 +294,13 @@ footer b { color: var(--text-main); }
    ═══════════════════════════════════════════ */
 .player-overlay { position: fixed; inset: 0; z-index: 700; background: #000; display: none; flex-direction: column; }
 .player-overlay.open { display: flex; }
-.player-video-container { flex: 1; width: 100%; height: 100%; position: relative; background: #000; overflow: hidden; /* Cropping trick removed to show full player */ }
+.player-video-container { flex: 1; width: 100%; height: 100%; position: relative; background: #000; overflow: hidden; }
 .player-video-container iframe { 
   position: absolute; 
   top: 0; 
   left: 0; 
   width: 100%; 
-  height: 100%; /* Changed from calc(100% + 45px) to reveal native controls */
+  height: 100%; 
   border: 0; 
   z-index: 1; 
 }
@@ -698,13 +698,13 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (VidLink is default to match the clean UI)
+// EMBED PROVIDERS (Vidsrc.cc is default for stability)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
   { 
     name: 'Server 1', 
-    movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, 
-    tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` 
+    movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}?autoplay=true`, 
+    tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}?autoplay=true` 
   },
   { 
     name: 'Server 2', 
@@ -718,8 +718,8 @@ const EMBED_PROVIDERS = [
   },
   { 
     name: 'Server 4', 
-    movie: (id) => `https://www.2embed.cc/embed/${id}`, 
-    tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` 
+    movie: (id) => `https://vidfast.vc/movie/${id}`, 
+    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` 
   }
 ];
 
@@ -1498,7 +1498,8 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // referrerpolicy="origin" passes the domain origin so the server can validate the request without triggering hotlink protection.
+  // referrerpolicy="origin" passes the domain origin to satisfy anti-hotlink checks.
+  // sandbox attribute has been REMOVED to prevent "Please remove sandbox" errors from the player.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       referrerpolicy="origin"
