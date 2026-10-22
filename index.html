@@ -154,31 +154,13 @@ img { display: block; max-width: 100%; }
 /* ═══════════════════════════════════════════
    MOVIE DETAILS PAGE
    ═══════════════════════════════════════════ */
-/* Changed to relative scrolling to force Safari UI */
-.detail-overlay { 
-  display: none; 
-  position: relative; 
-  min-height: 100vh; 
-  background: var(--bg-main); 
-  z-index: 300; 
-}
-
-/* Hide main UI when detail is open to make it feel like a new page */
-body.detail-open .detail-overlay { display: block; }
-body.detail-open .topbar, 
-body.detail-open .view, 
-body.detail-open .bottom, 
-body.detail-open footer { display: none !important; }
-body.detail-open { padding-bottom: 0; }
-
+.detail-overlay { position: fixed; inset: 0; z-index: 300; background: var(--bg-main); overflow-y: auto; display: none; }
+.detail-overlay.open { display: block; }
 .detail-trailer-bg { position: absolute; inset: 0; height: 100vh; z-index: 0; overflow: hidden; pointer-events: none; }
 .detail-trailer-bg iframe { position: absolute; top: 50%; left: 50%; width: 100vw; height: 56.25vw; min-height: 100vh; min-width: 177.77vh; transform: translate(-50%, -50%); opacity: 0.45; }
 .detail-trailer-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg-main) 0%, rgba(20,16,13,0.7) 40%, rgba(20,16,13,0.3) 100%), linear-gradient(90deg, var(--bg-main) 0%, transparent 40%); }
 .detail-content { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; padding: 60px 20px 100px; max-width: 1400px; margin: 0 auto; }
-
-/* Fixed back button so it stays on screen while scrolling */
-.detail-back { position: fixed; top: calc(16px + env(safe-area-inset-top, 0px)); left: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(30,24,20,0.6); backdrop-filter: blur(8px); border: 1px solid var(--border); color: var(--text-main); display: grid; place-items: center; z-index: 400; }
-
+.detail-back { position: absolute; top: 16px; left: 16px; width: 40px; height: 40px; border-radius: 50%; background: rgba(30,24,20,0.6); backdrop-filter: blur(8px); border: 1px solid var(--border); color: var(--text-main); display: grid; place-items: center; }
 .detail-body { margin-top: auto; margin-bottom: auto; max-width: 700px; }
 .detail-title { font-size: 48px; font-weight: 900; line-height: 1.05; color: #fff; letter-spacing: -0.02em; text-shadow: 0 2px 10px rgba(0,0,0,0.6); margin-bottom: 16px; }
 .detail-meta { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; flex-wrap: wrap; }
@@ -388,9 +370,9 @@ footer b { color: var(--text-main); }
   <div class="main" style="padding-top:20px">
     <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title" id="searchTitle">Search Results</h2><div class="section-sub" id="searchSub">Found <span id="searchCount">0</span> results</div></div></div>
     <div class="grid" id="searchGrid"></div>
-    <div id="searchEmpty" class="empty" style="display:none"><b>No results</backgroundb>Try a different spelling.</div>
-    <div style=":display:flex;justify-content:centervar;margin-top:20px">
-      <button class(--="btn-play" id="searchLoadMoreac" style="display:none" onclick="loadcentMoreSearch()">Load More</button>
+    <div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try a different spelling.</div>
+    <div style="display:flex;justify-content:center;margin-top:20px">
+      <button class="btn-play" id="searchLoadMore" style="display:none" onclick="loadMoreSearch()">Load More</button>
     </div>
   </div>
 </div>
@@ -398,7 +380,7 @@ footer b { color: var(--text-main); }
 <!-- ═══════════════ WATCHLIST VIEW ═══════════════ -->
 <div id="view-watchlist" class="view">
   <div class="main" style="padding-top:20px">
-    <div class="section-head"><div class="section-accent" style="-light)"></div><div class="section-title-box"><h2 class="section-title">My Watchlist</h2><div class="section-sub">Your saved movies and shows</div></div></div>
+    <div class="section-head"><div class="section-accent" style="background:var(--accent-light)"></div><div class="section-title-box"><h2 class="section-title">My Watchlist</h2><div class="section-sub">Your saved movies and shows</div></div></div>
     <div class="grid" id="watchlistGrid"></div>
     <div id="watchlistEmpty" class="empty"><b>Your watchlist is empty</b>Click the star on any movie to save it.</div>
   </div>
@@ -518,11 +500,16 @@ window.addEventListener('popstate', function(event) {
     clearTimeout(window._idleTimer);
     document.body.style.overflow = ''; // Restore scroll when player closes
   } 
-  else if (document.body.classList.contains('detail-open')) {
+  else if (document.getElementById('detailOverlay').classList.contains('open')) {
     // Detail page is open, close it
-    document.body.classList.remove('detail-open');
+    document.getElementById('detailOverlay').classList.remove('open');
     document.getElementById('detailTrailerBg').innerHTML = '';
-    window.scrollTo(0, 0); // Reset to top when returning
+    
+    // Force Safari bar to show again now that we are back on the home page
+    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        window.scrollTo(0, 1);
+        setTimeout(() => { window.scrollTo(0, 0); }, 50);
+    }
   }
 });
 
@@ -782,7 +769,7 @@ async function loadMoreTV(){
   tvPage++;
   document.getElementById('tvPageNum').textContent = tvPage;
   const d = await tmdb('/discover/tv', {sort_by:'popularity.desc', page:tvPage});
-  if(d && d.results) document.getElementById('tvGrid').innerHTML += d.results.map(mapResult).map(cdivardHTML).join('');
+  if(d && d.results) document.getElementById('tvGrid').innerHTML += d.results.map(mapResult).map(cardHTML).join('');
 }
 
 function navigate(view){
@@ -808,14 +795,14 @@ async function filterByGenre(el, genreId, genreName) {
   el.classList.add('active');
 
   const scroller = document.getElementById('latestTrack');
-  scroller.innerHTML = '<div class="empty">Loading...</>';
+  scroller.innerHTML = '<div class="empty">Loading...</div>';
 
   if (genreId === 'all') {
     const tr = await tmdb('/trending/movie/week', {page:1});
     if(tr && tr.results) scroller.innerHTML = tr.results.slice(0,20).map(mapResult).map(cardHTML).join('');
   } else {
     const d = await tmdb('/discover/movie', {with_genres: genreId, page:1, sort_by:'popularity.desc'});
-    if(d && d.results :) scroller.innerHTML = d.results.slice(0,20).map(mapResult).map(cardHTML).join('');
+    if(d && d.results) scroller.innerHTML = d.results.slice(0,20).map(mapResult).map(cardHTML).join('');
   }
 }
 
@@ -919,7 +906,7 @@ async function openMovie(rawId){
   `;
 
   const inList = watchlist.some(x => x.id === currentMovie.id);
-  document.getElementById('detailListText').textContent = inList ? 'Added to List' 'Add to List';
+  document.getElementById('detailListText').textContent = inList ? 'Added to List' : 'Add to List';
 
   const bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
   document.getElementById('detailOverlay').style.background = `url(${bgUrl}) center/cover no-repeat`;
@@ -961,9 +948,13 @@ async function openMovie(rawId){
   // Fetch Recommendations and update subtext
   loadRecommendations(currentMovie);
 
-  // Toggle the body class so the CSS can hide the home page and show the detail page relative to the body
-  document.body.classList.add('detail-open');
-  window.scrollTo(0, 0); // Scroll to top to force Safari bottom bar to expand natively
+  document.getElementById('detailOverlay').classList.add('open');
+  
+  // Force Safari bottom bar to appear immediately when opening a movie
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.scrollTo(0, 1);
+      setTimeout(() => { window.scrollTo(0, 0); }, 50);
+  }
 
   // PUSH STATE: Add to history so the iPhone back button works
   history.pushState({ page: 'movie', id: rawId }, '', '#movie-' + id);
@@ -1139,4 +1130,37 @@ function loadPlayerSource(index) {
     </iframe>`;
   
   const iframe = container.querySelector('iframe');
-  const loader = document.getElementById('
+  const loader = document.getElementById('playerLoader');
+  if (iframe) { iframe.onload = () => { if (loader) loader.style.display = 'none'; }; }
+}
+
+async function loadInitial(){
+  const tr = await tmdb('/trending/movie/week', {page:1});
+  if(tr && tr.results){
+    const m = tr.results.map(mapResult);
+    setupHero(m);
+    document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
+  }
+
+  const now = await tmdb('/movie/now_playing', {page:1});
+  if(now && now.results) document.getElementById('latestTrack').innerHTML = now.results.slice(0,20).map(mapResult).map(cardHTML).join('');
+
+  const today = new Date().toISOString().split('T')[0];
+  const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': today, page: 1 });
+  if(upcoming && upcoming.results) {
+    document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(cardHTML).join('');
+  }
+}
+
+document.querySelectorAll('form.search-form').forEach(form => { form.onsubmit = handleSearch; });
+loadInitial();
+</script>
+
+<!-- MONETAG IN-PAGE PUSH CODE -->
+<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+
+<!-- MONETAG PUSH NOTIFICATIONS CODE -->
+<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false" async></script>
+
+</body>
+</html>
