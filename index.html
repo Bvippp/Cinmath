@@ -294,8 +294,16 @@ footer b { color: var(--text-main); }
    ═══════════════════════════════════════════ */
 .player-overlay { position: fixed; inset: 0; z-index: 700; background: #000; display: none; flex-direction: column; }
 .player-overlay.open { display: flex; }
-.player-video-container { flex: 1; width: 100%; height: 100%; position: relative; background: #000; }
-.player-video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 1; }
+.player-video-container { flex: 1; width: 100%; height: 100%; position: relative; background: #000; overflow: hidden; /* Cropping trick applied here */ }
+.player-video-container iframe { 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: calc(100% + 50px); /* Pushes bottom branding out of view */
+  border: 0; 
+  z-index: 1; 
+}
 .player-top-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; align-items: flex-start; justify-content: space-between; padding: 16px 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%); pointer-events: none; opacity: 1; transition: opacity 0.3s; }
 .player-overlay.idle .player-top-bar { opacity: 0; }
 .player-top-bar > * { pointer-events: auto; }
@@ -681,17 +689,13 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS 
-// Server 1: 2embed.cc (You confirmed this plays most content)
-// Server 2: vidsrc.to (Highly reliable backup)
-// Server 3: embed.su (Clean, fast)
-// Server 4: vidlink.pro (Stable)
+// EMBED PROVIDERS (Strictly Clean, Non-Vidsrc Backends)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Server 2', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 4', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` }
+  { name: 'Server 1', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` },
+  { name: 'Server 2', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
+  { name: 'Server 3', movie: (id) => `https://videasy.net/movie/${id}`, tv: (id, s, e) => `https://videasy.net/tv/${id}/${s}/${e}` },
+  { name: 'Server 4', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1453,7 +1457,7 @@ function loadPlayerSource(index) {
       webkitallowfullscreen="true" 
       mozallowfullscreen="true"
       allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
-      style="width:100%;height:100%;border:0;position:absolute;inset:0;z-index:1;">
+      style="width:100%;height:calc(100% + 50px);border:0;position:absolute;top:0;left:0;z-index:1;">
     </iframe>`;
   
   const iframe = container.querySelector('iframe');
