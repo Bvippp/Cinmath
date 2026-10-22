@@ -701,10 +701,10 @@ let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 // EMBED PROVIDERS (Clean Backends, High Availability)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` },
+  { name: 'Server 1', movie: (id) => `https://vidfast.vc/movie/${id}`, tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` },
   { name: 'Server 2', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://videasy.net/movie/${id}`, tv: (id, s, e) => `https://videasy.net/tv/${id}/${s}/${e}` },
-  { name: 'Server 4', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` }
+  { name: 'Server 3', movie: (id) => `https://player.smashy.stream/movie/${id}`, tv: (id, s, e) => `https://player.smashy.stream/tv/${id}?s=${s}&e=${e}` },
+  { name: 'Server 4', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` }
 ];
 
 let currentProviderIndex = 0;
