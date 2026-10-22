@@ -268,7 +268,7 @@ footer b { color: var(--text-main); }
 </head>
 <body>
 
-<!-- ═══════════════ TOP BAR ═══════════════ -->
+<!-- ═══════════ TOP BAR ═══════════ -->
 <div class="topbar">
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')">
@@ -487,29 +487,42 @@ footer b { color: var(--text-main); }
 
 <script>
 // ═════════════════════════════════════════════════════════════════
-// HISTORY API (The Best Equation for iPhone Back Button)
+// HISTORY API & SAFARI UI FIX
 // ═════════════════════════════════════════════════════════════════
-// Initialize state so the browser has something to go back to
 history.replaceState({ page: 'home' }, '', window.location.pathname);
 
-// Listen for the back button/swipe
+// Force the Safari bottom bar to expand on load
+function forceSafariBottomBar() {
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    // A tiny scroll forces the native Safari UI to expand
+    window.scrollTo(0, 1);
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 50);
+  }
+}
+window.addEventListener('load', forceSafariBottomBar);
+
+// Listen for the native back button/swipe
 window.addEventListener('popstate', function(event) {
-  // If the player is open, close the player first
   if (document.getElementById('playerOverlay').classList.contains('open')) {
-    const overlay = document.getElementById('playerOverlay');
+    // Player is open, close it
     document.getElementById('playerIframeContainer').innerHTML = '';
-    overlay.classList.remove('open');
+    document.getElementById('playerOverlay').classList.remove('open');
     clearTimeout(window._idleTimer);
     
-    // Bring the detail overlay back to focus
+    // Bring detail overlay back
     document.getElementById('detailOverlay').style.opacity = '1';
     document.getElementById('detailOverlay').style.pointerEvents = 'auto';
   } 
-  // If the detail overlay is open (and player is closed), close the detail overlay
   else if (document.getElementById('detailOverlay').classList.contains('open')) {
+    // Detail page is open, close it
     document.getElementById('detailOverlay').classList.remove('open');
     document.getElementById('detailTrailerBg').innerHTML = '';
     document.body.style.overflow = '';
+    
+    // Force Safari bar to show again now that we are back on the home page
+    forceSafariBottomBar();
   }
 });
 
