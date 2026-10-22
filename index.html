@@ -7,13 +7,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>TUBEMOCHA • Watch Free Movies & TV Shows Online</title>
 
-<!-- Preconnect for fast streaming CDN resolution -->
-<link rel="preconnect" href="https://vidfast.pro" crossorigin>
-<link rel="preconnect" href="https://vidlink.pro" crossorigin>
-<link rel="preconnect" href="https://vidsrc.cc" crossorigin>
-<link rel="preconnect" href="https://www.2embed.cc" crossorigin>
-<link rel="preconnect" href="https://image.tmdb.org" crossorigin>
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
@@ -1585,8 +1578,10 @@ function loadPlayerSource(index) {
     return;
   }
   
-  // Native iframe embed with allow policies for fullscreen/autoplay but without strict sandbox blocking
-  container.innerHTML = `<iframe src="${url}" allow="autoplay; fullscreen; encrypted-media; picture-in-picture; gyroscope; accelerometer; clipboard-write; screen-wake-lock;" allowfullscreen webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;" loading="eager"></iframe>`;
+  // 1. REMOVED SANDBOX entirely so the provider doesn't block playback.
+  // 2. Added referrerPolicy="no-referrer" to prevent tracking.
+  // 3. The global window.open interceptor below will handle popups.
+  container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen referrerpolicy="no-referrer" style="width:100%;height:100%;border:0;"></iframe>`;
   
   const timeout = setTimeout(() => {
     if (currentProviderIndex === index && index < EMBED_PROVIDERS.length - 1) {
@@ -1609,6 +1604,27 @@ function loadPlayerSource(index) {
     };
   }
 }
+
+// ══════════════════════════════════════════════════════════════
+// POPUP BLOCKER (Anti-Ad Equation)
+// This script intercepts window.open calls from the iframe
+// to block pop-unders and redirect ads.
+// ══════════════════════════════════════════════════════════════
+(function() {
+  const originalWindowOpen = window.open;
+  window.open = function(url, name, features) {
+    // Check if the call is coming from the player iframe
+    const isFromPlayer = document.getElementById('playerOverlay').classList.contains('open');
+    
+    if (isFromPlayer) {
+      console.log('Blocked pop-up ad:', url);
+      return null; // Block the popup
+    }
+    
+    // Allow normal popups if not from the player
+    return originalWindowOpen.apply(window, arguments);
+  };
+})();
 
 function skipAd() {
   document.getElementById('skipAdBtn').style.display = 'none';
