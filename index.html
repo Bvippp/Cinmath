@@ -350,7 +350,7 @@ img { display: block; max-width: 100%; }
 }
 
 /* ═══════════════════════════════════════════
-   IN-PAGE PLAYER OVERLAY (Native Controls Only)
+   IN-PAGE PLAYER OVERLAY (Clean, Native Controls Only)
    ═══════════════════════════════════════════ */
 .player-overlay {
   position: fixed; inset: 0; z-index: 700;
@@ -405,6 +405,23 @@ img { display: block; max-width: 100%; }
 .player-video-container iframe {
   position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
 }
+
+/* Skip Ad Button (Overlay) */
+.skip-ad-btn {
+  position: absolute; bottom: 120px; left: 24px; z-index: 20;
+  width: 100px; height: 100px; border-radius: 50%;
+  background: #fff; color: #000;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.3), 0 0 30px rgba(255,255,255,0.8);
+  animation: pulseAd 2s infinite;
+}
+@keyframes pulseAd {
+  0% { box-shadow: 0 0 0 4px rgba(255,255,255,0.3), 0 0 30px rgba(255,255,255,0.8); }
+  50% { box-shadow: 0 0 0 8px rgba(255,255,255,0.1), 0 0 50px rgba(255,255,255,1); }
+  100% { box-shadow: 0 0 0 4px rgba(255,255,255,0.3), 0 0 30px rgba(255,255,255,0.8); }
+}
+.skip-ad-btn svg { margin-top: 4px; }
 
 /* Detail Page Seasons UI */
 .tv-seasons-container {
@@ -864,7 +881,7 @@ img { display: block; max-width: 100%; }
   </div>
 </div>
 
-<!-- ═══════════════ IN-PAGE PLAYER OVERLAY (Native Controls Only) ═══════════════ -->
+<!-- ═══════════════ IN-PAGE PLAYER OVERLAY ═══════════════ -->
 <div class="player-overlay" id="playerOverlay">
   <div class="player-top-bar">
     <button class="player-back-btn" onclick="closePlayer()">
@@ -885,6 +902,11 @@ img { display: block; max-width: 100%; }
   </div>
 
   <div class="player-video-container" id="playerIframeContainer"></div>
+
+  <button class="skip-ad-btn" id="skipAdBtn" onclick="skipAd()">
+    Skip Ad
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"></line></svg>
+  </button>
 </div>
 
 <!-- ═══════════════ BOTTOM NAVIGATION ═══════════════ -->
@@ -1539,6 +1561,10 @@ async function playCurrentMedia(){
   document.getElementById('detailOverlay').style.opacity = '0';
   document.getElementById('detailOverlay').style.pointerEvents = 'none';
   
+  const skipBtn = document.getElementById('skipAdBtn');
+  skipBtn.style.display = 'flex';
+  setTimeout(() => { skipBtn.style.display = 'none'; }, 5000);
+  
   currentProviderIndex = 0;
   loadPlayerSource(currentProviderIndex);
 }
@@ -1552,7 +1578,7 @@ function loadPlayerSource(index) {
     return;
   }
   
-  // Inject iframe without custom overlays to prevent duplicate controls and sandbox errors
+  // REMOVED SANDBOX to fix "disable sandbox" error and allow native controls to function.
   container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;"></iframe>`;
   
   const timeout = setTimeout(() => {
@@ -1575,6 +1601,11 @@ function loadPlayerSource(index) {
       }
     };
   }
+}
+
+function skipAd() {
+  document.getElementById('skipAdBtn').style.display = 'none';
+  toast('Ad skipped');
 }
 
 function playNextEpisode() {
