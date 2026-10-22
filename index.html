@@ -602,7 +602,7 @@ function cardHTML(m){
   }catch(e){ return ''; }
 }
 
-// Custom layout for the "Current & Upcoming TV Shows" section
+// Custom layout for the "Current & Upcoming TV Shows" section with dynamic "New season" logic
 function upcomingCardHTML(m) {
   try {
     const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 38);
@@ -611,19 +611,34 @@ function upcomingCardHTML(m) {
     const clickId = 'tv-' + m.id;
     
     let dateStr = 'Upcoming';
+    let isNewSeason = false;
+
+    // Check if the show premiered recently or is upcoming
     if (m.first_air_date) {
-      dateStr = new Date(m.first_air_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const airDate = new Date(m.first_air_date);
+      dateStr = airDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      
+      const today = new Date();
+      const diffDays = Math.ceil((today - airDate) / (1000 * 60 * 60 * 24));
+      
+      // If it premiered in the last 90 days or is in the future (up to 30 days out)
+      if ((diffDays >= 0 && diffDays <= 90) || (diffDays < 0 && diffDays >= -30)) {
+        isNewSeason = true;
+      }
     } else if (m.y) {
       dateStr = m.y;
+      const currentYear = new Date().getFullYear();
+      if (parseInt(m.y) >= currentYear) isNewSeason = true;
     }
 
     const seasonInfo = `S1.E1`; 
+    const newSeasonBadge = isNewSeason ? `<span class="badge new-season">New season</span>` : '';
 
     return `<div class="card" onclick="openMovie('${clickId}')">
       <div class="poster">
         <img src="${poster}" loading="lazy" alt="">
         <span class="badge rating"><span>★</span> ${rating}</span>
-        <span class="badge new-season">New season</span>
+        ${newSeasonBadge}
       </div>
       <div class="card-info">
         <div class="card-title">${title}</div>
