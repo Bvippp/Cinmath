@@ -674,11 +674,12 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
+// Updated Providers: Removed vidsrc.xyz and vidsrc.cc to eliminate the "connecting to vidsrc" message and branding.
+// Replaced with embed.su and vidlink.pro which offer cleaner, instant-loading players.
 const EMBED_PROVIDERS = [
   { name: 'Server 1', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Server 2', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 3', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'Server 4', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` }
+  { name: 'Server 2', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
+  { name: 'Server 3', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1432,8 +1433,8 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // Removed sandbox to prevent "Please remove sandbox" errors from the player.
-  // Kept referrerpolicy="no-referrer" to help block targeted ad tracking.
+  // Removed vidsrc providers entirely. Using 2embed, vidlink, and embed.su for a clean, instant-loading player.
+  // referrerpolicy="no-referrer" helps reduce targeted ad tracking.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       referrerpolicy="no-referrer"
