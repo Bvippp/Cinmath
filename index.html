@@ -400,7 +400,8 @@ footer b { color: var(--text-main); }
 <div class="detail-overlay" id="detailOverlay">
   <div class="detail-trailer-bg" id="detailTrailerBg"></div>
   <div class="detail-content">
-    <button class="detail-back" onclick="closeDetail()">
+    <!-- Trigger history.back() so iPhone back button and this button behave the same -->
+    <button class="detail-back" onclick="history.back()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
     <div class="detail-body">
@@ -453,7 +454,8 @@ footer b { color: var(--text-main); }
 
   <div class="player-top-bar">
     <div class="player-left-header">
-      <button class="player-back-btn" onclick="closePlayer()">
+      <!-- Trigger history.back() to close player via popstate -->
+      <button class="player-back-btn" onclick="history.back()">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
       </button>
       <div class="player-title-box">
@@ -484,6 +486,33 @@ footer b { color: var(--text-main); }
 <footer><div class="site-disclaimer" style="border:none; margin:0 auto;"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div></footer>
 
 <script>
+// ═════════════════════════════════════════════════════════════════
+// HISTORY API (The Best Equation for iPhone Back Button)
+// ═════════════════════════════════════════════════════════════════
+// Initialize state so the browser has something to go back to
+history.replaceState({ page: 'home' }, '', window.location.pathname);
+
+// Listen for the back button/swipe
+window.addEventListener('popstate', function(event) {
+  // If the player is open, close the player first
+  if (document.getElementById('playerOverlay').classList.contains('open')) {
+    const overlay = document.getElementById('playerOverlay');
+    document.getElementById('playerIframeContainer').innerHTML = '';
+    overlay.classList.remove('open');
+    clearTimeout(window._idleTimer);
+    
+    // Bring the detail overlay back to focus
+    document.getElementById('detailOverlay').style.opacity = '1';
+    document.getElementById('detailOverlay').style.pointerEvents = 'auto';
+  } 
+  // If the detail overlay is open (and player is closed), close the detail overlay
+  else if (document.getElementById('detailOverlay').classList.contains('open')) {
+    document.getElementById('detailOverlay').classList.remove('open');
+    document.getElementById('detailTrailerBg').innerHTML = '';
+    document.body.style.overflow = '';
+  }
+});
+
 const TMDB_KEY  = '3d1cb94d909aab088231f5af899dffdc';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const IMG       = 'https://image.tmdb.org/t/p/w500';
@@ -919,6 +948,9 @@ async function openMovie(rawId){
   // Fetch Recommendations and update subtext
   loadRecommendations(currentMovie);
 
+  // PUSH STATE: Add to history so the iPhone back button works
+  history.pushState({ page: 'movie', id: rawId }, '', '#movie-' + id);
+
   document.getElementById('detailOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1057,6 +1089,9 @@ async function playCurrentMedia(){
   document.addEventListener('mousemove', resetTimer);
   document.addEventListener('touchstart', resetTimer);
   resetTimer();
+
+  // PUSH STATE: Add to history so the iPhone back button works from player
+  history.pushState({ page: 'player' }, '', '#playing');
 }
 
 function renderServerButtons() {
@@ -1092,20 +1127,6 @@ function loadPlayerSource(index) {
   const iframe = container.querySelector('iframe');
   const loader = document.getElementById('playerLoader');
   if (iframe) { iframe.onload = () => { if (loader) loader.style.display = 'none'; }; }
-}
-
-function closePlayer(){
-  const overlay = document.getElementById('playerOverlay');
-  document.getElementById('playerIframeContainer').innerHTML = '';
-  overlay.classList.remove('open');
-  clearTimeout(window._idleTimer);
-}
-
-function closeDetail(){
-  if(document.getElementById('playerOverlay').classList.contains('open')) closePlayer();
-  document.getElementById('detailOverlay').classList.remove('open');
-  document.getElementById('detailTrailerBg').innerHTML = '';
-  document.body.style.overflow = '';
 }
 
 async function loadInitial(){
