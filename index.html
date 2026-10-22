@@ -700,11 +700,30 @@ let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 // ═════════════════════════════════════════════════════════════════
 // EMBED PROVIDERS (Clean Backends, Minimal Pre-rolls)
 // ═════════════════════════════════════════════════════════════════
+// Updated: VixSrc is now the default – it is ad-free, unbranded,
+// and supports TMDB IDs for both movies and TV episodes.
+// VidFast, VidLink, and VidSrc.cc are retained as fallbacks.
 const EMBED_PROVIDERS = [
-  { name: 'Server 1', movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` },
-  { name: 'Server 2', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Server 3', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
-  { name: 'Server 4', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` }
+  { 
+    name: 'Server 1', 
+    movie: (id) => `https://vixsrc.to/movie/${id}`, 
+    tv: (id, s, e) => `https://vixsrc.to/tv/${id}/${s}/${e}` 
+  },
+  { 
+    name: 'Server 2', 
+    movie: (id) => `https://vidfast.vc/movie/${id}`, 
+    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` 
+  },
+  { 
+    name: 'Server 3', 
+    movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, 
+    tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` 
+  },
+  { 
+    name: 'Server 4', 
+    movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, 
+    tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` 
+  }
 ];
 
 let currentProviderIndex = 0;
