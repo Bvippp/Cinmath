@@ -614,28 +614,28 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (VidFast is default for stability & no blank screens)
+// EMBED PROVIDERS (UnLimPlay is default - ad-free API)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
   { 
     name: 'Server 1', 
+    movie: (id) => `https://unlimplay.com/play/embed/movie/${id}`, 
+    tv: (id, s, e) => `https://unlimplay.com/play/embed/tv/${id}/${s}/${e}` 
+  },
+  { 
+    name: 'Server 2', 
     movie: (id) => `https://vidfast.vc/movie/${id}?autoplay=true`, 
     tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}?autoplay=true` 
   },
   { 
-    name: 'Server 2', 
+    name: 'Server 3', 
     movie: (id) => `https://vidsrc.net/embed/movie?tmdb=${id}&autoplay=true`, 
     tv: (id, s, e) => `https://vidsrc.net/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=true` 
   },
   { 
-    name: 'Server 3', 
+    name: 'Server 4', 
     movie: (id) => `https://embed.su/embed/movie/${id}?autoplay=true`, 
     tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}?autoplay=true` 
-  },
-  { 
-    name: 'Server 4', 
-    movie: (id) => `https://autoembed.co/movie/tmdb/${id}?autoplay=true`, 
-    tv: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}?autoplay=true` 
   }
 ];
 
@@ -1386,6 +1386,8 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
+  // Sandbox attribute REMOVED to prevent "Please remove sandbox" error from the provider.
+  // UnLimPlay is used as the default provider to strip ads server-side.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
       referrerpolicy="origin"
