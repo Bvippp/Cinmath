@@ -384,7 +384,7 @@ footer b { color: var(--text-main); }
       </div>
     </div>
     
-    <!-- Trending in Region Row (To match movy.sx) -->
+    <!-- Trending in Region Row (Dynamically updates based on location) -->
     <div class="section-head" id="moviesTrendingHead"><div class="section-accent red"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
     <div class="scroller" id="moviesRegionTrending" style="margin-bottom: 20px;"></div>
 
@@ -831,6 +831,21 @@ function setFilter(key, value, label) {
   loadMoviesPage(true);
 }
 
+let cachedGeo = { code: null, name: 'Your Region' };
+async function getUserCountry() {
+  if (cachedGeo.code) return cachedGeo;
+  try {
+    const res = await fetch('https://ipapi.co/json/');
+    const data = await res.json();
+    if (data.country_code && data.country_name) {
+      cachedGeo = { code: data.country_code, name: data.country_name };
+    }
+  } catch(e) {
+    console.log('Geolocation failed', e);
+  }
+  return cachedGeo;
+}
+
 async function loadMoviesPage(force = false){
   const grid = document.getElementById('moviesGrid');
   
@@ -839,15 +854,38 @@ async function loadMoviesPage(force = false){
   document.getElementById('moviesTrendingHead').style.display = hasFilter ? 'none' : 'flex';
   document.getElementById('moviesRegionTrending').style.display = hasFilter ? 'none' : 'flex';
 
+  // 1. DYNAMIC REGION TRENDING
+  const regionTrendingTrack = document.getElementById('moviesRegionTrending');
+  if ((regionTrendingTrack.innerHTML === '' || force) && !hasFilter) {
+      const geo = await getUserCountry();
+      const titleEl = document.getElementById('moviesTrendingHead').querySelector('.section-title');
+      let regionData = null;
+
+      if (geo.code) {
+          titleEl.textContent = `Trending in ${geo.name}`;
+          regionData = await tmdb('/discover/movie', { with_origin_country: geo.code, sort_by: 'popularity.desc', page: 1 });
+      }
+
+      if (!regionData || !regionData.results || regionData.results.length === 0) {
+          titleEl.textContent = 'Trending Right Now';
+          regionData = await tmdb('/trending/movie/week', {page:1});
+      }
+
+      if (regionData && regionData.results) {
+          regionTrendingTrack.innerHTML = regionData.results.slice(0,10).map(mapResult).map(cardHTML).join('');
+      }
+  }
+
+  // If already loaded and not forced, return
   if (!force && grid.innerHTML && grid.innerHTML.length > 50) return;
 
+  // 2. HEADER BACKGROUND
   const headerBg = document.getElementById('moviesHeaderBg');
   if (!headerBg.src || headerBg.src.includes('base64')) {
     const tr = await tmdb('/trending/movie/week', {page:1});
     if (tr && tr.results) {
       const withBackdrop = tr.results.find(m => m.backdrop_path);
       if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path;
-      document.getElementById('moviesRegionTrending').innerHTML = tr.results.slice(0,10).map(mapResult).map(cardHTML).join('');
     }
   }
 
