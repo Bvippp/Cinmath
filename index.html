@@ -970,7 +970,9 @@ function getEmbedUrl(index) {
 async function playCurrentMedia(){
   if(!currentMovie) return;
   
-  // TRIGGER MONETIZATION HERE (PASTE POPUNDER SCRIPT HERE LATER)
+  // --- MONETAG POPUNDER TRIGGER ---
+  (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+  // --------------------------------
   
   const overlay = document.getElementById('playerOverlay');
   overlay.classList.add('open');
