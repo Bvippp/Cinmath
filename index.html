@@ -269,7 +269,7 @@ footer b { color: var(--text-main); }
 .bottom button.active svg { stroke: var(--accent-light); }
 .genre-modal { position: fixed; inset: 0; z-index: 500; background: rgba(10,8,6,0.85); backdrop-filter: blur(8px); display: none; align-items: flex-end; }
 .genre-modal.open { display: flex; }
-.genre-sheet { background: var(--bg-card); border-top: 1px solid var(--border); border-radius: 22px 22px 0 0; width: 100%; max-height: 80vh; overflow-y: auto; padding: 20px 16px 40px; }
+.genre-sheet { background: var(--bg-card); border-top: 1px solid var(--border); border-radius: 22px 22px 0 0; width: 100%; max-height: 80vh; overflow-y: auto; padding: bar20px 16px 40px; }
 .genre-sheet h3 { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 16px; }
 .ggrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .ggrid button { height: 46px; border-radius: var(--radius-md); background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 14px; text-align: left; padding: 0 16px; }
@@ -279,7 +279,7 @@ footer b { color: var(--text-main); }
 <body>
 
 <!-- ═══════════ TOP BAR ═══════════ -->
-<div class="topbar">
+<div class="top">
   <div class="topbar-inner">
     <div class="logo" onclick="navigate('home')">
       <div class="m">TM</div><b>TUBEMOCHA</b>
@@ -370,6 +370,8 @@ footer b { color: var(--text-main); }
     </div>
     <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Trending TV Shows</h2></div></div>
     <div class="scroller" id="tvTrending"></div>
+    <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Current &amp; upcoming TV shows</h2></div></div>
+    <div class="scroller" id="tvUpcomingTrack"></div>
     <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Popular Series</h2><div class="section-sub">Page <span id="tvPageNum">1</span></div></div><div class="section-action" onclick="loadMoreTV()">Load More</div></div>
     <div class="grid" id="tvGrid"></div>
   </div>
@@ -825,10 +827,22 @@ async function loadTVPage(){
   const disc = await tmdb('/discover/tv', {sort_by:'popularity.desc', page:1});
   if(disc && disc.results) grid.innerHTML = disc.results.map(mapResult).map(cardHTML).join('');
 
-  const now = new Date().toISOString().split('T')[0];
-  const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': now, page: 1 });
-  if(upcoming && upcoming.results) {
-    document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
+  // Fetch Current & Upcoming TV Shows
+  const today = new Date().toISOString().split('T')[0];
+  const [onAir, upcoming] = await Promise.all([
+    tmdb('/tv/on_the_air', { page: 1 }),
+    tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 })
+  ]);
+  
+  let combinedTv = [];
+  if (onAir && onAir.results) combinedTv.push(...onAir.results);
+  if (upcoming && upcoming.results) combinedTv.push(...upcoming.results);
+  
+  // Deduplicate
+  const uniqueTv = Array.from(new Map(combinedTv.map(item => [item.id, item])).values());
+  
+  if(uniqueTv.length > 0) {
+    document.getElementById('tvUpcomingTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
   }
 }
 
@@ -1202,28 +1216,49 @@ function loadPlayerSource(index) {
 }
 
 async function loadInitial(){
-  const tr = await tmdb('/trending/movie/week', {page:1});
+  // 1. TOP 10 on Tubemocha (Mixed Movies & TV)
+  const tr = await tmdb('/trending/all/week', {page:1});
   if(tr && tr.results){
     const m = tr.results.map(mapResult);
     setupHero(m);
     document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
   } else {
-    // Fallback if API fails
     setupHero(FALLBACK);
     document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
   }
 
-  const now = await tmdb('/movie/now_playing', {page:1});
-  if(now && now.results) {
-    document.getElementById('latestTrack').innerHTML = now.results.slice(0,20).map(mapResult).map(cardHTML).join('');
+  // 2. Latest & Trending (Movies now playing + TV airing today)
+  const [nowPlaying, airingToday] = await Promise.all([
+    tmdb('/movie/now_playing', {page:1}),
+    tmdb('/tv/airing_today', {page:1})
+  ]);
+  
+  let latestMixed = [];
+  if(nowPlaying && nowPlaying.results) latestMixed.push(...nowPlaying.results.map(r => ({...r, media_type: 'movie'})));
+  if(airingToday && airingToday.results) latestMixed.push(...airingToday.results.map(r => ({...r, media_type: 'tv'})));
+  
+  if(latestMixed.length > 0) {
+    const uniqueLatest = Array.from(new Map(latestMixed.map(item => [item.id, item])).values());
+    document.getElementById('latestTrack').innerHTML = uniqueLatest.slice(0,20).map(mapResult).map(cardHTML).join('');
   } else {
     document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join('');
   }
 
+  // 3. Current & Upcoming TV Shows (On Air + Upcoming Discover)
   const today = new Date().toISOString().split('T')[0];
-  const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': today, page: 1 });
-  if(upcoming && upcoming.results) {
-    document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
+  const [onAir, upcoming] = await Promise.all([
+    tmdb('/tv/on_the_air', { page: 1 }),
+    tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 })
+  ]);
+  
+  let combinedTv = [];
+  if (onAir && onAir.results) combinedTv.push(...onAir.results);
+  if (upcoming && upcoming.results) combinedTv.push(...upcoming.results);
+  
+  const uniqueTv = Array.from(new Map(combinedTv.map(item => [item.id, item])).values());
+  
+  if(uniqueTv.length > 0) {
+    document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
   } else {
     document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(m => m.media_type === 'tv').map(upcomingCardHTML).join('');
   }
