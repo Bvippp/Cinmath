@@ -597,12 +597,12 @@ function cardHTML(m){
       <div class="card-info">
         <div class="card-title">${title}</div>
         <div class="card-sub"><span class="s-star">★</span> ${rating}<span class="s-sep">·</span>${year}<span class="s-sep">·</span>${genres}</div>
-      </ catchdiv>
+      </div>
     </div>`;
-  }catch(e){(e return ''; }
+  }catch(e){ return ''; }
 }
 
-// Custom layout for the) "Current & Upcoming { TV Shows" section
+// Custom layout for the "Current & Upcoming TV Shows" section
 function upcomingCardHTML(m) {
   try {
     const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 38);
@@ -617,8 +617,6 @@ function upcomingCardHTML(m) {
       dateStr = m.y;
     }
 
-    // Defaulting to S1.E1 as a visual placeholder to match the UI request, 
-    // as specific episode numbers require individual API calls.
     const seasonInfo = `S1.E1`; 
 
     return `<div class="card" onclick="openMovie('${clickId}')">
@@ -636,7 +634,7 @@ function upcomingCardHTML(m) {
         </div>
       </div>
     </div>`;
-  } return ''; }
+  } catch(e) { return ''; }
 }
 
 async function tmdb(path, params = {}){
@@ -671,7 +669,13 @@ function mapResult(r){
 }
 
 const GENRE_MAP = { "28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama","10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance","878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western" };
-const FALLBACK = [ {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns the truth.",poster_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",backdrop_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",tmdb:603} ];
+
+// Fallback data to prevent "Loading..." infinite loop if TMDB is blocked
+const FALLBACK = [
+  {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns the truth.",poster_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",backdrop_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",tmdb:603,media_type:'movie'},
+  {id:1396,t:"Breaking Bad",y:2008,r:"8.9",g:["Drama","Crime"],d:"A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine.",poster_path:"/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg",backdrop_path:"/tsRy63Mu5rtwnKf3MoN5L6j8u2a.jpg",tmdb:1396,media_type:'tv',first_air_date:'2008-01-20'},
+  {id:94997,t:"House of the Dragon",y:2022,r:"8.4",g:["Drama","Sci-Fi"],d:"An internal succession war within House Targaryen at the height of its power.",poster_path:"/1X4h40fcB4WWUmIBK0auT4zRBAV.jpg",backdrop_path:"/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg",tmdb:94997,media_type:'tv',first_air_date:'2022-08-21'}
+];
 
 let currentHeroIndex = 0, heroInterval;
 function setHeroSlide(index) {
@@ -1188,15 +1192,25 @@ async function loadInitial(){
     const m = tr.results.map(mapResult);
     setupHero(m);
     document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
+  } else {
+    // Fallback if API fails
+    setupHero(FALLBACK);
+    document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
   }
 
   const now = await tmdb('/movie/now_playing', {page:1});
-  if(now && now.results) document.getElementById('latestTrack').innerHTML = now.results.slice(0,20).map(mapResult).map(cardHTML).join('');
+  if(now && now.results) {
+    document.getElementById('latestTrack').innerHTML = now.results.slice(0,20).map(mapResult).map(cardHTML).join('');
+  } else {
+    document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join('');
+  }
 
   const today = new Date().toISOString().split('T')[0];
   const upcoming = await tmdb('/discover/tv', { sort_by: 'first_air_date.desc', 'first_air_date.gte': today, page: 1 });
   if(upcoming && upcoming.results) {
     document.getElementById('upcomingTvTrack').innerHTML = upcoming.results.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
+  } else {
+    document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(m => m.media_type === 'tv').map(upcomingCardHTML).join('');
   }
 }
 
