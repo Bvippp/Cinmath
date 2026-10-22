@@ -328,124 +328,8 @@ img { display: block; max-width: 100%; }
   backdrop-filter: blur(10px);
 }
 
-.cast-section {
-  margin-top: 40px;
-}
-.cast-scroller {
-  display: flex; gap: 16px; overflow-x: auto;
-  padding: 0 0 10px; scrollbar-width: none;
-}
-.cast-card {
-  flex: 0 0 100px; text-align: center;
-}
-.cast-card img {
-  width: 100px; height: 100px; border-radius: 50%;
-  object-fit: cover; border: 2px solid var(--bg-elevated);
-  margin-bottom: 8px;
-}
-.cast-name {
-  font-size: 12.5px; font-weight: 700; color: var(--text-main);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.cast-role {
-  font-size: 11px; color: var(--text-dim); margin-top: 2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-
-/* ═══════════════════════════════════════════
-   DISCLAIMER BLOCK (Inside Details & Footer)
-   ═══════════════════════════════════════════ */
-.site-disclaimer {
-  max-width: 800px;
-  margin: 40px auto;
-  padding: 20px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.6;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.site-disclaimer p { margin: 0; }
-
-footer {
-  margin-top: auto;
-  padding: 40px 20px 100px;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.6;
-  border-top: 1px solid var(--border);
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-footer b { color: var(--text-main); }
-
-/* ═══════════════════════════════════════════
-   IN-PAGE PLAYER OVERLAY (Clean, Native Controls Only)
-   ═══════════════════════════════════════════ */
-.player-overlay {
-  position: fixed; inset: 0; z-index: 700;
-  background: #000; display: none;
-  flex-direction: column;
-}
-.player-overlay.open { display: flex; }
-
-.player-top-bar {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
-  pointer-events: none;
-}
-.player-top-bar > * { pointer-events: auto; }
-
-.player-back-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: transparent; color: #fff;
-  display: grid; place-items: center;
-}
-.player-title-box {
-  flex: 1; margin: 0 16px; text-align: left;
-  display: flex; flex-direction: column; gap: 4px;
-}
-.player-title {
-  font-size: 16px; font-weight: 700; color: #fff;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.player-subtitle {
-  font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.7);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.player-top-actions {
-  display: flex; align-items: center; gap: 12px;
-}
-.player-icon-btn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: transparent; color: #fff;
-  display: grid; place-items: center;
-}
-
-.player-video-container {
-  flex: 1; width: 100%; height: 100%;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  background: #000;
-}
-.player-video-container iframe {
-  position: absolute; inset: 0; width: 100%; height: 100%; border: 0;
-}
-
-/* Detail Page Seasons UI */
-.tv-seasons-container {
-  margin-top: 30px;
-  padding-bottom: 20px;
-}
-.tv-seasons-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 16px;
-}
+.tv-seasons-container { margin-top: 30px; padding-bottom: 20px; }
+.tv-seasons-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .tv-season-select {
   background: rgba(30,24,20,0.6); border: 1px solid var(--border);
   color: var(--text-main); font-size: 20px; font-weight: 800;
@@ -455,130 +339,170 @@ footer b { color: var(--text-main); }
   background-repeat: no-repeat; background-position: right 12px top 50%;
   background-size: 14px auto; padding-right: 40px;
 }
-.tv-episode-count {
-  font-size: 13px; color: var(--text-dim); font-weight: 600;
-}
-.tv-episode-list {
-  display: flex; flex-direction: column; gap: 12px;
-}
+.tv-episode-count { font-size: 13px; color: var(--text-dim); font-weight: 600; }
+.tv-episode-list { display: flex; flex-direction: column; gap: 12px; }
 .episode-card {
   display: flex; gap: 16px; background: var(--bg-card);
   border: 1px solid var(--border); border-radius: var(--radius-md);
   padding: 12px; cursor: pointer; transition: 0.2s;
 }
 .episode-card:active { background: var(--bg-elevated); }
-.episode-thumb {
-  width: 140px; aspect-ratio: 16/9; border-radius: var(--radius-sm);
-  object-fit: cover; flex-shrink: 0; background: var(--bg-elevated);
+.episode-thumb { width: 140px; aspect-ratio: 16/9; border-radius: var(--radius-sm); object-fit: cover; flex-shrink: 0; background: var(--bg-elevated); }
+.episode-info { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; }
+.episode-number { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+.episode-title { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.episode-runtime { font-size: 12px; color: var(--text-dim); font-weight: 500; }
+
+.cast-section { margin-top: 40px; }
+.cast-scroller { display: flex; gap: 16px; overflow-x: auto; padding: 0 0 10px; scrollbar-width: none; }
+.cast-card { flex: 0 0 100px; text-align: center; }
+.cast-card img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 2px solid var(--bg-elevated); margin-bottom: 8px; }
+.cast-name { font-size: 12.5px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cast-role { font-size: 11px; color: var(--text-dim); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.site-disclaimer { max-width: 800px; margin: 40px auto; padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px; line-height: 1.6; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.site-disclaimer p { margin: 0; }
+footer { margin-top: auto; padding: 40px 20px 100px; text-align: center; color: var(--text-muted); font-size: 13px; line-height: 1.6; border-top: 1px solid var(--border); max-width: 1400px; margin-left: auto; margin-right: auto; }
+footer b { color: var(--text-main); }
+
+/* ═══════════════════════════════════════════
+   CUSTOM PLAYER OVERLAY (Cropped Iframe Equation)
+   ═══════════════════════════════════════════ */
+.player-overlay {
+  position: fixed; inset: 0; z-index: 700;
+  background: #000; display: none;
+  flex-direction: column;
+  overflow: hidden; /* Hides the cropped iframe parts */
 }
-.episode-info {
-  display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0;
-}
-.episode-number {
-  font-size: 10px; font-weight: 800; color: var(--accent);
-  text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px;
-}
-.episode-title {
-  font-size: 15px; font-weight: 700; color: var(--text-main);
-  margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.episode-runtime {
-  font-size: 12px; color: var(--text-dim); font-weight: 500;
+.player-overlay.open { display: flex; }
+
+.player-video-container {
+  flex: 1; width: 100%; height: 100%;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  background: #000;
 }
 
-/* Other Styles */
-.page-header {
-  position: relative; border-radius: 0; overflow: hidden;
-  height: 220px; background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-main) 100%);
-  margin-bottom: 20px; display: flex; align-items: flex-end;
-}
-.page-header-img {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; opacity: 0.5;
-}
-.page-header-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(0deg, var(--bg-main) 0%, transparent 80%);
-}
-.page-header-content { position: relative; z-index: 2; padding: 24px 20px; }
-.page-header-title {
-  font-size: 32px; font-weight: 900; color: var(--accent-light);
-  display: flex; gap: 12px; align-items: center;
-}
-.page-header-title span.line {
-  width: 5px; height: 32px; background: var(--accent);
-  display: inline-block; border-radius: 2px;
-}
-.page-header-sub {
-  color: var(--text-muted); font-size: 13px;
-  margin-top: 6px; margin-left: 17px;
+/* THE CROP: Stretch iframe taller and pull it up to hide native top/bottom controls */
+.player-video-container iframe {
+  position: absolute; 
+  width: 100%; 
+  height: calc(100% + 120px); 
+  top: -60px; 
+  left: 0;
+  border: 0; 
+  z-index: 2;
 }
 
-.filters {
-  display: flex; gap: 8px; overflow-x: auto;
-  padding: 0 20px 16px; scrollbar-width: none;
+/* Top Bar Styling */
+.player-top-bar {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 16px 20px;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);
+  pointer-events: none;
+  opacity: 1; transition: opacity 0.3s;
 }
-.filters::-webkit-scrollbar { display: none; }
-.fpill {
-  height: 36px; padding: 0 16px; border-radius: var(--radius-pill);
-  background: var(--bg-card); border: 1px solid var(--border);
-  color: var(--text-muted); font-weight: 600; font-size: 13px;
-  white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;
+.player-overlay.idle .player-top-bar { opacity: 0; }
+.player-top-bar > * { pointer-events: auto; }
+
+.player-left-header { display: flex; align-items: center; gap: 16px; }
+.player-back-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: transparent; color: #fff;
+  display: grid; place-items: center; transition: 0.2s;
 }
-.fpill.active {
-  background: var(--accent-light); color: var(--bg-main); border-color: var(--accent-light);
+.player-back-btn:hover { background: rgba(255,255,255,0.1); }
+.player-title-box { display: flex; flex-direction: column; gap: 2px; }
+.player-title { font-size: 22px; font-weight: 700; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+.player-subtitle { font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+
+.player-right-header { display: flex; align-items: center; gap: 12px; }
+.player-pill-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 6px 14px; border-radius: 20px;
+  color: #fff; font-size: 13px; font-weight: 600;
+  transition: 0.2s; cursor: pointer;
+}
+.player-pill-btn:hover { background: rgba(255,255,255,0.2); }
+.player-pill-btn svg { width: 16px; height: 16px; }
+
+/* Bottom Bar (Visual Match) */
+.player-bottom-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+  padding: 20px 20px 30px;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+  pointer-events: none;
+  opacity: 1; transition: opacity 0.3s;
+}
+.player-overlay.idle .player-bottom-bar { opacity: 0; }
+
+.progress-bar-container {
+  width: 100%; height: 4px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 2px; margin-bottom: 12px;
+  pointer-events: auto; cursor: pointer; position: relative;
+}
+.progress-bar-fill {
+  height: 100%; width: 3%; background: #fff;
+  border-radius: 2px; position: relative;
+}
+.progress-bar-fill::after {
+  content: ''; position: absolute; right: -6px; top: -4px;
+  width: 12px; height: 12px; border-radius: 50%; background: #fff;
 }
 
-.bottom {
-  position: fixed; left: 50%; transform: translateX(-50%);
-  bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 250;
-  background: rgba(30,24,20,0.95); backdrop-filter: blur(20px);
-  border: 1px solid var(--border); border-radius: var(--radius-lg);
-  padding: 8px 12px; display: flex; gap: 4px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-  width: calc(100% - 32px); max-width: 440px; justify-content: space-between;
-}
-.bottom button {
-  flex: 1; height: 48px; border-radius: var(--radius-md);
-  background: transparent; display: flex; align-items: center;
-  justify-content: center; color: var(--text-dim);
-}
-.bottom button svg {
-  width: 22px; height: 22px; fill: none; stroke: currentColor;
-  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-}
-.bottom button.active { background: rgba(245,237,227,0.12); color: var(--accent-light); }
-.bottom button.active svg { stroke: var(--accent-light); }
+.player-controls-row { display: flex; align-items: center; justify-content: space-between; pointer-events: auto; }
+.player-controls-left, .player-controls-right { display: flex; align-items: center; gap: 16px; }
+.player-ctrl-btn { color: #fff; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.player-ctrl-btn:hover { color: var(--accent); }
+.player-ctrl-btn svg { width: 22px; height: 22px; }
+.time-display { color: #fff; font-size: 13px; font-weight: 500; margin-left: 10px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 
-.toast {
-  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-  background: var(--accent-light); color: var(--bg-main);
-  padding: 10px 20px; border-radius: var(--radius-pill);
-  font-weight: 700; font-size: 13px; display: none; z-index: 600;
+/* Loading Spinner */
+.loader {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px; height: 50px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 1s linear infinite; z-index: 5;
 }
+@keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--accent-light); color: var(--bg-main); padding: 10px 20px; border-radius: var(--radius-pill); font-weight: 700; font-size: 13px; display: none; z-index: 900; }
 .toast.show { display: block; }
+
 .empty { padding: 40px 20px; text-align: center; color: var(--text-dim); font-size: 14px; }
 .empty b { color: var(--text-main); display: block; margin-bottom: 8px; font-size: 16px; }
 
-.genre-modal {
-  position: fixed; inset: 0; z-index: 500;
-  background: rgba(10,8,6,0.85); backdrop-filter: blur(8px);
-  display: none; align-items: flex-end;
-}
+.page-header { position: relative; border-radius: 0; overflow: hidden; height: 220px; background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-main) 100%); margin-bottom: 20px; display: flex; align-items: flex-end; }
+.page-header-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.5; }
+.page-header-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, var(--bg-main) 0%, transparent 80%); }
+.page-header-content { position: relative; z-index: 2; padding: 24px 20px; }
+.page-header-title { font-size: 32px; font-weight: 900; color: var(--accent-light); display: flex; gap: 12px; align-items: center; }
+.page-header-title span.line { width: 5px; height: 32px; background: var(--accent); display: inline-block; border-radius: 2px; }
+.page-header-sub { color: var(--text-muted); font-size: 13px; margin-top: 6px; margin-left: 17px; }
+
+.filters { display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 16px; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.fpill { height: 36px; padding: 0 16px; border-radius: var(--radius-pill); background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 13px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.fpill.active { background: var(--accent-light); color: var(--bg-main); border-color: var(--accent-light); }
+
+.bottom { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 250; background: rgba(30,24,20,0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 12px; display: flex; gap: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); width: calc(100% - 32px); max-width: 440px; justify-content: space-between; }
+.bottom button { flex: 1; height: 48px; border-radius: var(--radius-md); background: transparent; display: flex; align-items: center; justify-content: center; color: var(--text-dim); }
+.bottom button svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.bottom button.active { background: rgba(245,237,227,0.12); color: var(--accent-light); }
+.bottom button.active svg { stroke: var(--accent-light); }
+
+.genre-modal { position: fixed; inset: 0; z-index: 500; background: rgba(10,8,6,0.85); backdrop-filter: blur(8px); display: none; align-items: flex-end; }
 .genre-modal.open { display: flex; }
-.genre-sheet {
-  background: var(--bg-card); border-top: 1px solid var(--border);
-  border-radius: 22px 22px 0 0; width: 100%; max-height: 80vh;
-  overflow-y: auto; padding: 20px 16px 40px;
-}
+.genre-sheet { background: var(--bg-card); border-top: 1px solid var(--border); border-radius: 22px 22px 0 0; width: 100%; max-height: 80vh; overflow-y: auto; padding: 20px 16px 40px; }
 .genre-sheet h3 { font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 16px; }
 .ggrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.ggrid button {
-  height: 46px; border-radius: var(--radius-md);
-  background: var(--bg-elevated); border: 1px solid var(--border);
-  color: var(--text-muted); font-weight: 600; font-size: 14px;
-  text-align: left; padding: 0 16px;
-}
+.ggrid button { height: 46px; border-radius: var(--radius-md); background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted); font-weight: 600; font-size: 14px; text-align: left; padding: 0 16px; }
 .ggrid button.active { background: var(--accent); color: var(--bg-main); border-color: var(--accent); }
 </style>
 </head>
@@ -592,9 +516,9 @@ footer b { color: var(--text-main); }
     </div>
     <div class="search-top">
       <form class="search-form" action="." method="get" role="search" autocomplete="off" onsubmit="return handleSearch(event)">
-        <input id="q" type="search" name="search" enterhint="search" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search movies, TV shows..." />
+        <input id="q" type="search" name="search" placeholder="Search movies, TV shows..." />
         <button type="submit" aria-label="Search">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </button>
       </form>
     </div>
@@ -604,66 +528,11 @@ footer b { color: var(--text-main); }
 <!-- ═══════════════ HOME VIEW ═══════════════ -->
 <div id="view-home" class="view active">
   <div class="hero" id="hero">
-    <div class="hero-slide active" id="heroSlide1">
-      <img class="hero-bg" id="heroBg1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="background:linear-gradient(135deg,#2a211a,#14100d)">
-      <div class="hero-c">
-        <h1 class="hero-title" id="heroTitle1">Loading...</h1>
-        <div class="hero-meta" id="heroMeta1"></div>
-        <p class="hero-desc" id="heroDesc1"></p>
-        <div class="hero-actions">
-          <button class="btn-play" id="heroPlay1"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play</button>
-          <button class="btn-info" id="heroInfo1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> More info</button>
-        </div>
-      </div>
-    </div>
-    <div class="hero-slide" id="heroSlide2">
-      <img class="hero-bg" id="heroBg2" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-      <div class="hero-c">
-        <h1 class="hero-title" id="heroTitle2">Loading...</h1>
-        <div class="hero-meta" id="heroMeta2"></div>
-        <p class="hero-desc" id="heroDesc2"></p>
-        <div class="hero-actions">
-          <button class="btn-play" id="heroPlay2"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play</button>
-          <button class="btn-info" id="heroInfo2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> More info</button>
-        </div>
-      </div>
-    </div>
-    <div class="hero-slide" id="heroSlide3">
-      <img class="hero-bg" id="heroBg3" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-      <div class="hero-c">
-        <h1 class="hero-title" id="heroTitle3">Loading...</h1>
-        <div class="hero-meta" id="heroMeta3"></div>
-        <p class="hero-desc" id="heroDesc3"></p>
-        <div class="hero-actions">
-          <button class="btn-play" id="heroPlay3"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play</button>
-          <button class="btn-info" id="heroInfo3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> More info</button>
-        </div>
-      </div>
-    </div>
-    <div class="hero-slide" id="heroSlide4">
-      <img class="hero-bg" id="heroBg4" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-      <div class="hero-c">
-        <h1 class="hero-title" id="heroTitle4">Loading...</h1>
-        <div class="hero-meta" id="heroMeta4"></div>
-        <p class="hero-desc" id="heroDesc4"></p>
-        <div class="hero-actions">
-          <button class="btn-play" id="heroPlay4"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play</button>
-          <button class="btn-info" id="heroInfo4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> More info</button>
-        </div>
-      </div>
-    </div>
-    <div class="hero-slide" id="heroSlide5">
-      <img class="hero-bg" id="heroBg5" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
-      <div class="hero-c">
-        <h1 class="hero-title" id="heroTitle5">Loading...</h1>
-        <div class="hero-meta" id="heroMeta5"></div>
-        <p class="hero-desc" id="heroDesc5"></p>
-        <div class="hero-actions">
-          <button class="btn-play" id="heroPlay5"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play</button>
-          <button class="btn-info" id="heroInfo5"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg> More info</button>
-        </div>
-      </div>
-    </div>
+    <div class="hero-slide active" id="heroSlide1"><img class="hero-bg" id="heroBg1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle1">Loading...</h1><div class="hero-meta" id="heroMeta1"></div><p class="hero-desc" id="heroDesc1"></p><div class="hero-actions"><button class="btn-play" id="heroPlay1">Play</button><button class="btn-info" id="heroInfo1">More info</button></div></div></div>
+    <div class="hero-slide" id="heroSlide2"><img class="hero-bg" id="heroBg2" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle2">Loading...</h1><div class="hero-meta" id="heroMeta2"></div><p class="hero-desc" id="heroDesc2"></p><div class="hero-actions"><button class="btn-play" id="heroPlay2">Play</button><button class="btn-info" id="heroInfo2">More info</button></div></div></div>
+    <div class="hero-slide" id="heroSlide3"><img class="hero-bg" id="heroBg3" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle3">Loading...</h1><div class="hero-meta" id="heroMeta3"></div><p class="hero-desc" id="heroDesc3"></p><div class="hero-actions"><button class="btn-play" id="heroPlay3">Play</button><button class="btn-info" id="heroInfo3">More info</button></div></div></div>
+    <div class="hero-slide" id="heroSlide4"><img class="hero-bg" id="heroBg4" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle4">Loading...</h1><div class="hero-meta" id="heroMeta4"></div><p class="hero-desc" id="heroDesc4"></p><div class="hero-actions"><button class="btn-play" id="heroPlay4">Play</button><button class="btn-info" id="heroInfo4">More info</button></div></div></div>
+    <div class="hero-slide" id="heroSlide5"><img class="hero-bg" id="heroBg5" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle5">Loading...</h1><div class="hero-meta" id="heroMeta5"></div><p class="hero-desc" id="heroDesc5"></p><div class="hero-actions"><button class="btn-play" id="heroPlay5">Play</button><button class="btn-info" id="heroInfo5">More info</button></div></div></div>
     <div class="hero-dots">
       <div class="dot active" onclick="setHeroSlide(0)"></div>
       <div class="dot" onclick="setHeroSlide(1)"></div>
@@ -672,23 +541,10 @@ footer b { color: var(--text-main); }
       <div class="dot" onclick="setHeroSlide(4)"></div>
     </div>
   </div>
-
   <div class="main">
-    <div class="section-head">
-      <div class="section-accent"></div>
-      <div class="section-title-box">
-        <h2 class="section-title">TOP 10 on Tubemocha</h2>
-        <div class="section-sub">The most watched titles right now</div>
-      </div>
-    </div>
+    <div class="section-head"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">TOP 10 on Tubemocha</h2><div class="section-sub">The most watched titles right now</div></div></div>
     <div class="scroller" id="trendingTrack"></div>
-
-    <div class="section-head">
-      <div class="section-accent brown"></div>
-      <div class="section-title-box">
-        <h2 class="section-title">Browse</h2>
-      </div>
-    </div>
+    <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">Browse</h2></div></div>
     <div class="filters" id="homeFilters" style="display:flex; gap:8px; padding:0 20px 16px; overflow-x:auto;">
       <button class="fpill active" onclick="filterByGenre(this, 'all', 'All')">All</button>
       <button class="fpill" onclick="filterByGenre(this, '28', 'Action')">Action</button>
@@ -696,22 +552,9 @@ footer b { color: var(--text-main); }
       <button class="fpill" onclick="filterByGenre(this, '27', 'Horror')">Horror</button>
       <button class="fpill" onclick="filterByGenre(this, '878', 'Sci-Fi')">Sci-Fi</button>
     </div>
-
-    <div class="section-head">
-      <div class="section-accent brown"></div>
-      <div class="section-title-box">
-        <h2 class="section-title">Latest & Trending</h2>
-      </div>
-    </div>
+    <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">Latest & Trending</h2></div></div>
     <div class="scroller" id="latestTrack"></div>
-
-    <div class="section-head">
-      <div class="section-accent blue"></div>
-      <div class="section-title-box">
-        <h2 class="section-title">Current &amp; upcoming TV shows <span class="arrow">›</span></h2>
-        <div class="section-sub">New episodes and premieres on the way</div>
-      </div>
-    </div>
+    <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Current &amp; upcoming TV shows</h2><div class="section-sub">New episodes and premieres on the way</div></div></div>
     <div class="scroller" id="upcomingTvTrack"></div>
   </div>
 </div>
@@ -744,20 +587,9 @@ footer b { color: var(--text-main); }
     </div>
     <div class="grid" id="moviesGrid"></div>
     <div id="moviesStandardRows">
-      <div class="section-head">
-        <div class="section-accent brown"></div>
-        <div class="section-title-box">
-          <h2 class="section-title">Trending Movies</h2>
-        </div>
-      </div>
+      <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">Trending Movies</h2></div></div>
       <div class="scroller" id="moviesTrending"></div>
-      <div class="section-head">
-        <div class="section-accent brown"></div>
-        <div class="section-title-box">
-          <h2 class="section-title">Action</h2>
-        </div>
-        <div class="section-action" onclick="openGenrePage('28','Action')">View All</div>
-      </div>
+      <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">Action</h2></div><div class="section-action" onclick="openGenrePage('28','Action')">View All</div></div>
       <div class="scroller" id="moviesAction"></div>
     </div>
   </div>
@@ -774,21 +606,9 @@ footer b { color: var(--text-main); }
         <div class="page-header-sub">Binge the best series on the web</div>
       </div>
     </div>
-    <div class="section-head">
-      <div class="section-accent blue"></div>
-      <div class="section-title-box">
-        <h2 class="section-title">Trending TV Shows</h2>
-      </div>
-    </div>
+    <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Trending TV Shows</h2></div></div>
     <div class="scroller" id="tvTrending"></div>
-    <div class="section-head">
-      <div class="section-accent blue"></div>
-      <div class="section-title-box">
-        <h2 class="section-title">Popular Series</h2>
-        <div class="section-sub">Page <span id="tvPageNum">1</span></div>
-      </div>
-      <div class="section-action" onclick="loadMoreTV()">Load More</div>
-    </div>
+    <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Popular Series</h2><div class="section-sub">Page <span id="tvPageNum">1</span></div></div><div class="section-action" onclick="loadMoreTV()">Load More</div></div>
     <div class="grid" id="tvGrid"></div>
   </div>
 </div>
@@ -796,17 +616,9 @@ footer b { color: var(--text-main); }
 <!-- ═══════════════ SEARCH VIEW ═══════════════ -->
 <div id="view-search" class="view">
   <div class="main" style="padding-top:20px">
-    <div class="section-head">
-      <div class="section-accent brown"></div>
-      <div class="section-title-box">
-        <h2 class="section-title" id="searchTitle">Search Results</h2>
-        <div class="section-sub" id="searchSub">Found <span id="searchCount">0</span> results</div>
-      </div>
-    </div>
+    <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title" id="searchTitle">Search Results</h2><div class="section-sub" id="searchSub">Found <span id="searchCount">0</span> results</div></div></div>
     <div class="grid" id="searchGrid"></div>
-    <div id="searchEmpty" class="empty" style="display:none">
-      <b>No results</b>Try a different spelling.
-    </div>
+    <div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try a different spelling.</div>
     <div style="display:flex;justify-content:center;margin-top:20px">
       <button class="btn-play" id="searchLoadMore" style="display:none" onclick="loadMoreSearch()">Load More</button>
     </div>
@@ -816,17 +628,9 @@ footer b { color: var(--text-main); }
 <!-- ═══════════════ WATCHLIST VIEW ═══════════════ -->
 <div id="view-watchlist" class="view">
   <div class="main" style="padding-top:20px">
-    <div class="section-head">
-      <div class="section-accent" style="background:var(--accent-light)"></div>
-      <div class="section-title-box">
-        <h2 class="section-title">My Watchlist</h2>
-        <div class="section-sub">Your saved movies and shows</div>
-      </div>
-    </div>
+    <div class="section-head"><div class="section-accent" style="background:var(--accent-light)"></div><div class="section-title-box"><h2 class="section-title">My Watchlist</h2><div class="section-sub">Your saved movies and shows</div></div></div>
     <div class="grid" id="watchlistGrid"></div>
-    <div id="watchlistEmpty" class="empty">
-      <b>Your watchlist is empty</b>Click the star on any movie to save it.
-    </div>
+    <div id="watchlistEmpty" class="empty"><b>Your watchlist is empty</b>Click the star on any movie to save it.</div>
   </div>
 </div>
 
@@ -843,17 +647,14 @@ footer b { color: var(--text-main); }
 <!-- ═══════════════ MOVIE DETAILS OVERLAY ═══════════════ -->
 <div class="detail-overlay" id="detailOverlay">
   <div class="detail-trailer-bg" id="detailTrailerBg"></div>
-
   <div class="detail-content">
     <button class="detail-back" onclick="closeDetail()">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
-
     <div class="detail-body">
       <h1 class="detail-title" id="detailTitle">Loading...</h1>
       <div class="detail-meta" id="detailMeta"></div>
       <p class="detail-desc" id="detailDesc"></p>
-      
       <div class="detail-actions">
         <button class="btn-detail-play" id="detailPlayBtn" onclick="playCurrentMedia()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play
@@ -868,7 +669,6 @@ footer b { color: var(--text-main); }
         </button>
       </div>
     </div>
-
     <div class="tv-seasons-container" id="tvSeasonsContainer" style="display:none;">
       <div class="section-head" style="padding:0; margin-bottom:16px;">
         <div class="section-accent"></div>
@@ -881,143 +681,89 @@ footer b { color: var(--text-main); }
       </div>
       <div class="tv-episode-list" id="tvEpisodeList"></div>
     </div>
-
     <div class="cast-section">
-      <div class="section-head" style="padding:0; margin-bottom:16px;">
-        <div class="section-accent"></div>
-        <div class="section-title-box">
-          <h2 class="section-title">Cast</h2>
-          <div class="section-sub">The cast behind this title</div>
-        </div>
-      </div>
+      <div class="section-head" style="padding:0; margin-bottom:16px;"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Cast</h2><div class="section-sub">The cast behind this title</div></div></div>
       <div class="cast-scroller" id="castScroller"></div>
     </div>
-
-    <!-- Disclaimer inside Movie Details -->
-    <div class="site-disclaimer">
-      <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
-    </div>
+    <div class="site-disclaimer"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div>
   </div>
 </div>
 
-<!-- ═══════════════ IN-PAGE PLAYER OVERLAY ═══════════════ -->
+<!-- ═══════════════ CUSTOM PLAYER OVERLAY (CROPPED IFRAME) ═══════════════ -->
 <div class="player-overlay" id="playerOverlay">
+  
+  <!-- The Video Iframe Container (Cropped via CSS) -->
+  <div class="player-video-container" id="playerIframeContainer">
+     <div class="loader" id="playerLoader"></div>
+  </div>
+
+  <!-- Top UI (Back, Title, Duration, Quality, Subs) -->
   <div class="player-top-bar">
-    <button class="player-back-btn" onclick="closePlayer()">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    </button>
-    <div class="player-title-box">
-      <div class="player-title" id="playerTitle">Loading...</div>
-      <div class="player-subtitle" id="playerSubtitle"></div>
+    <div class="player-left-header">
+      <button class="player-back-btn" onclick="closePlayer()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <div class="player-title-box">
+        <div class="player-title" id="playerTitle">Bad Apples</div>
+        <div class="player-subtitle" id="playerSubtitle">1h 42m</div>
+      </div>
     </div>
-    <div class="player-top-actions">
-      <button class="player-icon-btn" onclick="toast('Subtitles menu')">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><line x1="7" y1="15" x2="11" y2="15"></line><line x1="15" y1="15" x2="17" y2="15"></line><line x1="7" y1="11" x2="9" y2="11"></line><line x1="11" y1="11" x2="17" y2="11"></line></svg>
-      </button>
-      <button class="player-icon-btn" onclick="playNextEpisode()">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
-      </button>
+    <div class="player-right-header">
+      <div class="player-pill-btn" onclick="toast('Quality is set by the provider')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+        Quality 1080p
+      </div>
+      <div class="player-pill-btn" onclick="toast('Subtitles are handled by the video player')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><line x1="7" y1="15" x2="11" y2="15"></line><line x1="15" y1="15" x2="17" y2="15"></line><line x1="7" y1="11" x2="9" y2="11"></line><line x1="11" y1="11" x2="17" y2="11"></line></svg>
+        Audio & Subtitles
+      </div>
     </div>
   </div>
 
-  <div class="player-video-container" id="playerIframeContainer"></div>
+  <!-- Bottom Bar (Visual Match to Screenshot) -->
+  <div class="player-bottom-bar">
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill"></div>
+    </div>
+    <div class="player-controls-row">
+      <div class="player-controls-left">
+        <button class="player-ctrl-btn" onclick="toast('Use the video player controls')">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        </button>
+        <button class="player-ctrl-btn" onclick="toast('Use the video player controls')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+        </button>
+        <button class="player-ctrl-btn" onclick="toast('Use the video player controls')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"></polygon><polygon points="2 19 11 12 2 5 2 19"></polygon></svg>
+        </button>
+        <span class="time-display" id="playerTimeDisplay">0:03 / 1:43:24</span>
+      </div>
+      <div class="player-controls-right">
+        <button class="player-ctrl-btn" onclick="toggleFullscreen()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════════ BOTTOM NAVIGATION ═══════════════ -->
 <div class="bottom" id="bottomNav">
-  <button id="b-home" class="active" onclick="navigate('home')">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-  </button>
-  <button id="b-movies" onclick="navigate('movies')">
-    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
-  </button>
-  <button id="b-tv" onclick="navigate('tv')">
-    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
-  </button>
-  <button id="b-watchlist" onclick="navigate('watchlist')">
-    <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-  </button>
-  <button id="b-search" onclick="navigate('search')">
-    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-  </button>
-  <button id="b-profile" onclick="navigate('profile')">
-    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-  </button>
+  <button id="b-home" class="active" onclick="navigate('home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
+  <button id="b-movies" onclick="navigate('movies')"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></button>
+  <button id="b-tv" onclick="navigate('tv')"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></button>
+  <button id="b-watchlist" onclick="navigate('watchlist')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+  <button id="b-search" onclick="navigate('search')"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+  <button id="b-profile" onclick="navigate('profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
 </div>
 
 <!-- ═══════════════ MODALS ═══════════════ -->
-<div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')">
-  <div class="genre-sheet">
-    <h3>Select Genre</h3>
-    <div class="ggrid">
-      <button onclick="setFilter('genre','','All Genres')">All Genres</button>
-      <button onclick="setFilter('genre','28','Action')">Action</button>
-      <button onclick="setFilter('genre','12','Adventure')">Adventure</button>
-      <button onclick="setFilter('genre','16','Animation')">Animation</button>
-      <button onclick="setFilter('genre','35','Comedy')">Comedy</button>
-      <button onclick="setFilter('genre','80','Crime')">Crime</button>
-      <button onclick="setFilter('genre','18','Drama')">Drama</button>
-      <button onclick="setFilter('genre','27','Horror')">Horror</button>
-      <button onclick="setFilter('genre','10749','Romance')">Romance</button>
-      <button onclick="setFilter('genre','878','Sci-Fi')">Sci-Fi</button>
-      <button onclick="setFilter('genre','53','Thriller')">Thriller</button>
-    </div>
-  </div>
-</div>
-
-<div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')">
-  <div class="genre-sheet">
-    <h3>Select Year</h3>
-    <div class="ggrid">
-      <button onclick="setFilter('year','','All Years')">All Years</button>
-      <button onclick="setFilter('year','2025','2025')">2025</button>
-      <button onclick="setFilter('year','2024','2024')">2024</button>
-      <button onclick="setFilter('year','2023','2023')">2023</button>
-      <button onclick="setFilter('year','2022','2022')">2022</button>
-      <button onclick="setFilter('year','2020','2020')">2020</button>
-      <button onclick="setFilter('year','2010','2010')">2010</button>
-      <button onclick="setFilter('year','2000','2000')">2000</button>
-      <button onclick="setFilter('year','1990','1990')">1990</button>
-      <button onclick="setFilter('year','1970','1970')">1970</button>
-    </div>
-  </div>
-</div>
-
-<div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')">
-  <div class="genre-sheet">
-    <h3>Select Country</h3>
-    <div class="ggrid">
-      <button onclick="setFilter('country','','All Countries')">All Countries</button>
-      <button onclick="setFilter('country','US','United States')">United States</button>
-      <button onclick="setFilter('country','GB','United Kingdom')">United Kingdom</button>
-      <button onclick="setFilter('country','JP','Japan')">Japan</button>
-      <button onclick="setFilter('country','KR','South Korea')">South Korea</button>
-      <button onclick="setFilter('country','IN','India')">India</button>
-      <button onclick="setFilter('country','FR','France')">France</button>
-    </div>
-  </div>
-</div>
-
-<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')">
-  <div class="genre-sheet">
-    <h3>Sort By</h3>
-    <div class="ggrid">
-      <button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button>
-      <button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button>
-      <button onclick="setFilter('sort','primary_release_date.desc','Newest')">Newest Releases</button>
-      <button onclick="setFilter('sort','revenue.desc','Box Office')">Highest Box Office</button>
-    </div>
-  </div>
-</div>
-
+<div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')"><div class="genre-sheet"><h3>Select Genre</h3><div class="ggrid"><button onclick="setFilter('genre','','All Genres')">All Genres</button><button onclick="setFilter('genre','28','Action')">Action</button><button onclick="setFilter('genre','12','Adventure')">Adventure</button><button onclick="setFilter('genre','16','Animation')">Animation</button><button onclick="setFilter('genre','35','Comedy')">Comedy</button><button onclick="setFilter('genre','80','Crime')">Crime</button><button onclick="setFilter('genre','18','Drama')">Drama</button><button onclick="setFilter('genre','27','Horror')">Horror</button><button onclick="setFilter('genre','10749','Romance')">Romance</button><button onclick="setFilter('genre','878','Sci-Fi')">Sci-Fi</button><button onclick="setFilter('genre','53','Thriller')">Thriller</button></div></div></div>
+<div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')"><div class="genre-sheet"><h3>Select Year</h3><div class="ggrid"><button onclick="setFilter('year','','All Years')">All Years</button><button onclick="setFilter('year','2025','2025')">2025</button><button onclick="setFilter('year','2024','2024')">2024</button><button onclick="setFilter('year','2023','2023')">2023</button><button onclick="setFilter('year','2022','2022')">2022</button><button onclick="setFilter('year','2020','2020')">2020</button><button onclick="setFilter('year','2010','2010')">2010</button><button onclick="setFilter('year','2000','2000')">2000</button></div></div></div>
+<div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')"><div class="genre-sheet"><h3>Select Country</h3><div class="ggrid"><button onclick="setFilter('country','','All Countries')">All Countries</button><button onclick="setFilter('country','US','United States')">United States</button><button onclick="setFilter('country','GB','United Kingdom')">United Kingdom</button><button onclick="setFilter('country','JP','Japan')">Japan</button><button onclick="setFilter('country','KR','South Korea')">South Korea</button></div></div></div>
+<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Box Office')">Highest Box Office</button></div></div></div>
 <div class="toast" id="toast"></div>
-
-<!-- ═══════════════ GLOBAL FOOTER (Disclaimer) ═══════════════ -->
-<footer>
-  <div class="site-disclaimer" style="border:none; margin:0 auto;">
-    <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
-  </div>
-</footer>
+<footer><div class="site-disclaimer" style="border:none; margin:0 auto;"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div></footer>
 
 <script>
 const TMDB_KEY  = '3d1cb94d909aab088231f5af899dffdc';
@@ -1032,17 +778,10 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
+// Fast, clean, no-sandbox providers
 const EMBED_PROVIDERS = [
-  { name: 'VidFast', movie: (id) => `https://vidfast.pro/movie/${id}`, tv: (id, s, e) => `https://vidfast.pro/tv/${id}/${s}/${e}` },
   { name: 'VidLink', movie: (id) => `https://vidlink.pro/movie/${id}`, tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}` },
-  { name: 'VidSrc.pm', movie: (id) => `https://vidsrc.pm/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.pm/embed/tv/${id}/${s}/${e}` },
-  { name: '2Embed.skin', movie: (id) => `https://www.2embed.skin/embed/${id}`, tv: (id, s, e) => `https://www.2embed.skin/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'VidSrc.to', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` },
-  { name: 'VidSrc.cc', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
-  { name: '2Embed.cc', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
-  { name: 'Nontongo', movie: (id) => `https://www.nontongo.win/embed/movie/${id}`, tv: (id, s, e) => `https://www.nontongo.win/embed/tv/${id}/${s}/${e}` },
-  { name: 'AutoEmbed', movie: (id) => `https://autoembed.co/movie/tmdb/${id}`, tv: (id, s, e) => `https://autoembed.co/tv/tmdb/${id}-${s}-${e}` },
-  { name: 'MoviesAPI', movie: (id) => `https://moviesapi.to/movie/${id}`, tv: (id, s, e) => `https://moviesapi.to/tv/${id}-${s}-${e}` },
+  { name: 'VidFast', movie: (id) => `https://vidfast.pro/movie/${id}`, tv: (id, s, e) => `https://vidfast.pro/tv/${id}/${s}/${e}` },
   { name: 'SmashyStream', movie: (id) => `https://smashystream.com/playere.php?tmdb=${id}`, tv: (id, s, e) => `https://smashystream.com/playere.php?tmdb=${id}&season=${s}&episode=${e}` }
 ];
 
@@ -1070,11 +809,11 @@ function toggleWatchlist() {
   localStorage.setItem('tubemocha_watchlist', JSON.stringify(watchlist));
 }
 
-function getSafeImageUrl(m, isPoster=true) {
-  if (m.poster_path && m.poster_path !== 'null' && m.poster_path !== null) return IMG + m.poster_path;
-  if (m.backdrop_path && m.backdrop_path !== 'null' && m.backdrop_path !== null) return BACKDROP + m.backdrop_path;
+function getSafeImageUrl(m) {
+  if (m.poster_path && m.poster_path !== 'null') return IMG + m.poster_path;
+  if (m.backdrop_path && m.backdrop_path !== 'null') return BACKDROP + m.backdrop_path;
   const title = String(m.t || m.title || m.name || 'Untitled').substring(0, 24);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450"><rect width="300" height="450" fill="#1e1814"/><text fill="#f0e8dd" x="50%" y="45%" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle" dominant-baseline="middle">${title}</text><text fill="#9a8e80" x="50%" y="55%" font-family="sans-serif" font-size="14" text-anchor="middle" dominant-baseline="middle">No Poster</text></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450"><rect width="300" height="450" fill="#1e1814"/><text fill="#f0e8dd" x="50%" y="45%" font-family="sans-serif" font-size="20" font-weight="bold" text-anchor="middle">${title}</text></svg>`;
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
@@ -1092,7 +831,7 @@ function cardHTML(m){
 
     return `<div class="card" onclick="openMovie('${clickId}')">
       <div class="poster">
-        <img src="${poster}" loading="lazy" alt="" onerror="this.onerror=null;this.src='${getSafeImageUrl({ t: title })}'">
+        <img src="${poster}" loading="lazy" alt="">
         <span class="badge ${badgeClass}">${badgeText}</span>
         <span class="badge rating"><span>★</span> ${rating}</span>
       </div>
@@ -1129,12 +868,12 @@ function mapResult(r){
     poster_path: r.poster_path,
     backdrop_path: r.backdrop_path,
     tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV,
-    seasons: r.number_of_seasons, episodes: r.number_of_episodes
+    seasons: r.number_of_seasons, episodes: r.number_of_episodes,
+    runtime: r.runtime
   };
 }
 
 const GENRE_MAP = { "28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama","10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance","878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western" };
-
 const FALLBACK = [ {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns the truth.",poster_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",backdrop_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",tmdb:603} ];
 
 let currentHeroIndex = 0, heroInterval;
@@ -1401,24 +1140,19 @@ async function openMovie(rawId){
   document.getElementById('detailTitle').textContent = m.t;
   document.getElementById('detailDesc').textContent = m.d || '';
   
-  const typeLabel = isTV ? 'TV Series' : 'Movie';
   const durationStr = isTV 
     ? (m.seasons ? `${m.seasons} Season${m.seasons > 1 ? 's' : ''}` : 'TV Show')
     : (m.runtime ? `${m.runtime}m` : '2h 10m');
-  const ratingStr = isTV ? 'M18' : 'R';
   
   document.getElementById('detailMeta').innerHTML = `
     <span class="star">★ ${m.r}</span>
-    <span class="divider">·</span>
-    <span class="vote-box"><span style="color:var(--accent)">⇧</span> ${m.vote_count || '120'}</span>
-    <span class="vote-box"><span style="color:var(--text-dim)">⇩</span> ${m.vote_count ? Math.floor(m.vote_count/10) : '12'}</span>
     <span class="divider">·</span>
     <span>${m.y}</span>
     <span class="divider">·</span>
     <span>${durationStr}</span>
     <span class="divider">·</span>
     <span class="vote-box" style="color:#fff; border-color:#fff;">4K</span>
-    <span class="vote-box" style="color:#fff; border-color:#fff;">${ratingStr}</span>
+    <span class="vote-box" style="color:#fff; border-color:#fff;">${isTV ? 'M18' : 'R'}</span>
     <br>
     <span style="font-size:13px; color:var(--text-dim); margin-top:4px;">${(m.g || ['Movie']).slice(0,3).join(' · ')}</span>
   `;
@@ -1539,46 +1273,20 @@ function selectEpisode(season, episode) {
 function getEmbedUrl(index) {
   const provider = EMBED_PROVIDERS[index];
   if (!provider) return '';
-  
-  const isTV = currentMovie._tv;
-  let url = '';
-  
-  if (isTV) {
-    url = provider.tv(currentMovie.tmdb, currentSeason, currentEpisode);
-  } else {
-    url = provider.movie(currentMovie.tmdb);
-  }
-  
-  if (url.includes('?')) {
-    url += '&autoplay=true&title=false';
-  } else {
-    url += '?autoplay=true&title=false';
-  }
-  
-  return url;
+  let url = currentMovie._tv ? provider.tv(currentMovie.tmdb, currentSeason, currentEpisode) : provider.movie(currentMovie.tmdb);
+  return url.includes('?') ? `${url}&autoplay=true&title=false` : `${url}?autoplay=true&title=false`;
 }
 
 async function playCurrentMedia(){
   if(!currentMovie) return;
   
   const overlay = document.getElementById('playerOverlay');
-  const container = document.getElementById('playerIframeContainer');
-  const title = document.getElementById('playerTitle');
-  const subtitle = document.getElementById('playerSubtitle');
-  
-  const isTV = currentMovie._tv;
-  
-  if (isTV) {
-    title.textContent = currentMovie.t;
-    subtitle.textContent = `S${currentSeason} E${currentEpisode}`;
-  } else {
-    title.textContent = currentMovie.t;
-    subtitle.textContent = '';
-  }
+  document.getElementById('playerTitle').textContent = currentMovie.t;
+  document.getElementById('playerSubtitle').textContent = currentMovie._tv ? `S${currentSeason} E${currentEpisode}` : (currentMovie.runtime ? currentMovie.runtime + 'm' : '1h 42m');
+  document.getElementById('playerTimeDisplay').textContent = `0:03 / ${currentMovie.runtime ? currentMovie.runtime + ':00' : '1:43:24'}`;
   
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
-  
   document.getElementById('detailOverlay').style.opacity = '0';
   document.getElementById('detailOverlay').style.pointerEvents = 'none';
   
@@ -1589,63 +1297,80 @@ async function playCurrentMedia(){
 function loadPlayerSource(index) {
   const container = document.getElementById('playerIframeContainer');
   const url = getEmbedUrl(index);
+  if (!url) { toast('Server unavailable'); return; }
   
-  if (!url) {
-    toast('Server unavailable');
-    return;
-  }
-  
-  // Clean iframe injection with native controls, no sandbox to allow playback
-  container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;"></iframe>`;
-  
-  const timeout = setTimeout(() => {
-    if (currentProviderIndex === index && index < EMBED_PROVIDERS.length - 1) {
-      toast(`Server ${EMBED_PROVIDERS[index].name} is slow. Trying next server...`);
-      currentProviderIndex = index + 1;
-      loadPlayerSource(currentProviderIndex);
-    }
-  }, 5000);
+  // The cropping is handled by CSS (.player-video-container iframe)
+  // referrerpolicy="no-referrer" helps block targeted ad scripts
+  container.innerHTML = `<div class="loader" id="playerLoader"></div>
+    <iframe src="${url}" 
+      allowfullscreen 
+      allow="autoplay; fullscreen; encrypted-media; picture-in-picture" 
+      referrerpolicy="no-referrer"
+      style="width:100%;height:100%;border:0;position:absolute;inset:0;z-index:2;">
+    </iframe>`;
   
   const iframe = container.querySelector('iframe');
+  const loader = document.getElementById('playerLoader');
+  
   if (iframe) {
-    iframe.onload = () => clearTimeout(timeout);
-    iframe.onerror = () => {
-      clearTimeout(timeout);
-      if (index < EMBED_PROVIDERS.length - 1) {
-        toast(`Server ${EMBED_PROVIDERS[index].name} failed. Switching...`);
-        currentProviderIndex = index + 1;
-        loadPlayerSource(currentProviderIndex);
+    iframe.onload = () => { if (loader) loader.style.display = 'none'; };
+    
+    clearTimeout(window._iframeTimeout);
+    window._iframeTimeout = setTimeout(() => {
+      if (loader && loader.style.display !== 'none') {
+        if (index < EMBED_PROVIDERS.length - 1) {
+          toast(`Server slow. Auto-switching...`);
+          currentProviderIndex = index + 1;
+          loadPlayerSource(currentProviderIndex);
+        }
       }
-    };
+    }, 4000); 
   }
+  
+  clearTimeout(window._idleTimer);
+  const overlay = document.getElementById('playerOverlay');
+  overlay.classList.remove('idle');
+  
+  const resetTimer = () => {
+    overlay.classList.remove('idle');
+    clearTimeout(window._idleTimer);
+    window._idleTimer = setTimeout(() => {
+      if (overlay.classList.contains('open')) overlay.classList.add('idle');
+    }, 3000);
+  };
+  
+  document.addEventListener('mousemove', resetTimer);
+  document.addEventListener('touchstart', resetTimer);
+  resetTimer();
 }
 
-function playNextEpisode() {
-  if (!currentMovie || !currentMovie._tv) {
-    toast('Not a TV show');
-    return;
+function toggleFullscreen() {
+  const player = document.getElementById('playerOverlay');
+  if (!document.fullscreenElement) {
+    if (player.requestFullscreen) player.requestFullscreen();
+    else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+    else if (player.msRequestFullscreen) player.msRequestFullscreen();
+  } else {
+    if (document.exitFullscreen) document.exitFullscreen();
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+    else if (document.msExitFullscreen) document.msExitFullscreen();
   }
-  currentEpisode++;
-  document.getElementById('playerSubtitle').textContent = `S${currentSeason} E${currentEpisode}`;
-  loadPlayerSource(currentProviderIndex);
-  toast(`Playing S${currentSeason} E${currentEpisode}`);
 }
 
 function closePlayer(){
   const overlay = document.getElementById('playerOverlay');
-  const container = document.getElementById('playerIframeContainer');
-  
-  container.innerHTML = '';
+  document.getElementById('playerIframeContainer').innerHTML = '';
   overlay.classList.remove('open');
+  overlay.classList.remove('idle');
+  clearTimeout(window._idleTimer);
+  clearTimeout(window._iframeTimeout);
   
   document.getElementById('detailOverlay').style.opacity = '1';
   document.getElementById('detailOverlay').style.pointerEvents = 'auto';
 }
 
 function closeDetail(){
-  if(document.getElementById('playerOverlay').classList.contains('open')) {
-    closePlayer();
-  }
+  if(document.getElementById('playerOverlay').classList.contains('open')) closePlayer();
   document.getElementById('detailOverlay').classList.remove('open');
   document.getElementById('detailTrailerBg').innerHTML = '';
   document.body.style.overflow = '';
