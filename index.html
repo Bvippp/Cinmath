@@ -257,7 +257,7 @@ footer b { color: var(--text-main); }
 .player-overlay.open { display: flex; }
 .player-video-container { flex: 1; width: 100%; height: 100%; position: relative; background: #000; overflow: hidden; }
 .player-video-container iframe { 
-  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  position: absolute; top: -40px; left: 0; width: 100%; height: calc(100% + 40px);
   border: 0; z-index: 1; 
 }
 
@@ -614,13 +614,13 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (VidLink Pro configured for Movy.sx UI)
+// EMBED PROVIDERS (VidSrc is default for catalog coverage)
 // ═════════════════════════════════════════════════════════════════
 const EMBED_PROVIDERS = [
   { 
     name: 'Server 1', 
-    movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true&title=true&nextbutton=true&primaryColor=c89666&secondaryColor=14100d&iconColor=f0e8dd`, 
-    tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true&title=true&nextbutton=true&primaryColor=c89666&secondaryColor=14100d&iconColor=f0e8dd` 
+    movie: (id) => `https://vidsrc.net/embed/movie?tmdb=${id}&autoplay=true`, 
+    tv: (id, s, e) => `https://vidsrc.net/embed/tv?tmdb=${id}&season=${s}&episode=${e}&autoplay=true` 
   },
   { 
     name: 'Server 2', 
