@@ -698,11 +698,9 @@ let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
 // ═════════════════════════════════════════════════════════════════
-// EMBED PROVIDERS (Clean Backends, Minimal Pre-rolls)
+// EMBED PROVIDERS (Reordered by stability & referrer compatibility)
 // ═════════════════════════════════════════════════════════════════
-// Updated: VixSrc is now the default – it is ad-free, unbranded,
-// and supports TMDB IDs for both movies and TV episodes.
-// VidFast, VidLink, and VidSrc.cc are retained as fallbacks.
+// Updated: VixSrc requires referrerpolicy="origin". VidLink & VidFast are also strong.
 const EMBED_PROVIDERS = [
   { 
     name: 'Server 1', 
@@ -711,13 +709,13 @@ const EMBED_PROVIDERS = [
   },
   { 
     name: 'Server 2', 
-    movie: (id) => `https://vidfast.vc/movie/${id}`, 
-    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` 
+    movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, 
+    tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` 
   },
   { 
     name: 'Server 3', 
-    movie: (id) => `https://vidlink.pro/movie/${id}?autoplay=true`, 
-    tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}?autoplay=true` 
+    movie: (id) => `https://vidfast.vc/movie/${id}`, 
+    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}` 
   },
   { 
     name: 'Server 4', 
@@ -1501,10 +1499,10 @@ function loadPlayerSource(index) {
   const url = getEmbedUrl(index);
   if (!url) { toast('Server unavailable'); return; }
   
-  // referrerpolicy="no-referrer" helps reduce targeted ad tracking.
+  // referrerpolicy="origin" passes the domain origin so the server can validate the request without triggering hotlink protection.
   container.innerHTML = `<div class="loader" id="playerLoader"></div>
     <iframe src="${url}" 
-      referrerpolicy="no-referrer"
+      referrerpolicy="origin"
       allowfullscreen="true" 
       webkitallowfullscreen="true" 
       mozallowfullscreen="true"
