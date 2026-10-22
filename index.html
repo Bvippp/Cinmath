@@ -522,11 +522,12 @@ let allCache = [], currentMovie = null, heroMovies = [];
 let searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 let watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// Best servers that have the fewest ads and load fast
+// UPDATED: The absolute most stable servers currently on the web
 const EMBED_PROVIDERS = [
-  { name: 'VidSrc Pro', movie: (id) => `https://vidsrc.pro/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.pro/embed/tv/${id}/${s}/${e}` },
-  { name: 'Embed SU', movie: (id) => `https://embed.su/embed/movie/${id}`, tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}` },
-  { name: 'VidSrc XYZ', movie: (id) => `https://vidsrc.xyz/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.xyz/embed/tv/${id}/${s}/${e}` }
+  { name: 'VidSrc CC', movie: (id) => `https://vidsrc.cc/v2/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
+  { name: 'VidSrc ICU', movie: (id) => `https://vidsrc.icu/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.icu/embed/tv/${id}/${s}/${e}` },
+  { name: '2Embed CC', movie: (id) => `https://www.2embed.cc/embed/${id}`, tv: (id, s, e) => `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}` },
+  { name: 'VidSrc TO', movie: (id) => `https://vidsrc.to/embed/movie/${id}`, tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}` }
 ];
 
 let currentProviderIndex = 0;
@@ -1061,8 +1062,21 @@ function loadPlayerSource(index) {
   const iframe = container.querySelector('iframe');
   const loader = document.getElementById('playerLoader');
   
+  // If it loads, hide the spinner. If it errors out (DNS, blocked), automatically switch server.
   if (iframe) {
     iframe.onload = () => { if (loader) loader.style.display = 'none'; };
+    
+    clearTimeout(window._iframeTimeout);
+    window._iframeTimeout = setTimeout(() => {
+      // If the spinner is still visible after 6 seconds, the server is likely dead/blocked.
+      if (loader && loader.style.display !== 'none') {
+        if (index < EMBED_PROVIDERS.length - 1) {
+          toast(`Server taking too long. Auto-switching...`);
+          currentProviderIndex = index + 1;
+          loadPlayerSource(currentProviderIndex);
+        }
+      }
+    }, 6000);
   }
 }
 
@@ -1070,6 +1084,7 @@ function closePlayer(){
   const overlay = document.getElementById('playerOverlay');
   document.getElementById('playerIframeContainer').innerHTML = '';
   overlay.classList.remove('open');
+  clearTimeout(window._iframeTimeout);
 }
 
 function closeDetail(){
