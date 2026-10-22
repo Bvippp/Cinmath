@@ -7,19 +7,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>TUBEMOCHA • Watch Free Movies & TV Shows Online</title>
 
-<!-- ═══════════════════════════════════════════
-     SPEED OPTIMIZATION EQUATION:
-     Preconnect & DNS-Prefetch to video servers
-     to eliminate loading lag.
-     ═══════════════════════════════════════════ -->
-<link rel="preconnect" href="https://vidfast.pro" crossorigin>
-<link rel="preconnect" href="https://vidlink.pro" crossorigin>
-<link rel="preconnect" href="https://vidsrc.pm" crossorigin>
-<link rel="dns-prefetch" href="https://vidfast.pro">
-<link rel="dns-prefetch" href="https://vidlink.pro">
-<link rel="dns-prefetch" href="https://vidsrc.pm">
-<link rel="dns-prefetch" href="https://www.2embed.cc">
-
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
@@ -1538,8 +1525,10 @@ function loadPlayerSource(index) {
     return;
   }
   
-  // REMOVED sandbox attribute so the player functions correctly
-  container.innerHTML = `<iframe src="${url}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen referrerpolicy="origin" style="width:100%;height:100%;border:0;"></iframe>`;
+  // Sandbox attribute blocks pop-up ads while keeping the native controls functional
+  const sandboxStr = "allow-scripts allow-same-origin allow-forms allow-presentation";
+  
+  container.innerHTML = `<iframe src="${url}" sandbox="${sandboxStr}" allowfullscreen allow="autoplay; fullscreen; encrypted-media; picture-in-picture" webkitallowfullscreen mozallowfullscreen style="width:100%;height:100%;border:0;"></iframe>`;
   
   const timeout = setTimeout(() => {
     if (currentProviderIndex === index && index < EMBED_PROVIDERS.length - 1) {
@@ -1547,7 +1536,7 @@ function loadPlayerSource(index) {
       currentProviderIndex = index + 1;
       loadPlayerSource(currentProviderIndex);
     }
-  }, 6000);
+  }, 5000);
   
   const iframe = container.querySelector('iframe');
   if (iframe) {
