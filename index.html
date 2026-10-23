@@ -949,4 +949,22 @@ var today = new Date().toISOString().split('T')[0];
 var tvResults = await Promise.all([ tmdb('/tv/on_the_air', { page: 1 }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 }) ]);
 var onAir = tvResults[0]; var upcoming = tvResults[1];
 var combinedTv = [];
-if (onAir && onAir.results) combinedTv = combinedTv
+if (onAir && onAir.results) combinedTv = combinedTv.concat(onAir.results);
+if (upcoming && upcoming.results) combinedTv = combinedTv.concat(upcoming.results);
+var uniqueTv = []; var tvMap = {};
+for(var j=0; j<combinedTv.length; j++) { if(!tvMap[combinedTv[j].id]) { uniqueTv.push(combinedTv[j]); tvMap[combinedTv[j].id] = true; } }
+if(uniqueTv.length > 0) {
+document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
+setTimeout(function() { updateScrollArrows('upcomingTvTrack'); }, 50);
+} else {
+document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(m) { return m.media_type === 'tv'; }).map(upcomingCardHTML).join('');
+}
+loadPopularGenres();
+}
+document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
+loadInitial();
+</script>
+<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false" async></script>
+</body>
+</html>
