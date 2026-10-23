@@ -414,7 +414,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var SERVER_LOAD_TIMEOUT = 7000;
+var SERVER_LOAD_TIMEOUT = 8000;
 var playerState = { currentServer: 0, loadStartTime: 0, iframeLoaded: false };
 var autoSwitchTimer = null;
 var consecutiveFailures = 0;
@@ -425,29 +425,6 @@ var EMBED_PROVIDERS = [
 { name: 'Server 4', movie: function(id) { return 'https://vidfast.vc/movie/' + id + '?autoplay=true'; }, tv: function(id, s, e) { return 'https://vidfast.vc/tv/' + id + '/' + s + '/' + e + '?autoplay=true'; } }
 ];
 var currentProviderIndex = 0;
-
-// Listen for playback signals or errors from the iframe
-window.addEventListener('message', function(event) {
-    var dataStr = typeof event.data === 'string' ? event.data.toLowerCase() : JSON.stringify(event.data).toLowerCase();
-    
-    // If the player sends an error or not found message, trigger auto-switch immediately
-    if (dataStr.includes('error') || dataStr.includes('not found') || dataStr.includes('404')) {
-        if (playerState.currentServer === currentProviderIndex) {
-            handleServerFailure(playerState.currentServer);
-        }
-        return;
-    }
-
-    // If the player sends a play or ready message, stop the timer
-    if (dataStr.includes('play') || dataStr.includes('ready')) {
-        if (window.autoSwitchTimer) {
-            clearTimeout(window.autoSwitchTimer);
-            window.autoSwitchTimer = null;
-        }
-        var name = EMBED_PROVIDERS[playerState.currentServer] ? EMBED_PROVIDERS[playerState.currentServer].name : 'Server';
-        showSwitchBanner('✓ <b>' + name + '</b> is playing', 3000, true);
-    }
-});
 
 function closePlayer(e) {
 if(e) { e.preventDefault(); e.stopPropagation(); }
@@ -964,8 +941,8 @@ iframe.onload = function() {
 if (playerState.currentServer !== index) return;
 playerState.iframeLoaded = true;
 if (loader) loader.style.display = 'none';
-showSwitchBanner('Checking <b>' + name + '</b>...', 0);
-// Notice: We do NOT clear autoSwitchTimer here. We wait for a postMessage or the 7-second timeout.
+if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+showSwitchBanner('✓ <b>' + name + '</b> connected', 3000, true);
 };
 if (iframe.onerror) {
 iframe.onerror = function() {
@@ -977,7 +954,6 @@ handleServerFailure(index);
 if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
 window.autoSwitchTimer = setTimeout(function() {
 if (playerState.currentServer !== index) return;
-// If we reach here, the video didn't send a play/ready signal within 7 seconds.
 handleServerFailure(index);
 }, SERVER_LOAD_TIMEOUT);
 }
