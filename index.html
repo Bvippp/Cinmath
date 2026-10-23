@@ -415,10 +415,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var SERVER_LOAD_TIMEOUT = 8000;
-var PLAYBACK_WATCHDOG_TIMEOUT = 12000;
-var playerState = { currentServer: 0, loadStartTime: 0, iframeLoaded: false, isPlaying: false };
+var playerState = { currentServer: 0, loadStartTime: 0, iframeLoaded: false };
 var autoSwitchTimer = null;
-var playbackWatchdogTimer = null;
 var consecutiveFailures = 0;
 var EMBED_PROVIDERS = [
 { name: 'Server 1', movie: function(id) { return 'https://autoembed.co/movie/tmdb/' + id + '?autoplay=true'; }, tv: function(id, s, e) { return 'https://autoembed.co/tv/tmdb/' + id + '-' + s + '-' + e + '?autoplay=true'; } },
@@ -442,23 +440,20 @@ window.addEventListener('message', function(event) {
 
     // Check for success signals
     if (dataStr.includes('play') || dataStr.includes('playing') || dataStr.includes('ready')) {
-        if (playerState.currentServer === currentProviderIndex) {
-            playerState.isPlaying = true;
-            clearTimeout(playbackWatchdogTimer);
-            if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-            var name = EMBED_PROVIDERS[playerState.currentServer] ? EMBED_PROVIDERS[playerState.currentServer].name : 'Server';
-            showSwitchBanner('✓ <b>' + name + '</b> is working', 3000, true);
+        if (window.autoSwitchTimer) {
+            clearTimeout(window.autoSwitchTimer);
+            window.autoSwitchTimer = null;
         }
+        var name = EMBED_PROVIDERS[playerState.currentServer] ? EMBED_PROVIDERS[playerState.currentServer].name : 'Server';
+        showSwitchBanner('✓ <b>' + name + '</b> is working', 3000, true);
     }
 });
 
 function closePlayer(e) {
 if(e) { e.preventDefault(); e.stopPropagation(); }
 if (autoSwitchTimer) { clearTimeout(autoSwitchTimer); autoSwitchTimer = null; }
-if (playbackWatchdogTimer) { clearTimeout(playbackWatchdogTimer); playbackWatchdogTimer = null; }
 consecutiveFailures = 0;
 playerState.iframeLoaded = false;
-playerState.isPlaying = false;
 hideSwitchBanner();
 document.getElementById('playerIframeContainer').innerHTML = '';
 document.getElementById('playerOverlay').classList.remove('open');
@@ -942,7 +937,6 @@ function switchServer(index, isAuto) {
 var prevIndex = currentProviderIndex;
 currentProviderIndex = index;
 if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-if (window.playbackWatchdogTimer) { clearTimeout(window.playbackWatchdogTimer); window.playbackWatchdogTimer = null; }
 var prevName = EMBED_PROVIDERS[prevIndex] ? EMBED_PROVIDERS[prevIndex].name : 'current server';
 var nextName = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'next server';
 if (isAuto) {
@@ -954,98 +948,42 @@ showSwitchBanner('Connecting to <b>' + nextName + '</b>...', 0);
 loadPlayerSource(index);
 }
 
-async function checkContentExists(url) {
-    const proxies = [
-        'https://corsproxy.io/?', 
-        'https://api.codetabs.com/v1/proxy?quest=',
-        'https://api.allorigins.win/raw?url='
-    ];
-    
-    for (let proxy of proxies) {
-        try {
-            let controller = new AbortController();
-            let timeoutId = setTimeout(() => controller.abort(), 3000);
-            let fetchUrl = proxy + encodeURIComponent(url);
-            let res = await fetch(fetchUrl, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            
-            if (res.ok) {
-                let text = await res.text();
-                let lowerText = text.toLowerCase();
-                // Check if the HTML contains 404 indicators
-                if (lowerText.includes('404') || lowerText.includes('not found') || lowerText.includes('content not found')) {
-                    return false; // Content missing
-                }
-                return true; // Content exists
-            }
-        } catch (e) {
-            // Proxy failed, try next one
-        }
-    }
-    return true; // If all proxies fail, assume content exists to avoid blocking working servers
+function loadPlayerSource(index) {
+var container = document.getElementById('playerIframeContainer');
+var url = getEmbedUrl(index);
+if (!url) { toast('Server unavailable'); return; }
+playerState.currentServer = index;
+playerState.loadStartTime = Date.now();
+playerState.iframeLoaded = false;
+container.innerHTML = '<div class="loader" id="playerLoader"></div><iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
+var iframe = container.querySelector('iframe');
+var loader = document.getElementById('playerLoader');
+var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
+
+if (iframe) {
+iframe.onload = function() {
+if (playerState.currentServer !== index) return;
+playerState.iframeLoaded = true;
+if (loader) loader.style.display = 'none';
+if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+showSwitchBanner('✓ <b>' + name + '</b> is connected', 3000, true);
+};
+if (iframe.onerror) {
+iframe.onerror = function() {
+if (playerState.currentServer !== index) return;
+handleServerFailure(index);
+};
 }
-
-async function loadPlayerSource(index) {
-    var container = document.getElementById('playerIframeContainer');
-    var url = getEmbedUrl(index);
-    if (!url) { toast('Server unavailable'); return; }
-    
-    playerState.currentServer = index;
-    playerState.loadStartTime = Date.now();
-    playerState.iframeLoaded = false;
-    playerState.isPlaying = false;
-    
-    var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
-    
-    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
-    showSwitchBanner('Checking <b>' + name + '</b> for content...', 0);
-
-    let contentExists = await checkContentExists(url);
-    
-    if (playerState.currentServer !== index) return;
-
-    if (!contentExists) {
-        handleServerFailure(index);
-        return;
-    }
-
-    container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
-    var iframe = container.querySelector('iframe');
-    var loader = document.getElementById('playerLoader');
-    
-    if (iframe) {
-        iframe.onload = function() {
-            if (playerState.currentServer !== index) return;
-            playerState.iframeLoaded = true;
-            if (loader) loader.style.display = 'none';
-            
-            // Smart Watchdog: Wait 12 seconds. If no play signal is received, assume it's broken and switch.
-            clearTimeout(playbackWatchdogTimer);
-            playbackWatchdogTimer = setTimeout(function() {
-                if (!playerState.isPlaying && playerState.currentServer === index) {
-                    handleServerFailure(index);
-                }
-            }, PLAYBACK_WATCHDOG_TIMEOUT);
-            
-            showSwitchBanner('Checking <b>' + name + '</b>...', 0);
-        };
-        iframe.onerror = function() {
-            if (playerState.currentServer !== index) return;
-            handleServerFailure(index);
-        };
-    }
-
-    if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
-    window.autoSwitchTimer = setTimeout(function() {
-        if (playerState.currentServer !== index) return;
-        if (playerState.iframeLoaded) return;
-        handleServerFailure(index);
-    }, SERVER_LOAD_TIMEOUT);
+}
+if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
+window.autoSwitchTimer = setTimeout(function() {
+if (playerState.currentServer !== index) return;
+handleServerFailure(index);
+}, SERVER_LOAD_TIMEOUT);
 }
 
 function handleServerFailure(failedIndex) {
 if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-if (window.playbackWatchdogTimer) { clearTimeout(window.playbackWatchdogTimer); window.playbackWatchdogTimer = null; }
 consecutiveFailures++;
 if (consecutiveFailures >= EMBED_PROVIDERS.length) {
 showSwitchBanner('⚠ <b>All servers unavailable</b> — tap Next Server to retry', 8000);
