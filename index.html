@@ -437,7 +437,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v21-refresh-ALL-content-same-page-v21';
+var TUBEMOCHA_BUILD = '2026-10-23-v22-refresh-play-now-ALL-content-both-copy-fixed-v22';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -504,21 +504,31 @@ window.addEventListener('message', function(event) {
     }
 });
 
-function closePlayer(e) {
-if(e) { e.preventDefault(); e.stopPropagation(); }
-if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-if (playerState.validationTimer) { clearTimeout(playerState.validationTimer); playerState.validationTimer = null; }
-if (playerState.successHoldTimer) { clearTimeout(playerState.successHoldTimer); playerState.successHoldTimer = null; }
-consecutiveFailures = 0;
-playerState.iframeLoaded = false;
-playerState.isValidating = false;
-playerState.hasReceivedSuccessSignal = false;
-playerState.triedServers = [];
-hideSwitchBanner();
-document.getElementById('playerIframeContainer').innerHTML = '';
-document.getElementById('playerOverlay').classList.remove('open');
-document.body.style.overflow = '';
+function closePlayer(e){
+  if(e) e.stopPropagation();
+  try{
+    var isTV = currentMovie && (currentMovie.media_type === 'tv' || currentMovie._tv);
+    var id = currentMovie ? currentMovie.id : null;
+    if(id){
+      var url = new URL(window.location.href);
+      url.searchParams.set('view', 'detail');
+      if(isTV){ url.searchParams.set('tv', id); url.searchParams.delete('movie'); } else { url.searchParams.set('movie', id); url.searchParams.delete('tv'); }
+      url.searchParams.delete('playing');
+      var st = {view: 'detail', movie: isTV ? null : id, tv: isTV ? id : null, q: null};
+      history.pushState(st, '', url);
+      localStorage.setItem('tubemocha_state_v2', JSON.stringify(st));
+      sessionStorage.setItem('tubemocha_session_state', JSON.stringify(st));
+    }
+  }catch(err){}
+  var overlay = document.getElementById('playerOverlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  var container = document.getElementById('playerIframeContainer');
+  container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
+  clearTimeout(window._idleTimer);
 }
+
+
 function toggleFullscreen(e) {
 if (e) { e.preventDefault(); e.stopPropagation(); }
 var overlay = document.getElementById('playerOverlay');
@@ -1015,6 +1025,19 @@ function getEmbedUrl(index) {
 
 async function playCurrentMedia(){
   if(!currentMovie) return;
+  try{
+    var isTV = currentMovie.media_type === 'tv' || currentMovie._tv;
+    var id = currentMovie.id;
+    var url = new URL(window.location.href);
+    url.searchParams.set('view', 'player');
+    if(isTV){ url.searchParams.set('tv', id); url.searchParams.delete('movie'); } else { url.searchParams.set('movie', id); url.searchParams.delete('tv'); }
+    url.searchParams.set('playing', '1');
+    var st = {view: 'player', movie: isTV ? null : id, tv: isTV ? id : null, playing: true, q: null};
+    history.pushState(st, '', url);
+    localStorage.setItem('tubemocha_state_v2', JSON.stringify(st));
+    localStorage.setItem('tubemocha_last_view', 'player');
+    sessionStorage.setItem('tubemocha_session_state', JSON.stringify(st));
+  }catch(e){}
   // Optional monetag script (kept from original)
   (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
   var overlay = document.getElementById('playerOverlay');
@@ -1208,6 +1231,40 @@ loadInitial();
       var state = urlState.movie || urlState.tv || urlState.view || urlState.q ? urlState : (session && (session.movie || session.tv || session.view || session.q) ? session : saved);
       if(!state) return;
       console.log('[TUBEMOCHA v21] Restoring state:', state);
+      if(state.playing && state.movie){
+        var attemptsP = 0;
+        function tryOpenPlayerMovie(){
+          attemptsP++;
+          try{
+            if(typeof openMovie === 'function'){
+              openMovie(state.movie).then(function(){
+                setTimeout(function(){ try{ if(typeof playCurrentMedia === 'function') playCurrentMedia(); }catch(e){} }, 800);
+              });
+            } else if(attemptsP < 10){
+              setTimeout(tryOpenPlayerMovie, 300);
+            }
+          }catch(e){ if(attemptsP < 10) setTimeout(tryOpenPlayerMovie, 500); }
+        }
+        setTimeout(tryOpenPlayerMovie, 100);
+        return;
+      }
+      if(state.playing && state.tv){
+        var attemptsPT = 0;
+        function tryOpenPlayerTV(){
+          attemptsPT++;
+          try{
+            if(typeof openMovie === 'function'){
+              openMovie('tv-' + state.tv).then(function(){
+                setTimeout(function(){ try{ if(typeof playCurrentMedia === 'function') playCurrentMedia(); }catch(e){} }, 800);
+              });
+            } else if(attemptsPT < 10){
+              setTimeout(tryOpenPlayerTV, 300);
+            }
+          }catch(e){ if(attemptsPT < 10) setTimeout(tryOpenPlayerTV, 500); }
+        }
+        setTimeout(tryOpenPlayerTV, 100);
+        return;
+      }
       if(state.movie){
         // Restore movie detail - try immediately and retry if needed
         var attempts = 0;
