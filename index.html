@@ -415,7 +415,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var SERVER_LOAD_TIMEOUT = 8000;
-var FAST_LOAD_THRESHOLD = 800;
+var FAST_LOAD_THRESHOLD = 400;
 var playerState = { currentServer: 0, loadStartTime: 0, iframeLoaded: false };
 var autoSwitchTimer = null;
 var consecutiveFailures = 0;
@@ -949,44 +949,7 @@ showSwitchBanner('Connecting to <b>' + nextName + '</b>...', 0);
 loadPlayerSource(index);
 }
 
-async function checkContentExistsFast(url) {
-    const proxies = [
-        (u) => `https://api.codetabs.com/v1/proxy?quest=${u}`,
-        (u) => `https://api.allorigins.win/raw?url=${u}`,
-        (u) => `https://corsproxy.io/?${u}`
-    ];
-
-    const checkProxy = async (proxyFn) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 1500); // 1.5 seconds max
-        try {
-            const res = await fetch(proxyFn(url), { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!res.ok) throw new Error('Proxy failed');
-            const text = await res.text();
-            const lower = text.toLowerCase();
-            // Detect 404 strings, including the specific "TMDB:" from autoembed's error page
-            if (lower.includes('404') || lower.includes('not found') || lower.includes('content not found') || lower.includes('tmdb:')) {
-                return false; 
-            }
-            return true;
-        } catch (e) {
-            clearTimeout(timeoutId);
-            throw e;
-        }
-    };
-
-    try {
-        const results = await Promise.allSettled(proxies.map(checkProxy));
-        const hasMissing = results.some(r => r.status === 'fulfilled' && r.value === false);
-        if (hasMissing) return false;
-        return true; 
-    } catch (e) {
-        return true;
-    }
-}
-
-async function loadPlayerSource(index) {
+function loadPlayerSource(index) {
     var container = document.getElementById('playerIframeContainer');
     var url = getEmbedUrl(index);
     if (!url) { toast('Server unavailable'); return; }
@@ -998,9 +961,8 @@ async function loadPlayerSource(index) {
     var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
     
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
-    showSwitchBanner('Scanning <b>' + name + '</b> for content...', 0);
+    showSwitchBanner('Connecting to <b>' + name + '</b>...', 0);
 
-    // Start the iframe immediately to prevent UI freeze
     container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
     var iframe = container.querySelector('iframe');
     var loader = document.getElementById('playerLoader');
@@ -1010,8 +972,7 @@ async function loadPlayerSource(index) {
             if (playerState.currentServer !== index) return;
             var loadTime = Date.now() - playerState.loadStartTime;
             
-            // HEURISTIC: If it loads too fast (under 800ms), it's likely a 404 error page.
-            if (loadTime < 800) {
+            if (loadTime < FAST_LOAD_THRESHOLD) {
                 handleServerFailure(index);
                 return;
             }
@@ -1019,15 +980,8 @@ async function loadPlayerSource(index) {
             playerState.iframeLoaded = true;
             if (loader) loader.style.display = 'none';
             
-            // Run proxy check in the background to confirm
-            checkContentExistsFast(url).then(function(exists) {
-                if (!exists) {
-                    handleServerFailure(index);
-                } else {
-                    if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-                    showSwitchBanner('✓ <b>' + name + '</b> is working', 3000, true);
-                }
-            });
+            if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+            showSwitchBanner('✓ <b>' + name + '</b> is connected', 3000, true);
         };
         iframe.onerror = function() {
             if (playerState.currentServer !== index) return;
