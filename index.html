@@ -437,7 +437,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v20-refresh-same-page-persist-v20';
+var TUBEMOCHA_BUILD = '2026-10-23-v21-refresh-ALL-content-same-page-v21';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -1148,67 +1148,242 @@ loadInitial();
 </script>
 <script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false">
-// v20 FIX: Refresh to same page - persist view and movie in URL and localStorage
+
+
+// v21 FIX: Refresh to SAME PAGE for ALL content - robust for all views and movies
 (function(){
-  function restoreFromURL(){
+  var RESTORE_ATTEMPTED = false;
+  function saveCurrentState(view, movieId, tvId, q){
     try{
-      var url = new URL(window.location);
+      var state = {
+        view: view || currentView || 'home',
+        movie: movieId || null,
+        tv: tvId || null,
+        q: q || null,
+        timestamp: Date.now(),
+        scrollY: window.scrollY || 0
+      };
+      localStorage.setItem('tubemocha_state_v2', JSON.stringify(state));
+      localStorage.setItem('tubemocha_last_view', state.view);
+      if(movieId) localStorage.setItem('tubemocha_last_movie', movieId);
+      if(tvId) localStorage.setItem('tubemocha_last_tv', tvId);
+      if(q) localStorage.setItem('tubemocha_last_q', q);
+      sessionStorage.setItem('tubemocha_session_state', JSON.stringify(state));
+    }catch(e){}
+  }
+  function getStateFromURL(){
+    try{
+      var url = new URL(window.location.href);
       var view = url.searchParams.get('view');
-      var movieId = url.searchParams.get('movie');
-      var tvId = url.searchParams.get('tv');
+      var movie = url.searchParams.get('movie');
+      var tv = url.searchParams.get('tv');
       var q = url.searchParams.get('q');
+      // Also check hash for compatibility
+      var hash = window.location.hash || '';
+      if(hash.indexOf('movie=')!==-1){
+        var hm = hash.match(/movie=([^&]+)/);
+        if(hm) movie = hm[1];
+      }
+      if(hash.indexOf('tv=')!==-1){
+        var ht = hash.match(/tv=([^&]+)/);
+        if(ht) tv = ht[1];
+      }
+      if(hash.indexOf('view=')!==-1){
+        var hv = hash.match(/view=([^&]+)/);
+        if(hv) view = hv[1];
+      }
+      return {view: view, movie: movie, tv: tv, q: q};
+    }catch(e){ return {view:null,movie:null,tv:null,q:null}; }
+  }
+  function restoreAllContent(){
+    if(RESTORE_ATTEMPTED) return;
+    RESTORE_ATTEMPTED = true;
+    try{
+      var urlState = getStateFromURL();
       var saved = null;
-      try{ saved = JSON.parse(localStorage.getItem('tubemocha_state') || 'null'); }catch(e){}
-      // Priority: URL params > saved state
-      if(movieId || tvId){
-        var rawId = movieId ? movieId : ('tv-' + tvId);
-        setTimeout(function(){ try{ openMovie(rawId); }catch(e){} }, 800);
-        return;
-      }
-      if(q){
-        setTimeout(function(){ try{ doSearch(q); }catch(e){} }, 800);
-        return;
-      }
-      if(view){
-        setTimeout(function(){ try{ navigate(view); }catch(e){} }, 500);
-        return;
-      }
-      if(saved && saved.view){
-        if(saved.movie || saved.tv){
-          var rid = saved.movie ? saved.movie : (saved.tv ? 'tv-' + saved.tv : null);
-          if(rid){ setTimeout(function(){ try{ openMovie(rid); }catch(e){ navigate(saved.view); } }, 800); return; }
+      var session = null;
+      try{ saved = JSON.parse(localStorage.getItem('tubemocha_state_v2') || localStorage.getItem('tubemocha_state') || 'null'); }catch(e){}
+      try{ session = JSON.parse(sessionStorage.getItem('tubemocha_session_state') || 'null'); }catch(e){}
+      // Priority: URL > sessionStorage > localStorage
+      var state = urlState.movie || urlState.tv || urlState.view || urlState.q ? urlState : (session && (session.movie || session.tv || session.view || session.q) ? session : saved);
+      if(!state) return;
+      console.log('[TUBEMOCHA v21] Restoring state:', state);
+      if(state.movie){
+        // Restore movie detail - try immediately and retry if needed
+        var attempts = 0;
+        function tryOpenMovie(){
+          attempts++;
+          try{
+            if(typeof openMovie === 'function'){
+              openMovie(state.movie);
+            } else if(attempts < 10){
+              setTimeout(tryOpenMovie, 300);
+            }
+          }catch(e){
+            if(attempts < 10) setTimeout(tryOpenMovie, 500);
+          }
         }
-        if(saved.view && saved.view !== 'home'){ setTimeout(function(){ navigate(saved.view); }, 500); }
+        setTimeout(tryOpenMovie, 100);
+        return;
       }
-    }catch(e){ console.log('restore error', e); }
+      if(state.tv){
+        var attempts2 = 0;
+        function tryOpenTV(){
+          attempts2++;
+          try{
+            if(typeof openMovie === 'function'){
+              openMovie('tv-' + state.tv);
+            } else if(attempts2 < 10){
+              setTimeout(tryOpenTV, 300);
+            }
+          }catch(e){
+            if(attempts2 < 10) setTimeout(tryOpenTV, 500);
+          }
+        }
+        setTimeout(tryOpenTV, 100);
+        return;
+      }
+      if(state.q){
+        setTimeout(function(){
+          try{ if(typeof doSearch === 'function') doSearch(state.q); }catch(e){}
+        }, 200);
+        return;
+      }
+      if(state.view && state.view !== 'home'){
+        setTimeout(function(){
+          try{ if(typeof navigate === 'function') navigate(state.view); }catch(e){}
+        }, 200);
+      }
+    }catch(e){ console.log('restore error v21', e); }
   }
-  // Restore on load
+  // Enhanced navigate that saves for ALL views
+  var originalNavigate = window.navigate;
+  window.navigate = function(view, push){
+    try{
+      if(typeof originalNavigate === 'function'){
+        originalNavigate.call(this, view, push);
+      } else {
+        document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+        var target = document.getElementById('view-' + view);
+        if(target) target.classList.add('active');
+        document.querySelectorAll('.bottom button').forEach(function(b){ b.classList.remove('active'); });
+        var bid = 'b-' + view; var btn = document.getElementById(bid);
+        if(btn) btn.classList.add('active');
+        window.scrollTo({top:0, behavior:'smooth'});
+      }
+      currentView = view;
+      try{
+        var url = new URL(window.location.href);
+        if(view && view !== 'home'){ url.searchParams.set('view', view); } else { url.searchParams.delete('view'); }
+        if(view !== 'detail'){ url.searchParams.delete('movie'); url.searchParams.delete('tv'); }
+        var st = {view: view, movie: null, tv: null, q: url.searchParams.get('q') || null};
+        if(push){ history.pushState(st, '', url); } else { history.replaceState(st, '', url); }
+        saveCurrentState(view, null, null, st.q);
+      }catch(e){}
+    }catch(err){ console.log('navigate v21 error', err); }
+  };
+  // Enhance openMovie to save for ALL content types
+  var originalOpenMovie = window.openMovie;
+  if(originalOpenMovie){
+    window.openMovie = async function(rawId){
+      try{
+        var result = await originalOpenMovie.call(this, rawId);
+        // Save state after opening
+        try{
+          var isTV = typeof rawId === 'string' && rawId.indexOf('tv-') === 0;
+          var id = isTV ? rawId.substring(3) : rawId;
+          var url = new URL(window.location.href);
+          url.searchParams.set('view', 'detail');
+          if(isTV){ url.searchParams.set('tv', id); url.searchParams.delete('movie'); } else { url.searchParams.set('movie', id); url.searchParams.delete('tv'); }
+          var st = {view: 'detail', movie: isTV ? null : id, tv: isTV ? id : null, q: null};
+          history.pushState(st, '', url);
+          saveCurrentState('detail', isTV ? null : id, isTV ? id : null, null);
+          currentView = 'detail';
+        }catch(e){}
+        return result;
+      }catch(e){
+        try{ return await originalOpenMovie.call(this, rawId); }catch(err){ console.log('openMovie v21 error', err); }
+      }
+    };
+  }
+  // Also handle doSearch to save query
+  var originalDoSearch = window.doSearch;
+  if(originalDoSearch){
+    window.doSearch = async function(q){
+      try{
+        var res = await originalDoSearch.call(this, q);
+        try{
+          var url = new URL(window.location.href);
+          url.searchParams.set('view', 'search');
+          url.searchParams.set('q', q);
+          url.searchParams.delete('movie');
+          url.searchParams.delete('tv');
+          var st = {view: 'search', movie: null, tv: null, q: q};
+          history.pushState(st, '', url);
+          saveCurrentState('search', null, null, q);
+          currentView = 'search';
+        }catch(e){}
+        return res;
+      }catch(e){ return originalDoSearch.call(this, q); }
+    };
+  }
+  // Restore on load - multiple attempts for robustness
+  function initRestore(){
+    restoreAllContent();
+    // Retry after a bit in case API not ready
+    setTimeout(restoreAllContent, 1500);
+    setTimeout(restoreAllContent, 3000);
+  }
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', function(){ setTimeout(restoreFromURL, 1000); });
+    document.addEventListener('DOMContentLoaded', initRestore);
   } else {
-    setTimeout(restoreFromURL, 1000);
+    setTimeout(initRestore, 100);
   }
-  // Handle back/forward buttons
+  window.addEventListener('load', function(){ setTimeout(restoreAllContent, 500); });
+  // Handle back/forward for ALL content
   window.addEventListener('popstate', function(e){
     try{
       var state = e.state;
-      if(!state){
-        var url = new URL(window.location);
-        var movieId = url.searchParams.get('movie');
-        var tvId = url.searchParams.get('tv');
-        var view = url.searchParams.get('view');
-        var q = url.searchParams.get('q');
-        if(movieId){ openMovie(movieId); return; }
-        if(tvId){ openMovie('tv-' + tvId); return; }
-        if(q){ doSearch(q); return; }
-        if(view){ navigate(view); return; }
-        navigate('home');
+      var urlState = getStateFromURL();
+      var targetState = state || urlState;
+      if(!targetState) return;
+      if(targetState.movie){
+        if(typeof openMovie === 'function') openMovie(targetState.movie);
         return;
       }
-      if(state.movie){ openMovie(state.movie); return; }
-      if(state.tv){ openMovie('tv-' + state.tv); return; }
-      if(state.view){ navigate(state.view); return; }
-    }catch(err){}
+      if(targetState.tv){
+        if(typeof openMovie === 'function') openMovie('tv-' + targetState.tv);
+        return;
+      }
+      if(targetState.q){
+        if(typeof doSearch === 'function') doSearch(targetState.q);
+        return;
+      }
+      if(targetState.view){
+        if(targetState.view === 'detail'){
+          // If detail but no movie, close overlay and go home
+          var overlay = document.getElementById('detailOverlay');
+          if(overlay) overlay.classList.remove('open');
+          if(typeof navigate === 'function') navigate('home');
+        } else {
+          if(typeof navigate === 'function') navigate(targetState.view);
+        }
+        return;
+      }
+      // If no state, check if overlay open -> close it
+      if(document.getElementById('playerOverlay') && document.getElementById('playerOverlay').classList.contains('open')){
+        if(typeof closePlayer === 'function') closePlayer();
+      } else if(document.getElementById('detailOverlay') && document.getElementById('detailOverlay').classList.contains('open')){
+        document.getElementById('detailOverlay').classList.remove('open');
+        document.getElementById('detailTrailerBg').innerHTML = '';
+      } else {
+        if(typeof navigate === 'function') navigate('home');
+      }
+    }catch(err){ console.log('popstate v21 error', err); }
+  });
+  // Save scroll position
+  window.addEventListener('beforeunload', function(){
+    try{ saveCurrentState(currentView || 'home', null, null, null); }catch(e){}
   });
 })();
 
