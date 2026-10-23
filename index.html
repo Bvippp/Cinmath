@@ -426,6 +426,7 @@ var EMBED_PROVIDERS = [
 ];
 var currentProviderIndex = 0;
 
+// Listen for playback signals from the iframe
 window.addEventListener('message', function(event) {
     var dataStr = typeof event.data === 'string' ? event.data.toLowerCase() : JSON.stringify(event.data).toLowerCase();
     
@@ -944,6 +945,43 @@ showSwitchBanner('Connecting to <b>' + nextName + '</b>...', 0);
 }
 loadPlayerSource(index);
 }
+
+async function checkContentExists(url) {
+    const proxies = [
+        { url: 'https://corsproxy.io/?', type: 'text' },
+        { url: 'https://api.allorigins.win/get?url=', type: 'json' },
+        { url: 'https://api.codetabs.com/v1/proxy?quest=', type: 'text' }
+    ];
+    for (let i = 0; i < proxies.length; i++) {
+        let proxy = proxies[i];
+        try {
+            let controller = new AbortController();
+            let timeoutId = setTimeout(() => controller.abort(), 2500);
+            let fetchUrl = proxy.url + encodeURIComponent(url);
+            let res = await fetch(fetchUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            
+            if (res.ok) {
+                let text = '';
+                if (proxy.type === 'json') {
+                    let data = await res.json();
+                    text = data.contents || '';
+                } else {
+                    text = await res.text();
+                }
+                let lowerText = text.toLowerCase();
+                if (lowerText.includes('404') || lowerText.includes('not found') || lowerText.includes('content not found')) {
+                    return false;
+                }
+                return true;
+            }
+        } catch (e) {
+            // Proxy failed or timed out
+        }
+    }
+    return true;
+}
+
 async function loadPlayerSource(index) {
     var container = document.getElementById('playerIframeContainer');
     var url = getEmbedUrl(index);
@@ -958,32 +996,15 @@ async function loadPlayerSource(index) {
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
     showSwitchBanner('Checking <b>' + name + '</b> for content...', 0);
 
-    // SILENT PRE-FLIGHT CHECK (Bypasses CORS to read the page)
-    try {
-        var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
-        var controller = new AbortController();
-        var timeoutId = setTimeout(() => controller.abort(), 3500);
-        
-        var res = await fetch(proxyUrl, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        
-        if (res.ok) {
-            var data = await res.json();
-            var html = (data.contents || '').toLowerCase();
-            // Detect 404 or Not Found text in the background
-            if (html.includes('404') || html.includes('not found') || html.includes('content not found')) {
-                // 404 DETECTED! Automatically skip.
-                if (playerState.currentServer === index) handleServerFailure(index);
-                return;
-            }
-        }
-    } catch (e) {
-        // Proxy failed or timed out. We proceed to load the iframe to be safe.
+    let contentExists = await checkContentExists(url);
+    
+    if (playerState.currentServer !== index) return;
+
+    if (!contentExists) {
+        handleServerFailure(index);
+        return;
     }
 
-    if (playerState.currentServer !== index) return; // User switched during check
-
-    // CONTENT FOUND. LOAD IFRAME.
     container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
     var iframe = container.querySelector('iframe');
     var loader = document.getElementById('playerLoader');
