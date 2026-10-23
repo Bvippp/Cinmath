@@ -262,26 +262,37 @@ footer b { color: var(--text-main); }
   border: 0; z-index: 1; 
 }
 
-/* Custom Fullscreen Button (Always Visible) */
-.custom-fs-btn {
+/* Player Top Controls (Fullscreen & Next Server) */
+.player-controls {
   position: absolute;
   top: 16px;
   right: 16px;
   z-index: 20;
-  width: 44px;
+  display: flex;
+  gap: 10px;
+}
+
+.custom-btn {
   height: 44px;
-  border-radius: 50%;
+  padding: 0 16px;
+  border-radius: 22px;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
 }
-.custom-fs-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
-.custom-fs-btn svg { width: 20px; height: 20px; }
+.custom-btn:hover { background: rgba(255, 255, 255, 0.2); transform: scale(1.05); }
+.custom-btn svg { width: 18px; height: 18px; }
+
+.fs-btn { width: 44px; padding: 0; border-radius: 50%; }
 
 /* Branding Mask Overlay */
 .branding-mask {
@@ -569,12 +580,19 @@ footer b { color: var(--text-main); }
      <div class="loader" id="playerLoader"></div>
      <div class="branding-mask"></div>
   </div>
-  <!-- Custom Fullscreen Button to bypass iframe ad-hijack -->
-  <button class="custom-fs-btn" onclick="toggleFullscreen(event)" title="Toggle Fullscreen">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
-    </svg>
-  </button>
+  
+  <!-- Player Controls -->
+  <div class="player-controls">
+    <button class="custom-btn" onclick="switchServer((currentProviderIndex + 1) % EMBED_PROVIDERS.length)" title="Next Server">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg> 
+      Next Server
+    </button>
+    <button class="custom-btn fs-btn" onclick="toggleFullscreen(event)" title="Toggle Fullscreen">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+      </svg>
+    </button>
+  </div>
 </div>
 
 <!-- ═══════════════ BOTTOM NAVIGATION ═══════════════ -->
@@ -607,6 +625,7 @@ window.addEventListener('popstate', function(event) {
     document.getElementById('playerIframeContainer').innerHTML = '';
     document.getElementById('playerOverlay').classList.remove('open');
     clearTimeout(window._idleTimer);
+    clearTimeout(window.autoSwitchTimer);
     document.body.style.overflow = ''; 
   } 
   else if (document.getElementById('detailOverlay').classList.contains('open')) {
@@ -630,6 +649,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
+var autoSwitchTimer = null;
 
 // ═════════════════════════════════════════════════════════════════
 // EMBED PROVIDERS (AutoEmbed is default - clean, unbranded, fast)
@@ -1423,7 +1443,9 @@ function renderServerButtons() {
 
 function switchServer(index) {
   currentProviderIndex = index;
-  renderServerButtons();
+  // Clear the timer since the user manually switched
+  if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
+  
   loadPlayerSource(currentProviderIndex);
   toast('Switched to ' + EMBED_PROVIDERS[index].name);
 }
@@ -1447,7 +1469,28 @@ function loadPlayerSource(index) {
   var iframe = container.querySelector('iframe');
   var loader = document.getElementById('playerLoader');
   if (iframe) { iframe.onload = function() { if (loader) loader.style.display = 'none'; }; }
+
+  // AUTO-SWITCH EQUATION
+  // If the user doesn't interact within 10 seconds, assume the content is missing and switch to the next server.
+  if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
+  
+  window.autoSwitchTimer = setTimeout(function() {
+    // Only trigger if the player is still open (user didn't close it)
+    if (document.getElementById('playerOverlay').classList.contains('open')) {
+      var nextIndex = (index + 1) % EMBED_PROVIDERS.length;
+      toast('Auto-switching to Server ' + (nextIndex + 1) + '...');
+      switchServer(nextIndex);
+    }
+  }, 10000);
 }
+
+// Cancel auto-switch if the user interacts with the player
+document.addEventListener('mousemove', function() {
+  if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
+});
+document.addEventListener('touchstart', function() {
+  if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
+});
 
 function scrollRow(id, direction) {
   var el = document.getElementById(id);
