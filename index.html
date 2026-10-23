@@ -414,15 +414,15 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-smart-failover-v4';
+var TUBEMOCHA_BUILD = '2026-10-23-smart-failover-v7';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
 // === SMART FAILOVER EQUATIONS v4 ===
-var SERVER_LOAD_TIMEOUT = 12000;
-var FAST_LOAD_THRESHOLD = 750; // logistic threshold: P_exist = 1/(1+exp(-k*(t-threshold)))
-var VALIDATION_WINDOW = 3200; // wait for success signal
+var SERVER_LOAD_TIMEOUT = 9000;
+var FAST_LOAD_THRESHOLD = 900; // logistic threshold: P_exist = 1/(1+exp(-k*(t-threshold)))
+var VALIDATION_WINDOW = 3500; // wait for success signal
 var AUTO_RETRY_DELAY = 900;
 var SUCCESS_SIGNAL_HOLD = 5000;
 
@@ -494,8 +494,8 @@ window.addEventListener('message', function(event) {
       else dataStr = JSON.stringify(raw).toLowerCase();
     }catch(e){ dataStr = String(raw).toLowerCase(); }
     
-    var errorKeywords = ['not found','404','file not found','video not found','no sources','not available','unavailable','removed','deleted','error loading','source error','does not exist','no longer available','invalid imdb','invalid source','content not found','embed not found','video unavailable','no stream','stream not found'];
-    var successKeywords = ['playing','play','ready','player ready','canplay','loaded','jwplayer ready','hls ready','video playing','playback started','player playing','video started','user is watching','timeupdate'];
+    var errorKeywords = ['not found','404','file not found','video not found','no sources','not available','unavailable','removed','deleted','error loading','source error','does not exist','no longer available','invalid imdb','invalid source','content not found','embed not found','video unavailable','no stream','stream not found','404 content','content not found','movie not found','tv not found','episode not found'];
+    var successKeywords = ['playing','video playing','playback started','player playing','video started','user is watching','timeupdate','jwplayer ready','hls ready','canplaythrough','playing true','is playing'];
 
     var isError = errorKeywords.some(function(k){ return dataStr.indexOf(k)>-1; });
     var isSuccess = successKeywords.some(function(k){ return dataStr.indexOf(k)>-1; });
@@ -503,6 +503,8 @@ window.addEventListener('message', function(event) {
     if(isError){
         if(playerState.currentServer === currentProviderIndex){
             console.log('[TUBEMOCHA] Error signal from', EMBED_PROVIDERS[playerState.currentServer].name, ':', dataStr.substring(0,150));
+            var iframeErr = document.getElementById('playerIframeContainer') ? document.getElementById('playerIframeContainer').querySelector('iframe') : null;
+            if(iframeErr){ iframeErr.style.opacity='0'; iframeErr.style.pointerEvents='none'; }
             handleServerFailure(playerState.currentServer, 'error-signal:'+dataStr.substring(0,30));
         }
         return;
@@ -516,7 +518,9 @@ window.addEventListener('message', function(event) {
         var loadTime = Date.now() - playerState.loadStartTime;
         markServerResult(playerState.currentServer, true, loadTime);
         consecutiveFailures = 0;
-        showSwitchBanner('✓ <b>' + name + '</b> is working', 3500, true);
+        var iframeEl = document.getElementById('playerIframeContainer') ? document.getElementById('playerIframeContainer').querySelector('iframe') : null;
+        if(iframeEl){ iframeEl.style.opacity='1'; iframeEl.style.pointerEvents='auto'; }
+        showSwitchBanner('✓ Connected to <b>' + name + '</b>', 3500, true);
         if(playerState.successHoldTimer) clearTimeout(playerState.successHoldTimer);
         playerState.successHoldTimer = setTimeout(function(){ playerState.successHoldTimer=null; }, SUCCESS_SIGNAL_HOLD);
     }
@@ -1056,7 +1060,7 @@ function loadPlayerSource(index) {
     showSwitchBanner('Connecting to <b>' + name + '</b>... <span style="opacity:.6;font-size:12px">(' + reliability + '% reliable)</span>', 0);
 
     setTimeout(function(){
-        container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
+        container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;pointer-events:none;transition:opacity 0.3s;"></iframe><div class="branding-mask"></div>';
         var iframe = container.querySelector('iframe');
         if(!iframe){ handleServerFailure(index,'iframe-create-fail'); return; }
 
@@ -1084,17 +1088,22 @@ function loadPlayerSource(index) {
             playerState.validationTimer = setTimeout(function(){
                 if(playerState.currentServer !== index) return;
                 playerState.isValidating = false;
-                if(playerState.hasReceivedSuccessSignal) return;
-                if(pExist > 0.55){
+                // BEST EQUATION v6: success requires explicit success signal, not just load time
+                // If no success signal after validation window, server has no content -> auto-failover
+                if(playerState.hasReceivedSuccessSignal){
                     markServerResult(index,true,loadTime);
                     consecutiveFailures=0;
-                    showSwitchBanner('✓ <b>' + name + '</b> is connected', 4000, true);
-                    console.log('[TUBEMOCHA] Validation passed by absence-of-error for '+name);
+                    var iframeEl2 = document.getElementById('playerIframeContainer') ? document.getElementById('playerIframeContainer').querySelector('iframe') : null;
+                    if(iframeEl2){ iframeEl2.style.opacity='1'; iframeEl2.style.pointerEvents='auto'; }
+                    showSwitchBanner('✓ Connected to <b>' + name + '</b>', 4000, true);
+                    console.log('[TUBEMOCHA] Validation passed by success signal for '+name+' P_exist='+pExist.toFixed(3));
                     if(window.autoSwitchTimer){ clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer=null; }
-                } else {
-                    console.log('[TUBEMOCHA] Validation failed by low P_exist');
-                    handleServerFailure(index,'validation-low-prob-'+pExist.toFixed(2));
+                    return;
                 }
+                // No success signal = no content - force failover
+                console.log('[TUBEMOCHA] Validation failed - no success signal after '+VALIDATION_WINDOW+'ms for '+name+' P_exist='+pExist.toFixed(3)+' - auto-trying next');
+                markServerResult(index,false,loadTime);
+                handleServerFailure(index,'no-success-signal-'+pExist.toFixed(2));
             }, VALIDATION_WINDOW);
         };
         iframe.onerror = function() {
