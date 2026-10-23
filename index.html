@@ -414,8 +414,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var SERVER_LOAD_TIMEOUT = 6000;
-var FAST_LOAD_THRESHOLD = 1200;
+var SERVER_LOAD_TIMEOUT = 10000;
 var playerState = { currentServer: 0, loadStartTime: 0, iframeLoaded: false };
 var autoSwitchTimer = null;
 var consecutiveFailures = 0;
@@ -959,12 +958,6 @@ var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
 if (iframe) {
 iframe.onload = function() {
 if (playerState.currentServer !== index) return;
-var loadTime = Date.now() - playerState.loadStartTime;
-if (loadTime < FAST_LOAD_THRESHOLD) {
-// If it loaded too fast, it's almost certainly an error page (like "Not Found").
-handleServerFailure(index);
-return;
-}
 playerState.iframeLoaded = true;
 if (loader) loader.style.display = 'none';
 if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
