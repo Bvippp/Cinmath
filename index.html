@@ -426,11 +426,9 @@ var EMBED_PROVIDERS = [
 ];
 var currentProviderIndex = 0;
 
-// Listen for playback signals from the iframe
 window.addEventListener('message', function(event) {
     var dataStr = typeof event.data === 'string' ? event.data.toLowerCase() : JSON.stringify(event.data).toLowerCase();
     
-    // Check for error signals
     if (dataStr.includes('error') || dataStr.includes('not found') || dataStr.includes('404')) {
         if (playerState.currentServer === currentProviderIndex) {
             handleServerFailure(playerState.currentServer);
@@ -438,8 +436,7 @@ window.addEventListener('message', function(event) {
         return;
     }
 
-    // Check for success signals
-    if (dataStr.includes('play') || dataStr.includes('playing') || dataStr.includes('ready')) {
+    if (dataStr.includes('play') || dataStr.includes('ready')) {
         if (window.autoSwitchTimer) {
             clearTimeout(window.autoSwitchTimer);
             window.autoSwitchTimer = null;
@@ -940,46 +937,100 @@ if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoS
 var prevName = EMBED_PROVIDERS[prevIndex] ? EMBED_PROVIDERS[prevIndex].name : 'current server';
 var nextName = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'next server';
 if (isAuto) {
-showSwitchBanner('⚠ <b>' + prevName + "</b> failed. Auto-trying <b>" + nextName + '</b>...', 0);
-toast(prevName + ' failed — trying ' + nextName + '…');
+showSwitchBanner('⚠ <b>' + prevName + "</b> missing content. Auto-trying <b>" + nextName + '</b>...', 0);
+toast(prevName + ' missing content — trying ' + nextName + '…');
 } else {
 showSwitchBanner('Connecting to <b>' + nextName + '</b>...', 0);
 }
 loadPlayerSource(index);
 }
 
-function loadPlayerSource(index) {
-var container = document.getElementById('playerIframeContainer');
-var url = getEmbedUrl(index);
-if (!url) { toast('Server unavailable'); return; }
-playerState.currentServer = index;
-playerState.loadStartTime = Date.now();
-playerState.iframeLoaded = false;
-container.innerHTML = '<div class="loader" id="playerLoader"></div><iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
-var iframe = container.querySelector('iframe');
-var loader = document.getElementById('playerLoader');
-var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
+// FAST PARALLEL PROXY CHECK
+async function checkContentExistsFast(url) {
+    const proxies = [
+        (u) => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+        (u) => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+        (u) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`
+    ];
 
-if (iframe) {
-iframe.onload = function() {
-if (playerState.currentServer !== index) return;
-playerState.iframeLoaded = true;
-if (loader) loader.style.display = 'none';
-if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-showSwitchBanner('✓ <b>' + name + '</b> is connected', 3000, true);
-};
-if (iframe.onerror) {
-iframe.onerror = function() {
-if (playerState.currentServer !== index) return;
-handleServerFailure(index);
-};
+    const checkProxy = async (proxyFn) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
+        try {
+            const res = await fetch(proxyFn(url), { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!res.ok) throw new Error('Fetch failed');
+            
+            const text = await res.text();
+            const lowerText = text.toLowerCase();
+            
+            if (lowerText.includes('404') || lowerText.includes('not found') || lowerText.includes('content not found')) {
+                return false; // Content is missing
+            }
+            return true; // Content exists
+        } catch (e) {
+            clearTimeout(timeoutId);
+            throw e;
+        }
+    };
+
+    try {
+        const result = await Promise.race([
+            Promise.any(proxies.map(p => checkProxy(p))),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Overall timeout')), 2000))
+        ]);
+        return result;
+    } catch (e) {
+        return true; // Default to true if all proxies fail
+    }
 }
-}
-if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
-window.autoSwitchTimer = setTimeout(function() {
-if (playerState.currentServer !== index) return;
-handleServerFailure(index);
-}, SERVER_LOAD_TIMEOUT);
+
+async function loadPlayerSource(index) {
+    var container = document.getElementById('playerIframeContainer');
+    var url = getEmbedUrl(index);
+    if (!url) { toast('Server unavailable'); return; }
+    
+    playerState.currentServer = index;
+    playerState.loadStartTime = Date.now();
+    playerState.iframeLoaded = false;
+    
+    var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
+    
+    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
+    showSwitchBanner('Checking <b>' + name + '</b>...', 0);
+
+    let contentExists = await checkContentExistsFast(url);
+    
+    if (playerState.currentServer !== index) return;
+
+    if (!contentExists) {
+        handleServerFailure(index);
+        return;
+    }
+
+    container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
+    var iframe = container.querySelector('iframe');
+    var loader = document.getElementById('playerLoader');
+    
+    if (iframe) {
+        iframe.onload = function() {
+            if (playerState.currentServer !== index) return;
+            playerState.iframeLoaded = true;
+            if (loader) loader.style.display = 'none';
+            if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+            showSwitchBanner('✓ <b>' + name + '</b> is working', 3000, true);
+        };
+        iframe.onerror = function() {
+            if (playerState.currentServer !== index) return;
+            handleServerFailure(index);
+        };
+    }
+
+    if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
+    window.autoSwitchTimer = setTimeout(function() {
+        if (playerState.currentServer !== index) return;
+        handleServerFailure(index);
+    }, SERVER_LOAD_TIMEOUT);
 }
 
 function handleServerFailure(failedIndex) {
