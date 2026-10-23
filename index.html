@@ -493,27 +493,15 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 
-// TUBEMOCHA-v6-Ultimate: Player Logic
-var SERVER_LOAD_TIMEOUT = 4000;
-var FAST_LOAD_THRESHOLD = 1500;
-
+// TUBEMOCHA-v7-Stable: Player Logic
+var SERVER_LOAD_TIMEOUT = 7000;
 var playerState = {
   currentServer: 0,
   loadStartTime: 0,
-  iframeLoaded: false,
-  switchInProgress: false,
-  hasInteracted: false
+  iframeLoaded: false
 };
 var autoSwitchTimer = null;
 var consecutiveFailures = 0;
-
-window.addEventListener('blur', function() {
-  if (document.getElementById('playerOverlay').classList.contains('open')) {
-    playerState.hasInteracted = true;
-    if (autoSwitchTimer) { clearTimeout(autoSwitchTimer); autoSwitchTimer = null; }
-    hideSwitchBanner();
-  }
-});
 
 var EMBED_PROVIDERS = [
   { 
@@ -547,9 +535,7 @@ function closePlayer(e) {
   }
   if (autoSwitchTimer) { clearTimeout(autoSwitchTimer); autoSwitchTimer = null; }
   consecutiveFailures = 0;
-  playerState.switchInProgress = false;
   playerState.iframeLoaded = false;
-  playerState.hasInteracted = false;
   hideSwitchBanner();
   document.getElementById('playerIframeContainer').innerHTML = '';
   document.getElementById('playerOverlay').classList.remove('open');
@@ -1325,7 +1311,6 @@ async function playCurrentMedia(){
   
   currentProviderIndex = 0;
   consecutiveFailures = 0;
-  playerState.hasInteracted = false;
   hideSwitchBanner();
   loadPlayerSource(currentProviderIndex);
   
@@ -1370,7 +1355,6 @@ function loadPlayerSource(index) {
   playerState.currentServer = index;
   playerState.loadStartTime = Date.now();
   playerState.iframeLoaded = false;
-  playerState.switchInProgress = true;
 
   container.innerHTML = '<div class="loader" id="playerLoader"></div>' +
     '<iframe src="' + url + '" ' +
@@ -1390,16 +1374,15 @@ function loadPlayerSource(index) {
     iframe.onload = function() {
       if (playerState.currentServer !== index) return;
       
-      var loadTime = Date.now() - playerState.loadStartTime;
-      if (loadTime < FAST_LOAD_THRESHOLD) {
-        handleServerFailure(index);
-        return;
-      }
-
       playerState.iframeLoaded = true;
-      playerState.switchInProgress = false;
       consecutiveFailures = 0;
       if (loader) loader.style.display = 'none';
+      
+      // Clear auto-switch timer since the iframe successfully loaded
+      if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+      
+      var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
+      showSwitchBanner('✓ <b>' + name + '</b> ready', 2000, true);
     };
     
     iframe.onerror = function() {
@@ -1411,7 +1394,7 @@ function loadPlayerSource(index) {
   if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
   window.autoSwitchTimer = setTimeout(function() {
     if (playerState.currentServer !== index) return;
-    if (playerState.hasInteracted) return;
+    if (playerState.iframeLoaded) return;
     handleServerFailure(index);
   }, SERVER_LOAD_TIMEOUT);
 }
@@ -1419,11 +1402,13 @@ function loadPlayerSource(index) {
 function handleServerFailure(failedIndex) {
   if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
   consecutiveFailures++;
+  
   if (consecutiveFailures >= EMBED_PROVIDERS.length) {
     showSwitchBanner('⚠ <b>All servers unavailable</b> — tap Next Server to retry', 8000);
     toast('All servers failed — tap Next Server manually');
     return;
   }
+  
   var nextIndex = (failedIndex + 1) % EMBED_PROVIDERS.length;
   switchServer(nextIndex, true);
 }
@@ -1483,75 +1468,4 @@ async function loadInitial(){
     setTimeout(function() { updateScrollArrows('trendingTrack'); }, 50);
   } else {
     setupHero(FALLBACK);
-    document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
-  }
-
-  var results = await Promise.all([
-    tmdb('/movie/now_playing', {page:1}),
-    tmdb('/tv/airing_today', {page:1})
-  ]);
-  var nowPlaying = results[0];
-  var airingToday = results[1];
-  
-  var latestMixed = [];
-  if(nowPlaying && nowPlaying.results) nowPlaying.results.forEach(function(r) { r.media_type = 'movie'; latestMixed.push(r); });
-  if(airingToday && airingToday.results) airingToday.results.forEach(function(r) { r.media_type = 'tv'; latestMixed.push(r); });
-  
-  if(latestMixed.length > 0) {
-    var uniqueLatest = [];
-    var map = {};
-    for(var i=0; i<latestMixed.length; i++) {
-      if(!map[latestMixed[i].id]) {
-        uniqueLatest.push(latestMixed[i]);
-        map[latestMixed[i].id] = true;
-      }
-    }
-    document.getElementById('latestTrack').innerHTML = uniqueLatest.slice(0,20).map(mapResult).map(cardHTML).join('');
-    setTimeout(function() { updateScrollArrows('latestTrack'); }, 50);
-  } else {
-    document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join('');
-  }
-
-  var today = new Date().toISOString().split('T')[0];
-  var tvResults = await Promise.all([
-    tmdb('/tv/on_the_air', { page: 1 }),
-    tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 })
-  ]);
-  var onAir = tvResults[0];
-  var upcoming = tvResults[1];
-  
-  var combinedTv = [];
-  if (onAir && onAir.results) combinedTv = combinedTv.concat(onAir.results);
-  if (upcoming && upcoming.results) combinedTv = combinedTv.concat(upcoming.results);
-  
-  var uniqueTv = [];
-  var tvMap = {};
-  for(var j=0; j<combinedTv.length; j++) {
-    if(!tvMap[combinedTv[j].id]) {
-      uniqueTv.push(combinedTv[j]);
-      tvMap[combinedTv[j].id] = true;
-    }
-  }
-  
-  if(uniqueTv.length > 0) {
-    document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
-    setTimeout(function() { updateScrollArrows('upcomingTvTrack'); }, 50);
-  } else {
-    document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(m) { return m.media_type === 'tv'; }).map(upcomingCardHTML).join('');
-  }
-
-  loadPopularGenres();
-}
-
-document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
-loadInitial();
-</script>
-
-<!-- MONETAG IN-PAGE PUSH CODE -->
-<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
-<!-- MONETAG PUSH NOTIFICATIONS CODE -->
-<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false" async></script>
-
-</body>
-</html>
+    document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML
