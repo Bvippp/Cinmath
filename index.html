@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -414,11 +435,69 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var SERVER_LOAD_TIMEOUT = 8000;
-var FAST_LOAD_THRESHOLD = 400;
-var playerState = { currentServer: 0, loadStartTime: 0, iframeLoaded: false };
+var TUBEMOCHA_BUILD = '2026-10-23-smart-failover-v4';
+localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
+localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
+console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
+
+// === SMART FAILOVER EQUATIONS v4 ===
+var SERVER_LOAD_TIMEOUT = 12000;
+var FAST_LOAD_THRESHOLD = 750; // logistic threshold: P_exist = 1/(1+exp(-k*(t-threshold)))
+var VALIDATION_WINDOW = 3200; // wait for success signal
+var AUTO_RETRY_DELAY = 900;
+var SUCCESS_SIGNAL_HOLD = 5000;
+
+var playerState = { 
+  currentServer: 0, 
+  loadStartTime: 0, 
+  iframeLoaded: false,
+  isValidating: false,
+  validationTimer: null,
+  successHoldTimer: null,
+  hasReceivedSuccessSignal: false,
+  triedServers: [],
+  lastLoadTime: 0
+};
 var autoSwitchTimer = null;
 var consecutiveFailures = 0;
+var serverHealth = {};
+
+function loadServerHealth(){
+  try{ serverHealth = JSON.parse(localStorage.getItem('tubemocha_server_health') || '{}'); }catch(e){ serverHealth={}; }
+}
+function saveServerHealth(){
+  try{ localStorage.setItem('tubemocha_server_health', JSON.stringify(serverHealth)); }catch(e){}
+}
+function markServerResult(index, success, loadTime){
+  var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server '+(index+1);
+  if(!serverHealth[name]) serverHealth[name] = { successes:0, failures:0, avgLoad:1200, lastUsed:0 };
+  var h = serverHealth[name];
+  if(success){ h.successes++; } else { h.failures++; }
+  if(loadTime){ h.avgLoad = Math.round(h.avgLoad*0.7 + loadTime*0.3); }
+  h.lastUsed = Date.now();
+  saveServerHealth();
+}
+function getServerReliability(name){
+  var h = serverHealth[name];
+  if(!h) return 0.75;
+  var alpha=3, beta=1;
+  return (h.successes + alpha) / (h.successes + h.failures + alpha + beta);
+}
+function getContentExistenceProbability(loadTime){
+  var k=0.012;
+  var x = loadTime - FAST_LOAD_THRESHOLD;
+  return 1 / (1 + Math.exp(-k * x));
+}
+function getNextUntriedServer(failedIndex){
+  var total = EMBED_PROVIDERS.length;
+  for(var offset=1; offset<=total; offset++){
+    var idx = (failedIndex + offset) % total;
+    if(playerState.triedServers.indexOf(idx)===-1) return idx;
+  }
+  return -1;
+}
+loadServerHealth();
+
 var EMBED_PROVIDERS = [
 { name: 'Server 1', movie: function(id) { return 'https://autoembed.co/movie/tmdb/' + id + '?autoplay=true'; }, tv: function(id, s, e) { return 'https://autoembed.co/tv/tmdb/' + id + '-' + s + '-' + e + '?autoplay=true'; } },
 { name: 'Server 2', movie: function(id) { return 'https://moviesapi.to/embed/movie/' + id; }, tv: function(id, s, e) { return 'https://moviesapi.to/embed/tv/' + id + '/' + s + '/' + e; } },
@@ -427,34 +506,53 @@ var EMBED_PROVIDERS = [
 ];
 var currentProviderIndex = 0;
 
-// Listen for playback signals from the iframe
+// Enhanced playback signal listener with Bayesian error detection
 window.addEventListener('message', function(event) {
-    var dataStr = typeof event.data === 'string' ? event.data.toLowerCase() : JSON.stringify(event.data).toLowerCase();
+    var raw = event.data;
+    var dataStr = '';
+    try{
+      if(typeof raw === 'string') dataStr = raw.toLowerCase();
+      else dataStr = JSON.stringify(raw).toLowerCase();
+    }catch(e){ dataStr = String(raw).toLowerCase(); }
     
-    // Check for error signals
-    if (dataStr.includes('error') || dataStr.includes('not found') || dataStr.includes('404')) {
-        if (playerState.currentServer === currentProviderIndex) {
-            handleServerFailure(playerState.currentServer);
+    var errorKeywords = ['not found','404','file not found','video not found','no sources','not available','unavailable','removed','deleted','error loading','source error','does not exist','no longer available','invalid imdb','invalid source','content not found','embed not found','video unavailable','no stream','stream not found'];
+    var successKeywords = ['playing','play','ready','player ready','canplay','loaded','jwplayer ready','hls ready','video playing','playback started','player playing','video started','user is watching','timeupdate'];
+
+    var isError = errorKeywords.some(function(k){ return dataStr.indexOf(k)>-1; });
+    var isSuccess = successKeywords.some(function(k){ return dataStr.indexOf(k)>-1; });
+
+    if(isError){
+        if(playerState.currentServer === currentProviderIndex){
+            console.log('[TUBEMOCHA] Error signal from', EMBED_PROVIDERS[playerState.currentServer].name, ':', dataStr.substring(0,150));
+            handleServerFailure(playerState.currentServer, 'error-signal:'+dataStr.substring(0,30));
         }
         return;
     }
-
-    // Check for success signals
-    if (dataStr.includes('play') || dataStr.includes('playing') || dataStr.includes('ready')) {
-        if (window.autoSwitchTimer) {
-            clearTimeout(window.autoSwitchTimer);
-            window.autoSwitchTimer = null;
-        }
+    if(isSuccess){
+        playerState.hasReceivedSuccessSignal = true;
+        if(window.autoSwitchTimer){ clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer=null; }
+        if(playerState.validationTimer){ clearTimeout(playerState.validationTimer); playerState.validationTimer=null; }
+        playerState.isValidating = false;
         var name = EMBED_PROVIDERS[playerState.currentServer] ? EMBED_PROVIDERS[playerState.currentServer].name : 'Server';
-        showSwitchBanner('✓ <b>' + name + '</b> is working', 3000, true);
+        var loadTime = Date.now() - playerState.loadStartTime;
+        markServerResult(playerState.currentServer, true, loadTime);
+        consecutiveFailures = 0;
+        showSwitchBanner('✓ <b>' + name + '</b> is working', 3500, true);
+        if(playerState.successHoldTimer) clearTimeout(playerState.successHoldTimer);
+        playerState.successHoldTimer = setTimeout(function(){ playerState.successHoldTimer=null; }, SUCCESS_SIGNAL_HOLD);
     }
 });
 
 function closePlayer(e) {
 if(e) { e.preventDefault(); e.stopPropagation(); }
-if (autoSwitchTimer) { clearTimeout(autoSwitchTimer); autoSwitchTimer = null; }
+if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+if (playerState.validationTimer) { clearTimeout(playerState.validationTimer); playerState.validationTimer = null; }
+if (playerState.successHoldTimer) { clearTimeout(playerState.successHoldTimer); playerState.successHoldTimer = null; }
 consecutiveFailures = 0;
 playerState.iframeLoaded = false;
+playerState.isValidating = false;
+playerState.hasReceivedSuccessSignal = false;
+playerState.triedServers = [];
 hideSwitchBanner();
 document.getElementById('playerIframeContainer').innerHTML = '';
 document.getElementById('playerOverlay').classList.remove('open');
@@ -921,7 +1019,10 @@ overlay.classList.add('open');
 document.body.style.overflow = 'hidden'; 
 currentProviderIndex = 0;
 consecutiveFailures = 0;
+playerState.triedServers = [];
+playerState.hasReceivedSuccessSignal = false;
 hideSwitchBanner();
+loadServerHealth();
 loadPlayerSource(currentProviderIndex);
 clearTimeout(window._idleTimer);
 overlay.classList.remove('idle');
@@ -934,17 +1035,21 @@ document.addEventListener('mousemove', resetTimer);
 document.addEventListener('touchstart', resetTimer);
 resetTimer();
 }
-function switchServer(index, isAuto) {
+function switchServer(index, isAuto, reason) {
 var prevIndex = currentProviderIndex;
 currentProviderIndex = index;
 if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+if (playerState.validationTimer) { clearTimeout(playerState.validationTimer); playerState.validationTimer = null; }
 var prevName = EMBED_PROVIDERS[prevIndex] ? EMBED_PROVIDERS[prevIndex].name : 'current server';
 var nextName = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'next server';
-if (isAuto) {
-showSwitchBanner('⚠ <b>' + prevName + "</b> missing content. Auto-trying <b>" + nextName + '</b>...', 0);
-toast(prevName + ' missing content — trying ' + nextName + '…');
+if (!isAuto) {
+  if(playerState.triedServers.length >= EMBED_PROVIDERS.length){
+    playerState.triedServers = [];
+  }
+  if(playerState.triedServers.indexOf(index)===-1) playerState.triedServers.push(index);
+  showSwitchBanner('Connecting to <b>' + nextName + '</b>...', 0);
 } else {
-showSwitchBanner('Connecting to <b>' + nextName + '</b>...', 0);
+  // banner already set by handleServerFailure
 }
 loadPlayerSource(index);
 }
@@ -952,60 +1057,115 @@ loadPlayerSource(index);
 function loadPlayerSource(index) {
     var container = document.getElementById('playerIframeContainer');
     var url = getEmbedUrl(index);
-    if (!url) { toast('Server unavailable'); return; }
+    if (!url) { toast('Server unavailable'); handleServerFailure(index,'no-url'); return; }
     
     playerState.currentServer = index;
     playerState.loadStartTime = Date.now();
     playerState.iframeLoaded = false;
-    
-    var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
-    
-    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
-    showSwitchBanner('Connecting to <b>' + name + '</b>...', 0);
+    playerState.isValidating = false;
+    playerState.hasReceivedSuccessSignal = false;
+    playerState.lastLoadTime = 0;
+    if(playerState.triedServers.indexOf(index)===-1) playerState.triedServers.push(index);
+    if(playerState.validationTimer){ clearTimeout(playerState.validationTimer); playerState.validationTimer=null; }
+    if(playerState.successHoldTimer){ clearTimeout(playerState.successHoldTimer); playerState.successHoldTimer=null; }
+    if(window.autoSwitchTimer){ clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer=null; }
 
-    container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
-    var iframe = container.querySelector('iframe');
-    var loader = document.getElementById('playerLoader');
-    
-    if (iframe) {
+    var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
+    var reliability = Math.round(getServerReliability(name)*100);
+
+    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
+    showSwitchBanner('Connecting to <b>' + name + '</b>... <span style="opacity:.6;font-size:12px">(' + reliability + '% reliable)</span>', 0);
+
+    setTimeout(function(){
+        container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation"></iframe><div class="branding-mask"></div>';
+        var iframe = container.querySelector('iframe');
+        if(!iframe){ handleServerFailure(index,'iframe-create-fail'); return; }
+
         iframe.onload = function() {
             if (playerState.currentServer !== index) return;
             var loadTime = Date.now() - playerState.loadStartTime;
-            
+            playerState.lastLoadTime = loadTime;
+            playerState.iframeLoaded = true;
+            var loader = document.getElementById('playerLoader');
+            if (loader) loader.style.display = 'none';
+
+            var pExist = getContentExistenceProbability(loadTime);
+            console.log('[TUBEMOCHA] '+name+' loaded in '+loadTime+'ms, P_exist='+pExist.toFixed(3)+' | Equation: 1/(1+exp(-0.012*(t-750)))');
+
             if (loadTime < FAST_LOAD_THRESHOLD) {
-                handleServerFailure(index);
+                console.log('[TUBEMOCHA] Fast-load fail triggered');
+                markServerResult(index,false,loadTime);
+                handleServerFailure(index,'fast-load-'+loadTime+'ms');
                 return;
             }
 
-            playerState.iframeLoaded = true;
-            if (loader) loader.style.display = 'none';
-            
-            if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-            showSwitchBanner('✓ <b>' + name + '</b> is connected', 3000, true);
+            playerState.isValidating = true;
+            showSwitchBanner('Verifying content on <b>' + name + '</b>...', 0);
+
+            playerState.validationTimer = setTimeout(function(){
+                if(playerState.currentServer !== index) return;
+                playerState.isValidating = false;
+                if(playerState.hasReceivedSuccessSignal) return;
+                if(pExist > 0.55){
+                    markServerResult(index,true,loadTime);
+                    consecutiveFailures=0;
+                    showSwitchBanner('✓ <b>' + name + '</b> is connected', 4000, true);
+                    console.log('[TUBEMOCHA] Validation passed by absence-of-error for '+name);
+                    if(window.autoSwitchTimer){ clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer=null; }
+                } else {
+                    console.log('[TUBEMOCHA] Validation failed by low P_exist');
+                    handleServerFailure(index,'validation-low-prob-'+pExist.toFixed(2));
+                }
+            }, VALIDATION_WINDOW);
         };
         iframe.onerror = function() {
             if (playerState.currentServer !== index) return;
-            handleServerFailure(index);
+            var lt = Date.now() - playerState.loadStartTime;
+            markServerResult(index,false,lt);
+            handleServerFailure(index,'iframe-onerror');
         };
-    }
 
-    if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
-    window.autoSwitchTimer = setTimeout(function() {
-        if (playerState.currentServer !== index) return;
-        handleServerFailure(index);
-    }, SERVER_LOAD_TIMEOUT);
+        window.autoSwitchTimer = setTimeout(function() {
+            if (playerState.currentServer !== index) return;
+            if (playerState.hasReceivedSuccessSignal) return;
+            var lt = Date.now() - playerState.loadStartTime;
+            console.log('[TUBEMOCHA] Hard timeout '+name);
+            markServerResult(index,false,lt);
+            handleServerFailure(index,'hard-timeout-'+SERVER_LOAD_TIMEOUT+'ms');
+        }, SERVER_LOAD_TIMEOUT);
+    }, 120);
 }
 
-function handleServerFailure(failedIndex) {
+function handleServerFailure(failedIndex, reason) {
 if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
+if (playerState.validationTimer) { clearTimeout(playerState.validationTimer); playerState.validationTimer = null; }
+playerState.isValidating = false;
 consecutiveFailures++;
-if (consecutiveFailures >= EMBED_PROVIDERS.length) {
-showSwitchBanner('⚠ <b>All servers unavailable</b> — tap Next Server to retry', 8000);
-toast('All servers failed — tap Next Server manually');
-return;
+var failedName = EMBED_PROVIDERS[failedIndex] ? EMBED_PROVIDERS[failedIndex].name : 'Server '+(failedIndex+1);
+console.log('[TUBEMOCHA] Failure:', failedName, 'reason:', reason, 'consecutive:', consecutiveFailures, 'tried:', playerState.triedServers);
+
+var nextIndex = getNextUntriedServer(failedIndex);
+if(nextIndex===-1){
+  // all tried - reset for retry cycle but show final warning first
+  if(playerState.triedServers.length >= EMBED_PROVIDERS.length){
+    showSwitchBanner('⚠ <b>All '+EMBED_PROVIDERS.length+' servers failed</b> for this title — tapping Next Server restarts the hunt', 8000);
+    toast('All servers failed — no working source found');
+    playerState.triedServers = [];
+    consecutiveFailures = 0;
+    return;
+  } else {
+    nextIndex = (failedIndex + 1) % EMBED_PROVIDERS.length;
+  }
 }
-var nextIndex = (failedIndex + 1) % EMBED_PROVIDERS.length;
-switchServer(nextIndex, true);
+
+var nextName = EMBED_PROVIDERS[nextIndex] ? EMBED_PROVIDERS[nextIndex].name : 'next server';
+var reasonText = reason ? ' ('+reason.split(':')[0]+')' : '';
+showSwitchBanner('⚠ <b>' + failedName + '</b> has no content'+reasonText+'. Auto-trying <b>' + nextName + '</b>...', 0);
+toast(failedName + ' missing — trying ' + nextName + '…');
+
+setTimeout(function(){
+  switchServer(nextIndex, true, reason);
+}, AUTO_RETRY_DELAY);
 }
 function scrollRow(id, direction) {
 var el = document.getElementById(id);
@@ -1069,5 +1229,8 @@ loadInitial();
 </script>
 <script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false"></script>
-</body>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
 </html>
+
+
+You have to do the following: the default server plays almost all the content on the site but when the default server doesnt have  the content it says "server 1 connected" and doesnt automatically check other severs until it finds the server that works. Use the best equations to find what works then send the full code. Be creative. Update based off the recent previous code so you dont forget the recent code and you send an update from the recent code for the latest full code you are about to send. Find a way to remember this latest code you are about to send for the following update
