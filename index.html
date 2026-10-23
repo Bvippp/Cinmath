@@ -426,7 +426,6 @@ var EMBED_PROVIDERS = [
 ];
 var currentProviderIndex = 0;
 
-// Listen for playback signals from the iframe
 window.addEventListener('message', function(event) {
     var dataStr = typeof event.data === 'string' ? event.data.toLowerCase() : JSON.stringify(event.data).toLowerCase();
     
@@ -938,8 +937,8 @@ if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoS
 var prevName = EMBED_PROVIDERS[prevIndex] ? EMBED_PROVIDERS[prevIndex].name : 'current server';
 var nextName = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'next server';
 if (isAuto) {
-showSwitchBanner('⚠ <b>' + prevName + "</b> failed. Auto-connecting to <b>" + nextName + '</b>...', 0);
-toast(prevName + ' failed — trying ' + nextName + '…');
+showSwitchBanner('⚠ <b>' + prevName + "</b> missing content. Auto-trying <b>" + nextName + '</b>...', 0);
+toast(prevName + ' missing content — trying ' + nextName + '…');
 } else {
 showSwitchBanner('Connecting to <b>' + nextName + '</b>...', 0);
 }
@@ -957,28 +956,29 @@ async function loadPlayerSource(index) {
     var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
     
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
-    showSwitchBanner('Connecting to <b>' + name + '</b>...', 0);
+    showSwitchBanner('Checking <b>' + name + '</b> for content...', 0);
 
-    // CHECK FOR 404 CONTENT (Using a secure proxy to bypass CORS)
+    // SILENT PRE-FLIGHT CHECK (Bypasses CORS to read the page)
     try {
         var proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(url);
         var controller = new AbortController();
-        var timeoutId = setTimeout(() => controller.abort(), 4000);
+        var timeoutId = setTimeout(() => controller.abort(), 3500);
         
         var res = await fetch(proxyUrl, { signal: controller.signal });
         clearTimeout(timeoutId);
         
         if (res.ok) {
             var data = await res.json();
-            var html = data.contents || '';
-            if (html.includes('404') || html.includes('not found') || html.includes('Content not found')) {
-                // Content not found! Skip to next server.
-                handleServerFailure(index);
+            var html = (data.contents || '').toLowerCase();
+            // Detect 404 or Not Found text in the background
+            if (html.includes('404') || html.includes('not found') || html.includes('content not found')) {
+                // 404 DETECTED! Automatically skip.
+                if (playerState.currentServer === index) handleServerFailure(index);
                 return;
             }
         }
     } catch (e) {
-        // If fetch fails (timeout/blocked), proceed to load normally.
+        // Proxy failed or timed out. We proceed to load the iframe to be safe.
     }
 
     if (playerState.currentServer !== index) return; // User switched during check
@@ -986,11 +986,13 @@ async function loadPlayerSource(index) {
     // CONTENT FOUND. LOAD IFRAME.
     container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;"></iframe><div class="branding-mask"></div>';
     var iframe = container.querySelector('iframe');
+    var loader = document.getElementById('playerLoader');
     
     if (iframe) {
         iframe.onload = function() {
             if (playerState.currentServer !== index) return;
             playerState.iframeLoaded = true;
+            if (loader) loader.style.display = 'none';
             if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
             showSwitchBanner('✓ <b>' + name + '</b> is working', 3000, true);
         };
@@ -1007,6 +1009,7 @@ async function loadPlayerSource(index) {
         handleServerFailure(index);
     }, SERVER_LOAD_TIMEOUT);
 }
+
 function handleServerFailure(failedIndex) {
 if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
 consecutiveFailures++;
