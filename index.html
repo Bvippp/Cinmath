@@ -957,4 +957,51 @@ var rightArrow = wrapper.querySelector('.scroll-arrow.right');
 if (!leftArrow || !rightArrow) return;
 if (el.scrollWidth <= el.clientWidth + 10 || window.innerWidth < 768) { leftArrow.style.opacity = '0'; leftArrow.style.pointerEvents = 'none'; rightArrow.style.opacity = '0'; rightArrow.style.pointerEvents = 'none'; return; }
 if (el.scrollLeft <= 10) { leftArrow.style.opacity = '0'; leftArrow.style.pointerEvents = 'none'; } else { leftArrow.style.opacity = '1'; leftArrow.style.pointerEvents = 'auto'; }
-if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) { rightArrow.style.opacity = '0'; rightArrow.style.po
+if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) { rightArrow.style.opacity = '0'; rightArrow.style.pointerEvents = 'none'; } else { rightArrow.style.opacity = '1'; rightArrow.style.pointerEvents = 'auto'; }
+}
+window.addEventListener('resize', function() { document.querySelectorAll('.scroller').forEach(function(el) { updateScrollArrows(el.id); }); });
+async function loadInitial(){
+var tr = await tmdb('/trending/all/week', {page:1});
+if(tr && tr.results){
+var m = tr.results.map(mapResult);
+setupHero(m);
+document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
+setTimeout(function() { updateScrollArrows('trendingTrack'); }, 50);
+} else {
+setupHero(FALLBACK);
+document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
+}
+var results = await Promise.all([ tmdb('/movie/now_playing', {page:1}), tmdb('/tv/airing_today', {page:1}) ]);
+var nowPlaying = results[0]; var airingToday = results[1];
+var latestMixed = [];
+if(nowPlaying && nowPlaying.results) nowPlaying.results.forEach(function(r) { r.media_type = 'movie'; latestMixed.push(r); });
+if(airingToday && airingToday.results) airingToday.results.forEach(function(r) { r.media_type = 'tv'; latestMixed.push(r); });
+if(latestMixed.length > 0) {
+var uniqueLatest = []; var map = {};
+for(var i=0; i<latestMixed.length; i++) { if(!map[latestMixed[i].id]) { uniqueLatest.push(latestMixed[i]); map[latestMixed[i].id] = true; } }
+document.getElementById('latestTrack').innerHTML = uniqueLatest.slice(0,20).map(mapResult).map(cardHTML).join('');
+setTimeout(function() { updateScrollArrows('latestTrack'); }, 50);
+} else { document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join(''); }
+var today = new Date().toISOString().split('T')[0];
+var tvResults = await Promise.all([ tmdb('/tv/on_the_air', { page: 1 }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 }) ]);
+var onAir = tvResults[0]; var upcoming = tvResults[1];
+var combinedTv = [];
+if (onAir && onAir.results) combinedTv = combinedTv.concat(onAir.results);
+if (upcoming && upcoming.results) combinedTv = combinedTv.concat(upcoming.results);
+var uniqueTv = []; var tvMap = {};
+for(var j=0; j<combinedTv.length; j++) { if(!tvMap[combinedTv[j].id]) { uniqueTv.push(combinedTv[j]); tvMap[combinedTv[j].id] = true; } }
+if(uniqueTv.length > 0) {
+document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
+setTimeout(function() { updateScrollArrows('upcomingTvTrack'); }, 50);
+} else {
+document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(m) { return m.media_type === 'tv'; }).map(upcomingCardHTML).join('');
+}
+loadPopularGenres();
+}
+document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
+loadInitial();
+</script>
+<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false" async></script>
+</body>
+</html>
