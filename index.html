@@ -346,13 +346,13 @@
 <div class="site-disclaimer"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div>
 </div></div>
 <div class="player-overlay" id="playerOverlay">
-<div class="player-video-container" id="playerIframeContainer"><div class="loader" id="playerLoader"></div><div class="branding-mask"></div></div>
+<div class="player-video-container" id="playerIframeContainer"><div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div></div>
 <div class="server-switch-banner" id="serverSwitchBanner"></div>
-<div class="player-controls">
-<button class="custom-btn" onclick="closePlayer(event)" title="Close Player"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-<div class="player-controls-right">
-<button class="custom-btn" id="nextServerBtn" style="background:rgba(220,38,38,0.9);pointer-events:none;opacity:0.9" title="Vidy Server"><span style="width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;margin-right:6px;box-shadow:0 0 8px #22c55e"></span> Vidy</button>
-<button class="custom-btn fs-btn" onclick="toggleFullscreen(event)" title="Toggle Fullscreen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
+<div class="player-controls" style="background:transparent;pointer-events:none;justify-content:space-between;">
+<button class="custom-btn" onclick="closePlayer(event)" title="Close Player" style="pointer-events:auto;background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+<div class="player-controls-right" style="pointer-events:auto;">
+<button class="custom-btn pulse-btn" id="nextServerBtn" style="display:none !important;" title="Vidy">Vidy</button>
+<button class="custom-btn fs-btn" onclick="toggleFullscreen(event)" title="Toggle Fullscreen" style="background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
 </div></div></div>
 <div class="bottom" id="bottomNav">
 <button id="b-home" class="active" onclick="navigate('home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
@@ -414,7 +414,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-vidy-single-v8';
+var TUBEMOCHA_BUILD = '2026-10-23-vidy-single-v9';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -988,13 +988,13 @@ function loadPlayerSource(index) {
     playerState.loadStartTime = Date.now();
 
     // Equation: 16:9 box from Vidy docs + allow for sound
-    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask"></div>';
+    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
     showSwitchBanner('Connecting to <b>Vidy</b>...', 0);
 
     setTimeout(function(){
         // Vidy docs: allow="encrypted-media; autoplay; fullscreen" required for sound
         // Best equation: add picture-in-picture and popups for compatibility, no sandbox
-        container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe><div class="branding-mask"></div>';
+        container.innerHTML = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
         var iframe = container.querySelector('iframe');
         if(!iframe){ toast('Failed to create Vidy player'); return; }
 
@@ -1023,7 +1023,6 @@ function handleServerFailure(failedIndex, reason) {
   toast('Vidy error - try another title');
 }
 
-function scrollRow(id, direction) {
 function scrollRow(id, direction) {
 var el = document.getElementById(id);
 if (!el) return;
