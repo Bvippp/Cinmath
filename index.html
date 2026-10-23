@@ -414,7 +414,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var SERVER_LOAD_TIMEOUT = 8000;
+var SERVER_LOAD_TIMEOUT = 10000;
 var FAST_LOAD_THRESHOLD = 1500;
 var playerState = { currentServer: 0, loadStartTime: 0, iframeLoaded: false };
 var autoSwitchTimer = null;
@@ -426,6 +426,25 @@ var EMBED_PROVIDERS = [
 { name: 'Server 4', movie: function(id) { return 'https://vidfast.vc/movie/' + id + '?autoplay=true'; }, tv: function(id, s, e) { return 'https://vidfast.vc/tv/' + id + '/' + s + '/' + e + '?autoplay=true'; } }
 ];
 var currentProviderIndex = 0;
+
+// Listen for playback signals from the iframe to stop the auto-switch timer
+window.addEventListener('message', function(event) {
+    if (event.data && (
+        event.data === 'playing' || 
+        event.data === 'play' || 
+        event.data.event === 'play' || 
+        event.data.event === 'ready' || 
+        event.data.type === 'PLAYER_EVENT' ||
+        (typeof event.data === 'string' && event.data.includes('play'))
+    )) {
+        if (window.autoSwitchTimer) {
+            clearTimeout(window.autoSwitchTimer);
+            window.autoSwitchTimer = null;
+        }
+        hideSwitchBanner();
+    }
+});
+
 function closePlayer(e) {
 if(e) { e.preventDefault(); e.stopPropagation(); }
 if (autoSwitchTimer) { clearTimeout(autoSwitchTimer); autoSwitchTimer = null; }
@@ -938,11 +957,9 @@ if (iframe) {
 iframe.onload = function() {
 if (playerState.currentServer !== index) return;
 playerState.iframeLoaded = true;
-consecutiveFailures = 0;
 if (loader) loader.style.display = 'none';
-if (window.autoSwitchTimer) { clearTimeout(window.autoSwitchTimer); window.autoSwitchTimer = null; }
-var name = EMBED_PROVIDERS[index] ? EMBED_PROVIDERS[index].name : 'Server';
-showSwitchBanner('✓ <b>' + name + '</b> ready', 2000, true);
+showSwitchBanner('Checking <b>' + EMBED_PROVIDERS[index].name + '</b>...', 0);
+// Notice: We do NOT clear autoSwitchTimer here anymore. We wait for a postMessage or timeout.
 };
 if (iframe.onerror) {
 iframe.onerror = function() {
@@ -954,7 +971,7 @@ handleServerFailure(index);
 if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
 window.autoSwitchTimer = setTimeout(function() {
 if (playerState.currentServer !== index) return;
-if (playerState.iframeLoaded) return;
+// If we reach here, the video didn't send a play signal within 10 seconds.
 handleServerFailure(index);
 }, SERVER_LOAD_TIMEOUT);
 }
