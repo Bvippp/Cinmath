@@ -297,6 +297,42 @@ footer b { color: var(--text-main); }
 .custom-btn svg { width: 18px; height: 18px; }
 .fs-btn { width: 44px; padding: 0; border-radius: 50%; }
 
+/* ═══════════════════════════════════════════
+   SERVER SWITCH BANNER (visible in fullscreen too)
+   ═══════════════════════════════════════════ */
+.server-switch-banner {
+  position: absolute;
+  top: 74px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: rgba(200, 150, 102, 0.97);
+  color: #14100d;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 800;
+  z-index: 30;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.65);
+  display: none;
+  max-width: 92%;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  letter-spacing: 0.01em;
+}
+.server-switch-banner.show {
+  display: block;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  animation: bannerPulse 1.6s ease-in-out infinite;
+}
+.server-switch-banner b { font-weight: 900; }
+@keyframes bannerPulse {
+  0%, 100% { box-shadow: 0 6px 24px rgba(200, 150, 102, 0.55); }
+  50%      { box-shadow: 0 6px 32px rgba(200, 150, 102, 0.95); }
+}
+
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(200, 150, 102, 0.7); }
   70% { box-shadow: 0 0 0 10px rgba(200, 150, 102, 0); }
@@ -323,7 +359,7 @@ footer b { color: var(--text-main); }
 
 .loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; z-index: 5; }
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
-.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--accent-light); color: var(--bg-main); padding: 10px 20px; border-radius: var(--radius-pill); font-weight: 700; font-size: 13px; display: none; z-index: 900; }
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--accent-light); color: var(--bg-main); padding: 10px 20px; border-radius: var(--radius-pill); font-weight: 700; font-size: 13px; display: none; z-index: 900; max-width: 90%; text-align: center; }
 .toast.show { display: block; }
 .empty { padding: 40px 20px; text-align: center; color: var(--text-dim); font-size: 14px; }
 .empty b { color: var(--text-main); display: block; margin-bottom: 8px; font-size: 16px; }
@@ -596,6 +632,9 @@ footer b { color: var(--text-main); }
      <div class="branding-mask"></div>
   </div>
   
+  <!-- Server switch banner (visible in fullscreen) -->
+  <div class="server-switch-banner" id="serverSwitchBanner"></div>
+  
   <!-- Player Controls -->
   <div class="player-controls">
     <button class="custom-btn" onclick="closePlayer(event)" title="Close Player">
@@ -702,6 +741,7 @@ function closePlayer(e) {
     e.stopPropagation();
   }
   if(window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
+  hideSwitchBanner();
   document.getElementById('playerIframeContainer').innerHTML = '';
   document.getElementById('playerOverlay').classList.remove('open');
   document.body.style.overflow = '';
@@ -739,6 +779,27 @@ function toast(m){
   e.classList.add('show');
   clearTimeout(e._t);
   e._t = setTimeout(function(){ e.classList.remove('show'); }, 3000);
+}
+
+/* ═════════════════════════════════════════════════════════════════
+   SERVER SWITCH BANNER — visible in fullscreen too
+   (Body-level toast cannot render in fullscreen, so this is a
+   sibling of .player-video-container inside #playerOverlay)
+   ═════════════════════════════════════════════════════════════════ */
+function showSwitchBanner(html, duration) {
+  var b = document.getElementById('serverSwitchBanner');
+  if (!b) return;
+  b.innerHTML = html;
+  b.classList.add('show');
+  clearTimeout(b._t);
+  b._t = setTimeout(function() { b.classList.remove('show'); }, duration || 5000);
+}
+
+function hideSwitchBanner() {
+  var b = document.getElementById('serverSwitchBanner');
+  if (!b) return;
+  clearTimeout(b._t);
+  b.classList.remove('show');
 }
 
 function toggleWatchlist() {
@@ -1298,349 +1359,4 @@ async function openMovie(rawId){
 
   var castScroller = document.getElementById('castScroller');
   castScroller.innerHTML = '';
-  if (m.credits && m.credits.cast) {
-    castScroller.innerHTML = m.credits.cast.slice(0, 10).map(function(c) {
-      var defaultImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Crect fill=\'%231e1814\' width=\'100\' height=\'100\'/%3E%3Ccircle cx=\'50\' cy=\'40\' r=\'20\' fill=\'%233a2e26\'/%3E%3Cpath d=\'M20 90 Q 50 50 80 90\' stroke=\'%233a2e26\' stroke-width=\'20\' fill=\'none\'/%3E%3C/svg%3E';
-      return '<div class="cast-card">' +
-        '<img src="' + (c.profile_path ? PROFILE + c.profile_path : defaultImg) + '" alt="">' +
-        '<div class="cast-name">' + c.name + '</div>' +
-        '<div class="cast-role">' + (c.character || '') + '</div>' +
-      '</div>';
-    }).join('');
-  } else {
-    castScroller.innerHTML = '<div class="empty" style="padding:20px 0">No cast information available.</div>';
-  }
-
-  if (isTV) {
-    document.getElementById('tvSeasonsContainer').style.display = 'block';
-    document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S1 E1';
-    currentSeason = 1;
-    currentEpisode = 1;
-    await setupTVSeasons(m.id);
-  } else {
-    document.getElementById('tvSeasonsContainer').style.display = 'none';
-    document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now';
-  }
-
-  loadRecommendations(currentMovie);
-  document.getElementById('detailOverlay').classList.add('open');
-  
-  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      window.scrollTo(0, 1);
-      setTimeout(function() { window.scrollTo(0, 0); }, 50);
-  }
-}
-
-async function loadRecommendations(movie) {
-  var container = document.getElementById('recommendationsContainer');
-  var scroller = document.getElementById('recommendationsScroller');
-  var recSub = document.getElementById('recSub');
-  
-  container.style.display = 'block';
-  recSub.textContent = 'Because you clicked "' + movie.t + '"'; 
-  scroller.innerHTML = '<div class="empty" style="padding:20px 0">Finding similar titles...</div>';
-  
-  var endpoint = movie._tv ? '/tv/' + movie.tmdb + '/recommendations' : '/movie/' + movie.tmdb + '/recommendations';
-  var data = await tmdb(endpoint, {page: 1});
-  
-  if (data && data.results && data.results.length > 0) {
-    var validResults = data.results.filter(function(r) { return r.poster_path != null; }).slice(0, 10);
-    if (validResults.length > 0) {
-      scroller.innerHTML = validResults.map(function(r) {
-        var mapped = mapResult(r);
-        return cardHTML(mapped);
-      }).join('');
-    } else {
-      container.style.display = 'none';
-    }
-  } else {
-    container.style.display = 'none';
-  }
-}
-
-async function setupTVSeasons(showId) {
-  var select = document.getElementById('tvSeasonSelect');
-  select.innerHTML = '<option value="1">Loading...</option>';
-  
-  var data = await tmdb('/tv/' + showId);
-  if (!data || !data.seasons) {
-    select.innerHTML = '<option value="1">Season 1</option>';
-    return;
-  }
-  
-  var validSeasons = data.seasons.filter(function(s) { return s.season_number > 0; }).sort(function(a, b) { return a.season_number - b.season_number; });
-  
-  if (validSeasons.length === 0) {
-    select.innerHTML = '<option value="1">Season 1</option>';
-  } else {
-    select.innerHTML = validSeasons.map(function(s) {
-      return '<option value="' + s.season_number + '">Season ' + s.season_number + '</option>';
-    }).join('');
-  }
-  
-  changeSeason(validSeasons.length > 0 ? validSeasons[0].season_number : 1);
-}
-
-async function changeSeason(seasonNum) {
-  currentSeason = parseInt(seasonNum);
-  currentEpisode = 1;
-  var listEl = document.getElementById('tvEpisodeList');
-  var countEl = document.getElementById('tvEpisodeCount');
-  listEl.innerHTML = '<div class="empty">Loading episodes...</div>';
-  
-  document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S' + currentSeason + ' E' + currentEpisode;
-  
-  var data = await tmdb('/tv/' + currentMovie.id + '/season/' + currentSeason);
-  if (!data || !data.episodes) {
-    listEl.innerHTML = '<div class="empty">Failed to load episodes.</div>';
-    countEl.textContent = '0 episodes';
-    return;
-  }
-  
-  var episodes = data.episodes;
-  countEl.textContent = episodes.length + ' episodes';
-  
-  if (episodes.length === 0) {
-    listEl.innerHTML = '<div class="empty">No episodes available for this season.</div>';
-    return;
-  }
-  
-  listEl.innerHTML = episodes.map(function(ep) {
-    var thumb = ep.still_path ? 'https://image.tmdb.org/t/p/w300' + ep.still_path : getSafeImageUrl({ t: ep.name || 'Episode ' + ep.episode_number });
-    return '<div class="episode-card" onclick="selectEpisode(' + currentSeason + ', ' + ep.episode_number + ')">' +
-      '<img src="' + thumb + '" class="episode-thumb" alt="">' +
-      '<div class="episode-info">' +
-        '<div class="episode-number">EPISODE ' + ep.episode_number + '</div>' +
-        '<div class="episode-title">' + (ep.name || 'Untitled Episode') + '</div>' +
-        '<div class="episode-runtime">' + (ep.runtime ? ep.runtime + ' min' : 'N/A') + '</div>' +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function selectEpisode(season, episode) {
-  currentSeason = season;
-  currentEpisode = episode;
-  document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S' + currentSeason + ' E' + currentEpisode;
-  playCurrentMedia();
-}
-
-function getEmbedUrl(index) {
-  var provider = EMBED_PROVIDERS[index];
-  if (!provider) return '';
-  var url = currentMovie._tv ? provider.tv(currentMovie.tmdb, currentSeason, currentEpisode) : provider.movie(currentMovie.tmdb);
-  return url + (url.indexOf('?') > -1 ? '&autoplay=true' : '?autoplay=true');
-}
-
-async function playCurrentMedia(){
-  if(!currentMovie) return;
-  
-  (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-  
-  var overlay = document.getElementById('playerOverlay');
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden'; 
-  
-  currentProviderIndex = 0;
-  loadPlayerSource(currentProviderIndex);
-  
-  clearTimeout(window._idleTimer);
-  overlay.classList.remove('idle');
-  var resetTimer = function() {
-    overlay.classList.remove('idle');
-    clearTimeout(window._idleTimer);
-    window._idleTimer = setTimeout(function() {
-      if (overlay.classList.contains('open')) overlay.classList.add('idle');
-    }, 3000);
-  };
-  document.addEventListener('mousemove', resetTimer);
-  document.addEventListener('touchstart', resetTimer);
-  resetTimer();
-}
-
-function renderServerButtons() {
-  var container = document.getElementById('serverButtonsContainer');
-  if (!container) return;
-  container.innerHTML = EMBED_PROVIDERS.map(function(p, i) {
-    return '<button class="player-pill-btn ' + (i === currentProviderIndex ? 'active' : '') + '" onclick="switchServer(' + i + ')">' + p.name + '</button>';
-  }).join('');
-}
-
-function switchServer(index) {
-  currentProviderIndex = index;
-  // Clear the timer since the user manually switched
-  if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
-  
-  loadPlayerSource(currentProviderIndex);
-  toast('Switched to ' + EMBED_PROVIDERS[index].name);
-}
-
-function loadPlayerSource(index) {
-  var container = document.getElementById('playerIframeContainer');
-  var url = getEmbedUrl(index);
-  if (!url) { toast('Server unavailable'); return; }
-  
-  container.innerHTML = '<div class="loader" id="playerLoader"></div>' +
-    '<iframe src="' + url + '" ' +
-      'referrerpolicy="origin" ' +
-      'allowfullscreen="true" ' +
-      'webkitallowfullscreen="true" ' +
-      'mozallowfullscreen="true" ' +
-      'allow="autoplay; fullscreen; encrypted-media; picture-in-picture" ' +
-      'style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;">' +
-    '</iframe>' +
-    '<div class="branding-mask"></div>';
-  
-  var iframe = container.querySelector('iframe');
-  var loader = document.getElementById('playerLoader');
-  if (iframe) { iframe.onload = function() { if (loader) loader.style.display = 'none'; }; }
-
-  // AUTO-SWITCH EQUATION
-  // Start a 10 second timer. If it finishes, switch to next server.
-  if (window.autoSwitchTimer) clearTimeout(window.autoSwitchTimer);
-  
-  window.autoSwitchTimer = setTimeout(function() {
-    if (document.getElementById('playerOverlay').classList.contains('open')) {
-      var nextIndex = (index + 1) % EMBED_PROVIDERS.length;
-      toast('Server taking too long? Switching automatically...');
-      switchServer(nextIndex);
-    }
-  }, 10000);
-}
-
-// Cancel auto-switch if the user clicks inside the iframe
-// When you click an iframe, the main window loses focus.
-window.addEventListener('blur', function() {
-  if (window.autoSwitchTimer) {
-    clearTimeout(window.autoSwitchTimer);
-    window.autoSwitchTimer = null;
-  }
-});
-
-function scrollRow(id, direction) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var scrollAmount = el.clientWidth * 0.75;
-  el.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
-}
-
-function updateScrollArrows(id) {
-  var el = document.getElementById(id);
-  if (!el) return;
-  var wrapper = el.closest('.scroller-wrapper');
-  if (!wrapper) return;
-  var leftArrow = wrapper.querySelector('.scroll-arrow.left');
-  var rightArrow = wrapper.querySelector('.scroll-arrow.right');
-  
-  if (!leftArrow || !rightArrow) return;
-
-  if (el.scrollWidth <= el.clientWidth + 10 || window.innerWidth < 768) {
-    leftArrow.style.opacity = '0';
-    leftArrow.style.pointerEvents = 'none';
-    rightArrow.style.opacity = '0';
-    rightArrow.style.pointerEvents = 'none';
-    return;
-  }
-
-  if (el.scrollLeft <= 10) {
-    leftArrow.style.opacity = '0';
-    leftArrow.style.pointerEvents = 'none';
-  } else {
-    leftArrow.style.opacity = '1';
-    leftArrow.style.pointerEvents = 'auto';
-  }
-
-  if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-    rightArrow.style.opacity = '0';
-    rightArrow.style.pointerEvents = 'none';
-  } else {
-    rightArrow.style.opacity = '1';
-    rightArrow.style.pointerEvents = 'auto';
-  }
-}
-
-window.addEventListener('resize', function() {
-    document.querySelectorAll('.scroller').forEach(function(el) { updateScrollArrows(el.id); });
-});
-
-async function loadInitial(){
-  var tr = await tmdb('/trending/all/week', {page:1});
-  if(tr && tr.results){
-    var m = tr.results.map(mapResult);
-    setupHero(m);
-    document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
-    setTimeout(function() { updateScrollArrows('trendingTrack'); }, 50);
-  } else {
-    setupHero(FALLBACK);
-    document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
-  }
-
-  var results = await Promise.all([
-    tmdb('/movie/now_playing', {page:1}),
-    tmdb('/tv/airing_today', {page:1})
-  ]);
-  var nowPlaying = results[0];
-  var airingToday = results[1];
-  
-  var latestMixed = [];
-  if(nowPlaying && nowPlaying.results) nowPlaying.results.forEach(function(r) { r.media_type = 'movie'; latestMixed.push(r); });
-  if(airingToday && airingToday.results) airingToday.results.forEach(function(r) { r.media_type = 'tv'; latestMixed.push(r); });
-  
-  if(latestMixed.length > 0) {
-    var uniqueLatest = [];
-    var map = {};
-    for(var i=0; i<latestMixed.length; i++) {
-      if(!map[latestMixed[i].id]) {
-        uniqueLatest.push(latestMixed[i]);
-        map[latestMixed[i].id] = true;
-      }
-    }
-    document.getElementById('latestTrack').innerHTML = uniqueLatest.slice(0,20).map(mapResult).map(cardHTML).join('');
-    setTimeout(function() { updateScrollArrows('latestTrack'); }, 50);
-  } else {
-    document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join('');
-  }
-
-  var today = new Date().toISOString().split('T')[0];
-  var tvResults = await Promise.all([
-    tmdb('/tv/on_the_air', { page: 1 }),
-    tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 })
-  ]);
-  var onAir = tvResults[0];
-  var upcoming = tvResults[1];
-  
-  var combinedTv = [];
-  if (onAir && onAir.results) combinedTv = combinedTv.concat(onAir.results);
-  if (upcoming && upcoming.results) combinedTv = combinedTv.concat(upcoming.results);
-  
-  var uniqueTv = [];
-  var tvMap = {};
-  for(var j=0; j<combinedTv.length; j++) {
-    if(!tvMap[combinedTv[j].id]) {
-      uniqueTv.push(combinedTv[j]);
-      tvMap[combinedTv[j].id] = true;
-    }
-  }
-  
-  if(uniqueTv.length > 0) {
-    document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
-    setTimeout(function() { updateScrollArrows('upcomingTvTrack'); }, 50);
-  } else {
-    document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(m) { return m.media_type === 'tv'; }).map(upcomingCardHTML).join('');
-  }
-
-  loadPopularGenres();
-}
-
-document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
-loadInitial();
-</script>
-
-<!-- MONETAG IN-PAGE PUSH CODE -->
-<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
-<!-- MONETAG PUSH NOTIFICATIONS CODE -->
-<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false" async></script>
-
-</body>
-</html>
+  if
