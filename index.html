@@ -27,6 +27,16 @@
 .help-item.active .help-question svg { transform: rotate(180deg); }
 .help-answer { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; padding: 0 20px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
 .help-item.active .help-answer { padding-bottom: 18px; }
+
+/* Legal Page Styles */
+.legal-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
+.legal-icon { font-size: 50px; text-align: center; margin-bottom: 15px; }
+.legal-title { font-size: 38px; font-weight: 900; color: #fff; text-align: center; margin-bottom: 10px; }
+.legal-date { font-size: 14px; color: var(--text-dim); text-align: center; margin-bottom: 40px; font-weight: 500; }
+.legal-content { color: var(--text-muted); font-size: 15px; line-height: 1.7; }
+.legal-content p { margin-bottom: 20px; }
+.legal-content strong { color: #fff; font-weight: 700; }
+.legal-content h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 35px 0 15px; }
 </style>
 </head>
 <body>
@@ -210,8 +220,37 @@
 </div>
 </div>
 
+<!-- Terms of Service View -->
+<div id="view-terms" class="view">
+<div class="legal-container">
+    <div class="legal-icon">📄</div>
+    <h1 class="legal-title">Terms of Service</h1>
+    <div class="legal-date">Last updated: August 1, 2026</div>
+    
+    <div class="legal-content">
+        <p>Welcome to TUBEMOCHA. These Terms of Service ("Terms") govern your use of the TUBEMOCHA platform. By accessing or using our services, you agree to be bound by these Terms.</p>
+
+        <h2>1. Nature of the Service</h2>
+        <p><strong>TUBEMOCHA is an automated search engine and indexing tool.</strong> We provide a sleek, unified interface that aggregates metadata and links to media files available on the public internet.</p>
+        <p>TUBEMOCHA does not host, upload, or control any of the video content, streams, or download files made available through the platform. All media is fetched directly from third-party servers. We do not verify the legality or licensing of the content hosted on these third-party servers.</p>
+
+        <h2>2. User Responsibility</h2>
+        <p>By using TUBEMOCHA, you acknowledge that you are accessing third-party content at your own risk. You agree to use the service for personal, non-commercial entertainment purposes only. You are solely responsible for ensuring that your access to and consumption of third-party streams complies with the laws and regulations of your jurisdiction.</p>
+        <p>TUBEMOCHA acts purely as a conduit and cannot be held liable for any copyright infringements, malware, or damages resulting from interactions with third-party hosting servers.</p>
+
+        <h2>3. Account Security</h2>
+        <p>If you create an account to save preferences, watchlists, or sync history, you are responsible for safeguarding your login credentials. TUBEMOCHA reserves the right to suspend or terminate accounts that abuse the platform, attempt to reverse-engineer our APIs, or otherwise violate these Terms.</p>
+
+        <h2>4. Intellectual Property</h2>
+        <p>The TUBEMOCHA interface, branding, code, and custom assets are the exclusive property of TUBEMOCHA. However, all movie posters, backdrops, character images, and metadata belong to their respective copyright holders (such as TMDB, AniList, or the studios).</p>
+
+        <h2>5. Modifications to Terms</h2>
+        <p>We reserve the right to modify these Terms at any time without prior notice. Continued use of the platform after changes have been made constitutes acceptance of the new Terms.</p>
+    </div>
+</div>
+</div>
+
 <!-- Placeholder Legal Views (Ready for next update) -->
-<div id="view-terms" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>Terms of Service</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 <div id="view-privacy" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>Privacy Policy</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 <div id="view-dmca" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>DMCA</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 <div id="view-api" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>API</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
@@ -910,22 +949,4 @@ var today = new Date().toISOString().split('T')[0];
 var tvResults = await Promise.all([ tmdb('/tv/on_the_air', { page: 1 }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 }) ]);
 var onAir = tvResults[0]; var upcoming = tvResults[1];
 var combinedTv = [];
-if (onAir && onAir.results) combinedTv = combinedTv.concat(onAir.results);
-if (upcoming && upcoming.results) combinedTv = combinedTv.concat(upcoming.results);
-var uniqueTv = []; var tvMap = {};
-for(var j=0; j<combinedTv.length; j++) { if(!tvMap[combinedTv[j].id]) { uniqueTv.push(combinedTv[j]); tvMap[combinedTv[j].id] = true; } }
-if(uniqueTv.length > 0) {
-document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
-setTimeout(function() { updateScrollArrows('upcomingTvTrack'); }, 50);
-} else {
-document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(m) { return m.media_type === 'tv'; }).map(upcomingCardHTML).join('');
-}
-loadPopularGenres();
-}
-document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
-loadInitial();
-</script>
-<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false" async></script>
-</body>
-</html>
+if (onAir && onAir.results) combinedTv = combinedTv
