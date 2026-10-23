@@ -37,6 +37,12 @@
 .legal-content p { margin-bottom: 20px; }
 .legal-content strong { color: #fff; font-weight: 700; }
 .legal-content h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 35px 0 15px; }
+.legal-content ul { padding-left: 20px; margin-bottom: 20px; }
+.legal-content li { margin-bottom: 10px; }
+.legal-content li strong { color: #fff; }
+.legal-notice { background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); margin: 20px 0; border: 1px solid var(--border); font-size: 15px; }
+.legal-link { color: var(--accent-red); font-weight: 600; text-decoration: none; }
+.legal-link:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -250,8 +256,39 @@
 </div>
 </div>
 
+<!-- Privacy Policy View -->
+<div id="view-privacy" class="view">
+<div class="legal-container">
+    <div class="legal-icon">🎭🔒</div>
+    <h1 class="legal-title">Privacy Policy</h1>
+    <div class="legal-date">Last updated: August 1, 2026</div>
+    
+    <div class="legal-content">
+        <p>At TUBEMOCHA, your privacy and digital security are highly prioritized. This Privacy Policy outlines how we handle data when you use our web application. By using TUBEMOCHA, you consent to the practices described below.</p>
+
+        <h2>1. Information We Collect</h2>
+        <p>TUBEMOCHA is designed to be as minimally invasive as possible. We only collect the information necessary to provide account features:</p>
+        <ul>
+            <li><strong>Account Data:</strong> If you choose to register, we store your email address, username, and encrypted password. For OAuth logins, we store basic profile information provided by the authentication provider.</li>
+            <li><strong>Usage Data:</strong> We may locally store preferences (such as watchlist items or watch history) to enhance your experience.</li>
+        </ul>
+
+        <h2>2. Third-Party Content & IP Addresses</h2>
+        <div class="legal-notice">
+            <strong>Crucial Notice:</strong> TUBEMOCHA does NOT host any media. All video streams, images, and download links are fetched directly from external, third-party servers.
+        </div>
+        <p>Because your browser connects directly to these third-party servers to stream video or download files, <strong>those external servers will be able to see your IP address.</strong> We do not control these third-party servers, and their data collection practices are governed by their respective privacy policies. If you wish to protect your IP address from third-party hosts, we strongly recommend using a reputable VPN service.</p>
+
+        <h2>3. Data Sharing & Security</h2>
+        <p>We will never sell, rent, or trade your personal account information to marketers or unauthorized third parties. We employ industry-standard encryption to protect your account credentials. However, no method of transmission over the internet is 100% secure.</p>
+
+        <h2>4. Contact Us</h2>
+        <p>If you have questions about your privacy or wish to request data deletion, please contact us through our <a href="#" class="legal-link">contact form</a>.</p>
+    </div>
+</div>
+</div>
+
 <!-- Placeholder Legal Views (Ready for next update) -->
-<div id="view-privacy" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>Privacy Policy</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 <div id="view-dmca" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>DMCA</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 <div id="view-api" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>API</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 
@@ -920,51 +957,4 @@ var rightArrow = wrapper.querySelector('.scroll-arrow.right');
 if (!leftArrow || !rightArrow) return;
 if (el.scrollWidth <= el.clientWidth + 10 || window.innerWidth < 768) { leftArrow.style.opacity = '0'; leftArrow.style.pointerEvents = 'none'; rightArrow.style.opacity = '0'; rightArrow.style.pointerEvents = 'none'; return; }
 if (el.scrollLeft <= 10) { leftArrow.style.opacity = '0'; leftArrow.style.pointerEvents = 'none'; } else { leftArrow.style.opacity = '1'; leftArrow.style.pointerEvents = 'auto'; }
-if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) { rightArrow.style.opacity = '0'; rightArrow.style.pointerEvents = 'none'; } else { rightArrow.style.opacity = '1'; rightArrow.style.pointerEvents = 'auto'; }
-}
-window.addEventListener('resize', function() { document.querySelectorAll('.scroller').forEach(function(el) { updateScrollArrows(el.id); }); });
-async function loadInitial(){
-var tr = await tmdb('/trending/all/week', {page:1});
-if(tr && tr.results){
-var m = tr.results.map(mapResult);
-setupHero(m);
-document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
-setTimeout(function() { updateScrollArrows('trendingTrack'); }, 50);
-} else {
-setupHero(FALLBACK);
-document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
-}
-var results = await Promise.all([ tmdb('/movie/now_playing', {page:1}), tmdb('/tv/airing_today', {page:1}) ]);
-var nowPlaying = results[0]; var airingToday = results[1];
-var latestMixed = [];
-if(nowPlaying && nowPlaying.results) nowPlaying.results.forEach(function(r) { r.media_type = 'movie'; latestMixed.push(r); });
-if(airingToday && airingToday.results) airingToday.results.forEach(function(r) { r.media_type = 'tv'; latestMixed.push(r); });
-if(latestMixed.length > 0) {
-var uniqueLatest = []; var map = {};
-for(var i=0; i<latestMixed.length; i++) { if(!map[latestMixed[i].id]) { uniqueLatest.push(latestMixed[i]); map[latestMixed[i].id] = true; } }
-document.getElementById('latestTrack').innerHTML = uniqueLatest.slice(0,20).map(mapResult).map(cardHTML).join('');
-setTimeout(function() { updateScrollArrows('latestTrack'); }, 50);
-} else { document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join(''); }
-var today = new Date().toISOString().split('T')[0];
-var tvResults = await Promise.all([ tmdb('/tv/on_the_air', { page: 1 }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 }) ]);
-var onAir = tvResults[0]; var upcoming = tvResults[1];
-var combinedTv = [];
-if (onAir && onAir.results) combinedTv = combinedTv.concat(onAir.results);
-if (upcoming && upcoming.results) combinedTv = combinedTv.concat(upcoming.results);
-var uniqueTv = []; var tvMap = {};
-for(var j=0; j<combinedTv.length; j++) { if(!tvMap[combinedTv[j].id]) { uniqueTv.push(combinedTv[j]); tvMap[combinedTv[j].id] = true; } }
-if(uniqueTv.length > 0) {
-document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
-setTimeout(function() { updateScrollArrows('upcomingTvTrack'); }, 50);
-} else {
-document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(m) { return m.media_type === 'tv'; }).map(upcomingCardHTML).join('');
-}
-loadPopularGenres();
-}
-document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
-loadInitial();
-</script>
-<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false" async></script>
-</body>
-</html>
+if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) { rightArrow.style.opacity = '0'; rightArrow.style.po
