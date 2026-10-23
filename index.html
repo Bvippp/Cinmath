@@ -40,7 +40,8 @@
 .legal-content ul { padding-left: 20px; margin-bottom: 20px; }
 .legal-content li { margin-bottom: 10px; }
 .legal-content li strong { color: #fff; }
-.legal-notice { background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); margin: 20px 0; border: 1px solid var(--border); font-size: 15px; }
+.legal-content em { font-style: italic; }
+.legal-notice { background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); margin: 20px 0; border: 1px solid var(--border); font-size: 15px; color: var(--text-main); }
 .legal-link { color: var(--accent-red); font-weight: 600; text-decoration: none; }
 .legal-link:hover { text-decoration: underline; }
 </style>
@@ -288,8 +289,38 @@
 </div>
 </div>
 
+<!-- DMCA View -->
+<div id="view-dmca" class="view">
+<div class="legal-container">
+    <div class="legal-icon">🎞️🚫</div>
+    <h1 class="legal-title">DMCA Notice</h1>
+    <div class="legal-date">Last updated: August 1, 2026</div>
+    
+    <div class="legal-content">
+        <div class="legal-notice">
+            TUBEMOCHA functions strictly as an automated search engine and metadata aggregator. <strong>We DO NOT host, store, stream, or upload any video, media file, or copyrighted material on our servers.</strong>
+        </div>
+
+        <h2>1. Automated Third-Party Indexing</h2>
+        <p>All media content, streams, and downloads accessible via TUBEMOCHA are scraped, indexed, and fetched in real-time from unaffiliated third-party websites and APIs. TUBEMOCHA acts merely as a client-side directory and proxy tool, similar to Google Search, linking you to content that is already publicly accessible on the internet.</p>
+        <p>We have absolutely no control over the content hosted by these third parties. We do not curate, upload, or manage any of the media files. Therefore, we cannot directly delete or remove videos from the internet because they do not reside on our infrastructure.</p>
+
+        <h2>2. Copyright Infringement & Removal</h2>
+        <p>TUBEMOCHA fully respects intellectual property rights. If you are a copyright owner or an authorized agent and you believe that a specific link or embedded player on TUBEMOCHA infringes upon your copyright, you may submit a takedown request. Upon receiving a valid request, we will promptly blacklist and remove the indexing of the requested link from our platform.</p>
+        <p><em>Important: Removing a link from TUBEMOCHA will NOT remove the actual media file from the internet. The content will remain active on the third-party server hosting it. You must contact the actual hosting provider or server administrator to request a complete and permanent takedown of the file.</em></p>
+
+        <h2>3. Submitting a Notice</h2>
+        <p>To request the removal of an indexed link from TUBEMOCHA, please contact our administrative team through our <a href="#" class="legal-link">contact form</a>. To ensure a prompt response, your request must include:</p>
+        <ul>
+            <li>The exact TUBEMOCHA URL where the link/embed is found.</li>
+            <li>Specific details regarding the copyrighted work claimed to have been infringed.</li>
+            <li>Proof of your copyright ownership or authorization to act on behalf of the owner.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
 <!-- Placeholder Legal Views (Ready for next update) -->
-<div id="view-dmca" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>DMCA</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 <div id="view-api" class="view"><div class="main" style="padding:40px 20px;text-align:center;"><h2>API</h2><p style="color:var(--text-muted); margin-top:10px;">Content coming soon...</p></div></div>
 
 <div class="detail-overlay" id="detailOverlay">
