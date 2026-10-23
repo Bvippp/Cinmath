@@ -437,7 +437,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v19-lines-same-as-TM-logo-5d4037-v19';
+var TUBEMOCHA_BUILD = '2026-10-23-v20-refresh-same-page-persist-v20';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -803,7 +803,8 @@ document.getElementById('tvPageNum').textContent = tvPage;
 var d = await tmdb('/discover/tv', {sort_by:'popularity.desc', page:tvPage});
 if(d && d.results) document.getElementById('tvGrid').innerHTML += d.results.map(mapResult).map(cardHTML).join('');
 }
-function navigate(view){
+var currentView = 'home';
+function navigate(view, push){
 document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
 var target = document.getElementById('view-' + view);
 if(target) target.classList.add('active');
@@ -815,6 +816,16 @@ if(view === 'movies') loadMoviesPage();
 if(view === 'tv') loadTVPage();
 if(view === 'watchlist') renderWatchlist();
 if(view === 'search') document.getElementById('q').focus();
+currentView = view;
+try{
+  var url = new URL(window.location);
+  if(view && view !== 'home'){ url.searchParams.set('view', view); } else { url.searchParams.delete('view'); }
+  if(view !== 'detail'){ url.searchParams.delete('movie'); url.searchParams.delete('tv'); }
+  var state = {view: view, movie: null, tv: null, q: url.searchParams.get('q') || null};
+  localStorage.setItem('tubemocha_state', JSON.stringify(state));
+  localStorage.setItem('tubemocha_last_view', view);
+  if(push){ history.pushState(state, '', url); } else { history.replaceState(state, '', url); }
+}catch(e){}
 }
 function openGenrePage(genreId, genreName) { navigate('movies'); setFilter('genre', genreId, genreName); }
 async function loadPopularGenres() {
@@ -899,6 +910,18 @@ if(d && d.id){ m = mapResult(d); m._tv = isTV; m.media_type = isTV ? 'tv' : 'mov
 else { m = FALLBACK[0]; }
 }
 currentMovie = m;
+try{
+  var url = new URL(window.location);
+  url.searchParams.set('view', 'detail');
+  if(isTV){ url.searchParams.set('tv', id); url.searchParams.delete('movie'); } else { url.searchParams.set('movie', id); url.searchParams.delete('tv'); }
+  var state = {view: 'detail', movie: isTV ? null : id, tv: isTV ? id : null, q: null};
+  localStorage.setItem('tubemocha_state', JSON.stringify(state));
+  localStorage.setItem('tubemocha_last_view', 'detail');
+  localStorage.setItem('tubemocha_last_movie', isTV ? 'tv-' + id : id);
+  history.pushState(state, '', url);
+  currentView = 'detail';
+}catch(e){}
+
 document.getElementById('detailTitle').textContent = m.t;
 document.getElementById('detailDesc').textContent = m.d || '';
 var durationStr = isTV ? (m.seasons ? m.seasons + ' Season' + (m.seasons > 1 ? 's' : '') : 'TV Show') : (m.runtime ? m.runtime + 'm' : '2h 10m');
@@ -1124,6 +1147,71 @@ document.querySelectorAll('form.search-form').forEach(function(form) { form.onsu
 loadInitial();
 </script>
 <script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false"></script>
+<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false">
+// v20 FIX: Refresh to same page - persist view and movie in URL and localStorage
+(function(){
+  function restoreFromURL(){
+    try{
+      var url = new URL(window.location);
+      var view = url.searchParams.get('view');
+      var movieId = url.searchParams.get('movie');
+      var tvId = url.searchParams.get('tv');
+      var q = url.searchParams.get('q');
+      var saved = null;
+      try{ saved = JSON.parse(localStorage.getItem('tubemocha_state') || 'null'); }catch(e){}
+      // Priority: URL params > saved state
+      if(movieId || tvId){
+        var rawId = movieId ? movieId : ('tv-' + tvId);
+        setTimeout(function(){ try{ openMovie(rawId); }catch(e){} }, 800);
+        return;
+      }
+      if(q){
+        setTimeout(function(){ try{ doSearch(q); }catch(e){} }, 800);
+        return;
+      }
+      if(view){
+        setTimeout(function(){ try{ navigate(view); }catch(e){} }, 500);
+        return;
+      }
+      if(saved && saved.view){
+        if(saved.movie || saved.tv){
+          var rid = saved.movie ? saved.movie : (saved.tv ? 'tv-' + saved.tv : null);
+          if(rid){ setTimeout(function(){ try{ openMovie(rid); }catch(e){ navigate(saved.view); } }, 800); return; }
+        }
+        if(saved.view && saved.view !== 'home'){ setTimeout(function(){ navigate(saved.view); }, 500); }
+      }
+    }catch(e){ console.log('restore error', e); }
+  }
+  // Restore on load
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', function(){ setTimeout(restoreFromURL, 1000); });
+  } else {
+    setTimeout(restoreFromURL, 1000);
+  }
+  // Handle back/forward buttons
+  window.addEventListener('popstate', function(e){
+    try{
+      var state = e.state;
+      if(!state){
+        var url = new URL(window.location);
+        var movieId = url.searchParams.get('movie');
+        var tvId = url.searchParams.get('tv');
+        var view = url.searchParams.get('view');
+        var q = url.searchParams.get('q');
+        if(movieId){ openMovie(movieId); return; }
+        if(tvId){ openMovie('tv-' + tvId); return; }
+        if(q){ doSearch(q); return; }
+        if(view){ navigate(view); return; }
+        navigate('home');
+        return;
+      }
+      if(state.movie){ openMovie(state.movie); return; }
+      if(state.tv){ openMovie('tv-' + state.tv); return; }
+      if(state.view){ navigate(state.view); return; }
+    }catch(err){}
+  });
+})();
+
+</script>
 </body>
 </html>
