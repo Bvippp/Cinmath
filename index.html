@@ -77,16 +77,19 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
 
 
 
+
+
 <script>
-// v39 HEAD EARLY - movy.sx style: hash primary + query backup + homepage guaranteed + ALL same page - iPhone 13 + every phone + laptop - longest research
+// v40 HEAD EARLY - movy.sx exact code: pathname + hash routing + homepage FORCE visible + ALL same page - iPhone 13 + every phone + laptop - longest equations
 (function(){
   try{
     var href = window.location.href;
     var view=null, movie=null, tv=null, q=null, playing=null;
     
-    // Parse HASH first - movy.sx uses path, we use hash #view= - hash never sent to server, survives every refresh
+    // movy.sx uses /tv/ID and /movie/ID path - we support that + ?view= + #view=
     try{
       var url = new URL(href);
+      // Check hash first - hash never sent to server, survives refresh on abrdns.com + iPhone 13
       if(url.hash){
         var hp = new URLSearchParams(url.hash.substring(1));
         if(hp.get('view')) view = hp.get('view');
@@ -95,7 +98,7 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
         if(hp.get('q')) q = hp.get('q');
         if(hp.get('playing')) playing = hp.get('playing');
       }
-      // Query backup for direct links ?view=detail&movie=ID
+      // Query backup ?view=detail&movie=123
       if(!view && !movie && !tv && !q){
         view = url.searchParams.get('view');
         movie = url.searchParams.get('movie');
@@ -103,19 +106,34 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
         q = url.searchParams.get('q');
         playing = url.searchParams.get('playing');
       }
+      // movy.sx style path: /movie/123 or /tv/123 or /detail/123
+      if(!movie && !tv && !view){
+        var path = url.pathname;
+        var parts = path.split('/').filter(Boolean);
+        // Check /movie/123
+        if(parts.length>=2 && parts[0]==='movie'){
+          movie = parts[1];
+          view = 'detail';
+        } else if(parts.length>=2 && parts[0]==='tv'){
+          tv = parts[1];
+          view = 'detail';
+        } else if(parts.length>=2 && parts[0]==='detail'){
+          // /detail/movie-123 or /detail/123
+          var idPart = parts[1];
+          if(idPart.indexOf('tv-')===0){ tv = idPart.substring(3); } else { movie = idPart; }
+          view = 'detail';
+        }
+      }
     }catch(e){}
     
-    // Homepage detection - MUST be true when no params - fixes Guest User bug forever
     var isHome = !view && !movie && !tv && !q;
     if(view==='home') isHome = true;
-    // Explicitly treat profile as NOT home - but homepage / should never have view=profile
-    // If URL is / with no params, isHome true
     
     window.__TUBEMOCHA_INITIAL_STATE__ = {view:view||'home', movie:movie, tv:tv, q:q, playing:playing, href:href, isHome:isHome};
     
-    // Remove any old hide styles that cause Guest User bug
+    // Remove old hide styles
     try{
-      var ids=['v38-head-early-hide','v37-head-early-hide','v36-head-early-hide','v35-head-early-hide','v34-early-hide'];
+      var ids=['v40-head-early-hide','v39-head-early-hide','v38-head-early-hide','v37-head-early-hide','v36-head-early-hide'];
       for(var i=0;i<ids.length;i++){
         var el=document.getElementById(ids[i]);
         if(el) el.remove();
@@ -123,25 +141,30 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
     }catch(e){}
     
     if(isHome){
-      // Homepage - ensure visible, no hide
+      // FORCE homepage visible - fixes Guest User bug - movy.sx homepage always shows movies
+      var css = '#view-home{ display:block !important; visibility:visible !important; opacity:1 !important; } #view-home.active{ display:block !important; } #view-profile, #view-movies, #view-tv, #view-search, #view-watchlist, #view-help, #view-terms, #view-privacy, #view-dmca{ display:none !important; } #detailOverlay, #playerOverlay{ display:none !important; }';
+      var style = document.createElement('style');
+      style.id = 'v40-head-early-home';
+      style.textContent = css;
+      document.head.appendChild(style);
       return;
     }
     
-    // Not homepage - hide home instantly BEFORE body parsed - prevents flash on iPhone 13 + all phones
-    var css = '';
+    // Not homepage - hide home instantly, show target - prevents flash
+    var css2 = '';
     if(movie || tv){
-      css = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #detailOverlay{ display:block !important; opacity:1 !important; visibility:visible !important; } body{ overflow:hidden !important; }';
+      css2 = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #detailOverlay{ display:block !important; opacity:1 !important; visibility:visible !important; } body{ overflow:hidden !important; }';
     } else if(view && view!=='home'){
-      css = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #view-' + view + '{ display:block !important; } #view-' + view + '.view{ display:block !important; opacity:1 !important; }';
+      css2 = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #view-' + view + '{ display:block !important; } #view-' + view + '.view{ display:block !important; opacity:1 !important; }';
     }
-    if(css){
-      var style = document.createElement('style');
-      style.id = 'v39-head-early-hide';
-      style.textContent = css;
-      document.head.appendChild(style);
+    if(css2){
+      var style2 = document.createElement('style');
+      style2.id = 'v40-head-early-hide';
+      style2.textContent = css2;
+      document.head.appendChild(style2);
     }
     
-    // Ensure hash exists for refresh SAME - movy.sx style
+    // Ensure hash exists for refresh SAME - movy.sx uses path, we use hash to survive abrdns.com
     try{
       var currentUrl = window.location.href;
       var u = new URL(currentUrl);
@@ -533,7 +556,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v39-movy-sx-style-homepage-fixed-all-same-v39';
+var TUBEMOCHA_BUILD = '2026-10-23-v40-movy-sx-exact-homepage-force-all-same-v40';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -1295,7 +1318,9 @@ loadInitial();
 
 
 
-// v39 ULTIMATE - movy.sx inspired: hash routing + homepage fixed + ALL pages refresh SAME - iPhone 13 + every phone + laptop
+
+
+// v40 ULTIMATE - movy.sx exact: pathname + hash + homepage force + ALL same - iPhone 13 + every phone + laptop
 (function(){
   var RESTORED = false;
   var MOVIE_OBJ_KEY = 'tubemocha_last_movie_obj';
@@ -1338,9 +1363,9 @@ loadInitial();
       var state = {view:view||'home',movie:movieId||null,tv:tvId||null,q:q||null,playing:!!playing,ts:Date.now(),url:window.location.href,
         movieData: movieObj ? {id:movieObj.id,t:movieObj.t,y:movieObj.y,r:movieObj.r,g:movieObj.g,d:movieObj.d,backdrop_path:movieObj.backdrop_path,poster_path:movieObj.poster_path,media_type:movieObj.media_type||(movieObj._tv?'tv':'movie'),runtime:movieObj.runtime,seasons:movieObj.seasons} : null};
       var json = JSON.stringify(state);
-      try{ localStorage.setItem('tubemocha_state_v16', json); }catch(e){}
+      try{ localStorage.setItem('tubemocha_state_v17', json); }catch(e){}
       try{ localStorage.setItem('tubemocha_state', json); }catch(e){}
-      try{ sessionStorage.setItem('tubemocha_session_v16', json); }catch(e){}
+      try{ sessionStorage.setItem('tubemocha_session_v17', json); }catch(e){}
       if(movieObj){
         try{
           var objJson = JSON.stringify(state.movieData);
@@ -1350,7 +1375,6 @@ loadInitial();
       }
       try{ sessionStorage.setItem('tubemocha_url_href', window.location.href); }catch(e){}
       try{ localStorage.setItem('tubemocha_url_href', window.location.href); }catch(e){}
-      // Hash primary - movy.sx style - survives iPhone 13 refresh
       try{
         if(view!=='home'){
           var hash = '#view=' + (view||'home');
@@ -1361,9 +1385,6 @@ loadInitial();
           if(window.location.hash !== hash){
             history.replaceState(history.state, '', window.location.pathname + window.location.search + hash);
           }
-        } else {
-          // Homepage - clear hash if it was profile etc? Keep clean /
-          // Do not force hash for home to keep URL clean
         }
       }catch(e){}
     }catch(e){}
@@ -1394,6 +1415,13 @@ loadInitial();
         if(hp.get('view')) view = hp.get('view');
         if(hp.get('q')) q = hp.get('q');
         if(hp.get('playing')==='1') playing = true;
+      }
+      // movy.sx path check
+      if(!movie && !tv && !view){
+        var path = url.pathname;
+        var parts = path.split('/').filter(Boolean);
+        if(parts.length>=2 && parts[0]==='movie'){ movie=parts[1]; view='detail'; }
+        else if(parts.length>=2 && parts[0]==='tv'){ tv=parts[1]; view='detail'; }
       }
       if(!movie && !tv && !view && !q){
         return {view:'home', movie:null, tv:null, q:null, playing:false, isHome:true};
@@ -1441,15 +1469,17 @@ loadInitial();
     try{
       var state = getState();
       if(state.isHome){
-        console.log('[v39] Homepage - movy.sx style - show movies fixed');
+        console.log('[v40] Homepage - movy.sx style FORCE visible - fixed Guest User');
         try{
-          // Remove ALL hide styles that cause Guest User
-          var ids=['v39-head-early-hide','v38-head-early-hide','v37-head-early-hide','v36-head-early-hide','v35-head-early-hide'];
+          var ids=['v40-head-early-hide','v40-head-early-home','v39-head-early-hide','v38-head-early-hide','v37-head-early-hide'];
           for(var i=0;i<ids.length;i++){
             var el=document.getElementById(ids[i]);
-            if(el) el.remove();
+            // Keep home visible style, remove hide styles only
+            if(ids[i]!=='v40-head-early-home'){
+              if(el) el.remove();
+            }
           }
-          // Force show home, hide all others
+          // Force show home, hide all others - movy.sx homepage
           document.querySelectorAll('.view').forEach(function(v){
             if(v.id==='view-home'){
               v.classList.add('active');
@@ -1469,15 +1499,17 @@ loadInitial();
           document.querySelectorAll('.bottom button').forEach(function(b){ b.classList.remove('active'); });
           var homeBtn=document.getElementById('b-home');
           if(homeBtn) homeBtn.classList.add('active');
-          // Load movies if needed
+          // Ensure hero visible and movies load
+          var hero = document.getElementById('hero');
+          if(hero){ hero.style.display='block'; hero.style.visibility='visible'; }
           var trending = document.getElementById('trendingTrack');
-          if(trending && trending.innerHTML.trim()===''){
+          if(!trending || trending.innerHTML.trim()===''){
             if(typeof loadInitial==='function'){ try{ loadInitial(); }catch(e){} }
           }
         }catch(e){}
         return;
       }
-      console.log('[v39] Restoring SAME page movy.sx style:', state);
+      console.log('[v40] Restoring SAME page movy.sx style:', state);
       
       if(state.movie || state.tv){
         var rawId = state.movie || ('tv-'+state.tv);
@@ -1539,7 +1571,7 @@ loadInitial();
           }
         }
       }
-    }catch(e){ console.log('[v39] restore error', e); }
+    }catch(e){ console.log('[v40] restore error', e); }
   }
   
   var _nav = window.navigate;
@@ -1562,7 +1594,7 @@ loadInitial();
         if(push) history.pushState(st,'',url); else history.replaceState(st,'',url);
         saveState(view,st.movie,st.tv,st.q,st.playing,window.currentMovie||null);
       }catch(e){}
-    }catch(err){ console.log('navigate v39',err); }
+    }catch(err){ console.log('navigate v40',err); }
   };
   
   if(window.openMovie){
@@ -1695,7 +1727,7 @@ loadInitial();
           var detail = document.getElementById('detailOverlay');
           if(detail){ detail.classList.remove('open'); }
           document.body.style.overflow='';
-          var early = document.getElementById('v39-head-early-hide');
+          var early = document.getElementById('v40-head-early-hide');
           if(early) early.remove();
           document.querySelectorAll('.bottom button').forEach(function(b){ b.classList.remove('active'); });
           var homeBtn=document.getElementById('b-home');
@@ -1729,7 +1761,7 @@ loadInitial();
       if(p&&p.classList.contains('open')) closePlayer();
       else if(d&&d.classList.contains('open')) d.classList.remove('open');
       else navigate('home');
-    }catch(err){ console.log('popstate v39',err); }
+    }catch(err){ console.log('popstate v40',err); }
   });
   
   window.addEventListener('beforeunload', function(){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} });
