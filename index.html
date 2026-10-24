@@ -406,17 +406,15 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
 </footer>
 <script>
 try { 
-  // v32 FIX: Preserve URL for refresh SAME PAGE - don't wipe ?view=detail&movie=1148365 on iPhone 13
+  // v33 ROOT FIX: Preserve URL + set HASH immediately for iPhone 13 - ALL pages refresh SAME
   var currentUrl = window.location.href;
-  var hasParams = currentUrl.indexOf('?view=') !== -1 || currentUrl.indexOf('?movie=') !== -1 || currentUrl.indexOf('&movie=') !== -1 || currentUrl.indexOf('?tv=') !== -1 || currentUrl.indexOf('&tv=') !== -1 || currentUrl.indexOf('?q=') !== -1 || currentUrl.indexOf('&q=') !== -1 || currentUrl.indexOf('#view=') !== -1 || currentUrl.indexOf('#movie=') !== -1;
+  var hasParams = currentUrl.indexOf('?view=') !== -1 || currentUrl.indexOf('?movie=') !== -1 || currentUrl.indexOf('&movie=') !== -1 || currentUrl.indexOf('?tv=') !== -1 || currentUrl.indexOf('&tv=') !== -1 || currentUrl.indexOf('?q=') !== -1 || currentUrl.indexOf('&q=') !== -1 || currentUrl.indexOf('#view=') !== -1 || currentUrl.indexOf('#movie=') !== -1 || currentUrl.indexOf('#tv=') !== -1;
   if(!hasParams){
     history.replaceState({ page: 'home' }, '', window.location.pathname);
   } else {
-    // Keep full URL with query and hash for refresh SAME PAGE - ALL pages
     try{
       var url = new URL(currentUrl);
       var state = {view: url.searchParams.get('view'), movie: url.searchParams.get('movie'), tv: url.searchParams.get('tv'), q: url.searchParams.get('q'), playing: url.searchParams.get('playing')};
-      // Also parse hash
       if(url.hash){
         var hp = new URLSearchParams(url.hash.substring(1));
         if(!state.view && hp.get('view')) state.view = hp.get('view');
@@ -425,8 +423,24 @@ try {
         if(!state.q && hp.get('q')) state.q = hp.get('q');
         if(hp.get('playing')==='1') state.playing = '1';
       }
-      history.replaceState(state, '', currentUrl);
-      console.log('[v32] Preserved URL for refresh SAME PAGE:', currentUrl);
+      // v33: Ensure HASH exists from query - hash survives server stripping on iPhone
+      var hash = url.hash || '';
+      if(!hash && (state.view || state.movie || state.tv || state.q)){
+        hash = '#view=' + (state.view||'home');
+        if(state.movie) hash += '&movie=' + state.movie;
+        if(state.tv) hash += '&tv=' + state.tv;
+        if(state.q) hash += '&q=' + encodeURIComponent(state.q);
+        if(state.playing) hash += '&playing=1';
+      }
+      var finalUrl = url.pathname + url.search + hash;
+      // If hash was missing, add it
+      if(finalUrl !== currentUrl && finalUrl.indexOf('#') !== -1){
+        history.replaceState(state, '', finalUrl);
+        console.log('[v33] Set HASH for iPhone 13 SAME PAGE:', finalUrl);
+      } else {
+        history.replaceState(state, '', currentUrl);
+        console.log('[v33] Preserved URL SAME PAGE:', currentUrl);
+      }
     }catch(e){
       history.replaceState({ page: 'home', preserved: true }, '', currentUrl);
     }
@@ -463,7 +477,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v32-root-fix-iphone13-all-pages-same-v32';
+var TUBEMOCHA_BUILD = '2026-10-23-v33-root-fix-hash-primary-all-same-v33';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -1211,16 +1225,28 @@ loadInitial();
 
 
 
-// v32 ULTIMATE FIX: Root cause fixed + ALL pages refresh SAME on iPhone 13
+
+
+// v33 ULTIMATE: Root fix + HASH primary + instant render + ALL pages SAME iPhone 13
 (function(){
   var RESTORED = false;
-  var DETAIL_HTML_KEY = 'tubemocha_detail_html_v5';
+  var DETAIL_HTML_KEY = 'tubemocha_detail_html_v6';
   var MOVIE_OBJ_KEY = 'tubemocha_last_movie_obj';
-  var STATE_KEY = 'tubemocha_state_v9';
+  var STATE_KEY = 'tubemocha_state_v10';
   
   function renderDetailFromCache(obj, rawId){
     try{
-      if(!obj) return false;
+      if(!obj) {
+        // Even if no obj, show detail overlay as loading - NOT homepage
+        var detailOverlay = document.getElementById('detailOverlay');
+        if(detailOverlay){
+          detailOverlay.classList.add('open');
+          document.body.style.overflow='hidden';
+          var home = document.getElementById('view-home');
+          if(home){ home.classList.remove('active'); home.style.display='none'; }
+        }
+        return false;
+      }
       var isTV = typeof rawId === 'string' && rawId.indexOf('tv-')===0;
       var detailOverlay = document.getElementById('detailOverlay');
       if(!detailOverlay) return false;
@@ -1238,7 +1264,7 @@ loadInitial();
         if(bgUrl) detailOverlay.style.background = 'url(' + bgUrl + ') center/cover no-repeat';
       }catch(e){}
       detailOverlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow='hidden';
       var home = document.getElementById('view-home');
       if(home){ home.classList.remove('active'); home.style.display='none'; }
       return true;
@@ -1250,10 +1276,10 @@ loadInitial();
       var state = {view:view||'home',movie:movieId||null,tv:tvId||null,q:q||null,playing:!!playing,ts:Date.now(),url:window.location.href,
         movieData: movieObj ? {id:movieObj.id,t:movieObj.t,y:movieObj.y,r:movieObj.r,g:movieObj.g,d:movieObj.d,backdrop_path:movieObj.backdrop_path,poster_path:movieObj.poster_path,media_type:movieObj.media_type||(movieObj._tv?'tv':'movie'),runtime:movieObj.runtime,seasons:movieObj.seasons} : null};
       var json = JSON.stringify(state);
+      try{ localStorage.setItem('tubemocha_state_v10', json); }catch(e){}
       try{ localStorage.setItem('tubemocha_state_v9', json); }catch(e){}
-      try{ localStorage.setItem('tubemocha_state_v8', json); }catch(e){}
       try{ localStorage.setItem('tubemocha_state', json); }catch(e){}
-      try{ sessionStorage.setItem('tubemocha_session_v9', json); }catch(e){}
+      try{ sessionStorage.setItem('tubemocha_session_v10', json); }catch(e){}
       try{ localStorage.setItem('tubemocha_last_view', view||'home'); }catch(e){}
       if(movieId) try{ localStorage.setItem('tubemocha_last_movie', movieId); }catch(e){}
       if(tvId) try{ localStorage.setItem('tubemocha_last_tv', tvId); }catch(e){}
@@ -1300,12 +1326,13 @@ loadInitial();
       var view = url.searchParams.get('view');
       var q = url.searchParams.get('q');
       var playing = url.searchParams.get('playing')==='1';
+      // HASH is primary - survives server stripping
       if(hash){
         var hp = new URLSearchParams(hash.substring(1));
-        if(!movie && hp.get('movie')) movie = hp.get('movie');
-        if(!tv && hp.get('tv')) tv = hp.get('tv');
-        if(!view && hp.get('view')) view = hp.get('view');
-        if(!q && hp.get('q')) q = hp.get('q');
+        if(hp.get('movie')) movie = hp.get('movie');
+        if(hp.get('tv')) tv = hp.get('tv');
+        if(hp.get('view')) view = hp.get('view');
+        if(hp.get('q')) q = hp.get('q');
         if(hp.get('playing')==='1') playing = true;
       }
       try{
@@ -1383,6 +1410,13 @@ loadInitial();
           await openMovie(rawId); return true;
         }
       }catch(err){}
+      // Even if fail, show detail overlay as loading - NOT homepage
+      try{
+        var overlay = document.getElementById('detailOverlay');
+        if(overlay){ overlay.classList.add('open'); document.body.style.overflow='hidden'; }
+        var home = document.getElementById('view-home');
+        if(home){ home.classList.remove('active'); home.style.display='none'; }
+      }catch(e){}
       return false;
     }
   }
@@ -1394,15 +1428,15 @@ loadInitial();
       var state = getState();
       var saved = null;
       try{
-        var s = localStorage.getItem(STATE_KEY) || sessionStorage.getItem(STATE_KEY) || localStorage.getItem('tubemocha_state_v8') || localStorage.getItem('tubemocha_state');
+        var s = localStorage.getItem(STATE_KEY) || sessionStorage.getItem(STATE_KEY) || localStorage.getItem('tubemocha_state_v9') || localStorage.getItem('tubemocha_state');
         if(s) saved = JSON.parse(s);
       }catch(e){}
       if(!state.movie && !state.tv && !state.view && !state.q && saved){ state = saved; }
       if(!state || (!state.movie && !state.tv && !state.view && !state.q)){
-        console.log('[v32] No state to restore');
+        console.log('[v33] No state - stay home');
         return;
       }
-      console.log('[v32] Restoring ALL pages iPhone 13 FIXED:', state);
+      console.log('[v33] Restoring ALL pages iPhone 13 ROOT FIXED:', state);
       
       if(state.movie || state.tv){
         var rawId = state.movie || ('tv-'+state.tv);
@@ -1412,15 +1446,23 @@ loadInitial();
             var obj = JSON.parse(savedObj);
             if(obj && (String(obj.id)===String(state.movie) || String(obj.id)===String(state.tv))){
               renderDetailFromCache(obj, rawId);
+            } else {
+              // No obj but we have ID - show overlay loading
+              var detail = document.getElementById('detailOverlay');
+              if(detail){ detail.classList.add('open'); document.body.style.overflow='hidden'; }
+              var home = document.getElementById('view-home');
+              if(home){ home.classList.remove('active'); home.style.display='none'; }
             }
+          } else {
+            var detail = document.getElementById('detailOverlay');
+            if(detail){ detail.classList.add('open'); document.body.style.overflow='hidden'; }
+            var home = document.getElementById('view-home');
+            if(home){ home.classList.remove('active'); home.style.display='none'; }
           }
-        }catch(e){}
-        try{
-          var home = document.getElementById('view-home');
-          if(home){ home.classList.remove('active'); home.style.display='none'; }
+        }catch(e){
           var detail = document.getElementById('detailOverlay');
           if(detail){ detail.classList.add('open'); document.body.style.overflow='hidden'; }
-        }catch(e){}
+        }
       } else if(state.view && state.view!=='home'){
         try{
           document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); v.style.display='none'; });
@@ -1465,7 +1507,7 @@ loadInitial();
           }
         }
       }
-    }catch(e){ console.log('[v32] restore error', e); }
+    }catch(e){ console.log('[v33] restore error', e); }
   }
   
   var _nav = window.navigate;
@@ -1488,7 +1530,7 @@ loadInitial();
         if(push) history.pushState(st,'',url); else history.replaceState(st,'',url);
         saveState(view,st.movie,st.tv,st.q,st.playing,window.currentMovie||null);
       }catch(e){}
-    }catch(err){ console.log('navigate v32',err); }
+    }catch(err){ console.log('navigate v33',err); }
   };
   
   if(window.openMovie){
@@ -1570,12 +1612,11 @@ loadInitial();
     };
   }
   
-  // EARLY hide
   try{
     var early = getState();
     if(early.movie || early.tv){
       var es = document.createElement('style');
-      es.id = 'v32-early-hide';
+      es.id = 'v33-early-hide';
       es.textContent = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #detailOverlay{ display:block !important; opacity:1 !important; visibility:visible !important; } body{ overflow:hidden !important; }';
       (document.head||document.documentElement).appendChild(es);
       try{
@@ -1583,14 +1624,14 @@ loadInitial();
         if(saved){
           var obj = JSON.parse(saved);
           if(obj && (String(obj.id)===String(early.movie) || String(obj.id)===String(early.tv))){
-            window.__V32_EARLY_OBJ__ = obj;
-            window.__V32_EARLY_RAWID__ = early.movie || ('tv-'+early.tv);
+            window.__V33_EARLY_OBJ__ = obj;
+            window.__V33_EARLY_RAWID__ = early.movie || ('tv-'+early.tv);
           }
         }
       }catch(e){}
     } else if(early.view && early.view!=='home'){
       var es = document.createElement('style');
-      es.id = 'v32-early-hide-view';
+      es.id = 'v33-early-hide-view';
       es.textContent = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #view-' + early.view + '{ display:block !important; } #view-' + early.view + '.view{ display:block !important; opacity:1 !important; }';
       (document.head||document.documentElement).appendChild(es);
     }
@@ -1598,18 +1639,18 @@ loadInitial();
   
   function init(){
     try{
-      if(window.__V32_EARLY_OBJ__ && window.__V32_EARLY_RAWID__){
-        renderDetailFromCache(window.__V32_EARLY_OBJ__, window.__V32_EARLY_RAWID__);
+      if(window.__V33_EARLY_OBJ__ && window.__V33_EARLY_RAWID__){
+        renderDetailFromCache(window.__V33_EARLY_OBJ__, window.__V33_EARLY_RAWID__);
       }
     }catch(e){}
     setTimeout(function(){
       try{
-        var s1=document.getElementById('v32-early-hide');
-        if(s1) s1.remove();
-        var s2=document.getElementById('v32-early-hide-view');
-        if(s2) s2.remove();
+        var s1=document.getElementById('v33-early-hide');
+        if(s1 && RESTORED) s1.remove();
+        var s2=document.getElementById('v33-early-hide-view');
+        if(s2 && RESTORED) s2.remove();
       }catch(e){}
-    }, 5000);
+    }, 6000);
     restoreALL();
     setTimeout(restoreALL, 300);
     setTimeout(restoreALL, 1000);
@@ -1651,7 +1692,7 @@ loadInitial();
       if(p&&p.classList.contains('open')) closePlayer();
       else if(d&&d.classList.contains('open')) d.classList.remove('open');
       else navigate('home');
-    }catch(err){ console.log('popstate v32',err); }
+    }catch(err){ console.log('popstate v33',err); }
   });
   
   window.addEventListener('beforeunload', function(){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} });
