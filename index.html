@@ -774,7 +774,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = '2026-10-24-v58-movies-page-filter-infinite-scroll';
+var TUBEMOCHA_BUILD = '2026-10-24-v59-trending-region-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1371,7 +1371,7 @@ if (page === 1) {
     isLoadingMovies = true;
     hasMoreMovies = true;
     filterState.page = 1;
-    allCache = []; // Reset cache on new filter
+    allCache = []; 
     document.getElementById('moviesGrid').innerHTML = '';
 } else {
     isLoadingMovies = true;
@@ -1827,9 +1827,12 @@ function handleRouting() {
                 if (tr && tr.results) { var withBackdrop = tr.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; }
             });
         }
-        loadMoviesRegionTrending();
         loadDiscover(1, false);
     }
+    
+    // Always ensure region trending is loaded
+    loadMoviesRegionTrending();
+    
     window.currentView = 'movies';
   } 
   else if (hash === 'tv') {
@@ -1893,13 +1896,58 @@ function handleRouting() {
 }
 
 async function loadMoviesRegionTrending() {
-    var geo = await getUserCountry();
-    var titleEl = document.getElementById('moviesTrendingHead').querySelector('.section-title');
     var track = document.getElementById('moviesRegionTrending');
+    var titleEl = document.getElementById('moviesTrendingHead').querySelector('.section-title');
+    
+    if (track.innerHTML && track.innerHTML.trim() !== '' && !track.innerHTML.includes('Loading...')) return;
+
+    track.innerHTML = '<div class="empty" style="padding:20px;">Loading...</div>';
+    
+    var geo = await getUserCountry();
     var regionData = null;
-    if (geo.code) { titleEl.textContent = 'Trending in ' + geo.name; regionData = await tmdb('/discover/movie', { with_origin_country: geo.code, sort_by: 'popularity.desc', page: 1 }); }
-    if (!regionData || !regionData.results || regionData.results.length === 0) { titleEl.textContent = 'Trending Right Now'; regionData = await tmdb('/trending/movie/week', {page:1}); }
-    if (regionData && regionData.results) { track.innerHTML = regionData.results.slice(0,10).map(mapResult).map(cardHTML).join(''); setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50); }
+    
+    if (geo.code) { 
+        titleEl.textContent = 'Trending in ' + geo.name; 
+        regionData = await tmdb('/discover/movie', { with_origin_country: geo.code, sort_by: 'popularity.desc', page: 1 }); 
+    }
+    
+    if (!regionData || !regionData.results || regionData.results.length === 0) { 
+        titleEl.textContent = 'Trending Right Now'; 
+        regionData = await tmdb('/trending/movie/week', {page:1}); 
+    }
+    
+    if (regionData && regionData.results) { 
+        track.innerHTML = regionData.results.slice(0,10).map(mapResult).map(cardHTML).join(''); 
+        setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50); 
+    } else {
+        track.innerHTML = '<div class="empty" style="padding:20px;">Failed to load trending.</div>';
+    }
+}
+
+async function getUserCountry() {
+    if (window.cachedGeo && window.cachedGeo.code) return window.cachedGeo;
+    
+    try {
+        // Try primary API
+        var res = await fetch('https://ipwho.is/');
+        var data = await res.json();
+        if (data.success && data.country_code && data.country) {
+            window.cachedGeo = { code: data.country_code, name: data.country };
+            return window.cachedGeo;
+        }
+    } catch(e) { console.log('ipwho.is failed', e); }
+    
+    try {
+        // Fallback API
+        var res2 = await fetch('https://ipapi.co/json/');
+        var data2 = await res2.json();
+        if (data2.country_code && data2.country_name) {
+            window.cachedGeo = { code: data2.country_code, name: data2.country_name };
+            return window.cachedGeo;
+        }
+    } catch(e) { console.log('ipapi.co failed', e); }
+    
+    return { code: null, name: 'Your Region' };
 }
 
 window.addEventListener('DOMContentLoaded', function() {
