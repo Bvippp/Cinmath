@@ -397,7 +397,7 @@
       <p class="auth-subtitle">Fill in your details to get started</p>
       
       <div class="auth-qr-box">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
         <p>Scan this code on a signed-in device</p>
         <p style="font-size: 11px; opacity: 0.7;">Open the Camera app on a signed-in device and scan this code to log in here</p>
         <div class="auth-qr-timer">Code expires in 2:00</div>
@@ -748,10 +748,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v64 — 2026-10-24
-// CHANGELOG (v63 → v64):
-//   • Removed the "API" link from the footer completely.
-//   • Footer now only contains Get Help, Terms, Privacy, DMCA.
+// TUBEMOCHA BUILD v65 — 2026-10-24
+// CHANGELOG (v64 → v65):
+//   • Connected the live Supabase Database using specific API keys.
+//   • Renamed the Supabase instance to `supabaseClient` to prevent
+//     global variable shadowing errors with the SDK script.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -760,10 +761,10 @@ var IMG = 'https://image.tmdb.org/t/p/w500';
 var BACKDROP = 'https://image.tmdb.org/t/p/original';
 var PROFILE = 'https://image.tmdb.org/t/p/w185';
 
-// --- SUPABASE CONFIGURATION ---
-var SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-var SUPABASE_ANON_KEY = 'YOUR_ANON_PUBLIC_KEY';
-var supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// --- SUPABASE LIVE CONFIGURATION ---
+var SUPABASE_URL = 'https://emplegscxgcwflajkhxb.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcGxlZ3NjeGdjd2ZsYWpraHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NjE0NDgsImV4cCI6MjEwODQzNzQ0OH0.2nqVlpIK5fI9nbtdKlBIdON971ZikHctB0KW9AcW0t8';
+var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 var filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
 var tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
@@ -772,7 +773,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v64-2026-10-24-removed-api-link';
+var TUBEMOCHA_BUILD = 'v65-2026-10-24-supabase-connected';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -818,7 +819,7 @@ async function handleSignUp(e) {
     var email = document.getElementById('signupEmail').value;
     var password = document.getElementById('signupPassword').value;
     
-    var { data, error } = await supabase.auth.signUp({
+    var { data, error } = await supabaseClient.auth.signUp({
         email: email,
         password: password,
         options: {
@@ -841,7 +842,7 @@ async function handleLogin(e) {
     var email = document.getElementById('loginEmail').value;
     var password = document.getElementById('loginPassword').value;
     
-    var { data, error } = await supabase.auth.signInWithPassword({
+    var { data, error } = await supabaseClient.auth.signInWithPassword({
         email: email,
         password: password
     });
