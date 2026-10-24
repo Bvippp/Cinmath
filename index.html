@@ -261,6 +261,18 @@
 .recent-search-item:hover {
   background: rgba(255,255,255,0.05);
 }
+
+/* Anime View Specific Styles */
+.anime-header { padding: 30px 20px 10px; }
+.anime-title { font-size: 40px; font-weight: 900; color: #fff; margin-bottom: 4px; letter-spacing: -0.02em; }
+.anime-subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 20px; }
+.anime-genre-select {
+  background: rgba(30,24,20,0.6); border: 1px solid var(--border); color: var(--text-main); font-size: 15px; font-weight: 700; padding: 8px 16px; border-radius: var(--radius-md); outline: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+}
+.anime-genre-select:hover { background: var(--bg-elevated); }
+.anime-genre-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.anime-genre-grid button { text-align: center; padding: 0 8px; }
+#animeSentinel { height: 20px; width: 100%; visibility: hidden; margin-top: 20px; }
 </style>
 </head>
 <body>
@@ -273,7 +285,7 @@
       <a class="desktop-nav-link" id="d-home" href="#home">Home</a>
       <a class="desktop-nav-link" id="d-movies" href="#movies">Movies</a>
       <a class="desktop-nav-link" id="d-tv" href="#tv">Shows</a>
-      <a class="desktop-nav-link" id="d-anime" href="#search=anime">Anime</a>
+      <a class="desktop-nav-link" id="d-anime" href="#anime">Anime</a>
     </nav>
 
     <div class="search-top">
@@ -358,6 +370,24 @@
 <div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Popular Series</h2><div class="section-sub">Page <span id="tvPageNum">1</span></div></div><div class="section-action" onclick="loadMoreTV()">Load More</div></div>
 <div class="grid" id="tvGrid"></div>
 </div></div>
+
+<!-- Anime View -->
+<div id="view-anime" class="view">
+  <div class="main" style="padding-top:20px">
+    <div class="anime-header">
+      <h1 class="anime-title">Anime</h1>
+      <p class="anime-subtitle">Discover the latest and trending anime</p>
+    </div>
+    
+    <div class="filters" style="padding-top:10px;">
+      <button class="anime-genre-select" id="animeGenreBtn" onclick="openModal('animeGenreModal')">Action ▾</button>
+    </div>
+    
+    <div class="grid" id="animeGrid"></div>
+    <div id="animeSentinel"></div>
+  </div>
+</div>
+
 <div id="view-search" class="view"><div class="main" style="padding-top:20px">
 <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title" id="searchTitle">Search Results</h2><div class="section-sub" id="searchSub">Found <span id="searchCount">0</span> results</div></div></div>
 <div class="grid" id="searchGrid"></div><div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try a different spelling.</div>
@@ -636,7 +666,7 @@
 <button id="b-home" class="active" onclick="window.location.hash='#home'"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
 <button id="b-movies" onclick="window.location.hash='#movies'"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></button>
 <button id="b-tv" onclick="window.location.hash='#tv'"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></button>
-<button id="b-watchlist" onclick="window.location.hash='#watchlist'"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+<button id="b-anime" onclick="window.location.hash='#anime'"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
 <button id="b-search" onclick="window.location.hash='#search'"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
 <button id="b-profile" onclick="window.location.hash='#profile'"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
 </div>
@@ -644,6 +674,15 @@
 <div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')"><div class="genre-sheet"><h3>Select Year</h3><div class="ggrid"><button onclick="setFilter('year','','All Years')">All Years</button><button onclick="setFilter('year','2025','2025')">2025</button><button onclick="setFilter('year','2024','2024')">2024</button><button onclick="setFilter('year','2023','2023')">2023</button><button onclick="setFilter('year','2022','2022')">2022</button><button onclick="setFilter('year','2020','2020')">2020</button><button onclick="setFilter('year','2010','2010')">2010</button><button onclick="setFilter('year','2000','2000')">2000</button></div></div></div>
 <div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')"><div class="genre-sheet"><h3>Select Country</h3><div class="ggrid"><button onclick="setFilter('country','','All Countries')">All Countries</button><button onclick="setFilter('country','US','United States')">United States</button><button onclick="setFilter('country','GB','United Kingdom')">United Kingdom</button><button onclick="setFilter('country','JP','Japan')">Japan</button><button onclick="setFilter('country','KR','South Korea')">South Korea</button></div></div></div>
 <div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Box Office')">Highest Box Office</button></div></div></div>
+
+<!-- Anime Genre Modal -->
+<div class="genre-modal" id="animeGenreModal" onclick="if(event.target===this) closeModal('animeGenreModal')">
+  <div class="genre-sheet" style="max-width:800px; margin:0 auto; border-radius:12px 12px 0 0;">
+    <h3>Anime Genres</h3>
+    <div class="ggrid anime-genre-grid" id="animeGenreGrid"></div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 <footer>
 <div class="legal-links">
@@ -671,9 +710,127 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = '2026-10-24-v55-uniform-thumbnails-faceted-logo';
+var TUBEMOCHA_BUILD = '2026-10-24-v56-anime-page-infinite-scroll';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
+
+// === ANIME PAGE LOGIC ===
+var animePage = 1;
+var animeGenre = '';
+var isLoadingAnime = false;
+var hasMoreAnime = true;
+
+var ANIME_GENRES = [
+    { name: 'Action', id: '28' },
+    { name: 'Adventure', id: '12' },
+    { name: 'Comedy', id: '35' },
+    { name: 'Drama', id: '18' },
+    { name: 'Fantasy', id: '14' },
+    { name: 'Horror', id: '27' },
+    { name: 'Mystery', id: '9648' },
+    { name: 'Romance', id: '10749' },
+    { name: 'Sci-Fi', id: '878' },
+    { name: 'Slice of Life', id: '10751' },
+    { name: 'Sports', id: '10766' },
+    { name: 'Supernatural', id: '10765' },
+    { name: 'Thriller', id: '53' },
+    { name: 'Isekai', id: '' },
+    { name: 'School', id: '' },
+    { name: 'Shounen', id: '' },
+    { name: 'Shoujo', id: '' },
+    { name: 'Seinen', id: '' },
+    { name: 'Josei', id: '' },
+    { name: 'Psychological', id: '' },
+    { name: 'Mecha', id: '' },
+    { name: 'Magic', id: '' },
+    { name: 'Martial Arts', id: '' },
+    { name: 'Historical', id: '36' },
+    { name: 'Military', id: '10752' },
+    { name: 'Music', id: '10402' },
+    { name: 'Game', id: '' },
+    { name: 'Harem', id: '' },
+    { name: 'Demons', id: '' },
+    { name: 'Vampire', id: '' },
+    { name: 'Super Power', id: '' },
+    { name: 'Samurai', id: '' },
+    { name: 'Kids', id: '10762' },
+    { name: 'Space', id: '' },
+    { name: 'Police', id: '80' },
+    { name: 'Parody', id: '' },
+    { name: 'Cars', id: '' }
+];
+
+function renderAnimeGenres() {
+    var grid = document.getElementById('animeGenreGrid');
+    if(!grid) return;
+    grid.innerHTML = '<button class="' + (animeGenre === '' ? 'active' : '') + '" onclick="setAnimeGenre(\'\', \'All\')">All</button>' + ANIME_GENRES.map(function(g) {
+        return '<button class="' + (animeGenre === g.id ? 'active' : '') + '" onclick="setAnimeGenre(\'' + g.id + '\', \'' + g.name + '\')">' + g.name + '</button>';
+    }).join('');
+}
+
+function setAnimeGenre(id, name) {
+    animeGenre = id;
+    document.getElementById('animeGenreBtn').innerHTML = name + ' ▾';
+    closeModal('animeGenreModal');
+    loadAnime(true);
+}
+
+async function loadAnime(isNew) {
+    if (isLoadingAnime || (!hasMoreAnime && !isNew)) return;
+    isLoadingAnime = true;
+    
+    if (isNew) {
+        animePage = 1;
+        document.getElementById('animeGrid').innerHTML = '';
+        hasMoreAnime = true;
+    }
+    
+    var grid = document.getElementById('animeGrid');
+    if (isNew) grid.innerHTML = '<div class="empty">Loading...</div>';
+
+    var params = {
+        page: animePage,
+        with_genres: '16', // Animation
+        with_origin_country: 'JP', // Japan
+        sort_by: 'popularity.desc'
+    };
+
+    if (animeGenre) {
+        params.with_genres = '16,' + animeGenre;
+    }
+
+    try {
+        var data = await tmdb('/discover/tv', params);
+        if (isNew) grid.innerHTML = '';
+        
+        if (data && data.results) {
+            var mapped = data.results.map(mapResult);
+            grid.innerHTML += mapped.map(cardHTML).join('');
+            if (data.page >= data.total_pages) hasMoreAnime = false;
+        } else {
+            hasMoreAnime = false;
+        }
+    } catch (e) {
+        console.error(e);
+        hasMoreAnime = false;
+    }
+    
+    isLoadingAnime = false;
+}
+
+// Infinite Scroll Observer
+var animeObserver = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && window.currentView === 'anime' && !isLoadingAnime && hasMoreAnime) {
+        animePage++;
+        loadAnime(false);
+    }
+}, { rootMargin: '200px' });
+
+document.addEventListener('DOMContentLoaded', function() {
+    renderAnimeGenres();
+    var sentinel = document.getElementById('animeSentinel');
+    if (sentinel) animeObserver.observe(sentinel);
+});
 
 // === VIDY SINGLE SERVER ===
 var VIDY_COLOR = 'DC2626';
@@ -775,7 +932,6 @@ async function performLiveSearch(query) {
         if (currentSearchTab === 'movie') endpoint = '/search/movie';
         if (currentSearchTab === 'tv') endpoint = '/search/tv';
         if (currentSearchTab === 'anime') {
-            // TMDB doesn't have a direct anime endpoint in basic search, so we filter
             endpoint = '/search/multi';
         }
         
@@ -791,13 +947,11 @@ async function performLiveSearch(query) {
         // Client-side filtering for anime if selected
         if (currentSearchTab === 'anime') {
             results = results.filter(r => {
-                // Rough anime filter (Animation genre + Japanese origin)
                 var isAnimation = r.genre_ids && r.genre_ids.includes(16);
                 var isJapanese = r.original_language === 'ja';
                 return isAnimation || isJapanese;
             });
         } else if (currentSearchTab === 'all') {
-            // Exclude people from 'all' results
             results = results.filter(r => r.media_type !== 'person');
         }
         
@@ -1527,28 +1681,39 @@ function handleRouting() {
     document.getElementById('b-home').classList.add('active');
     document.getElementById('d-home').classList.add('active');
     if (!document.getElementById('trendingTrack').innerHTML) loadInitial();
+    window.currentView = 'home';
   } 
   else if (hash === 'movies') {
     document.getElementById('view-movies').classList.add('active');
     document.getElementById('b-movies').classList.add('active');
     document.getElementById('d-movies').classList.add('active');
     loadMoviesPage();
+    window.currentView = 'movies';
   } 
   else if (hash === 'tv') {
     document.getElementById('view-tv').classList.add('active');
     document.getElementById('b-tv').classList.add('active');
     document.getElementById('d-tv').classList.add('active');
     loadTVPage();
+    window.currentView = 'tv';
+  } 
+  else if (hash === 'anime') {
+    document.getElementById('view-anime').classList.add('active');
+    document.getElementById('b-anime').classList.add('active');
+    document.getElementById('d-anime').classList.add('active');
+    if (!document.getElementById('animeGrid').innerHTML) loadAnime(true);
+    window.currentView = 'anime';
   } 
   else if (hash === 'watchlist') {
     document.getElementById('view-watchlist').classList.add('active');
-    document.getElementById('b-watchlist').classList.add('active');
     renderWatchlist();
+    window.currentView = 'watchlist';
   } 
   else if (hash === 'profile') {
     document.getElementById('view-profile').classList.add('active');
     document.getElementById('b-profile').classList.add('active');
     document.getElementById('d-profile').classList.add('active');
+    window.currentView = 'profile';
   } 
   else if (hash === 'search') {
     document.getElementById('view-search').classList.add('active');
@@ -1556,6 +1721,7 @@ function handleRouting() {
     document.getElementById('q').focus();
     document.getElementById('searchTitle').textContent = 'Search Results';
     document.getElementById('searchGrid').innerHTML = '';
+    window.currentView = 'search';
   }
   else if (hash.indexOf('search=') === 0) {
     var q = decodeURIComponent(hash.substring(7));
@@ -1563,9 +1729,11 @@ function handleRouting() {
     document.getElementById('b-search').classList.add('active');
     document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
     doSearch(q);
+    window.currentView = 'search';
   }
   else if (['help', 'terms', 'privacy', 'dmca'].includes(hash)) {
     document.getElementById('view-' + hash).classList.add('active');
+    window.currentView = hash;
   }
   else if (hash.indexOf('movie-') === 0) {
     showDetail(hash, false);
@@ -1574,7 +1742,7 @@ function handleRouting() {
     showDetail(hash, false);
   }
   else if (hash.indexOf('player-') === 0) {
-    var target = hash.substring(7); // this is movie-123 or tv-123
+    var target = hash.substring(7);
     showDetail(target, true);
   }
   else {
