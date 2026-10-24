@@ -392,7 +392,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-24-v44-single-router-stability-fix';
+var TUBEMOCHA_BUILD = '2026-10-24-v45-movie-detail-hash-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -491,7 +491,7 @@ var year = m.y || m.year || (m.release_date ? +m.release_date.slice(0,4) : (m.fi
 var genres = (m.g || ['Movie']).slice(0,2).join(' • ');
 var badgeClass = isTV ? 'tv' : 'hd';
 var badgeText = isTV ? 'TV' : 'HD';
-var clickId = isTV ? ('tv-' + m.id) : m.id;
+var clickId = isTV ? ('tv-' + m.id) : ('movie-' + m.id);
 return '<div class="card" onclick="window.location.hash=\'#' + clickId + '\'"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge ' + badgeClass + '">' + badgeText + '</span><span class="badge rating"><span>★</span> ' + rating + '</span></div><div class="card-info"><div class="card-title">' + title + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span>' + year + '<span class="s-sep">·</span>' + genres + '</div></div></div>';
 }catch(e){ return ''; }
 }
@@ -584,8 +584,8 @@ if(descEl) descEl.textContent = h.d;
 var typeStr = h._tv ? 'TV Show' : 'Movie';
 var genresStr = h.g ? h.g.slice(0, 2).join(' & ') : '';
 if(metaEl) metaEl.innerHTML = '<span class="star">★ ' + h.r + '</span><span class="divider">·</span><span>' + h.y + '</span><span class="divider">·</span><span>' + typeStr + '</span>' + (genresStr ? '<span class="divider">·</span><span>' + genresStr + '</span>' : '');
-if(playEl) playEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : h.id); };
-if(infoEl) infoEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : h.id); };
+if(playEl) playEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : 'movie-'+h.id); };
+if(infoEl) infoEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : 'movie-'+h.id); };
 });
 setHeroSlide(0);
 }
@@ -783,6 +783,9 @@ var currentEpisode = 1;
 async function showDetail(rawId, shouldPlay){
 var isTV = false, id = rawId;
 if(typeof rawId === 'string' && rawId.indexOf('tv-') === 0){ isTV = true; id = rawId.substring(3); }
+else if(typeof rawId === 'string' && rawId.indexOf('movie-') === 0){ isTV = false; id = rawId.substring(6); }
+else if (String(rawId).match(/^\d+$/)) { isTV = false; id = rawId; }
+
 var m = allCache.find(function(x) { return String(x.id) === String(id) && (x.media_type === 'tv') === isTV; }) || watchlist.find(function(x) { return String(x.id) === String(id); });
 if(!m){
 var endpoint = isTV ? '/tv/' + id : '/movie/' + id;
@@ -902,6 +905,13 @@ async function playCurrentMedia(){
   document.addEventListener('mousemove', resetTimer);
   document.addEventListener('touchstart', resetTimer);
   resetTimer();
+  
+  var isTV = currentMovie.media_type === 'tv' || currentMovie._tv;
+  var id = currentMovie.id;
+  var targetHash = 'player-' + (isTV ? 'tv-' : 'movie-') + id;
+  if (window.location.hash !== '#' + targetHash) {
+      window.location.hash = '#' + targetHash;
+  }
 }
 
 function closePlayer(e){
@@ -913,11 +923,13 @@ function closePlayer(e){
   container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
   clearTimeout(window._idleTimer);
   
-  // Update route back to detail
   var isTV = currentMovie && (currentMovie.media_type === 'tv' || currentMovie._tv);
   var id = currentMovie ? currentMovie.id : null;
   if(id){
-    window.location.hash = (isTV ? 'tv-' : 'movie-') + id;
+    var targetHash = (isTV ? 'tv-' : 'movie-') + id;
+    if (window.location.hash !== '#' + targetHash) {
+       window.location.hash = '#' + targetHash;
+    }
   }
 }
 
@@ -1034,14 +1046,12 @@ document.querySelectorAll('form.search-form').forEach(function(form) { form.onsu
 function handleRouting() {
   var hash = window.location.hash.replace('#', '') || 'home';
   
-  // 1. Hide all views, nav buttons, and overlays
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.querySelectorAll('.bottom button').forEach(b => b.classList.remove('active'));
   document.getElementById('detailOverlay').classList.remove('open');
   document.getElementById('playerOverlay').classList.remove('open');
   document.body.style.overflow = '';
 
-  // 2. Handle specific routes
   if (hash === 'home' || hash === '') {
     document.getElementById('view-home').classList.add('active');
     document.getElementById('b-home').classList.add('active');
@@ -1084,26 +1094,20 @@ function handleRouting() {
     document.getElementById('view-' + hash).classList.add('active');
   }
   else if (hash.indexOf('movie-') === 0) {
-    var id = hash.substring(6);
-    showDetail(id, false);
+    showDetail(hash, false);
   }
   else if (hash.indexOf('tv-') === 0) {
-    var id = hash.substring(3);
-    showDetail('tv-' + id, false);
+    showDetail(hash, false);
   }
   else if (hash.indexOf('player-') === 0) {
-    var target = hash.substring(7);
-    var isTV = target.indexOf('tv-') === 0;
-    var id = isTV ? target.substring(3) : target;
-    showDetail(isTV ? 'tv-' + id : id, true);
+    var target = hash.substring(7); // this is movie-123 or tv-123
+    showDetail(target, true);
   }
   else {
-    // Fallback
     window.location.hash = '#home';
   }
 }
 
-// Initial load
 window.addEventListener('DOMContentLoaded', function() {
   if (!window.location.hash) {
     window.location.hash = '#home';
@@ -1112,7 +1116,6 @@ window.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// Listen for URL changes (back button, manual hash change)
 window.addEventListener('hashchange', handleRouting);
 </script>
 <script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
