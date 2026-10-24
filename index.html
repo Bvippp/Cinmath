@@ -710,7 +710,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = '2026-10-24-v56-anime-page-infinite-scroll';
+var TUBEMOCHA_BUILD = '2026-10-24-v57-anime-genre-filter-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -720,6 +720,7 @@ var animeGenre = '';
 var isLoadingAnime = false;
 var hasMoreAnime = true;
 
+// Valid TMDB TV Genres for Anime
 var ANIME_GENRES = [
     { name: 'Action', id: '28' },
     { name: 'Adventure', id: '12' },
@@ -730,34 +731,10 @@ var ANIME_GENRES = [
     { name: 'Mystery', id: '9648' },
     { name: 'Romance', id: '10749' },
     { name: 'Sci-Fi', id: '878' },
-    { name: 'Slice of Life', id: '10751' },
+    { name: 'Slice of Life', id: '10751' }, // Mapped to Family
     { name: 'Sports', id: '10766' },
     { name: 'Supernatural', id: '10765' },
-    { name: 'Thriller', id: '53' },
-    { name: 'Isekai', id: '' },
-    { name: 'School', id: '' },
-    { name: 'Shounen', id: '' },
-    { name: 'Shoujo', id: '' },
-    { name: 'Seinen', id: '' },
-    { name: 'Josei', id: '' },
-    { name: 'Psychological', id: '' },
-    { name: 'Mecha', id: '' },
-    { name: 'Magic', id: '' },
-    { name: 'Martial Arts', id: '' },
-    { name: 'Historical', id: '36' },
-    { name: 'Military', id: '10752' },
-    { name: 'Music', id: '10402' },
-    { name: 'Game', id: '' },
-    { name: 'Harem', id: '' },
-    { name: 'Demons', id: '' },
-    { name: 'Vampire', id: '' },
-    { name: 'Super Power', id: '' },
-    { name: 'Samurai', id: '' },
-    { name: 'Kids', id: '10762' },
-    { name: 'Space', id: '' },
-    { name: 'Police', id: '80' },
-    { name: 'Parody', id: '' },
-    { name: 'Cars', id: '' }
+    { name: 'Thriller', id: '53' }
 ];
 
 function renderAnimeGenres() {
@@ -790,13 +767,13 @@ async function loadAnime(isNew) {
 
     var params = {
         page: animePage,
-        with_genres: '16', // Animation
-        with_origin_country: 'JP', // Japan
-        sort_by: 'popularity.desc'
+        with_origin_country: 'JP',
+        sort_by: 'popularity.desc',
+        with_genres: '16' // Must be Animation
     };
 
     if (animeGenre) {
-        params.with_genres = '16,' + animeGenre;
+        params.with_genres = '16,' + animeGenre; // Animation AND selected genre
     }
 
     try {
