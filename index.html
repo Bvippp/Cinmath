@@ -71,28 +71,18 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
 
 
 
+
+
 <script>
-// v36 HEAD EARLY - Fixed homepage bug + ALL pages refresh SAME - every phone + laptop
+// v37 HEAD EARLY - Simple, homepage safe, ALL pages refresh SAME - iPhone 13 + every phone + laptop
 (function(){
   try{
     var href = window.location.href;
-    var hasQuery = href.indexOf('?view=')!==-1 || href.indexOf('&view=')!==-1 || href.indexOf('?movie=')!==-1 || href.indexOf('&movie=')!==-1 || href.indexOf('?tv=')!==-1 || href.indexOf('&tv=')!==-1 || href.indexOf('?q=')!==-1 || href.indexOf('&q=')!==-1;
+    var hasQuery = href.indexOf('?view=')!==-1 || href.indexOf('&view=')!==-1 || href.indexOf('?movie=')!==-1 || href.indexOf('&movie=')!==-1 || href.indexOf('?tv=')!==-1 || href.indexOf('&tv=')!==-1 || href.indexOf('?q=')!==-1 || href.indexOf('&q=')!==-1 || href.indexOf('?playing=')!==-1;
     var hasHash = href.indexOf('#view=')!==-1 || href.indexOf('#movie=')!==-1 || href.indexOf('#tv=')!==-1 || href.indexOf('#q=')!==-1;
-    var isHomeUrl = !hasQuery && !hasHash;
-    
-    var view, movie, tv, q, playing;
-    var sessionHref = null;
+    var view=null, movie=null, tv=null, q=null, playing=null;
     try{
-      sessionHref = sessionStorage.getItem('tubemocha_url_href') || localStorage.getItem('tubemocha_url_href');
-    }catch(e){}
-    
-    // Only use sessionHref backup if current URL is home but session had detail - server stripped query
-    var useSessionBackup = isHomeUrl && sessionHref && (sessionHref.indexOf('?view=')!==-1 || sessionHref.indexOf('?movie=')!==-1 || sessionHref.indexOf('&movie=')!==-1 || sessionHref.indexOf('?tv=')!==-1 || sessionHref.indexOf('#view=')!==-1);
-    
-    try{
-      var parseUrl = href;
-      if(useSessionBackup) parseUrl = sessionHref;
-      var url = new URL(parseUrl);
+      var url = new URL(href);
       view = url.searchParams.get('view');
       movie = url.searchParams.get('movie');
       tv = url.searchParams.get('tv');
@@ -106,74 +96,46 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
         if(hp.get('q')) q = hp.get('q');
         if(hp.get('playing')) playing = hp.get('playing');
       }
-      // If using session backup, we must restore query+hash to URL for refresh SAME
-      if(useSessionBackup && (view || movie || tv || q)){
-        try{
-          var hash = '#view=' + (view||'home');
-          if(movie) hash += '&movie=' + movie;
-          if(tv) hash += '&tv=' + tv;
-          if(q) hash += '&q=' + encodeURIComponent(q);
-          if(playing==='1') hash += '&playing=1';
-          var finalUrl = window.location.pathname + (url.search || '') + hash;
-          if(finalUrl.indexOf('?')===-1 && url.search) finalUrl = window.location.pathname + url.search + hash;
-          history.replaceState({view:view, movie:movie, tv:tv, q:q, playing:playing==='1'}, '', finalUrl);
-        }catch(e){}
-      }
     }catch(e){}
-    
-    // DO NOT use cookie for homepage - only if we have query/hash or session backup
-    if(!view && !movie && !tv && !q && !useSessionBackup){
-      // This is true homepage - do NOT hide home, do NOT inject CSS
-      window.__TUBEMOCHA_INITIAL_STATE__ = {view:'home', movie:null, tv:null, q:null, playing:null, href:href, isHome:true};
-      return;
+    var isHome = !view && !movie && !tv && !q;
+    window.__TUBEMOCHA_INITIAL_STATE__ = {view:view||'home', movie:movie, tv:tv, q:q, playing:playing, href:href, isHome:isHome};
+    if(isHome){ return; }
+    var css = '';
+    if(movie || tv){
+      css = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #detailOverlay{ display:block !important; opacity:1 !important; visibility:visible !important; } body{ overflow:hidden !important; }';
+    } else if(view && view!=='home'){
+      css = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #view-' + view + '{ display:block !important; } #view-' + view + '.view{ display:block !important; opacity:1 !important; }';
     }
-    
-    window.__TUBEMOCHA_INITIAL_STATE__ = {view:view, movie:movie, tv:tv, q:q, playing:playing, href:href, isHome:false};
-    
-    // Only inject hide CSS if NOT homepage
-    if(view || movie || tv || q){
-      var css = '';
-      if(movie || tv){
-        css = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #detailOverlay{ display:block !important; opacity:1 !important; visibility:visible !important; } body{ overflow:hidden !important; }';
-      } else if(view && view!=='home'){
-        css = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #view-' + view + '{ display:block !important; } #view-' + view + '.view{ display:block !important; opacity:1 !important; }';
-      }
-      if(css){
-        var style = document.createElement('style');
-        style.id = 'v36-head-early-hide';
-        style.textContent = css;
-        document.head.appendChild(style);
-      }
+    if(css){
+      var style = document.createElement('style');
+      style.id = 'v37-head-early-hide';
+      style.textContent = css;
+      document.head.appendChild(style);
     }
-    
-    // Preserve URL + set hash if has params
     try{
       var currentUrl = window.location.href;
-      var hasParams = currentUrl.indexOf('?view=')!==-1 || currentUrl.indexOf('?movie=')!==-1 || currentUrl.indexOf('&movie=')!==-1 || currentUrl.indexOf('?tv=')!==-1 || currentUrl.indexOf('&tv=')!==-1 || currentUrl.indexOf('?q=')!==-1 || currentUrl.indexOf('&q=')!==-1 || currentUrl.indexOf('#view=')!==-1;
-      if(hasParams){
-        var u = new URL(currentUrl);
-        var st = {view: u.searchParams.get('view'), movie: u.searchParams.get('movie'), tv: u.searchParams.get('tv'), q: u.searchParams.get('q'), playing: u.searchParams.get('playing')};
-        if(u.hash){
-          var h = new URLSearchParams(u.hash.substring(1));
-          if(!st.view && h.get('view')) st.view = h.get('view');
-          if(!st.movie && h.get('movie')) st.movie = h.get('movie');
-          if(!st.tv && h.get('tv')) st.tv = h.get('tv');
-          if(!st.q && h.get('q')) st.q = h.get('q');
-        }
-        var hash = u.hash || '';
-        if(!hash && (st.view || st.movie || st.tv || st.q)){
-          hash = '#view=' + (st.view||'home');
-          if(st.movie) hash += '&movie=' + st.movie;
-          if(st.tv) hash += '&tv=' + st.tv;
-          if(st.q) hash += '&q=' + encodeURIComponent(st.q);
-          if(st.playing) hash += '&playing=1';
-        }
-        var finalUrl = u.pathname + u.search + hash;
-        if(finalUrl!==currentUrl && finalUrl.indexOf('#')!==-1){
-          history.replaceState(st, '', finalUrl);
-        } else {
-          history.replaceState(st, '', currentUrl);
-        }
+      var u = new URL(currentUrl);
+      var st = {view: u.searchParams.get('view'), movie: u.searchParams.get('movie'), tv: u.searchParams.get('tv'), q: u.searchParams.get('q'), playing: u.searchParams.get('playing')};
+      if(u.hash){
+        var h = new URLSearchParams(u.hash.substring(1));
+        if(!st.view && h.get('view')) st.view = h.get('view');
+        if(!st.movie && h.get('movie')) st.movie = h.get('movie');
+        if(!st.tv && h.get('tv')) st.tv = h.get('tv');
+        if(!st.q && h.get('q')) st.q = h.get('q');
+      }
+      var hash = u.hash || '';
+      if(!hash && (st.view || st.movie || st.tv || st.q)){
+        hash = '#view=' + (st.view||'home');
+        if(st.movie) hash += '&movie=' + st.movie;
+        if(st.tv) hash += '&tv=' + st.tv;
+        if(st.q) hash += '&q=' + encodeURIComponent(st.q);
+        if(st.playing) hash += '&playing=1';
+      }
+      var finalUrl = u.pathname + u.search + hash;
+      if(finalUrl!==currentUrl && finalUrl.indexOf('#')!==-1){
+        history.replaceState(st, '', finalUrl);
+      } else if(hasQuery || hasHash){
+        history.replaceState(st, '', currentUrl);
       }
     }catch(e){}
   }catch(e){}
@@ -589,7 +551,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v36-homepage-fixed-all-same-v36';
+var TUBEMOCHA_BUILD = '2026-10-23-v37-homepage-fixed-simple-v37';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -1345,36 +1307,13 @@ loadInitial();
 
 
 
-// v36 CREATIVE FIX - homepage fixed + ALL pages refresh SAME - every phone + laptop + iPhone 13
+
+
+// v37 FIXED - homepage shows movies + ALL pages refresh SAME - iPhone 13 + every phone + laptop
 (function(){
   var RESTORED = false;
-  var DETAIL_HTML_KEY = 'tubemocha_detail_html_v9';
   var MOVIE_OBJ_KEY = 'tubemocha_last_movie_obj';
-  var STATE_KEY = 'tubemocha_state_v13';
-  
-  function setCookie(name, value, days){
-    try{
-      var expires = '';
-      if(days){
-        var d = new Date();
-        d.setTime(d.getTime() + (days*24*60*60*1000));
-        expires = '; expires=' + d.toUTCString();
-      }
-      document.cookie = name + '=' + encodeURIComponent(value) + expires + '; path=/; SameSite=Lax';
-    }catch(e){}
-  }
-  function getCookie(name){
-    try{
-      var nameEQ = name + '=';
-      var ca = document.cookie.split(';');
-      for(var i=0;i<ca.length;i++){
-        var c = ca[i];
-        while(c.charAt(0)==' ') c = c.substring(1,c.length);
-        if(c.indexOf(nameEQ)==0) return decodeURIComponent(c.substring(nameEQ.length,c.length));
-      }
-    }catch(e){}
-    return null;
-  }
+  var STATE_KEY = 'tubemocha_state_v14';
   
   function renderDetailFromCache(obj, rawId){
     try{
@@ -1411,25 +1350,12 @@ loadInitial();
   
   function saveState(view, movieId, tvId, q, playing, movieObj){
     try{
-      // Never save homepage as forced view from cookie - clear cookies when home
-      if(view==='home'){
-        try{
-          setCookie('tubemocha_view', 'home', 7);
-          setCookie('tubemocha_movie', '', -1);
-          setCookie('tubemocha_tv', '', -1);
-          setCookie('tubemocha_q', '', -1);
-        }catch(e){}
-      }
       var state = {view:view||'home',movie:movieId||null,tv:tvId||null,q:q||null,playing:!!playing,ts:Date.now(),url:window.location.href,
         movieData: movieObj ? {id:movieObj.id,t:movieObj.t,y:movieObj.y,r:movieObj.r,g:movieObj.g,d:movieObj.d,backdrop_path:movieObj.backdrop_path,poster_path:movieObj.poster_path,media_type:movieObj.media_type||(movieObj._tv?'tv':'movie'),runtime:movieObj.runtime,seasons:movieObj.seasons} : null};
       var json = JSON.stringify(state);
-      try{ localStorage.setItem('tubemocha_state_v13', json); }catch(e){}
+      try{ localStorage.setItem('tubemocha_state_v14', json); }catch(e){}
       try{ localStorage.setItem('tubemocha_state', json); }catch(e){}
-      try{ sessionStorage.setItem('tubemocha_session_v13', json); }catch(e){}
-      try{ localStorage.setItem('tubemocha_last_view', view||'home'); }catch(e){}
-      if(movieId) try{ localStorage.setItem('tubemocha_last_movie', movieId); }catch(e){}
-      if(tvId) try{ localStorage.setItem('tubemocha_last_tv', tvId); }catch(e){}
-      if(q) try{ localStorage.setItem('tubemocha_last_q', q); }catch(e){}
+      try{ sessionStorage.setItem('tubemocha_session_v14', json); }catch(e){}
       if(movieObj){
         try{
           var objJson = JSON.stringify(state.movieData);
@@ -1439,35 +1365,14 @@ loadInitial();
       }
       try{ sessionStorage.setItem('tubemocha_url_href', window.location.href); }catch(e){}
       try{ localStorage.setItem('tubemocha_url_href', window.location.href); }catch(e){}
-      try{ localStorage.setItem('tubemocha_force_view', view||''); }catch(e){}
-      try{ localStorage.setItem('tubemocha_force_movie', movieId||''); }catch(e){}
-      try{ localStorage.setItem('tubemocha_force_tv', tvId||''); }catch(e){}
-      try{ localStorage.setItem('tubemocha_force_q', q||''); }catch(e){}
-      try{ localStorage.setItem('tubemocha_force_playing', playing?'1':''); }catch(e){}
-      if(view!=='home'){
-        try{
-          setCookie('tubemocha_view', view||'home', 7);
-          if(movieId) setCookie('tubemocha_movie', movieId, 7);
-          if(tvId) setCookie('tubemocha_tv', tvId, 7);
-          if(q) setCookie('tubemocha_q', q, 7);
-          setCookie('tubemocha_playing', playing?'1':'0', 7);
-          setCookie('tubemocha_href', window.location.href, 7);
-        }catch(e){}
-      }
       try{
         var hash = '#view=' + (view||'home');
         if(movieId) hash += '&movie=' + movieId;
         if(tvId) hash += '&tv=' + tvId;
         if(q) hash += '&q=' + encodeURIComponent(q);
         if(playing) hash += '&playing=1';
-        if(window.location.hash !== hash){
+        if(window.location.hash !== hash && view!=='home'){
           history.replaceState(history.state, '', window.location.pathname + window.location.search + hash);
-        }
-      }catch(e){}
-      try{
-        var overlay = document.getElementById('detailOverlay');
-        if(overlay && overlay.classList.contains('open') && overlay.innerHTML.length>100){
-          localStorage.setItem(DETAIL_HTML_KEY, overlay.innerHTML.substring(0, 60000));
         }
       }catch(e){}
     }catch(e){}
@@ -1499,32 +1404,39 @@ loadInitial();
         if(hp.get('q')) q = hp.get('q');
         if(hp.get('playing')==='1') playing = true;
       }
-      // If homepage URL (no query/hash), check session backup - server stripped
       if(!movie && !tv && !view && !q){
         try{
-          var sh = sessionStorage.getItem('tubemocha_url_href') || localStorage.getItem('tubemocha_url_href');
-          if(sh){
-            var su = new URL(sh);
-            if(su.searchParams.get('movie') || su.searchParams.get('tv') || su.searchParams.get('view') || su.searchParams.get('q') || su.hash){
-              movie = su.searchParams.get('movie');
-              tv = su.searchParams.get('tv');
-              view = su.searchParams.get('view');
-              q = su.searchParams.get('q');
-              playing = su.searchParams.get('playing')==='1';
-              if(su.hash){
-                var shp = new URLSearchParams(su.hash.substring(1));
-                if(shp.get('movie')) movie = shp.get('movie');
-                if(shp.get('tv')) tv = shp.get('tv');
-                if(shp.get('view')) view = shp.get('view');
-                if(shp.get('q')) q = shp.get('q');
-                if(shp.get('playing')==='1') playing = true;
+          var isReload = false;
+          try{
+            var nav = performance.getEntriesByType('navigation')[0];
+            if(nav && nav.type==='reload') isReload = true;
+          }catch(e){
+            try{ if(performance.navigation && performance.navigation.type===1) isReload = true; }catch(e2){}
+          }
+          if(isReload){
+            var sh = sessionStorage.getItem('tubemocha_url_href');
+            if(sh){
+              var su = new URL(sh);
+              if(su.searchParams.get('movie') || su.searchParams.get('tv') || su.searchParams.get('view') || su.searchParams.get('q')){
+                movie = su.searchParams.get('movie');
+                tv = su.searchParams.get('tv');
+                view = su.searchParams.get('view');
+                q = su.searchParams.get('q');
+                playing = su.searchParams.get('playing')==='1';
+                if(su.hash){
+                  var shp = new URLSearchParams(su.hash.substring(1));
+                  if(shp.get('movie')) movie = shp.get('movie');
+                  if(shp.get('tv')) tv = shp.get('tv');
+                  if(shp.get('view')) view = shp.get('view');
+                  if(shp.get('q')) q = shp.get('q');
+                }
+                if(movie || tv || view){
+                  return {view:view, movie:movie, tv:tv, q:q, playing:playing, isHome:false};
+                }
               }
             }
           }
         }catch(e){}
-      }
-      if(!movie && !tv && !view && !q){
-        // True homepage - return home
         return {view:'home', movie:null, tv:null, q:null, playing:false, isHome:true};
       }
       return {view:view,movie:movie,tv:tv,q:q,playing:playing, isHome:false};
@@ -1550,12 +1462,6 @@ loadInitial();
         }
       }
     }catch(e){}
-    try{
-      if(typeof allCache!=='undefined' && allCache.length){
-        var m = allCache.find(function(x){ return String(x.id)===String(id) && (x.media_type==='tv')===isTV; });
-        if(m){ await openMovie(rawId); return true; }
-      }
-    }catch(e){}
     try{ await openMovie(rawId); return true; }catch(e){
       try{
         var overlay = document.getElementById('detailOverlay');
@@ -1572,20 +1478,21 @@ loadInitial();
     RESTORED = true;
     try{
       var state = getState();
-      if(state.isHome || (!state.movie && !state.tv && !state.view) || state.view==='home'){
-        console.log('[v36] Homepage - no restore needed');
+      if(state.isHome){
+        console.log('[v37] Homepage - show movies');
         try{
           var home = document.getElementById('view-home');
           if(home){ home.classList.add('active'); home.style.display='block'; }
           var detail = document.getElementById('detailOverlay');
           if(detail){ detail.classList.remove('open'); }
           document.body.style.overflow='';
-          var early = document.getElementById('v36-head-early-hide');
+          var early = document.getElementById('v37-head-early-hide');
           if(early) early.remove();
+          if(typeof loadHome==='function'){ try{ loadHome(); }catch(e){} }
         }catch(e){}
         return;
       }
-      console.log('[v36] Restoring ALL phones+laptops:', state);
+      console.log('[v37] Restoring same page:', state);
       
       if(state.movie || state.tv){
         var rawId = state.movie || ('tv-'+state.tv);
@@ -1647,7 +1554,7 @@ loadInitial();
           }
         }
       }
-    }catch(e){ console.log('[v36] restore error', e); }
+    }catch(e){ console.log('[v37] restore error', e); }
   }
   
   var _nav = window.navigate;
@@ -1670,7 +1577,7 @@ loadInitial();
         if(push) history.pushState(st,'',url); else history.replaceState(st,'',url);
         saveState(view,st.movie,st.tv,st.q,st.playing,window.currentMovie||null);
       }catch(e){}
-    }catch(err){ console.log('navigate v36',err); }
+    }catch(err){ console.log('navigate v37',err); }
   };
   
   if(window.openMovie){
@@ -1773,15 +1680,15 @@ loadInitial();
       }
     }catch(e){}
     restoreALL();
-    setTimeout(restoreALL, 300);
-    setTimeout(restoreALL, 1000);
+    setTimeout(restoreALL, 400);
+    setTimeout(restoreALL, 1200);
     setTimeout(restoreALL, 3000);
   }
   
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
   else setTimeout(init, 50);
   
-  window.addEventListener('load', function(){ setTimeout(restoreALL, 200); setTimeout(restoreALL, 2000); });
+  window.addEventListener('load', function(){ setTimeout(restoreALL, 300); setTimeout(restoreALL, 2000); });
   
   window.addEventListener('popstate', function(e){
     try{
@@ -1794,7 +1701,7 @@ loadInitial();
           var detail = document.getElementById('detailOverlay');
           if(detail){ detail.classList.remove('open'); }
           document.body.style.overflow='';
-          var early = document.getElementById('v36-head-early-hide');
+          var early = document.getElementById('v37-head-early-hide');
           if(early) early.remove();
         }catch(e){}
         navigate('home');
@@ -1825,13 +1732,13 @@ loadInitial();
       if(p&&p.classList.contains('open')) closePlayer();
       else if(d&&d.classList.contains('open')) d.classList.remove('open');
       else navigate('home');
-    }catch(err){ console.log('popstate v36',err); }
+    }catch(err){ console.log('popstate v37',err); }
   });
   
   window.addEventListener('beforeunload', function(){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} });
   document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden'){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} } });
   document.addEventListener('click', function(){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} });
-  setInterval(function(){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} }, 1000);
+  setInterval(function(){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} }, 1200);
 })();
 
 </script>
