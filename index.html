@@ -44,184 +44,10 @@
 .legal-notice { background: var(--bg-card); padding: 20px; border-radius: var(--radius-md); margin: 20px 0; border: 1px solid var(--border); font-size: 15px; color: var(--text-main); }
 .legal-link { color: var(--accent-red); font-weight: 600; text-decoration: none; }
 .legal-link:hover { text-decoration: underline; }
-
-/* v17 fix: TM like M - same size same place lighter */
-.topbar,.navbar,.header-bar,.site-header{background:transparent !important;box-shadow:none !important;border:none !important}
-.hero,.hero-section,.banner{margin-top:0 !important;padding-top:0 !important}
-
-/* v18 FIX: Professional TM + TUBEMOCHA like M site - single TM, left neatly near search, dark modern brown, same size/font as M */
-.logo{position:relative !important;top:auto !important;left:auto !important;z-index:10 !important;display:flex !important;align-items:center !important;gap:10px !important;background:transparent !important;padding:0 !important;cursor:pointer !important;filter:none !important;transform:none !important;flex-shrink:0 !important}
-.logo .m{width:auto !important;height:auto !important;border-radius:0 !important;background:transparent !important;color:#8d6e63 !important;display:block !important;position:relative !important;transform:none !important;box-shadow:none !important;overflow:visible !important;flex-shrink:0 !important;padding:0 !important;margin:0 !important;font-family:'Bebas Neue','Anton','Oswald',sans-serif !important;font-weight:900 !important;font-size:36px !important;letter-spacing:-0.02em !important;line-height:1 !important;text-transform:uppercase !important;background:none !important;-webkit-text-fill-color:#5d4037 !important;background-clip:unset !important;-webkit-background-clip:unset !important;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.6))}
-.logo b{display:inline-block !important;font-family:'Bebas Neue','Anton','Oswald',sans-serif !important;font-weight:800 !important;font-size:20px !important;letter-spacing:0.02em !important;line-height:1 !important;transform:none !important;color:#8d6e63 !important;background:none !important;-webkit-text-fill-color:#8d6e63 !important;background-clip:unset !important;-webkit-background-clip:unset !important;filter:none !important;margin-left:0 !important;text-transform:uppercase !important;opacity:0.95}
-.topbar-inner{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:16px !important;padding:12px 16px !important}
-.search-top{flex:1 !important;max-width:500px !important;margin-left:auto !important}
-
-/* v19 FIX: All rectangle lines same color as TM logo #5d4037 */
-.section-accent{width:4px !important;height:24px !important;background:#5d4037 !important;border-radius:2px !important}
-.section-accent.brown{background:#5d4037 !important}
-.section-accent.blue{background:#5d4037 !important}
-span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !important;display:inline-block !important;border-radius:2px !important}
-.page-header-title span.line{background:#5d4037 !important}
-.row-title::before,.section-title::before,.category-title::before{background:#5d4037 !important}
-[class*="accent"]{--accent:#5d4037 !important;--accent-red:#5d4037 !important}
-
 </style>
-
-<script>
-// v42 HEAD EARLY - movy.sx exact + sessionStorage reload fallback + homepage FORCE visible + ALL same page - iPhone 13 + every phone + laptop - longest research
-(function(){
-  try{
-    var href = window.location.href;
-    var view=null, movie=null, tv=null, q=null, playing=null;
-    var isReload = false;
-    try{
-      if(performance && performance.navigation && performance.navigation.type===1) isReload=true;
-      if(performance && performance.getEntriesByType){
-        var nav = performance.getEntriesByType('navigation');
-        if(nav && nav[0] && nav[0].type==='reload') isReload=true;
-      }
-    }catch(e){}
-    
-    try{
-      var url = new URL(href);
-      if(url.hash){
-        var hp = new URLSearchParams(url.hash.substring(1));
-        if(hp.get('view')) view = hp.get('view');
-        if(hp.get('movie')) movie = hp.get('movie');
-        if(hp.get('tv')) tv = hp.get('tv');
-        if(hp.get('q')) q = hp.get('q');
-        if(hp.get('playing')) playing = hp.get('playing');
-      }
-      if(!view && !movie && !tv && !q){
-        view = url.searchParams.get('view');
-        movie = url.searchParams.get('movie');
-        tv = url.searchParams.get('tv');
-        q = url.searchParams.get('q');
-        playing = url.searchParams.get('playing');
-      }
-      if(!movie && !tv && !view){
-        var path = url.pathname;
-        var parts = path.split('/').filter(Boolean);
-        if(parts.length>=2 && parts[0]==='movie'){ movie=parts[1]; view='detail'; }
-        else if(parts.length>=2 && parts[0]==='tv'){ tv=parts[1]; view='detail'; }
-        else if(parts.length>=2 && parts[0]==='detail'){
-          var idPart=parts[1];
-          if(idPart.indexOf('tv-')===0){ tv=idPart.substring(3); } else { movie=idPart; }
-          view='detail';
-        }
-      }
-    }catch(e){}
-    
-    // movy.sx exact + sessionStorage reload fallback for abrdns.com stripping
-    if(!view && !movie && !tv && !q){
-      try{
-        if(isReload){
-          var sess = sessionStorage.getItem('tubemocha_session_v18') || sessionStorage.getItem('tubemocha_session_v17') || sessionStorage.getItem('tubemocha_state_v18') || localStorage.getItem('tubemocha_state_v18');
-          if(sess){
-            var obj = JSON.parse(sess);
-            if(obj && obj.view && obj.view!=='home'){
-              // Only restore if saved within 30 seconds and URL is stripped to /
-              var age = Date.now() - (obj.ts||0);
-              if(age < 30000){
-                view = obj.view;
-                movie = obj.movie;
-                tv = obj.tv;
-                q = obj.q;
-                playing = obj.playing ? '1' : null;
-                console.log('[v42] Reload fallback from sessionStorage', obj);
-              }
-            }
-          }
-          // Also check url_href backup
-          if(!view){
-            var urlHref = sessionStorage.getItem('tubemocha_url_href') || localStorage.getItem('tubemocha_url_href');
-            if(urlHref){
-              try{
-                var u2 = new URL(urlHref);
-                var v2 = u2.searchParams.get('view') || u2.hash.match(/view=([^&]+)/);
-                if(v2){
-                  if(typeof v2!=='string') v2 = u2.searchParams.get('view');
-                  var hp2 = u2.hash ? new URLSearchParams(u2.hash.substring(1)) : null;
-                  if(hp2){
-                    if(hp2.get('view')) view = hp2.get('view');
-                    if(hp2.get('movie')) movie = hp2.get('movie');
-                    if(hp2.get('tv')) tv = hp2.get('tv');
-                    if(hp2.get('q')) q = hp2.get('q');
-                    if(hp2.get('playing')) playing = hp2.get('playing');
-                  }
-                  if(!view) view = u2.searchParams.get('view');
-                  if(!movie) movie = u2.searchParams.get('movie');
-                  if(!tv) tv = u2.searchParams.get('tv');
-                  if(!q) q = u2.searchParams.get('q');
-                }
-              }catch(e){}
-            }
-          }
-        }
-      }catch(e){}
-    }
-    
-    var isHome = !view && !movie && !tv && !q;
-    if(view==='home') isHome = true;
-    
-    window.__TUBEMOCHA_INITIAL_STATE__ = {view:view||'home', movie:movie, tv:tv, q:q, playing:playing, href:href, isHome:isHome, isReload:isReload};
-    
-    try{
-      var ids=['v42-head-early-hide','v42-head-early-home','v41-head-early-hide','v41-head-early-home','v40-head-early-hide','v40-head-early-home'];
-      for(var i=0;i<ids.length;i++){
-        var el=document.getElementById(ids[i]);
-        if(el) el.remove();
-      }
-    }catch(e){}
-    
-    if(isHome){
-      var css = '#view-home{ display:block !important; visibility:visible !important; opacity:1 !important; } #view-home.active{ display:block !important; } #view-profile, #view-movies, #view-tv, #view-search, #view-watchlist, #view-help, #view-terms, #view-privacy, #view-dmca{ display:none !important; } #detailOverlay, #playerOverlay{ display:none !important; }';
-      var style = document.createElement('style');
-      style.id = 'v42-head-early-home';
-      style.textContent = css;
-      document.head.appendChild(style);
-      return;
-    }
-    
-    var css2 = '';
-    if(movie || tv){
-      css2 = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #detailOverlay{ display:block !important; opacity:1 !important; visibility:visible !important; } body{ overflow:hidden !important; }';
-    } else if(view && view!=='home'){
-      css2 = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #view-' + view + '{ display:block !important; } #view-' + view + '.view{ display:block !important; opacity:1 !important; }';
-    }
-    if(css2){
-      var style2 = document.createElement('style');
-      style2.id = 'v42-head-early-hide';
-      style2.textContent = css2;
-      document.head.appendChild(style2);
-    }
-    
-    try{
-      var currentUrl = window.location.href;
-      var u = new URL(currentUrl);
-      var st = {view: view||u.searchParams.get('view'), movie: movie||u.searchParams.get('movie'), tv: tv||u.searchParams.get('tv'), q: q||u.searchParams.get('q'), playing: playing||u.searchParams.get('playing')};
-      var hash = u.hash || '';
-      if(!hash && (st.view || st.movie || st.tv || st.q)){
-        hash = '#view=' + (st.view||'home');
-        if(st.movie) hash += '&movie=' + st.movie;
-        if(st.tv) hash += '&tv=' + st.tv;
-        if(st.q) hash += '&q=' + encodeURIComponent(st.q);
-        if(st.playing==='1' || st.playing===true) hash += '&playing=1';
-      }
-      var finalUrl = u.pathname + u.search + hash;
-      if(finalUrl!==currentUrl && finalUrl.indexOf('#')!==-1){
-        history.replaceState(st, '', finalUrl);
-      } else {
-        history.replaceState(st, '', currentUrl);
-      }
-    }catch(e){}
-  }catch(e){}
-})();
-</script>
-
 </head>
 <body>
-<div class="topbar"><div class="topbar-inner"><div class="logo" onclick="navigate('home')"><div class="m">TM</div><b>TUBEMOCHA</b></div><div class="search-top"><form class="search-form" action="." method="get" role="search" autocomplete="off" onsubmit="return handleSearch(event)"><input id="q" type="search" name="search" placeholder="Search movies, TV shows..." /><button type="submit" aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button></form></div></div></div>
+<div class="topbar"><div class="topbar-inner"><div class="logo" onclick="window.location.hash='#home'"><div class="m">TM</div><b>TUBEMOCHA</b></div><div class="search-top"><form class="search-form" action="." method="get" role="search" autocomplete="off" onsubmit="return handleSearch(event)"><input id="q" type="search" name="search" placeholder="Search movies, TV shows..." /><button type="submit" aria-label="Search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button></form></div></div></div>
 <div id="view-home" class="view active"><div class="hero" id="hero">
 <div class="hero-slide active" id="heroSlide1"><img class="hero-bg" id="heroBg1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle1">Loading...</h1><div class="hero-meta" id="heroMeta1"></div><p class="hero-desc" id="heroDesc1"></p><div class="hero-actions"><button class="btn-play" id="heroPlay1">Play</button><button class="btn-info" id="heroInfo1">More info</button></div></div></div>
 <div class="hero-slide" id="heroSlide2"><img class="hero-bg" id="heroBg2" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle2">Loading...</h1><div class="hero-meta" id="heroMeta2"></div><p class="hero-desc" id="heroDesc2"></p><div class="hero-actions"><button class="btn-play" id="heroPlay2">Play</button><button class="btn-info" id="heroInfo2">More info</button></div></div></div>
@@ -529,12 +355,12 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
 <button class="custom-btn fs-btn" onclick="toggleFullscreen(event)" title="Toggle Fullscreen" style="background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
 </div></div></div>
 <div class="bottom" id="bottomNav">
-<button id="b-home" class="active" onclick="navigate('home')"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
-<button id="b-movies" onclick="navigate('movies')"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></button>
-<button id="b-tv" onclick="navigate('tv')"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></button>
-<button id="b-watchlist" onclick="navigate('watchlist')"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
-<button id="b-search" onclick="navigate('search')"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
-<button id="b-profile" onclick="navigate('profile')"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
+<button id="b-home" class="active" onclick="window.location.hash='#home'"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
+<button id="b-movies" onclick="window.location.hash='#movies'"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></button>
+<button id="b-tv" onclick="window.location.hash='#tv'"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></button>
+<button id="b-watchlist" onclick="window.location.hash='#watchlist'"><svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></button>
+<button id="b-search" onclick="window.location.hash='#search'"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+<button id="b-profile" onclick="window.location.hash='#profile'"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></button>
 </div>
 <div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')"><div class="genre-sheet"><h3>Select Genre</h3><div class="ggrid"><button onclick="setFilter('genre','','All Genres')">All Genres</button><button onclick="setFilter('genre','28','Action')">Action</button><button onclick="setFilter('genre','12','Adventure')">Adventure</button><button onclick="setFilter('genre','16','Animation')">Animation</button><button onclick="setFilter('genre','35','Comedy')">Comedy</button><button onclick="setFilter('genre','80','Crime')">Crime</button><button onclick="setFilter('genre','18','Drama')">Drama</button><button onclick="setFilter('genre','27','Horror')">Horror</button><button onclick="setFilter('genre','10749','Romance')">Romance</button><button onclick="setFilter('genre','878','Sci-Fi')">Sci-Fi</button><button onclick="setFilter('genre','53','Thriller')">Thriller</button></div></div></div>
 <div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')"><div class="genre-sheet"><h3>Select Year</h3><div class="ggrid"><button onclick="setFilter('year','','All Years')">All Years</button><button onclick="setFilter('year','2025','2025')">2025</button><button onclick="setFilter('year','2024','2024')">2024</button><button onclick="setFilter('year','2023','2023')">2023</button><button onclick="setFilter('year','2022','2022')">2022</button><button onclick="setFilter('year','2020','2020')">2020</button><button onclick="setFilter('year','2010','2010')">2010</button><button onclick="setFilter('year','2000','2000')">2000</button></div></div></div>
@@ -543,26 +369,60 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
 <div class="toast" id="toast"></div>
 <footer>
 <div class="legal-links">
-    <a onclick="navigate('help')">Get Help</a>
+    <a onclick="window.location.hash='#help'">Get Help</a>
     <span>•</span>
-    <a onclick="navigate('terms')">Terms</a>
+    <a onclick="window.location.hash='#terms'">Terms</a>
     <span>•</span>
-    <a onclick="navigate('privacy')">Privacy</a>
+    <a onclick="window.location.hash='#privacy'">Privacy</a>
     <span>•</span>
-    <a onclick="navigate('dmca')">DMCA</a>
+    <a onclick="window.location.hash='#dmca'">DMCA</a>
     <span>•</span>
     <a href="https://www.vidy.st/" target="_blank" rel="noopener noreferrer">API</a>
 </div>
 <div class="site-disclaimer" style="border:none; margin:0 auto;"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div>
 </footer>
 <script>
-window.addEventListener('popstate', function(event) {
-if (document.getElementById('playerOverlay').classList.contains('open')) { closePlayer(); } 
-else if (document.getElementById('detailOverlay').classList.contains('open')) {
-document.getElementById('detailOverlay').classList.remove('open');
-document.getElementById('detailTrailerBg').innerHTML = '';
-if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { window.scrollTo(0, 1); setTimeout(function() { window.scrollTo(0, 0); }, 50); }
+var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
+var TMDB_BASE = 'https://api.themoviedb.org/3';
+var IMG = 'https://image.tmdb.org/t/p/w500';
+var BACKDROP = 'https://image.tmdb.org/t/p/original';
+var PROFILE = 'https://image.tmdb.org/t/p/w185';
+var filterState = { genre: '', year: '', country: '', sort: 'popularity.desc', page: 1 };
+var moviesPage = 1, tvPage = 1;
+var allCache = [], currentMovie = null, heroMovies = [];
+var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
+var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
+var TUBEMOCHA_BUILD = '2026-10-24-v44-single-router-stability-fix';
+localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
+console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
+
+// === VIDY SINGLE SERVER ===
+var VIDY_COLOR = 'DC2626';
+var VIDY_BASE = 'https://www.vidy.st';
+var EMBED_PROVIDERS = [
+{ 
+  name: 'Vidy', 
+  movie: function(id) { return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true'; }, 
+  tv: function(id, s, e) { return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true'; }
 }
+];
+var currentProviderIndex = 0;
+var playerState = { currentServer: 0, loadStartTime: 0 };
+var consecutiveFailures = 0;
+var autoSwitchTimer = null;
+
+window.addEventListener('message', function(event) {
+    try{ if(event.origin && event.origin.indexOf('vidy.st') === -1) return; }catch(e){}
+    var raw = event.data;
+    var dataStr = '';
+    try{ if(typeof raw === 'string') dataStr = raw.toLowerCase(); else dataStr = JSON.stringify(raw).toLowerCase(); }catch(e){ dataStr = String(raw).toLowerCase(); }
+    if(dataStr.indexOf('playing')>-1 || dataStr.indexOf('timeupdate')>-1 || dataStr.indexOf('progress')>-1 || dataStr.indexOf('ready')>-1){
+        var iframeEl = document.getElementById('playerIframeContainer') ? document.getElementById('playerIframeContainer').querySelector('iframe') : null;
+        if(iframeEl){ iframeEl.style.opacity='1'; iframeEl.style.pointerEvents='auto'; }
+        var loader = document.getElementById('playerLoader');
+        if(loader) loader.style.display='none';
+        hideSwitchBanner();
+    }
 });
 
 function toggleHelp(element) {
@@ -577,91 +437,6 @@ function toggleHelp(element) {
     }
 }
 
-var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
-var TMDB_BASE = 'https://api.themoviedb.org/3';
-var IMG = 'https://image.tmdb.org/t/p/w500';
-var BACKDROP = 'https://image.tmdb.org/t/p/original';
-var PROFILE = 'https://image.tmdb.org/t/p/w185';
-var filterState = { genre: '', year: '', country: '', sort: 'popularity.desc', page: 1 };
-var moviesPage = 1, tvPage = 1;
-var allCache = [], currentMovie = null, heroMovies = [];
-var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
-var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v43-movy-sx-unified-router-reload-fix';
-localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
-console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
-
-// === VIDY SINGLE SERVER v8 ===
-var VIDY_COLOR = 'DC2626';
-var VIDY_BASE = 'https://www.vidy.st';
-
-var EMBED_PROVIDERS = [
-{ 
-  name: 'Vidy', 
-  movie: function(id) { 
-    return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true'; 
-  }, 
-  tv: function(id, s, e) { 
-    return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true'; 
-  }
-}
-];
-var currentProviderIndex = 0;
-var playerState = { currentServer: 0, loadStartTime: 0 };
-var consecutiveFailures = 0;
-var autoSwitchTimer = null;
-
-window.addEventListener('message', function(event) {
-    try{
-        if(event.origin && event.origin.indexOf('vidy.st') === -1) return;
-    }catch(e){}
-    var raw = event.data;
-    var dataStr = '';
-    try{
-      if(typeof raw === 'string') dataStr = raw.toLowerCase();
-      else dataStr = JSON.stringify(raw).toLowerCase();
-    }catch(e){ dataStr = String(raw).toLowerCase(); }
-    
-    if(dataStr.indexOf('playing')>-1 || dataStr.indexOf('timeupdate')>-1 || dataStr.indexOf('progress')>-1 || dataStr.indexOf('ready')>-1){
-        var iframeEl = document.getElementById('playerIframeContainer') ? document.getElementById('playerIframeContainer').querySelector('iframe') : null;
-        if(iframeEl){ iframeEl.style.opacity='1'; iframeEl.style.pointerEvents='auto'; }
-        var loader = document.getElementById('playerLoader');
-        if(loader) loader.style.display='none';
-        hideSwitchBanner();
-        console.log('[TUBEMOCHA-Vidy] Player event:', dataStr.substring(0,120));
-    }
-});
-
-function closePlayer(e){
-  if(e) e.stopPropagation();
-  var overlay = document.getElementById('playerOverlay');
-  overlay.classList.remove('open');
-  document.body.style.overflow = '';
-  var container = document.getElementById('playerIframeContainer');
-  container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
-  clearTimeout(window._idleTimer);
-  
-  // Update route back to detail
-  var isTV = currentMovie && (currentMovie.media_type === 'tv' || currentMovie._tv);
-  var id = currentMovie ? currentMovie.id : null;
-  if(id){
-    window.location.hash = (isTV ? 'tv-' : 'movie-') + id;
-  }
-}
-
-function toggleFullscreen(e) {
-if (e) { e.preventDefault(); e.stopPropagation(); }
-var overlay = document.getElementById('playerOverlay');
-if (!document.fullscreenElement) {
-if (overlay.requestFullscreen) { overlay.requestFullscreen(); }
-else if (overlay.webkitRequestFullscreen) { overlay.webkitRequestFullscreen(); }
-else if (overlay.msRequestFullscreen) { overlay.msRequestFullscreen(); }
-} else {
-if (document.exitFullscreen) { document.exitFullscreen(); }
-else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
-else if (document.msExitFullscreen) { document.msExitFullscreen(); }
-}
-}
 function toast(m){
 var e = document.getElementById('toast');
 if(!e) return;
@@ -717,7 +492,7 @@ var genres = (m.g || ['Movie']).slice(0,2).join(' • ');
 var badgeClass = isTV ? 'tv' : 'hd';
 var badgeText = isTV ? 'TV' : 'HD';
 var clickId = isTV ? ('tv-' + m.id) : m.id;
-return '<div class="card" onclick="openMovie(\'' + clickId + '\')"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge ' + badgeClass + '">' + badgeText + '</span><span class="badge rating"><span>★</span> ' + rating + '</span></div><div class="card-info"><div class="card-title">' + title + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span>' + year + '<span class="s-sep">·</span>' + genres + '</div></div></div>';
+return '<div class="card" onclick="window.location.hash=\'#' + clickId + '\'"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge ' + badgeClass + '">' + badgeText + '</span><span class="badge rating"><span>★</span> ' + rating + '</span></div><div class="card-info"><div class="card-title">' + title + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span>' + year + '<span class="s-sep">·</span>' + genres + '</div></div></div>';
 }catch(e){ return ''; }
 }
 function upcomingCardHTML(m) {
@@ -741,7 +516,7 @@ if (parseInt(m.y) >= currentYear) isNewSeason = true;
 }
 var seasonInfo = 'S1.E1'; 
 var newSeasonBadge = isNewSeason ? '<span class="badge new-season">New season</span>' : '';
-return '<div class="card" onclick="openMovie(\'' + clickId + '\')"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge rating"><span>★</span> ' + rating + '</span>' + newSeasonBadge + '</div><div class="card-info"><div class="card-title">' + title + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span> ' + seasonInfo + '<span class="s-sep">·</span> ' + dateStr + '</div></div></div>';
+return '<div class="card" onclick="window.location.hash=\'#' + clickId + '\'"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge rating"><span>★</span> ' + rating + '</span>' + newSeasonBadge + '</div><div class="card-info"><div class="card-title">' + title + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span> ' + seasonInfo + '<span class="s-sep">·</span> ' + dateStr + '</div></div></div>';
 } catch(e) { return ''; }
 }
 async function tmdb(path, params) {
@@ -809,8 +584,8 @@ if(descEl) descEl.textContent = h.d;
 var typeStr = h._tv ? 'TV Show' : 'Movie';
 var genresStr = h.g ? h.g.slice(0, 2).join(' & ') : '';
 if(metaEl) metaEl.innerHTML = '<span class="star">★ ' + h.r + '</span><span class="divider">·</span><span>' + h.y + '</span><span class="divider">·</span><span>' + typeStr + '</span>' + (genresStr ? '<span class="divider">·</span><span>' + genresStr + '</span>' : '');
-if(playEl) playEl.onclick = function() { openMovie(h._tv ? 'tv-'+h.id : h.id); };
-if(infoEl) infoEl.onclick = function() { openMovie(h._tv ? 'tv-'+h.id : h.id); };
+if(playEl) playEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : h.id); };
+if(infoEl) infoEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : h.id); };
 });
 setHeroSlide(0);
 }
@@ -932,31 +707,11 @@ document.getElementById('tvPageNum').textContent = tvPage;
 var d = await tmdb('/discover/tv', {sort_by:'popularity.desc', page:tvPage});
 if(d && d.results) document.getElementById('tvGrid').innerHTML += d.results.map(mapResult).map(cardHTML).join('');
 }
-var currentView = 'home';
-function navigate(view, push){
-document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
-var target = document.getElementById('view-' + view);
-if(target) target.classList.add('active');
-document.querySelectorAll('.bottom button').forEach(function(b) { b.classList.remove('active'); });
-var bid = 'b-' + view; var btn = document.getElementById(bid);
-if(btn) btn.classList.add('active');
-window.scrollTo({top:0, behavior:'smooth'});
-if(view === 'movies') loadMoviesPage();
-if(view === 'tv') loadTVPage();
-if(view === 'watchlist') renderWatchlist();
-if(view === 'search') document.getElementById('q').focus();
-currentView = view;
-// Update hash route
-if (view === 'home') {
-  window.location.hash = '';
-} else {
-  window.location.hash = view;
-}
-}
-function openGenrePage(genreId, genreName) { navigate('movies'); setFilter('genre', genreId, genreName); }
+function openGenrePage(genreId, genreName) { window.location.hash='#movies'; setTimeout(function(){ setFilter('genre', genreId, genreName); }, 100); }
 async function loadPopularGenres() {
 var genres = [ { id: '35', name: 'Comedy' }, { id: '28', name: 'Action' }, { id: '18', name: 'Drama' }, { id: '27', name: 'Horror' }, { id: '878', name: 'Sci-Fi' } ];
 var track = document.getElementById('genresTrack');
+if(!track) return;
 track.innerHTML = '';
 for (var i = 0; i < genres.length; i++) {
 var g = genres[i];
@@ -981,12 +736,11 @@ function handleSearch(e){
 e.preventDefault();
 var q = e.target.querySelector('input').value.trim();
 if(!q) return false;
-doSearch(q);
+window.location.hash = '#search=' + encodeURIComponent(q);
 return false;
 }
 async function doSearch(q){
 searchQuery = q; searchPage = 1; searchAllResults = [];
-navigate('search');
 var grid = document.getElementById('searchGrid');
 grid.innerHTML = '<div class="empty">Searching…</div>';
 document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
@@ -1001,8 +755,6 @@ var movPages = (mov && mov.total_pages) ? mov.total_pages : 0;
 var tvPages = (tv && tv.total_pages) ? tv.total_pages : 0;
 searchTotalPages = Math.min(500, Math.max(movPages, tvPages));
 renderSearchResults();
-// Update hash for search
-window.location.hash = 'search=' + encodeURIComponent(q);
 }
 function renderSearchResults(){
 var grid = document.getElementById('searchGrid');
@@ -1027,7 +779,8 @@ renderSearchResults();
 }
 var currentSeason = 1;
 var currentEpisode = 1;
-async function openMovie(rawId){
+
+async function showDetail(rawId, shouldPlay){
 var isTV = false, id = rawId;
 if(typeof rawId === 'string' && rawId.indexOf('tv-') === 0){ isTV = true; id = rawId.substring(3); }
 var m = allCache.find(function(x) { return String(x.id) === String(id) && (x.media_type === 'tv') === isTV; }) || watchlist.find(function(x) { return String(x.id) === String(id); });
@@ -1072,8 +825,8 @@ document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20
 loadRecommendations(currentMovie);
 document.getElementById('detailOverlay').classList.add('open');
 if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { window.scrollTo(0, 1); setTimeout(function() { window.scrollTo(0, 0); }, 50); }
-// Update hash for detail
-window.location.hash = (isTV ? 'tv-' : 'movie-') + id;
+
+if (shouldPlay) { playCurrentMedia(); }
 }
 async function loadRecommendations(movie) {
 var container = document.getElementById('recommendationsContainer');
@@ -1149,9 +902,23 @@ async function playCurrentMedia(){
   document.addEventListener('mousemove', resetTimer);
   document.addEventListener('touchstart', resetTimer);
   resetTimer();
-  // Update hash to player state
-  var isTV = currentMovie.media_type === 'tv' || currentMovie._tv;
-  window.location.hash = 'player-' + (isTV ? 'tv-' : 'movie-') + currentMovie.id;
+}
+
+function closePlayer(e){
+  if(e) e.stopPropagation();
+  var overlay = document.getElementById('playerOverlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  var container = document.getElementById('playerIframeContainer');
+  container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
+  clearTimeout(window._idleTimer);
+  
+  // Update route back to detail
+  var isTV = currentMovie && (currentMovie.media_type === 'tv' || currentMovie._tv);
+  var id = currentMovie ? currentMovie.id : null;
+  if(id){
+    window.location.hash = (isTV ? 'tv-' : 'movie-') + id;
+  }
 }
 
 function loadPlayerSource(index) {
@@ -1188,6 +955,20 @@ function loadPlayerSource(index) {
     }, 150);
 }
 
+function toggleFullscreen(e) {
+if (e) { e.preventDefault(); e.stopPropagation(); }
+var overlay = document.getElementById('playerOverlay');
+if (!document.fullscreenElement) {
+if (overlay.requestFullscreen) { overlay.requestFullscreen(); }
+else if (overlay.webkitRequestFullscreen) { overlay.webkitRequestFullscreen(); }
+else if (overlay.msRequestFullscreen) { overlay.msRequestFullscreen(); }
+} else {
+if (document.exitFullscreen) { document.exitFullscreen(); }
+else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+else if (document.msExitFullscreen) { document.msExitFullscreen(); }
+}
+}
+
 function scrollRow(id, direction) {
 var el = document.getElementById(id);
 if (!el) return;
@@ -1207,6 +988,7 @@ if (el.scrollLeft <= 10) { leftArrow.style.opacity = '0'; leftArrow.style.pointe
 if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) { rightArrow.style.opacity = '0'; rightArrow.style.pointerEvents = 'none'; } else { rightArrow.style.opacity = '1'; rightArrow.style.pointerEvents = 'auto'; }
 }
 window.addEventListener('resize', function() { document.querySelectorAll('.scroller').forEach(function(el) { updateScrollArrows(el.id); }); });
+
 async function loadInitial(){
 var tr = await tmdb('/trending/all/week', {page:1});
 if(tr && tr.results){
@@ -1245,96 +1027,93 @@ document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(
 }
 loadPopularGenres();
 }
+
 document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
 
-// === UNIFIED HASH ROUTER ===
-function syncRoute() {
-  var hash = window.location.hash.replace('#', '');
-  if (!hash || hash === 'home') {
-    navigate('home');
-    return;
-  }
-  if (hash === 'movies') { navigate('movies'); return; }
-  if (hash === 'tv') { navigate('tv'); return; }
-  if (hash === 'watchlist') { navigate('watchlist'); return; }
-  if (hash === 'profile') { navigate('profile'); return; }
-  if (hash === 'search') { navigate('search'); return; }
-  if (hash === 'help') { navigate('help'); return; }
-  if (hash === 'terms') { navigate('terms'); return; }
-  if (hash === 'privacy') { navigate('privacy'); return; }
-  if (hash === 'dmca') { navigate('dmca'); return; }
+// === SINGLE SOURCE OF TRUTH ROUTER ===
+function handleRouting() {
+  var hash = window.location.hash.replace('#', '') || 'home';
   
-  if (hash.indexOf('search=') === 0) {
+  // 1. Hide all views, nav buttons, and overlays
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.bottom button').forEach(b => b.classList.remove('active'));
+  document.getElementById('detailOverlay').classList.remove('open');
+  document.getElementById('playerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+
+  // 2. Handle specific routes
+  if (hash === 'home' || hash === '') {
+    document.getElementById('view-home').classList.add('active');
+    document.getElementById('b-home').classList.add('active');
+    if (!document.getElementById('trendingTrack').innerHTML) loadInitial();
+  } 
+  else if (hash === 'movies') {
+    document.getElementById('view-movies').classList.add('active');
+    document.getElementById('b-movies').classList.add('active');
+    loadMoviesPage();
+  } 
+  else if (hash === 'tv') {
+    document.getElementById('view-tv').classList.add('active');
+    document.getElementById('b-tv').classList.add('active');
+    loadTVPage();
+  } 
+  else if (hash === 'watchlist') {
+    document.getElementById('view-watchlist').classList.add('active');
+    document.getElementById('b-watchlist').classList.add('active');
+    renderWatchlist();
+  } 
+  else if (hash === 'profile') {
+    document.getElementById('view-profile').classList.add('active');
+    document.getElementById('b-profile').classList.add('active');
+  } 
+  else if (hash === 'search') {
+    document.getElementById('view-search').classList.add('active');
+    document.getElementById('b-search').classList.add('active');
+    document.getElementById('q').focus();
+    document.getElementById('searchTitle').textContent = 'Search Results';
+    document.getElementById('searchGrid').innerHTML = '';
+  }
+  else if (hash.indexOf('search=') === 0) {
     var q = decodeURIComponent(hash.substring(7));
-    if (q && q !== searchQuery) { doSearch(q); }
-    else { navigate('search'); }
-    return;
+    document.getElementById('view-search').classList.add('active');
+    document.getElementById('b-search').classList.add('active');
+    document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
+    doSearch(q);
   }
-  
-  if (hash.indexOf('movie-') === 0) {
+  else if (['help', 'terms', 'privacy', 'dmca'].includes(hash)) {
+    document.getElementById('view-' + hash).classList.add('active');
+  }
+  else if (hash.indexOf('movie-') === 0) {
     var id = hash.substring(6);
-    openMovie(id);
-    return;
+    showDetail(id, false);
   }
-  if (hash.indexOf('tv-') === 0) {
+  else if (hash.indexOf('tv-') === 0) {
     var id = hash.substring(3);
-    openMovie('tv-' + id);
-    return;
+    showDetail('tv-' + id, false);
   }
-  if (hash.indexOf('player-') === 0) {
+  else if (hash.indexOf('player-') === 0) {
     var target = hash.substring(7);
-    if (target.indexOf('tv-') === 0) {
-      var tvId = target.substring(3);
-      openMovie('tv-' + tvId).then(function(){ playCurrentMedia(); });
-    } else {
-      openMovie(target).then(function(){ playCurrentMedia(); });
-    }
-    return;
+    var isTV = target.indexOf('tv-') === 0;
+    var id = isTV ? target.substring(3) : target;
+    showDetail(isTV ? 'tv-' + id : id, true);
   }
-  
-  // Fallback
-  navigate('home');
+  else {
+    // Fallback
+    window.location.hash = '#home';
+  }
 }
 
-// Override pushState/popstate to use hash
-window.addEventListener('hashchange', function() {
-  syncRoute();
-});
-
-// Initial route load
-window.addEventListener('load', function() {
-  // Ensure home is visible first
-  document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
-  var homeView = document.getElementById('view-home');
-  if (homeView) homeView.classList.add('active');
-  
-  // If there's a hash, route to it
-  if (window.location.hash) {
-    syncRoute();
+// Initial load
+window.addEventListener('DOMContentLoaded', function() {
+  if (!window.location.hash) {
+    window.location.hash = '#home';
   } else {
-    loadInitial();
+    handleRouting();
   }
 });
 
-// Also handle initial hash immediately
-if (window.location.hash) {
-  // Wait for DOM to be ready
-  setTimeout(function(){ syncRoute(); }, 100);
-} else {
-  loadInitial();
-}
-
-// Handle back button for detail overlay
-window.addEventListener('popstate', function() {
-  var detailOverlay = document.getElementById('detailOverlay');
-  if (detailOverlay.classList.contains('open')) {
-    detailOverlay.classList.remove('open');
-    document.body.style.overflow = '';
-    document.getElementById('detailTrailerBg').innerHTML = '';
-    // Route back based on current hash
-    syncRoute();
-  }
-});
+// Listen for URL changes (back button, manual hash change)
+window.addEventListener('hashchange', handleRouting);
 </script>
 <script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false"></script>
