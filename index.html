@@ -280,9 +280,6 @@
     
     <!-- Desktop Icons (Hidden on Mobile) -->
     <div class="desktop-nav" style="margin-left: 8px;">
-      <div class="desktop-nav-icon-btn" id="d-search" onclick="window.location.hash='#search'">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-      </div>
       <div class="desktop-nav-icon-btn" id="d-profile" onclick="window.location.hash='#profile'">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       </div>
@@ -643,7 +640,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = '2026-10-24-v52-desktop-live-search-dropdown';
+var TUBEMOCHA_BUILD = '2026-10-24-v53-single-search-icon-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1157,7 +1154,6 @@ e.preventDefault();
 var q = e.target.querySelector('input').value.trim();
 if(!q) return false;
 if (window.innerWidth >= 768) {
-  // On desktop, pressing enter should close dropdown and go to main search page
   document.getElementById('searchDropdown').classList.remove('open');
   recentSearches.unshift(q);
   recentSearches = [...new Set(recentSearches)].slice(0, 5);
@@ -1526,7 +1522,6 @@ function handleRouting() {
   else if (hash === 'search') {
     document.getElementById('view-search').classList.add('active');
     document.getElementById('b-search').classList.add('active');
-    document.getElementById('d-search').classList.add('active');
     document.getElementById('q').focus();
     document.getElementById('searchTitle').textContent = 'Search Results';
     document.getElementById('searchGrid').innerHTML = '';
@@ -1535,7 +1530,6 @@ function handleRouting() {
     var q = decodeURIComponent(hash.substring(7));
     document.getElementById('view-search').classList.add('active');
     document.getElementById('b-search').classList.add('active');
-    document.getElementById('d-search').classList.add('active');
     document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
     doSearch(q);
   }
