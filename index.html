@@ -75,21 +75,16 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
 
 
 
+
+
 <script>
-// v38 HEAD EARLY - Longest research: hash-only primary + query backup + homepage guaranteed + ALL same page - iPhone 13 + every phone + laptop
+// v39 HEAD EARLY - movy.sx style: hash primary + query backup + homepage guaranteed + ALL same page - iPhone 13 + every phone + laptop - longest research
 (function(){
   try{
     var href = window.location.href;
     var view=null, movie=null, tv=null, q=null, playing=null;
-    var isReload = false;
-    try{
-      var nav = performance.getEntriesByType('navigation')[0];
-      if(nav && nav.type==='reload') isReload = true;
-    }catch(e){
-      try{ if(performance.navigation && performance.navigation.type===1) isReload = true; }catch(e2){}
-    }
     
-    // Equation 1: Parse HASH first - hash never sent to server, survives abrdns.com stripping - iPhone 13 safe
+    // Parse HASH first - movy.sx uses path, we use hash #view= - hash never sent to server, survives every refresh
     try{
       var url = new URL(href);
       if(url.hash){
@@ -100,7 +95,7 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
         if(hp.get('q')) q = hp.get('q');
         if(hp.get('playing')) playing = hp.get('playing');
       }
-      // Equation 2: Parse QUERY as backup - for direct links ?view=detail&movie=123
+      // Query backup for direct links ?view=detail&movie=ID
       if(!view && !movie && !tv && !q){
         view = url.searchParams.get('view');
         movie = url.searchParams.get('movie');
@@ -110,53 +105,29 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
       }
     }catch(e){}
     
-    // Equation 3: Session backup ONLY on reload - if server stripped query+hash, restore from sessionStorage
-    if(!view && !movie && !tv && !q && isReload){
-      try{
-        var sh = sessionStorage.getItem('tubemocha_url_href');
-        if(sh){
-          var su = new URL(sh);
-          if(su.hash){
-            var shp = new URLSearchParams(su.hash.substring(1));
-            if(shp.get('view')) view = shp.get('view');
-            if(shp.get('movie')) movie = shp.get('movie');
-            if(shp.get('tv')) tv = shp.get('tv');
-            if(shp.get('q')) q = shp.get('q');
-            if(shp.get('playing')) playing = shp.get('playing');
-          }
-          if(!view && !movie && !tv && !q){
-            view = su.searchParams.get('view');
-            movie = su.searchParams.get('movie');
-            tv = su.searchParams.get('tv');
-            q = su.searchParams.get('q');
-            playing = su.searchParams.get('playing');
-          }
-        }
-      }catch(e){}
-    }
-    
-    // Equation 4: Homepage detection - MUST be true when no params anywhere - guarantees movies show, not Guest User
+    // Homepage detection - MUST be true when no params - fixes Guest User bug forever
     var isHome = !view && !movie && !tv && !q;
-    // Normalize view
     if(view==='home') isHome = true;
+    // Explicitly treat profile as NOT home - but homepage / should never have view=profile
+    // If URL is / with no params, isHome true
     
-    window.__TUBEMOCHA_INITIAL_STATE__ = {view:view||'home', movie:movie, tv:tv, q:q, playing:playing, href:href, isHome:isHome, isReload:isReload};
+    window.__TUBEMOCHA_INITIAL_STATE__ = {view:view||'home', movie:movie, tv:tv, q:q, playing:playing, href:href, isHome:isHome};
     
-    // Equation 5: If homepage, DO ABSOLUTELY NOTHING - show hero + movies - fixes Guest User bug
+    // Remove any old hide styles that cause Guest User bug
+    try{
+      var ids=['v38-head-early-hide','v37-head-early-hide','v36-head-early-hide','v35-head-early-hide','v34-early-hide'];
+      for(var i=0;i<ids.length;i++){
+        var el=document.getElementById(ids[i]);
+        if(el) el.remove();
+      }
+    }catch(e){}
+    
     if(isHome){
-      // Ensure no old hide styles remain
-      try{
-        var old = document.getElementById('v37-head-early-hide');
-        if(old) old.remove();
-        old = document.getElementById('v36-head-early-hide');
-        if(old) old.remove();
-        old = document.getElementById('v35-head-early-hide');
-        if(old) old.remove();
-      }catch(e){}
+      // Homepage - ensure visible, no hide
       return;
     }
     
-    // Equation 6: Not homepage - hide home instantly BEFORE body - prevents flash - iPhone 13 + all phones
+    // Not homepage - hide home instantly BEFORE body parsed - prevents flash on iPhone 13 + all phones
     var css = '';
     if(movie || tv){
       css = '#view-home{ display:none !important; } #view-home.active{ display:none !important; } #detailOverlay{ display:block !important; opacity:1 !important; visibility:visible !important; } body{ overflow:hidden !important; }';
@@ -165,18 +136,17 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
     }
     if(css){
       var style = document.createElement('style');
-      style.id = 'v38-head-early-hide';
+      style.id = 'v39-head-early-hide';
       style.textContent = css;
       document.head.appendChild(style);
     }
     
-    // Equation 7: Preserve URL + ensure HASH exists - hash survives refresh on every device
+    // Ensure hash exists for refresh SAME - movy.sx style
     try{
       var currentUrl = window.location.href;
       var u = new URL(currentUrl);
       var st = {view: view||u.searchParams.get('view'), movie: movie||u.searchParams.get('movie'), tv: tv||u.searchParams.get('tv'), q: q||u.searchParams.get('q'), playing: playing||u.searchParams.get('playing')};
       var hash = u.hash || '';
-      // Build hash if missing
       if(!hash && (st.view || st.movie || st.tv || st.q)){
         hash = '#view=' + (st.view||'home');
         if(st.movie) hash += '&movie=' + st.movie;
@@ -185,11 +155,9 @@ span.line,.line{width:5px !important;height:32px !important;background:#5d4037 !
         if(st.playing==='1' || st.playing===true) hash += '&playing=1';
       }
       var finalUrl = u.pathname + u.search + hash;
-      // Only replace if different and has hash
       if(finalUrl!==currentUrl && finalUrl.indexOf('#')!==-1){
         history.replaceState(st, '', finalUrl);
       } else {
-        // Ensure state has view
         history.replaceState(st, '', currentUrl);
       }
     }catch(e){}
@@ -565,7 +533,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-23-v38-longest-research-homepage-fixed-all-same-v38';
+var TUBEMOCHA_BUILD = '2026-10-23-v39-movy-sx-style-homepage-fixed-all-same-v39';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 localStorage.setItem('tubemocha_last_code_hash', btoa(TUBEMOCHA_BUILD + '|' + Date.now()));
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
@@ -1325,11 +1293,12 @@ loadInitial();
 
 
 
-// v38 ULTIMATE FIX - homepage shows movies + ALL pages refresh SAME - iPhone 13 + every phone + laptop - longest research
+
+
+// v39 ULTIMATE - movy.sx inspired: hash routing + homepage fixed + ALL pages refresh SAME - iPhone 13 + every phone + laptop
 (function(){
   var RESTORED = false;
   var MOVIE_OBJ_KEY = 'tubemocha_last_movie_obj';
-  var STATE_KEY = 'tubemocha_state_v15';
   
   function renderDetailFromCache(obj, rawId){
     try{
@@ -1369,9 +1338,9 @@ loadInitial();
       var state = {view:view||'home',movie:movieId||null,tv:tvId||null,q:q||null,playing:!!playing,ts:Date.now(),url:window.location.href,
         movieData: movieObj ? {id:movieObj.id,t:movieObj.t,y:movieObj.y,r:movieObj.r,g:movieObj.g,d:movieObj.d,backdrop_path:movieObj.backdrop_path,poster_path:movieObj.poster_path,media_type:movieObj.media_type||(movieObj._tv?'tv':'movie'),runtime:movieObj.runtime,seasons:movieObj.seasons} : null};
       var json = JSON.stringify(state);
-      try{ localStorage.setItem('tubemocha_state_v15', json); }catch(e){}
+      try{ localStorage.setItem('tubemocha_state_v16', json); }catch(e){}
       try{ localStorage.setItem('tubemocha_state', json); }catch(e){}
-      try{ sessionStorage.setItem('tubemocha_session_v15', json); }catch(e){}
+      try{ sessionStorage.setItem('tubemocha_session_v16', json); }catch(e){}
       if(movieObj){
         try{
           var objJson = JSON.stringify(state.movieData);
@@ -1381,7 +1350,7 @@ loadInitial();
       }
       try{ sessionStorage.setItem('tubemocha_url_href', window.location.href); }catch(e){}
       try{ localStorage.setItem('tubemocha_url_href', window.location.href); }catch(e){}
-      // Hash is primary - survives every phone refresh
+      // Hash primary - movy.sx style - survives iPhone 13 refresh
       try{
         if(view!=='home'){
           var hash = '#view=' + (view||'home');
@@ -1392,6 +1361,9 @@ loadInitial();
           if(window.location.hash !== hash){
             history.replaceState(history.state, '', window.location.pathname + window.location.search + hash);
           }
+        } else {
+          // Homepage - clear hash if it was profile etc? Keep clean /
+          // Do not force hash for home to keep URL clean
         }
       }catch(e){}
     }catch(e){}
@@ -1424,39 +1396,9 @@ loadInitial();
         if(hp.get('playing')==='1') playing = true;
       }
       if(!movie && !tv && !view && !q){
-        try{
-          var isReload = false;
-          try{
-            var nav = performance.getEntriesByType('navigation')[0];
-            if(nav && nav.type==='reload') isReload = true;
-          }catch(e){
-            try{ if(performance.navigation && performance.navigation.type===1) isReload = true; }catch(e2){}
-          }
-          if(isReload){
-            var sh = sessionStorage.getItem('tubemocha_url_href');
-            if(sh){
-              var su = new URL(sh);
-              if(su.hash){
-                var shp = new URLSearchParams(su.hash.substring(1));
-                if(shp.get('movie')) movie = shp.get('movie');
-                if(shp.get('tv')) tv = shp.get('tv');
-                if(shp.get('view')) view = shp.get('view');
-                if(shp.get('q')) q = shp.get('q');
-                if(shp.get('playing')==='1') playing = true;
-              }
-              if(!movie && !tv && !view && !q){
-                movie = su.searchParams.get('movie');
-                tv = su.searchParams.get('tv');
-                view = su.searchParams.get('view');
-                q = su.searchParams.get('q');
-                playing = su.searchParams.get('playing')==='1';
-              }
-              if(movie || tv || view){
-                return {view:view, movie:movie, tv:tv, q:q, playing:playing, isHome:false};
-              }
-            }
-          }
-        }catch(e){}
+        return {view:'home', movie:null, tv:null, q:null, playing:false, isHome:true};
+      }
+      if(view==='home' && !movie && !tv && !q){
         return {view:'home', movie:null, tv:null, q:null, playing:false, isHome:true};
       }
       return {view:view,movie:movie,tv:tv,q:q,playing:playing, isHome:false};
@@ -1499,32 +1441,43 @@ loadInitial();
     try{
       var state = getState();
       if(state.isHome){
-        console.log('[v38] Homepage - show movies - fixed Guest User bug');
+        console.log('[v39] Homepage - movy.sx style - show movies fixed');
         try{
-          // Remove ALL old hide styles that cause Guest User bug
-          var olds = ['v38-head-early-hide','v37-head-early-hide','v36-head-early-hide','v35-head-early-hide','v34-early-hide','v33-early-hide'];
-          for(var i=0;i<olds.length;i++){
-            var el = document.getElementById(olds[i]);
+          // Remove ALL hide styles that cause Guest User
+          var ids=['v39-head-early-hide','v38-head-early-hide','v37-head-early-hide','v36-head-early-hide','v35-head-early-hide'];
+          for(var i=0;i<ids.length;i++){
+            var el=document.getElementById(ids[i]);
             if(el) el.remove();
           }
-          var home = document.getElementById('view-home');
-          if(home){ 
-            home.classList.add('active'); 
-            home.style.display='block'; 
-            home.style.visibility='visible';
-            home.style.opacity='1';
-          }
+          // Force show home, hide all others
+          document.querySelectorAll('.view').forEach(function(v){
+            if(v.id==='view-home'){
+              v.classList.add('active');
+              v.style.display='block';
+              v.style.visibility='visible';
+              v.style.opacity='1';
+            } else {
+              v.classList.remove('active');
+              v.style.display='none';
+            }
+          });
           var detail = document.getElementById('detailOverlay');
           if(detail){ detail.classList.remove('open'); }
+          var player = document.getElementById('playerOverlay');
+          if(player){ player.classList.remove('open'); }
           document.body.style.overflow='';
-          // Ensure hero and tracks are visible
-          var hero = document.getElementById('hero');
-          if(hero) hero.style.display='block';
-          if(typeof loadInitial==='function'){ try{ loadInitial(); }catch(e){} }
+          document.querySelectorAll('.bottom button').forEach(function(b){ b.classList.remove('active'); });
+          var homeBtn=document.getElementById('b-home');
+          if(homeBtn) homeBtn.classList.add('active');
+          // Load movies if needed
+          var trending = document.getElementById('trendingTrack');
+          if(trending && trending.innerHTML.trim()===''){
+            if(typeof loadInitial==='function'){ try{ loadInitial(); }catch(e){} }
+          }
         }catch(e){}
         return;
       }
-      console.log('[v38] Restoring SAME page on iPhone 13 + all phones:', state);
+      console.log('[v39] Restoring SAME page movy.sx style:', state);
       
       if(state.movie || state.tv){
         var rawId = state.movie || ('tv-'+state.tv);
@@ -1586,7 +1539,7 @@ loadInitial();
           }
         }
       }
-    }catch(e){ console.log('[v38] restore error', e); }
+    }catch(e){ console.log('[v39] restore error', e); }
   }
   
   var _nav = window.navigate;
@@ -1609,7 +1562,7 @@ loadInitial();
         if(push) history.pushState(st,'',url); else history.replaceState(st,'',url);
         saveState(view,st.movie,st.tv,st.q,st.playing,window.currentMovie||null);
       }catch(e){}
-    }catch(err){ console.log('navigate v38',err); }
+    }catch(err){ console.log('navigate v39',err); }
   };
   
   if(window.openMovie){
@@ -1728,13 +1681,25 @@ loadInitial();
       if(!st) return;
       if(st.isHome){
         try{
-          var home = document.getElementById('view-home');
-          if(home){ home.classList.add('active'); home.style.display='block'; home.style.visibility='visible'; home.style.opacity='1'; }
+          document.querySelectorAll('.view').forEach(function(v){
+            if(v.id==='view-home'){
+              v.classList.add('active');
+              v.style.display='block';
+              v.style.visibility='visible';
+              v.style.opacity='1';
+            } else {
+              v.classList.remove('active');
+              v.style.display='none';
+            }
+          });
           var detail = document.getElementById('detailOverlay');
           if(detail){ detail.classList.remove('open'); }
           document.body.style.overflow='';
-          var early = document.getElementById('v38-head-early-hide');
+          var early = document.getElementById('v39-head-early-hide');
           if(early) early.remove();
+          document.querySelectorAll('.bottom button').forEach(function(b){ b.classList.remove('active'); });
+          var homeBtn=document.getElementById('b-home');
+          if(homeBtn) homeBtn.classList.add('active');
         }catch(e){}
         navigate('home');
         return;
@@ -1764,7 +1729,7 @@ loadInitial();
       if(p&&p.classList.contains('open')) closePlayer();
       else if(d&&d.classList.contains('open')) d.classList.remove('open');
       else navigate('home');
-    }catch(err){ console.log('popstate v38',err); }
+    }catch(err){ console.log('popstate v39',err); }
   });
   
   window.addEventListener('beforeunload', function(){ try{ saveState(window.currentView||'home',null,null,null,false,window.currentMovie||null); }catch(e){} });
