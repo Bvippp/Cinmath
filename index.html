@@ -295,7 +295,11 @@
 <body>
 <div class="topbar">
   <div class="topbar-inner">
-    <div class="logo" onclick="window.location.hash='#home'"><div class="m">TM</div><b>TUBEMOCHA</b></div>
+    <!-- Updated Logo Area -->
+    <div class="logo" onclick="window.location.hash='#home'">
+      <div class="m">TM</div>
+      <b>TUBEMOCHA</b>
+    </div>
     
     <!-- Desktop Navigation (Hidden on Mobile) -->
     <nav class="desktop-nav">
@@ -771,7 +775,7 @@
 <div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')"><div class="genre-sheet"><h3>Select Genre</h3><div class="ggrid"><button onclick="setFilter('genre','','All Genres')">All Genres</button><button onclick="setFilter('genre','28','Action')">Action</button><button onclick="setFilter('genre','12','Adventure')">Adventure</button><button onclick="setFilter('genre','16','Animation')">Animation</button><button onclick="setFilter('genre','35','Comedy')">Comedy</button><button onclick="setFilter('genre','80','Crime')">Crime</button><button onclick="setFilter('genre','18','Drama')">Drama</button><button onclick="setFilter('genre','27','Horror')">Horror</button><button onclick="setFilter('genre','10749','Romance')">Romance</button><button onclick="setFilter('genre','878','Sci-Fi')">Sci-Fi</button><button onclick="setFilter('genre','53','Thriller')">Thriller</button></div></div></div>
 <div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')"><div class="genre-sheet"><h3>Select Year</h3><div class="ggrid"><button onclick="setFilter('year','','All Years')">All Years</button><button onclick="setFilter('year','2025','2025')">2025</button><button onclick="setFilter('year','2024','2024')">2024</button><button onclick="setFilter('year','2023','2023')">2023</button><button onclick="setFilter('year','2022','2022')">2022</button><button onclick="setFilter('year','2020','2020')">2020</button><button onclick="setFilter('year','2010','2010')">2010</button><button onclick="setFilter('year','2000','2000')">2000</button></div></div></div>
 <div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')"><div class="genre-sheet"><h3>Select Country</h3><div class="ggrid"><button onclick="setFilter('country','','All Countries')">All Countries</button><button onclick="setFilter('country','US','United States')">United States</button><button onclick="setFilter('country','GB','United Kingdom')">United Kingdom</button><button onclick="setFilter('country','JP','Japan')">Japan</button><button onclick="setFilter('country','KR','South Korea')">South Korea</button></div></div></div>
-<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Box Office')">Highest Box Office</button></div></div></div>
+<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest Releases')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Highest Box Office')">Highest Box Office</button></div></div></div>
 
 <!-- Anime Genre Modal -->
 <div class="genre-modal" id="animeGenreModal" onclick="if(event.target===this) closeModal('animeGenreModal')">
@@ -903,16 +907,16 @@ function updateActiveFiltersUI() {
     filterState.genres.forEach(g => {
         hasFilters = true;
         var name = GENRES_LIST.find(x => x.id === g)?.name || g;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleFilter('genres', '${g}'); document.querySelectorAll('input[value=\\'${g}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        html += `<div class="active-filter-tag">${name} <span onclick="toggleFilter('genres', '${g}'); document.querySelectorAll('#moviesFilterBar input[value=\\'${g}\\']').forEach(c=>c.checked=false)">×</span></div>`;
     });
     filterState.years.forEach(y => {
         hasFilters = true;
-        html += `<div class="active-filter-tag">${y} <span onclick="toggleFilter('years', '${y}'); document.querySelectorAll('input[value=\\'${y}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        html += `<div class="active-filter-tag">${y} <span onclick="toggleFilter('years', '${y}'); document.querySelectorAll('#moviesFilterBar input[value=\\'${y}\\']').forEach(c=>c.checked=false)">×</span></div>`;
     });
     filterState.countries.forEach(c => {
         hasFilters = true;
         var name = COUNTRIES_LIST.find(x => x.id === c)?.name || c;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleFilter('countries', '${c}'); document.querySelectorAll('input[value=\\'${c}\\']').forEach(cb=>cb.checked=false)">×</span></div>`;
+        html += `<div class="active-filter-tag">${name} <span onclick="toggleFilter('countries', '${c}'); document.querySelectorAll('#moviesFilterBar input[value=\\'${c}\\']').forEach(cb=>cb.checked=false)">×</span></div>`;
     });
 
     if (hasFilters) {
@@ -971,16 +975,16 @@ function updateTVActiveFiltersUI() {
     tvFilterState.genres.forEach(g => {
         hasFilters = true;
         var name = GENRES_LIST.find(x => x.id === g)?.name || g;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleTVFilter('genres', '${g}'); document.querySelectorAll('input[value=\\'${g}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        html += `<div class="active-filter-tag">${name} <span onclick="toggleTVFilter('genres', '${g}'); document.querySelectorAll('#tvFilterBar input[value=\\'${g}\\']').forEach(c=>c.checked=false)">×</span></div>`;
     });
     tvFilterState.years.forEach(y => {
         hasFilters = true;
-        html += `<div class="active-filter-tag">${y} <span onclick="toggleTVFilter('years', '${y}'); document.querySelectorAll('input[value=\\'${y}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        html += `<div class="active-filter-tag">${y} <span onclick="toggleTVFilter('years', '${y}'); document.querySelectorAll('#tvFilterBar input[value=\\'${y}\\']').forEach(c=>c.checked=false)">×</span></div>`;
     });
     tvFilterState.countries.forEach(c => {
         hasFilters = true;
         var name = COUNTRIES_LIST.find(x => x.id === c)?.name || c;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleTVFilter('countries', '${c}'); document.querySelectorAll('input[value=\\'${c}\\']').forEach(cb=>cb.checked=false)">×</span></div>`;
+        html += `<div class="active-filter-tag">${name} <span onclick="toggleTVFilter('countries', '${c}'); document.querySelectorAll('#tvFilterBar input[value=\\'${c}\\']').forEach(cb=>cb.checked=false)">×</span></div>`;
     });
 
     if (hasFilters) {
@@ -1014,6 +1018,7 @@ function applyTVFilters() {
     document.getElementById('tvGrid').innerHTML = '<div class="empty">Loading...</div>';
     hasMoreTV = true;
     isLoadingTV = false;
+    tvFilterState.page = 1;
     loadTVDiscover(1);
 }
 
@@ -1309,18 +1314,36 @@ async function loadDiscover(page, isTv) {
     } else {
         isLoadingMovies = true; filterState.page = page;
     }
-    var params = { sort_by: filterState.sort, page: page, 'vote_count.gte': 50 };
+    
+    // Removed 'vote_count.gte': 50 to ensure ALL content shows
+    var params = { sort_by: filterState.sort, page: page };
+    
     if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
-    if (filterState.years.length > 0) params[isTv ? 'first_air_date_year' : 'primary_release_year'] = filterState.years.join('|');
+    
+    // Correctly handle multiple years
+    if (filterState.years.length === 1) {
+        params.primary_release_year = filterState.years[0];
+    } else if (filterState.years.length > 1) {
+        var sortedYears = filterState.years.map(Number).sort((a,b)=>a-b);
+        params['primary_release_date.gte'] = sortedYears[0] + '-01-01';
+        params['primary_release_date.lte'] = sortedYears[sortedYears.length - 1] + '-12-31';
+    }
+    
     if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
+    
     var endpoint = isTv ? '/discover/tv' : '/discover/movie';
     var d = await tmdb(endpoint, params);
+    
     if (d && d.results) {
-        var mapped = d.results.map(mapResult);
-        if (page === 1) document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
-        else document.getElementById('moviesGrid').innerHTML += mapped.map(cardHTML).join('');
-        allCache = allCache.concat(mapped);
-        if (d.page >= d.total_pages) hasMoreMovies = false;
+        if (d.results.length === 0) {
+            hasMoreMovies = false;
+        } else {
+            var mapped = d.results.map(mapResult);
+            if (page === 1) document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
+            else document.getElementById('moviesGrid').innerHTML += mapped.map(cardHTML).join('');
+            allCache = allCache.concat(mapped);
+            if (d.page >= d.total_pages) hasMoreMovies = false;
+        }
     } else {
         if (page === 1) document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
         hasMoreMovies = false;
@@ -1336,17 +1359,33 @@ async function loadTVDiscover(page) {
     } else {
         isLoadingTV = true; tvFilterState.page = page;
     }
-    var params = { sort_by: tvFilterState.sort, page: page, 'vote_count.gte': 50 };
+    
+    // Removed 'vote_count.gte': 50 to ensure ALL content shows
+    var params = { sort_by: tvFilterState.sort, page: page };
+    
     if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
-    if (tvFilterState.years.length > 0) params.first_air_date_year = tvFilterState.years.join('|');
+    
+    // Correctly handle multiple years for TV Shows
+    if (tvFilterState.years.length === 1) {
+        params.first_air_date_year = tvFilterState.years[0];
+    } else if (tvFilterState.years.length > 1) {
+        var sortedYears = tvFilterState.years.map(Number).sort((a,b)=>a-b);
+        params['first_air_date.gte'] = sortedYears[0] + '-01-01';
+        params['first_air_date.lte'] = sortedYears[sortedYears.length - 1] + '-12-31';
+    }
+    
     if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
     
     var d = await tmdb('/discover/tv', params);
     if (d && d.results) {
-        var mapped = d.results.map(mapResult);
-        if (page === 1) document.getElementById('tvGrid').innerHTML = mapped.map(cardHTML).join('');
-        else document.getElementById('tvGrid').innerHTML += mapped.map(cardHTML).join('');
-        if (d.page >= d.total_pages) hasMoreTV = false;
+        if (d.results.length === 0) {
+            hasMoreTV = false;
+        } else {
+            var mapped = d.results.map(mapResult);
+            if (page === 1) document.getElementById('tvGrid').innerHTML = mapped.map(cardHTML).join('');
+            else document.getElementById('tvGrid').innerHTML += mapped.map(cardHTML).join('');
+            if (d.page >= d.total_pages) hasMoreTV = false;
+        }
     } else {
         if (page === 1) document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
         hasMoreTV = false;
@@ -1701,9 +1740,13 @@ async function loadAnime(isNew) {
         var data = await tmdb('/discover/tv', params);
         if (isNew) grid.innerHTML = '';
         if (data && data.results) {
-            var mapped = data.results.map(mapResult);
-            grid.innerHTML += mapped.map(cardHTML).join('');
-            if (data.page >= data.total_pages) hasMoreAnime = false;
+            if (data.results.length === 0) {
+                hasMoreAnime = false;
+            } else {
+                var mapped = data.results.map(mapResult);
+                grid.innerHTML += mapped.map(cardHTML).join('');
+                if (data.page >= data.total_pages) hasMoreAnime = false;
+            }
         } else { hasMoreAnime = false; }
     } catch (e) { console.error(e); hasMoreAnime = false; }
     isLoadingAnime = false;
