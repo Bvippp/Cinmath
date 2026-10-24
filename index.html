@@ -323,7 +323,8 @@
 <div class="detail-overlay" id="detailOverlay">
 <div class="detail-trailer-bg" id="detailTrailerBg"></div>
 <div class="detail-content">
-<button class="detail-back" onclick="history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+<!-- Changed back button to explicitly go home -->
+<button class="detail-back" onclick="window.location.hash='#home'"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
 <div class="detail-body">
 <h1 class="detail-title" id="detailTitle">Loading...</h1>
 <div class="detail-meta" id="detailMeta"></div>
@@ -349,7 +350,8 @@
 <div class="player-video-container" id="playerIframeContainer"><div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div></div>
 <div class="server-switch-banner" id="serverSwitchBanner"></div>
 <div class="player-controls" style="background:transparent;pointer-events:none;justify-content:space-between;">
-<button class="custom-btn" onclick="closePlayer(event)" title="Close Player" style="pointer-events:auto;background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+<!-- Changed player close button to back arrow -->
+<button class="custom-btn" onclick="closePlayer(event)" title="Back" style="pointer-events:auto;background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
 <div class="player-controls-right" style="pointer-events:auto;">
 <button class="custom-btn pulse-btn" id="nextServerBtn" style="display:none !important;" title="Vidy">Vidy</button>
 <button class="custom-btn fs-btn" onclick="toggleFullscreen(event)" title="Toggle Fullscreen" style="background:rgba(0,0,0,0.5);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg></button>
@@ -392,7 +394,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-24-v45-movie-detail-hash-fix';
+var TUBEMOCHA_BUILD = '2026-10-24-v46-back-button-fixes';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
