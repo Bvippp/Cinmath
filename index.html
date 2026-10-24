@@ -105,14 +105,6 @@
     color: var(--bg-main);
     background: var(--accent-light);
   }
-  /* Hide bottom nav on desktop */
-  .bottom {
-    display: none !important;
-  }
-  /* Adjust body padding since bottom nav is hidden */
-  body {
-    padding-bottom: 0 !important;
-  }
 }
 </style>
 </head>
@@ -505,7 +497,7 @@ var moviesPage = 1, tvPage = 1;
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
-var TUBEMOCHA_BUILD = '2026-10-24-v50-desktop-top-nav';
+var TUBEMOCHA_BUILD = '2026-10-24-v51-desktop-both-navs';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
