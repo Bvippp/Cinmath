@@ -943,7 +943,7 @@
 <button id="b-movies" onclick="window.location.hash='#movies'"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></button>
 <button id="b-tv" onclick="window.location.hash='#tv'"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></button>
 <button id="b-anime" onclick="window.location.hash='#anime'"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-<button id="b-search" onclick="window.location.hash='#search'"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+<button id="b-search" onclick="triggerSearch(event)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
 <button id="b-profile" onclick="handleBottomProfileClick(event)">
     <svg id="bottomProfileDefaultIcon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
     <img id="bottomProfileAvatar" src="" style="display:none; width:32px; height:32px; border-radius:50%; object-fit:cover;">
@@ -976,18 +976,16 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v80</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v81</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v80 — 2026-10-25
-// CHANGELOG (v79 → v80):
-//   • Ads toggle is now dark brown.
-//   • Settings page matches movy.sx layout (accordion for password, devices section).
-//   • Change Password functionality is fully working via Supabase.
-//   • Devices section accurately detects browser, OS, and timezone.
+// TUBEMOCHA BUILD v81 — 2026-10-25
+// CHANGELOG (v80 → v81):
+//   • Fixed mobile search focus bug: Clicking the bottom nav search icon now correctly focuses the top search bar and opens the keyboard on mobile devices.
+//   • Added triggerSearch() to ensure focus occurs even if already on the #search route.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1015,7 +1013,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v80-2026-10-25-ads-toggle-color-settings-password-change';
+var TUBEMOCHA_BUILD = 'v81-2026-10-25-mobile-search-focus-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1327,6 +1325,30 @@ function handleAuthRequiredClick(targetHash) {
     } else {
         openAuthModal('login');
     }
+}
+
+// ==========================================
+// SEARCH FOCUS LOGIC (MOBILE FIX)
+// ==========================================
+function triggerSearch(e) {
+    if (e) e.preventDefault();
+    if (window.location.hash !== '#search') {
+        window.location.hash = '#search';
+    } else {
+        focusSearchInput();
+    }
+}
+
+function focusSearchInput() {
+    setTimeout(function() {
+        var searchInput = document.getElementById('q');
+        if (searchInput) {
+            searchInput.focus();
+            if (window.innerWidth >= 768) {
+                openSearchDropdown();
+            }
+        }
+    }, 100);
 }
 
 // ==========================================
@@ -2902,10 +2924,10 @@ function handleRouting() {
     else if (hash === 'search') {
         document.getElementById('view-search').classList.add('active');
         document.getElementById('b-search').classList.add('active');
-        document.getElementById('q').focus();
         document.getElementById('searchTitle').textContent = 'Search Results';
         document.getElementById('searchGrid').innerHTML = '';
         window.currentView = 'search';
+        focusSearchInput();
     }
     else if (hash.indexOf('search=') === 0) {
         var q = decodeURIComponent(hash.substring(7));
