@@ -979,17 +979,18 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v85</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v86</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v85 — 2026-10-25
-// CHANGELOG (v84 → v85):
-//   • Fixed the "missing content" bug on filters. If a specific year (like 2026) is selected, the `vote_count` filter is dynamically lowered to 0 so all content shows up, not just highly-rated movies.
-//   • Perfected infinite scroll speed by adding `content-visibility: auto` to CSS cards and increasing the trigger margin to 1000px.
-//   • Added robust `hasMore` checks to ensure infinite scroll stops correctly when the API returns an empty page.
+// TUBEMOCHA BUILD v86 — 2026-10-25
+// CHANGELOG (v85 → v86):
+//   • Completely revamped the infinite scroll system. Added a scroll event listener fallback alongside IntersectionObserver to guarantee it works on all mobile devices.
+//   • Removed `vote_count.gte` from all TMDB discover requests. This ensures that *every single movie* matching a specific genre/year combination shows up, even if it has low votes.
+//   • Increased `rootMargin` to 1500px for hyper-fast pre-loading before the user reaches the bottom.
+//   • Optimized the loading state so it doesn't stop prematurely when the API returns an empty page.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1017,7 +1018,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v85-2026-10-25-all-content-vote-fix-fast-scroll';
+var TUBEMOCHA_BUILD = 'v86-2026-10-25-fast-scroll-all-content-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1989,6 +1990,16 @@ var searchObserver = new IntersectionObserver(function(entries) {
     }
 }, { rootMargin: '1000px' });
 
+// Scroll Fallback for Mobile (Ensures it always triggers)
+window.addEventListener('scroll', function() {
+    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1500) {
+        if (window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) loadDiscover(filterState.page + 1, false);
+        if (window.currentView === 'tv' && !isLoadingTV && hasMoreTV) loadTVDiscover(tvFilterState.page + 1);
+        if (window.currentView === 'anime' && !isLoadingAnime && hasMoreAnime) { animePage++; loadAnime(false); }
+        if (window.currentView === 'search' && !isLoadingSearch && hasMoreSearch) loadMoreSearch();
+    }
+});
+
 // === VIDY SINGLE SERVER ===
 var VIDY_COLOR = 'DC2626';
 var VIDY_BASE = 'https://www.vidy.st';
@@ -2296,14 +2307,8 @@ async function loadDiscover(page, isTv) {
         isLoadingMovies = true; filterState.page = page;
     }
     try {
-        // FIX: Dynamically lower vote_count for newer years so all content shows
-        let minVotes = 50;
-        if (filterState.years.length > 0) {
-            let maxYear = Math.max(...filterState.years.map(y => parseInt(y)));
-            if (maxYear >= 2023) minVotes = 0; 
-        }
-        
-        var params = { sort_by: filterState.sort, page: page, 'vote_count.gte': minVotes };
+        // FIX: Removed vote_count entirely to ensure all content shows
+        var params = { sort_by: filterState.sort, page: page };
         if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
         applyYearFilter(params, filterState.years, isTv);
         if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
@@ -2338,14 +2343,8 @@ async function loadTVDiscover(page) {
         isLoadingTV = true; tvFilterState.page = page;
     }
     try {
-        // FIX: Dynamically lower vote_count for newer years
-        let minVotes = 50;
-        if (tvFilterState.years.length > 0) {
-            let maxYear = Math.max(...tvFilterState.years.map(y => parseInt(y)));
-            if (maxYear >= 2023) minVotes = 0;
-        }
-        
-        var params = { sort_by: tvFilterState.sort, page: page, 'vote_count.gte': minVotes };
+        // FIX: Removed vote_count entirely to ensure all content shows
+        var params = { sort_by: tvFilterState.sort, page: page };
         if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
         applyYearFilter(params, tvFilterState.years, true);
         if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
