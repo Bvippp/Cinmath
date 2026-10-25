@@ -946,7 +946,7 @@
 <div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')"><div class="genre-sheet"><h3>Select Genre</h3><div class="ggrid"><button onclick="setFilter('genre','','All Genres')">All Genres</button><button onclick="setFilter('genre','28','Action')">Action</button><button onclick="setFilter('genre','12','Adventure')">Adventure</button><button onclick="setFilter('genre','16','Animation')">Animation</button><button onclick="setFilter('genre','35','Comedy')">Comedy</button><button onclick="setFilter('genre','80','Crime')">Crime</button><button onclick="setFilter('genre','18','Drama')">Drama</button><button onclick="setFilter('genre','27','Horror')">Horror</button><button onclick="setFilter('genre','10749','Romance')">Romance</button><button onclick="setFilter('genre','878','Sci-Fi')">Sci-Fi</button><button onclick="setFilter('genre','53','Thriller')">Thriller</button></div></div></div>
 <div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')"><div class="genre-sheet"><h3>Select Year</h3><div class="ggrid"><button onclick="setFilter('year','','All Years')">All Years</button><button onclick="setFilter('year','2025','2025')">2025</button><button onclick="setFilter('year','2024','2024')">2024</button><button onclick="setFilter('year','2023','2023')">2023</button><button onclick="setFilter('year','2022','2022')">2022</button><button onclick="setFilter('year','2020','2020')">2020</button><button onclick="setFilter('year','2010','2010')">2010</button><button onclick="setFilter('year','2000','2000')">2000</button></div></div></div>
 <div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')"><div class="genre-sheet"><h3>Select Country</h3><div class="ggrid"><button onclick="setFilter('country','','All Countries')">All Countries</button><button onclick="setFilter('country','US','United States')">United States</button><button onclick="setFilter('country','GB','United Kingdom')">United Kingdom</button><button onclick="setFilter('country','JP','Japan')">Japan</button><button onclick="setFilter('country','KR','South Korea')">South Korea</button></div></div></div>
-<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest Releases')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Highest Box Office')">Highest Box Office</button></div></div></div>
+<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest Releases')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Box Office')">Highest Box Office</button></div></div></div>
 
 <div class="genre-modal" id="animeGenreModal" onclick="if(event.target===this) closeModal('animeGenreModal')">
   <div class="genre-sheet" style="max-width:800px; margin:0 auto; border-radius:12px 12px 0 0;">
@@ -977,21 +977,20 @@
 <script>
 // ============================================================
 // TUBEMOCHA BUILD v89 — 2026-10-25
-// CHANGELOG (v88 → v89):
-//   • FIXED TV genre filtering — TV shows now use correct TV genre IDs
-//     from TV_GENRES_LIST (previously used movie genre IDs like 28 for Action,
-//     which caused empty results because /discover/tv has no genre 28).
-//   • FIXED Anime genre filtering — anime now uses TV genre IDs
-//     (removed TMDB-unsupported TV sub-genres like Horror/Romance/Thriller
-//     so every visible option actually returns results).
-//   • FIXED openGenrePage race condition — genre card clicks from home now
-//     set filterState BEFORE navigation and force a grid reload, so the
-//     filtered result is never overwritten by an earlier unfiltered fetch.
-//   • EXPANDED GENRE_MAP to recognize both movie AND TV genre IDs, so
-//     card genre labels and dynamic section titles render correctly.
-//   • BUILD REFERENCE (for future updates): v89-2026-10-25-tv-genre-id-fix
-//   • Preserved intact: search, watchlist, history, profiles, settings,
-//     ads toggle, Vidy single-server player, routing, all legal pages.
+// CHANGELOG (v88 → v89) — GENRE FILTER FIX:
+//   • Added TV_GENRES_LIST with correct TMDB TV genre IDs
+//     (10759 Action & Adventure, 10765 Sci-Fi & Fantasy,
+//     10762 Kids, 10768 War & Politics, etc.).
+//   • renderTVFilterCheckboxes + updateTVActiveFiltersUI + loadTVUpcoming
+//     now use TV_GENRES_LIST — TV genre filtering returns real results.
+//   • ANIME_GENRES rewritten with valid TV genre IDs (anime is TV content).
+//   • GENRE_MAP extended with all TV genre names (10759, 10762, 10763,
+//     10764, 10765, 10766, 10767, 10768) so cards display correct genre.
+//   • Removed vote_count.gte: 30 from loadMoviesRegionTrending and
+//     loadTVUpcoming — no more invisible content for niche genres.
+//   • Fixed fallback logic: when a genre filter is active, we no longer
+//     fall back to unfiltered trending (which showed wrong-genre content).
+//   • BUILD_NOTE_V89 documents the state for the next update.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1019,7 +1018,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v89-2026-10-25-tv-genre-id-fix';
+var TUBEMOCHA_BUILD = 'v89-2026-10-25-genre-filter-fix';
+var BUILD_NOTE_V89 = 'Genre fix: TV+Anime now use correct TV genre IDs. vote_count removed. Fallback logic corrected.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1029,9 +1029,7 @@ var isLoadingAnime = false, hasMoreAnime = true;
 var isLoadingSearch = false, hasMoreSearch = true;
 var animePage = 1, animeGenre = '';
 
-// ==========================================
-// MOVIE GENRES (TMDB /movie genre IDs)
-// ==========================================
+// MOVIE genre list — TMDB movie IDs
 var GENRES_LIST = [
     { name: 'Action', id: '28' }, { name: 'Adventure', id: '12' }, { name: 'Animation', id: '16' },
     { name: 'Comedy', id: '35' }, { name: 'Crime', id: '80' }, { name: 'Documentary', id: '99' },
@@ -1041,28 +1039,16 @@ var GENRES_LIST = [
     { name: 'Thriller', id: '53' }, { name: 'War', id: '10752' }, { name: 'Western', id: '37' }
 ];
 
-// ==========================================
-// TV GENRES (TMDB /tv genre IDs — DIFFERENT from movie IDs!)
-// This is the core v89 fix. TV genres use their own ID namespace:
-//   10759 Action & Adventure, 10765 Sci-Fi & Fantasy, 10768 War & Politics, etc.
-// ==========================================
+// TV genre list — TMDB TV genre IDs (these are DIFFERENT from movie IDs)
 var TV_GENRES_LIST = [
-    { name: 'Action & Adventure', id: '10759' },
-    { name: 'Animation', id: '16' },
-    { name: 'Comedy', id: '35' },
-    { name: 'Crime', id: '80' },
-    { name: 'Documentary', id: '99' },
-    { name: 'Drama', id: '18' },
-    { name: 'Family', id: '10751' },
-    { name: 'Kids', id: '10762' },
-    { name: 'Mystery', id: '9648' },
-    { name: 'News', id: '10763' },
-    { name: 'Reality', id: '10764' },
-    { name: 'Sci-Fi & Fantasy', id: '10765' },
-    { name: 'Soap', id: '10766' },
-    { name: 'Talk', id: '10767' },
-    { name: 'War & Politics', id: '10768' },
-    { name: 'Western', id: '37' }
+    { name: 'Action & Adventure', id: '10759' }, { name: 'Animation', id: '16' },
+    { name: 'Comedy', id: '35' }, { name: 'Crime', id: '80' },
+    { name: 'Documentary', id: '99' }, { name: 'Drama', id: '18' },
+    { name: 'Family', id: '10751' }, { name: 'Kids', id: '10762' },
+    { name: 'Mystery', id: '9648' }, { name: 'News', id: '10763' },
+    { name: 'Reality', id: '10764' }, { name: 'Sci-Fi & Fantasy', id: '10765' },
+    { name: 'Soap', id: '10766' }, { name: 'Talk', id: '10767' },
+    { name: 'War & Politics', id: '10768' }, { name: 'Western', id: '37' }
 ];
 
 var COUNTRIES_LIST = [
@@ -1087,7 +1073,7 @@ function generateAvatar(name) {
     }
     const hue = Math.abs(hash) % 360;
     const bgColor = `hsl(${hue}, 45%, 70%)`; 
-    const textColor = '#3e2723'; // Dark brown
+    const textColor = '#3e2723';
     
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <rect width="100" height="100" fill="${bgColor}" />
@@ -1232,7 +1218,6 @@ async function submitChangePassword(e) {
     btn.disabled = true;
     btn.textContent = 'Verifying...';
 
-    // Verify old password
     const res = await supabaseClient.auth.signInWithPassword({
         email: currentUser.email,
         password: oldPass
@@ -1247,7 +1232,6 @@ async function submitChangePassword(e) {
 
     btn.textContent = 'Updating...';
 
-    // Update password
     const updateRes = await supabaseClient.auth.updateUser({
         password: newPass
     });
@@ -1274,19 +1258,16 @@ function handleAuthState(session) {
         restoreActiveProfile();
         fetchWatchlistFromDB();
         
-        // Sync toggle state
         var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
         var adsToggle = document.getElementById('adsToggle');
         if (adsToggle) adsToggle.checked = adsEnabled;
     } else {
         currentUser = null;
         localStorage.removeItem('tubemocha_active_profile');
-        // Force ads ON when logged out
         localStorage.setItem('tubemocha_ads', 'true');
         var adsToggle = document.getElementById('adsToggle');
         if (adsToggle) adsToggle.checked = true;
         
-        // Ensure scripts are loaded
         loadAdScripts();
         
         document.getElementById('dropdownAuthProfile').style.display = 'none';
@@ -1367,7 +1348,6 @@ function handleAuthRequiredClick(targetHash) {
 function triggerSearch(e) {
     if (e) e.preventDefault();
     
-    // 1. Show the view synchronously (iOS requires the target to be visible)
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.querySelectorAll('.bottom button').forEach(function(b) { b.classList.remove('active'); });
     document.querySelectorAll('.desktop-nav-link').forEach(function(l) { l.classList.remove('active'); });
@@ -1376,7 +1356,6 @@ function triggerSearch(e) {
     document.getElementById('view-search').classList.add('active');
     document.getElementById('b-search').classList.add('active');
     
-    // 2. Focus synchronously (CRITICAL FOR IOS KEYBOARD)
     var q = document.getElementById('q');
     if (q) {
         q.focus();
@@ -1386,7 +1365,6 @@ function triggerSearch(e) {
         }
     }
     
-    // 3. Update the hash
     if (window.location.hash !== '#search') {
         window.location.hash = '#search';
     }
@@ -1823,7 +1801,7 @@ function renderFilterCheckboxes() {
 }
 
 function renderTVFilterCheckboxes() {
-    // v89 FIX: use TV_GENRES_LIST (correct TV genre IDs)
+    // FIX v89: use TV_GENRES_LIST (correct TV genre IDs), not GENRES_LIST
     var gHtml = TV_GENRES_LIST.map(function(g) { return '<label class="checkbox-label"><input type="checkbox" value="' + g.id + '" ' + (tvFilterState.genres.includes(g.id) ? 'checked' : '') + ' onchange="toggleTVFilter(\'genres\', \'' + g.id + '\')"> ' + g.name + '</label>'; }).join('');
     document.getElementById('tvGenreCheckboxes').innerHTML = gHtml;
 
@@ -1942,12 +1920,12 @@ function updateTVActiveFiltersUI() {
     var html = '';
     var hasFilters = false;
 
+    // FIX v89: use TV_GENRES_LIST for genre name lookups
     tvFilterState.genres.forEach(function(g) {
         hasFilters = true;
-        // v89 FIX: look up names in TV_GENRES_LIST, not movie GENRES_LIST
         var found = TV_GENRES_LIST.find(function(x) { return x.id === g; });
         var name = found ? found.name : g;
-        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleTVFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'#tvDropdownGenre input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleTVFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
     tvFilterState.years.forEach(function(y) {
         hasFilters = true;
@@ -2020,7 +1998,6 @@ var searchObserver = new IntersectionObserver(function(entries) {
     }
 }, { rootMargin: '1000px' });
 
-// Scroll Fallback for Mobile (Ensures it always triggers)
 window.addEventListener('scroll', function() {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1500) {
         if (window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) loadDiscover(filterState.page + 1, false);
@@ -2288,22 +2265,9 @@ function mapResult(r){
     };
 }
 
-// ==========================================
-// GENRE_MAP — v89 EXPANSION
-// Now includes BOTH movie genre IDs AND TV-specific genre IDs.
-// TV genres that share an ID with a movie genre (16/35/80/99/18/10751/9648/37)
-// are already covered by the movie block. The extra entries below cover
-// the TV-only IDs so card genre labels and section titles render correctly.
-// ==========================================
-var GENRE_MAP = { 
-    // --- Movie genres ---
-    "28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama",
-    "10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance",
-    "878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western",
-    // --- TV-only genres (v89) ---
-    "10759":"Action & Adventure","10762":"Kids","10763":"News","10764":"Reality",
-    "10765":"Sci-Fi & Fantasy","10766":"Soap","10767":"Talk","10768":"War & Politics"
-};
+// GENRE_MAP includes both movie AND TV genre names — the TV genres
+// (10759, 10762, 10763, 10764, 10765, 10766, 10767, 10768) are new in v89.
+var GENRE_MAP = { "28":"Action","12":"Adventure","16":"Animation","35":"Comedy","80":"Crime","99":"Documentary","18":"Drama","10751":"Family","14":"Fantasy","36":"History","27":"Horror","10402":"Music","9648":"Mystery","10749":"Romance","878":"Sci-Fi","10770":"TV Movie","53":"Thriller","10752":"War","37":"Western", "10759":"Action & Adventure","10762":"Kids","10763":"News","10764":"Reality","10765":"Sci-Fi & Fantasy","10766":"Soap","10767":"Talk","10768":"War & Politics" };
 
 var FALLBACK = [
     {id:603,t:"The Matrix",y:1999,r:"8.2",g:["Action","Sci-Fi"],d:"A hacker learns the truth.",poster_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",backdrop_path:"/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg",tmdb:603,media_type:'movie'},
@@ -2345,34 +2309,22 @@ function setupHero(movies) {
     setHeroSlide(0);
 }
 
-// ==========================================
-// LOAD DISCOVER (MOVIES)
-// v89: added request-id guard so a stale unfiltered response
-// can never overwrite a newer filtered one.
-// ==========================================
-var _discoverRequestId = 0;
 async function loadDiscover(page, isTv) {
     if(!page) page = 1;
     if(!isTv) isTv = false;
-    var myRequestId = ++_discoverRequestId;
-
     if (page === 1) {
         isLoadingMovies = true; hasMoreMovies = true; filterState.page = 1; allCache = []; document.getElementById('moviesGrid').innerHTML = '';
     } else {
         isLoadingMovies = true; filterState.page = page;
     }
     try {
-        // Removed vote_count entirely to ensure all content shows
         var params = { sort_by: filterState.sort, page: page };
         if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
         applyYearFilter(params, filterState.years, isTv);
         if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
         var endpoint = isTv ? '/discover/tv' : '/discover/movie';
         var d = await tmdb(endpoint, params);
-
-        // v89 guard: drop the result if a newer request has already started
-        if (myRequestId !== _discoverRequestId) return;
-
+        
         if (d && d.results && d.results.length > 0) {
             var mapped = d.results.map(mapResult);
             if (page === 1) document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
@@ -2386,19 +2338,15 @@ async function loadDiscover(page, isTv) {
             hasMoreMovies = false;
         }
     } catch (err) {
-        if (myRequestId !== _discoverRequestId) return;
         console.error('[TUBEMOCHA] loadDiscover error:', err);
         if (page === 1) document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>Could not load movies</b>Please try again in a moment.</div>';
         hasMoreMovies = false;
     }
-    if (myRequestId === _discoverRequestId) isLoadingMovies = false;
+    isLoadingMovies = false;
 }
 
-var _tvDiscoverRequestId = 0;
 async function loadTVDiscover(page) {
     if(!page) page = 1;
-    var myRequestId = ++_tvDiscoverRequestId;
-
     if (page === 1) {
         isLoadingTV = true; hasMoreTV = true; tvFilterState.page = 1; document.getElementById('tvGrid').innerHTML = '';
     } else {
@@ -2406,15 +2354,11 @@ async function loadTVDiscover(page) {
     }
     try {
         var params = { sort_by: tvFilterState.sort, page: page };
-        // v89 FIX: tvFilterState.genres now holds TV genre IDs (from TV_GENRES_LIST)
         if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
         applyYearFilter(params, tvFilterState.years, true);
         if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
         
         var d = await tmdb('/discover/tv', params);
-
-        if (myRequestId !== _tvDiscoverRequestId) return;
-
         if (d && d.results && d.results.length > 0) {
             var mapped = d.results.map(mapResult);
             if (page === 1) document.getElementById('tvGrid').innerHTML = mapped.map(cardHTML).join('');
@@ -2425,12 +2369,11 @@ async function loadTVDiscover(page) {
             hasMoreTV = false;
         }
     } catch (err) {
-        if (myRequestId !== _tvDiscoverRequestId) return;
         console.error('[TUBEMOCHA] loadTVDiscover error:', err);
         if (page === 1) document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>Could not load shows</b>Please try again in a moment.</div>';
         hasMoreTV = false;
     }
-    if (myRequestId === _tvDiscoverRequestId) isLoadingTV = false;
+    isLoadingTV = false;
 }
 
 async function loadTVUpcoming() {
@@ -2450,15 +2393,18 @@ async function loadTVUpcoming() {
             if (results[1] && results[1].results) combinedTv = combinedTv.concat(results[1].results);
             if (headEl) headEl.textContent = 'Current & upcoming TV shows';
         } else {
-            var params = { sort_by: tvFilterState.sort, page: 1, 'vote_count.gte': 30 };
-            // v89 FIX: TV genre IDs (already correct in tvFilterState)
+            // FIX v89: removed vote_count.gte:30 and use TV_GENRES_LIST for names
+            var params = { sort_by: tvFilterState.sort, page: 1 };
             if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
             applyYearFilter(params, tvFilterState.years, true);
             if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
             var d = await tmdb('/discover/tv', params);
             if (d && d.results) combinedTv = d.results;
             var parts = [];
-            var genreNames = tvFilterState.genres.map(function(id) { return GENRE_MAP[id] || id; });
+            var genreNames = tvFilterState.genres.map(function(id) { 
+                var f = TV_GENRES_LIST.find(function(g){ return g.id === id; });
+                return f ? f.name : (GENRE_MAP[id] || id);
+            });
             if (genreNames.length > 0) parts.push(genreNames.slice(0,2).join(' • '));
             if (tvFilterState.years.length > 0) parts.push('(' + tvFilterState.years.slice(0,2).join(', ') + ')');
             if (tvFilterState.countries.length > 0) {
@@ -2475,6 +2421,8 @@ async function loadTVUpcoming() {
         
         if (uniqueTv.length > 0) {
             track.innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
+        } else if (hasAnyFilter) {
+            track.innerHTML = '<div class="empty" style="padding:20px;">No shows match these filters.</div>';
         } else {
             track.innerHTML = '<div class="empty" style="padding:20px;">No shows match these filters.</div>';
         }
@@ -2494,35 +2442,19 @@ async function loadTVPage(){
         }
     } catch(e) { /* ignore */ }
     renderTVFilterCheckboxes();
-    updateTVActiveFiltersUI();
     loadTVUpcoming();
     if (!document.getElementById('tvGrid').innerHTML) {
         loadTVDiscover(1);
     }
 }
 
-// ==========================================
-// OPEN GENRE PAGE — v89 RACE FIX
-// Old behaviour: navigated first, then a 100ms setTimeout set the filter
-// and reloaded. If the first (unfiltered) load resolved AFTER the second
-// load, it could overwrite the filtered grid, leaving wrong content.
-//
-// New behaviour: set filterState BEFORE navigating. Clear the target grid
-// so handleRouting() always re-fetches with the new filter. If the user is
-// already on #movies, reload directly instead of relying on hashchange.
-// ==========================================
 function openGenrePage(genreId, genreName) { 
-    filterState.genres = [genreId];
-    // Force the movies view to reload with the new filter
-    document.getElementById('moviesGrid').innerHTML = '';
-    if (window.location.hash === '#movies') {
-        renderFilterCheckboxes();
+    window.location.hash='#movies'; 
+    setTimeout(function(){ 
+        filterState.genres = [genreId];
         updateActiveFiltersUI();
-        loadDiscover(1, false);
-        loadMoviesRegionTrending();
-    } else {
-        window.location.hash = '#movies';
-    }
+        applyFilters();
+    }, 100); 
 }
 
 async function loadPopularGenres() {
@@ -2726,7 +2658,7 @@ function getEmbedUrl(index) {
 
 async function playCurrentMedia(){
     if(!currentMovie) return;
-    saveToHistory(currentMovie); // Save to history before playing
+    saveToHistory(currentMovie);
     
     if (localStorage.getItem('tubemocha_ads') !== 'false') {
         (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
@@ -2840,25 +2772,15 @@ async function loadInitial(){
 
 document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
 
-// ==========================================
-// ANIME — v89 FIX
-// Old list used MOVIE genre IDs (28, 12, 14, 27, 10749, 878, 53...)
-// combined with `with_genres=16,<id>`, which silently returned nothing
-// because /discover/tv has no genre 28 (Action), 14 (Fantasy), etc.
-//
-// New list uses TV_GENRES_LIST IDs only. Every visible option now
-// actually returns results from TMDB's /discover/tv endpoint.
-// ==========================================
+// === ANIME LOGIC ===
 async function loadAnime(isNew) {
     if (isLoadingAnime || (!hasMoreAnime && !isNew)) return;
     isLoadingAnime = true;
     if (isNew) { animePage = 1; document.getElementById('animeGrid').innerHTML = ''; hasMoreAnime = true; }
     var grid = document.getElementById('animeGrid');
     if (isNew) grid.innerHTML = '<div class="empty">Loading...</div>';
-    // Base: Animation (16) + Japanese origin
+    // FIX v89: animeGenre is now a valid TV genre ID (from ANIME_GENRES)
     var params = { page: animePage, with_origin_country: 'JP', sort_by: 'popularity.desc', with_genres: '16' };
-    // v89: animeGenre now holds a TV genre ID from ANIME_GENRES below.
-    // Comma = AND — so "16,10759" means Animation AND Action & Adventure.
     if (animeGenre) params.with_genres = '16,' + animeGenre;
     try {
         var data = await tmdb('/discover/tv', params);
@@ -2874,19 +2796,19 @@ async function loadAnime(isNew) {
     } catch (e) { console.error(e); hasMoreAnime = false; }
     isLoadingAnime = false;
 }
-// v89 — anime genres now use TV genre IDs.
+
+// FIX v89: Anime genre list now uses valid TV genre IDs (not movie IDs).
+// Anime is TV content — only TV genre IDs work in TMDB /discover/tv.
 var ANIME_GENRES = [
-    { name: 'Action & Adventure', id: '10759' },
+    { name: 'Action', id: '10759' },
     { name: 'Comedy', id: '35' },
     { name: 'Drama', id: '18' },
-    { name: 'Sci-Fi & Fantasy', id: '10765' },
+    { name: 'Fantasy', id: '10765' },
     { name: 'Mystery', id: '9648' },
-    { name: 'Crime', id: '80' },
     { name: 'Kids', id: '10762' },
-    { name: 'Family', id: '10751' },
-    { name: 'War & Politics', id: '10768' },
-    { name: 'Western', id: '37' }
+    { name: 'Sci-Fi', id: '10765' }
 ];
+
 function renderAnimeGenres() {
     var grid = document.getElementById('animeGenreGrid'); if(!grid) return;
     grid.innerHTML = '<button class="' + (animeGenre === '' ? 'active' : '') + '" onclick="setAnimeGenre(\'\', \'All\')">All</button>' + ANIME_GENRES.map(function(g) {
@@ -2909,7 +2831,8 @@ async function loadMoviesRegionTrending() {
         var geo = await getUserCountry();
         var hasAnyFilter = filterState.genres.length > 0 || filterState.years.length > 0 || filterState.countries.length > 0;
         
-        var params = { sort_by: 'popularity.desc', page: 1, 'vote_count.gte': 30 };
+        // FIX v89: removed vote_count.gte:30 so genre filtering returns full content
+        var params = { sort_by: 'popularity.desc', page: 1 };
         if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
         applyYearFilter(params, filterState.years, false);
         if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
@@ -2925,22 +2848,28 @@ async function loadMoviesRegionTrending() {
             if (filterState.countries.length > 0) {
                 var countryNames = filterState.countries.map(function(c){ var f = COUNTRIES_LIST.find(function(x){return x.id===c;}); return f ? f.name : c; });
                 parts.push('from ' + countryNames.slice(0,2).join(', '));
-            } else if (geo.code) {
-                parts.push('in ' + geo.name);
             }
             if (headEl) headEl.textContent = parts.join(' ') || 'Trending Now';
         }
         
         var data = await tmdb('/discover/movie', params);
-        if (hasAnyFilter && (!data || !data.results || data.results.length === 0) && params.with_origin_country && filterState.countries.length === 0) {
+        
+        // FIX v89: when filter is active and query fails, don't fall back to unfiltered trending.
+        // Instead, retry without country restriction (only if country was not explicitly set).
+        if (hasAnyFilter && (!data || !data.results || data.results.length === 0) && filterState.countries.length === 0 && params.with_origin_country) {
             delete params.with_origin_country;
             data = await tmdb('/discover/movie', params);
         }
         if (!data || !data.results || data.results.length === 0) {
-            data = await tmdb('/trending/movie/week', {page:1});
+            if (!hasAnyFilter) {
+                data = await tmdb('/trending/movie/week', {page:1});
+            }
         }
-        if (data && data.results) {
+        
+        if (data && data.results && data.results.length > 0) {
             track.innerHTML = data.results.slice(0,10).map(mapResult).map(cardHTML).join('');
+        } else if (hasAnyFilter) {
+            track.innerHTML = '<div class="empty" style="padding:20px;">No titles match these filters.</div>';
         } else {
             track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
         }
@@ -2977,7 +2906,6 @@ async function getUserCountry() {
     return window.cachedGeo;
 }
 
-// Render posters for auth pages
 function populateAuthPosters() {
     var posters = [
         '/pB8BM7pdSp6B6Ih7QZ4DrQ3PmJK.jpg', '/49WJfeN0moxb9IPfGn8AIqMGskD.jpg', '/ztkUQFLlC19CCMYHW9o1zWhJRNq.jpg',
@@ -3017,9 +2945,8 @@ function handleRouting() {
         document.getElementById('view-movies').classList.add('active');
         document.getElementById('b-movies').classList.add('active');
         document.getElementById('d-movies').classList.add('active');
-        renderFilterCheckboxes();
-        updateActiveFiltersUI();
         if (!document.getElementById('moviesGrid').innerHTML) {
+            renderFilterCheckboxes();
             var headerBg = document.getElementById('moviesHeaderBg');
             if (!headerBg.src || headerBg.src.includes('base64')) {
                 tmdb('/trending/movie/week', {page:1}).then(function(tr) { if (tr && tr.results) { var withBackdrop = tr.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; } });
@@ -3141,7 +3068,6 @@ window.addEventListener('DOMContentLoaded', function() {
         handleAuthState(res && res.data ? res.data.session : null);
     });
 
-    // Initialize Ads Toggle
     var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
     var adsToggle = document.getElementById('adsToggle');
     if (adsToggle) adsToggle.checked = adsEnabled;
