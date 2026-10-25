@@ -167,6 +167,29 @@
 .auth-switch a { color: var(--accent-light); font-weight: 700; cursor: pointer; }
 .auth-footer-links { margin-top: 20px; font-size: 12px; color: var(--text-dim); text-align: center; }
 .auth-footer-links a { color: var(--text-muted); text-decoration: underline; margin: 0 4px; }
+
+/* Auth Modal Overlay */
+.auth-modal-overlay { position: fixed; inset: 0; z-index: 800; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px; }
+.auth-modal-overlay.open { display: flex; }
+.auth-modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 100%; max-width: 800px; position: relative; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.9); animation: fade .3s; }
+.auth-modal-close { position: absolute; top: 16px; right: 16px; color: var(--text-muted); font-size: 24px; cursor: pointer; z-index: 10; line-height: 1; }
+.auth-modal-close:hover { color: #fff; }
+.auth-modal-header { text-align: center; padding: 30px 20px 10px; }
+.auth-modal-header h2 { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+.auth-modal-header p { font-size: 14px; color: var(--text-muted); }
+.auth-modal-body { display: flex; padding: 20px 40px 40px; gap: 30px; align-items: center; }
+.auth-modal-qr { flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.auth-modal-qr img { width: 140px; height: 140px; margin-bottom: 12px; background: #fff; padding: 8px; border-radius: 8px; }
+.auth-modal-qr p { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin-bottom: 8px; }
+.auth-modal-divider { display: flex; align-items: center; color: var(--text-dim); font-size: 12px; font-weight: 700; }
+.auth-modal-divider::before, .auth-modal-divider::after { content: ''; height: 1px; background: var(--border); flex: 1; margin: 0 10px; }
+.auth-modal-form { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.auth-modal-footer { padding: 15px 20px; border-top: 1px solid var(--border); text-align: center; font-size: 11px; color: var(--text-dim); background: rgba(0,0,0,0.2); border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+@media (max-width: 600px) {
+  .auth-modal-body { flex-direction: column; padding: 20px; }
+  .auth-modal-qr { display: none; }
+  .auth-modal-divider { display: none; }
+}
 </style>
 </head>
 <body>
@@ -219,7 +242,7 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           History
         </div>
-        <div class="profile-dropdown-item" onclick="window.location.hash='#watchlist'; closeProfileDropdown()">
+        <div class="profile-dropdown-item" onclick="handleWatchlistClick(); closeProfileDropdown()">
           <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
           Watchlist
         </div>
@@ -234,8 +257,8 @@
         </div>
         <div class="profile-dropdown-actions" id="profileActionContainer">
           <!-- Dynamic Auth Buttons -->
-          <button class="login" onclick="window.location.hash='#login'; closeProfileDropdown()">Login</button>
-          <button class="signup" onclick="window.location.hash='#signup'; closeProfileDropdown()">Sign up</button>
+          <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
+          <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
         </div>
       </div>
     </div>
@@ -382,7 +405,7 @@
 <div style="width:80px;height:80px;border-radius:50%;background:var(--accent);color:var(--bg-main);display:grid;place-items:center;font-size:32px;font-weight:900;margin:0 auto 20px;letter-spacing:-0.05em">TM</div>
 <h2 style="font-size:24px;font-weight:800;color:var(--text-main);margin-bottom:8px">Guest User</h2>
 <p style="color:var(--text-dim);font-size:14px;margin-bottom:30px">Sign in to sync your watchlist across devices.</p>
-<button class="btn-play" style="width:200px" onclick="window.location.hash='#login'">Sign In</button>
+<button class="btn-play" style="width:200px" onclick="openAuthModal('login')">Sign In</button>
 </div></div>
 
 <!-- SIGN UP VIEW -->
@@ -671,6 +694,32 @@
 </div>
 </div>
 
+<!-- AUTH MODAL OVERLAY -->
+<div class="auth-modal-overlay" id="authModal">
+  <div class="auth-modal-content">
+    <button class="auth-modal-close" onclick="closeAuthModal()">&times;</button>
+    <div class="auth-modal-header">
+      <h2 id="authModalTitle">Welcome back to Tubemocha</h2>
+      <p id="authModalSubtitle">Sign in to use this feature</p>
+    </div>
+    <div class="auth-modal-body">
+      <div class="auth-modal-qr">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
+        <p>Scan this code on a signed-in device</p>
+        <p style="font-size: 11px; opacity: 0.7;">Open the Camera app on a signed-in device and scan this code to log in here</p>
+        <div class="auth-qr-timer">Code expires in 2:00</div>
+      </div>
+      <div class="auth-modal-divider">OR</div>
+      <div class="auth-modal-form" id="authModalFormContainer">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+    <div class="auth-modal-footer">
+      By continuing you agree to our <a onclick="window.location.hash='#terms'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">Terms</a>, <a onclick="window.location.hash='#privacy'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">Privacy</a> and <a onclick="window.location.hash='#dmca'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">DMCA</a>.
+    </div>
+  </div>
+</div>
+
 <div class="detail-overlay" id="detailOverlay">
 <div class="detail-trailer-bg" id="detailTrailerBg"></div>
 <div class="detail-content">
@@ -749,13 +798,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v66 — 2026-10-25
-// CHANGELOG (v65 → v66):
-//   • Connected Watchlist to Supabase Database.
-//   • If logged in, Watchlist saves to Supabase `watchlists` table.
-//   • If logged out, Watchlist falls back to browser localStorage.
-//   • Added Auth State Listener to automatically fetch saved list on login.
-//   • Updated Profile Dropdown to show Log Out and User Email.
+// TUBEMOCHA BUILD v67 — 2026-10-25
+// CHANGELOG (v66 → v67):
+//   • Enforced authentication for Watchlist: guests now see an Auth Modal instead of a local-storage watchlist.
+//   • Created a reusable `authModal` overlay matching the Movy.sx design.
+//   • Wired the Profile Dropdown "Watchlist" button and the "Add to List" button on details to trigger the modal if logged out.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -775,9 +822,9 @@ var tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.de
 
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
-var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
+var watchlist = []; // Watchlist is now fully handled by Supabase
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v66-2026-10-25-watchlist-supabase';
+var TUBEMOCHA_BUILD = 'v67-2026-10-25-auth-modal-watchlist';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -817,6 +864,104 @@ function applyYearFilter(params, years, isTv) {
 }
 
 // ==========================================
+// AUTH MODAL LOGIC
+// ==========================================
+function openAuthModal(mode = 'login') {
+    var container = document.getElementById('authModalFormContainer');
+    var title = document.getElementById('authModalTitle');
+    var subtitle = document.getElementById('authModalSubtitle');
+    
+    if (mode === 'login') {
+        title.textContent = 'Welcome back to Tubemocha';
+        subtitle.textContent = 'Sign in to use this feature';
+        container.innerHTML = `
+            <form onsubmit="handleModalLogin(event)">
+                <div class="auth-input-group" style="margin-bottom:12px;">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <input type="email" id="modalLoginEmail" placeholder="Email" required>
+                </div>
+                <div class="auth-input-group" style="margin-bottom:12px;">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <input type="password" id="modalLoginPassword" placeholder="Password" required>
+                </div>
+                <button type="submit" class="auth-submit-btn">Login</button>
+            </form>
+            <div class="auth-switch" style="text-align:center; margin-top:16px;">
+                New to Tubemocha? <a onclick="openAuthModal('signup')">Create an account</a>
+            </div>
+        `;
+    } else {
+        title.textContent = 'Create your Tubemocha account';
+        subtitle.textContent = 'Fill in your details to get started';
+        container.innerHTML = `
+            <form onsubmit="handleModalSignUp(event)">
+                <div class="auth-input-group" style="margin-bottom:12px;">
+                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    <input type="text" id="modalSignupUsername" placeholder="Username" required>
+                </div>
+                <div class="auth-input-group" style="margin-bottom:12px;">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <input type="email" id="modalSignupEmail" placeholder="Email" required>
+                </div>
+                <div class="auth-input-group" style="margin-bottom:12px;">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <input type="password" id="modalSignupPassword" placeholder="Password" required minlength="6">
+                </div>
+                <button type="submit" class="auth-submit-btn">Sign up</button>
+            </form>
+            <div class="auth-switch" style="text-align:center; margin-top:16px;">
+                Already have an account? <a onclick="openAuthModal('login')">Login</a>
+            </div>
+        `;
+    }
+    
+    document.getElementById('authModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeAuthModal() {
+    document.getElementById('authModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+async function handleModalLogin(e) {
+    e.preventDefault();
+    var email = document.getElementById('modalLoginEmail').value;
+    var password = document.getElementById('modalLoginPassword').value;
+    var { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    if (error) { toast(error.message); } 
+    else { 
+        toast('Logged in successfully!'); 
+        closeAuthModal(); 
+        handleRouting(); 
+    }
+}
+
+async function handleModalSignUp(e) {
+    e.preventDefault();
+    var username = document.getElementById('modalSignupUsername').value;
+    var email = document.getElementById('modalSignupEmail').value;
+    var password = document.getElementById('modalSignupPassword').value;
+    var { data, error } = await supabaseClient.auth.signUp({
+        email: email, password: password, options: { data: { username: username } }
+    });
+    if (error) { toast(error.message); } 
+    else { 
+        toast('Account created! Check your email to confirm.'); 
+        closeAuthModal(); 
+        handleRouting();
+    }
+}
+
+function handleWatchlistClick() {
+    if (currentUser) {
+        window.location.hash = '#watchlist';
+    } else {
+        openAuthModal('login');
+    }
+}
+
+// ==========================================
 // AUTH & USER STATE
 // ==========================================
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -827,7 +972,7 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
     } else {
         currentUser = null;
         updateProfileUI(false);
-        watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
+        watchlist = [];
         renderWatchlist();
     }
 });
@@ -842,8 +987,8 @@ function updateProfileUI(isLoggedIn, email) {
         `;
     } else {
         container.innerHTML = `
-            <button class="login" onclick="window.location.hash='#login'; closeProfileDropdown()">Login</button>
-            <button class="signup" onclick="window.location.hash='#signup'; closeProfileDropdown()">Sign up</button>
+            <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
+            <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
         `;
     }
 }
@@ -883,7 +1028,7 @@ async function handleLogout() {
 }
 
 // ==========================================
-// WATCHLIST LOGIC (Supabase / LocalStorage)
+// WATCHLIST LOGIC (Supabase)
 // ==========================================
 async function fetchWatchlistFromDB() {
     if (!currentUser) return;
@@ -907,33 +1052,30 @@ async function fetchWatchlistFromDB() {
 
 async function toggleWatchlist() {
     if(!currentMovie) return;
+    if (!currentUser) {
+        openAuthModal('login');
+        return;
+    }
+    
     var idx = watchlist.findIndex(x => String(x.id) === String(currentMovie.id));
     var isRemoving = idx > -1;
 
-    if (currentUser) {
-        // Database Mode
-        if (isRemoving) {
-            watchlist.splice(idx, 1);
-            await supabaseClient.from('watchlists').delete().match({ user_id: currentUser.id, movie_id: String(currentMovie.id) });
-            toast('Removed from Watchlist');
-            document.getElementById('detailListText').textContent = 'Add to List';
-        } else {
-            watchlist.unshift(currentMovie);
-            await supabaseClient.from('watchlists').insert({
-                user_id: currentUser.id,
-                movie_id: String(currentMovie.id),
-                media_type: currentMovie._tv ? 'tv' : 'movie',
-                title: currentMovie.t,
-                poster_path: currentMovie.poster_path
-            });
-            toast('Added to Watchlist');
-            document.getElementById('detailListText').textContent = 'Added to List';
-        }
+    if (isRemoving) {
+        watchlist.splice(idx, 1);
+        await supabaseClient.from('watchlists').delete().match({ user_id: currentUser.id, movie_id: String(currentMovie.id) });
+        toast('Removed from Watchlist');
+        document.getElementById('detailListText').textContent = 'Add to List';
     } else {
-        // Local Storage Mode (Guest)
-        if (isRemoving) { watchlist.splice(idx, 1); toast('Removed from Watchlist'); document.getElementById('detailListText').textContent = 'Add to List'; }
-        else { watchlist.push(currentMovie); toast('Added to Watchlist'); document.getElementById('detailListText').textContent = 'Added to List'; }
-        localStorage.setItem('tubemocha_watchlist', JSON.stringify(watchlist));
+        watchlist.unshift(currentMovie);
+        await supabaseClient.from('watchlists').insert({
+            user_id: currentUser.id,
+            movie_id: String(currentMovie.id),
+            media_type: currentMovie._tv ? 'tv' : 'movie',
+            title: currentMovie.t,
+            poster_path: currentMovie.poster_path
+        });
+        toast('Added to Watchlist');
+        document.getElementById('detailListText').textContent = 'Added to List';
     }
     renderWatchlist();
 }
@@ -1306,6 +1448,7 @@ function hideSwitchBanner() { var b = document.getElementById('serverSwitchBanne
 function renderWatchlist() {
     var grid = document.getElementById('watchlistGrid'); var empty = document.getElementById('watchlistEmpty');
     if (!grid) return;
+    if (!currentUser) { grid.innerHTML = ''; empty.style.display = 'block'; return; } // Safety check
     if (watchlist.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none'; grid.innerHTML = watchlist.map(cardHTML).join('');
 }
@@ -1999,6 +2142,11 @@ function handleRouting() {
         window.currentView = 'anime';
     } 
     else if (hash === 'watchlist') {
+        if (!currentUser) {
+            openAuthModal('login');
+            window.location.hash = '#home';
+            return;
+        }
         document.getElementById('view-watchlist').classList.add('active');
         renderWatchlist();
         window.currentView = 'watchlist';
