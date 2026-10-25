@@ -239,44 +239,49 @@
         <svg id="headerDefaultIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       </div>
       <div class="profile-dropdown" id="profileDropdown">
-        <div id="dropdownLoggedOut">
-            <div class="profile-dropdown-actions">
-              <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
-              <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
-            </div>
+        
+        <!-- Always Visible Options -->
+        <div class="profile-dropdown-item" onclick="handleAuthRequiredClick('#history')">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          History
         </div>
-        <div id="dropdownLoggedIn" style="display:none;">
-            <div class="profile-dropdown-item" id="activeProfileName" style="font-weight:800; color:#fff; pointer-events:none; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:8px;">Profile Name</div>
-            <div class="profile-dropdown-item" onclick="window.location.hash='#history'; closeProfileDropdown()">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-              History
-            </div>
-            <div class="profile-dropdown-item" onclick="handleWatchlistClick(); closeProfileDropdown()">
-              <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-              Watchlist
-            </div>
-            <div class="profile-dropdown-item" onclick="window.location.hash='#watchparty'; closeProfileDropdown()">
-              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              Watch Party
-            </div>
-            <div class="profile-dropdown-toggle">
-              <span>Show ads</span>
-              <input type="checkbox" id="adsToggle" checked onchange="toggleAds(this.checked)">
-              <label for="adsToggle" class="toggle-switch"></label>
-            </div>
-            <div class="profile-dropdown-item" onclick="window.location.hash='#whos-watching'; closeProfileDropdown()">
-              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-              Switch profile
-            </div>
-            <div class="profile-dropdown-item" onclick="openAvatarModal(); closeProfileDropdown()">
-              <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-              Change avatar
-            </div>
-            <div class="profile-dropdown-item" onclick="handleLogout(); closeProfileDropdown()" style="color:#ff6b6b; border-top:1px solid var(--border); margin-top:8px;">
-              <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-              Logout
-            </div>
+        <div class="profile-dropdown-item" onclick="handleAuthRequiredClick('#watchlist')">
+          <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+          Watchlist
         </div>
+        <div class="profile-dropdown-item" onclick="handleAuthRequiredClick('#watchparty')">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Watch Party
+        </div>
+        <div class="profile-dropdown-toggle">
+          <span>Show ads</span>
+          <input type="checkbox" id="adsToggle" checked onchange="toggleAds(this.checked)">
+          <label for="adsToggle" class="toggle-switch"></label>
+        </div>
+
+        <!-- Logged In Specific Options -->
+        <div id="dropdownAuthProfile" style="display:none; border-top:1px solid var(--border); padding-top:8px; margin-top:8px;">
+          <div class="profile-dropdown-item" style="pointer-events:none; color:#fff; font-weight:800; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:8px;" id="activeProfileNameDisplay">Profile</div>
+          <div class="profile-dropdown-item" onclick="window.location.hash='#whos-watching'; closeProfileDropdown()">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Switch profile
+          </div>
+          <div class="profile-dropdown-item" onclick="openAvatarModal(); closeProfileDropdown()">
+            <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            Change avatar
+          </div>
+          <div class="profile-dropdown-item" onclick="handleLogout(); closeProfileDropdown()" style="color:#ff6b6b;">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+          </div>
+        </div>
+
+        <!-- Logged Out Specific Options -->
+        <div id="dropdownAuthButtons" class="profile-dropdown-actions">
+          <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
+          <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
+        </div>
+        
       </div>
     </div>
   </div>
@@ -891,15 +896,13 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v70 — 2026-10-25
-// CHANGELOG (v69 → v70):
-//   • Implemented the full Profile Creation Wizard (Step 1: Name, Step 2: Movie Genres, Step 3: TV Genres).
-//   • Implemented "Who's Watching" screen with profile grid, Add Profile, Manage Profiles, Settings.
-//   • Implemented "Edit Profile" screen (Change name, Delete profile).
-//   • Implemented Settings screen.
-//   • Header updated to show active profile avatar and custom dropdown options (Switch profile, Change avatar, Logout).
-//   • Added max 3 selection limit to Wizard genres.
-//   • Progress bar styled with dark brown var(--accent).
+// TUBEMOCHA BUILD v71 — 2026-10-25
+// CHANGELOG (v70 → v71):
+//   • Fixed session persistence on page refresh (getSession on load).
+//   • Redesigned header dropdown: "History", "Watchlist", "Watch Party" are always visible.
+//   • If user is logged in, they show the profile options. If not, they show Login/Signup below.
+//   • Clicking protected options while logged out prompts the auth modal.
+//   • Added robust restoration of the active profile image on page reload.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -939,7 +942,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v70-2026-10-25-profiles-wizard-whos-watching';
+var TUBEMOCHA_BUILD = 'v71-2026-10-25-session-persistence-universal-dropdown';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -966,15 +969,66 @@ var COUNTRIES_LIST = [
     { name: 'United States', id: 'US' }
 ];
 
-// Helper: build year params for movies/TV (handles single vs multiple years)
-function applyYearFilter(params, years, isTv) {
-    if (!years || years.length === 0) return;
-    var ys = years.map(Number).sort(function(a,b){return a-b;});
-    if (ys.length === 1) {
-        params[isTv ? 'first_air_date_year' : 'primary_release_year'] = ys[0];
+// ==========================================
+// SESSION & AUTH UI RESTORATION
+// ==========================================
+async function initAuth() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        currentUser = session.user;
+        showLoggedInUI();
+        await fetchWatchlistFromDB();
     } else {
-        params[isTv ? 'first_air_date.gte' : 'primary_release_date.gte'] = ys[0] + '-01-01';
-        params[isTv ? 'first_air_date.lte' : 'primary_release_date.lte'] = ys[ys.length - 1] + '-12-31';
+        currentUser = null;
+        showLoggedOutUI();
+    }
+    restoreActiveProfile();
+}
+
+function showLoggedInUI() {
+    document.getElementById('dropdownAuthProfile').style.display = 'block';
+    document.getElementById('dropdownAuthButtons').style.display = 'none';
+}
+
+function showLoggedOutUI() {
+    document.getElementById('dropdownAuthProfile').style.display = 'none';
+    document.getElementById('dropdownAuthButtons').style.display = 'flex';
+    updateHeaderAvatar(null);
+}
+
+function restoreActiveProfile() {
+    let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    if (activeProfile && currentUser) {
+        updateHeaderAvatar(activeProfile);
+    } else {
+        updateHeaderAvatar(null);
+    }
+}
+
+function updateHeaderAvatar(profile) {
+    const img = document.getElementById('headerAvatar');
+    const icon = document.getElementById('headerDefaultIcon');
+    const nameDisplay = document.getElementById('activeProfileNameDisplay');
+    
+    if (profile) {
+        img.src = AVATARS[profile.avatarIndex];
+        img.style.display = 'block';
+        icon.style.display = 'none';
+        if (nameDisplay) nameDisplay.textContent = profile.name;
+    } else {
+        img.style.display = 'none';
+        icon.style.display = 'block';
+        if (nameDisplay) nameDisplay.textContent = 'Profile';
+    }
+}
+
+// Dropdown routing logic for protected routes
+function handleAuthRequiredClick(targetHash) {
+    closeProfileDropdown();
+    if (currentUser) {
+        window.location.hash = targetHash;
+    } else {
+        openAuthModal('login');
     }
 }
 
@@ -993,10 +1047,7 @@ function renderWizard() {
     const seg2 = document.getElementById('seg2');
     const seg3 = document.getElementById('seg3');
 
-    // Reset classes
     seg1.className = 'step-segment'; seg2.className = 'step-segment'; seg3.className = 'step-segment';
-    
-    // Update progress bar
     if (wizardState.step >= 1) seg1.classList.add('active');
     if (wizardState.step >= 2) seg2.classList.add('active');
     if (wizardState.step >= 3) seg3.classList.add('active');
@@ -1290,6 +1341,7 @@ async function handleModalLogin(e) {
     else { 
         toast('Logged in successfully!'); 
         closeAuthModal(); 
+        showLoggedInUI();
         
         // Check if user has profiles
         let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
@@ -1314,15 +1366,8 @@ async function handleModalSignUp(e) {
     else { 
         toast('Registered successfully'); 
         closeAuthModal(); 
+        showLoggedInUI();
         startWizard();
-    }
-}
-
-function handleWatchlistClick() {
-    if (currentUser) {
-        window.location.hash = '#watchlist';
-    } else {
-        openAuthModal('login');
     }
 }
 
@@ -1332,34 +1377,16 @@ function handleWatchlistClick() {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (session) {
         currentUser = session.user;
-        document.getElementById('dropdownLoggedIn').style.display = 'block';
-        document.getElementById('dropdownLoggedOut').style.display = 'none';
-        
+        showLoggedInUI();
         await fetchWatchlistFromDB();
     } else {
         currentUser = null;
         localStorage.removeItem('tubemocha_active_profile');
-        updateHeaderAvatar(null);
+        showLoggedOutUI();
         watchlist = [];
         renderWatchlist();
-        document.getElementById('dropdownLoggedIn').style.display = 'none';
-        document.getElementById('dropdownLoggedOut').style.display = 'block';
     }
 });
-
-function updateHeaderAvatar(profile) {
-    const img = document.getElementById('headerAvatar');
-    const icon = document.getElementById('headerDefaultIcon');
-    if (profile) {
-        img.src = AVATARS[profile.avatarIndex];
-        img.style.display = 'block';
-        icon.style.display = 'none';
-        document.getElementById('activeProfileName').textContent = profile.name;
-    } else {
-        img.style.display = 'none';
-        icon.style.display = 'block';
-    }
-}
 
 async function handleSignUp(e) {
     e.preventDefault();
@@ -2526,10 +2553,20 @@ function handleRouting() {
         window.currentView = 'watchlist';
     } 
     else if (hash === 'history') {
+        if (!currentUser) {
+            openAuthModal('login');
+            window.location.hash = '#home';
+            return;
+        }
         document.getElementById('view-history').classList.add('active');
         window.currentView = 'history';
     }
     else if (hash === 'watchparty') {
+        if (!currentUser) {
+            openAuthModal('login');
+            window.location.hash = '#home';
+            return;
+        }
         document.getElementById('view-watchparty').classList.add('active');
         window.currentView = 'watchparty';
     }
@@ -2608,6 +2645,8 @@ function handleRouting() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
+    initAuth(); // Check for session on load
+    
     if (!window.location.hash) {
         window.location.hash = '#home';
     } else {
