@@ -493,10 +493,29 @@
 <div class="grid" id="watchlistGrid"></div><div id="watchlistEmpty" class="empty"><b>Your watchlist is empty</b>Click the star on any movie to save it.</div>
 </div></div>
 
-<div id="view-history" class="view"><div class="main" style="padding-top:20px">
-<div class="section-head"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Watch History</h2></div></div>
-<div class="empty"><b>History feature coming soon</b>Your recently watched content will appear here.</div>
-</div></div>
+<!-- UPDATED HISTORY VIEW -->
+<div id="view-history" class="view">
+  <div class="main" style="padding-top:20px">
+    <div class="section-head" style="padding: 0 20px; margin-bottom: 20px; flex-direction: column; align-items: flex-start; gap: 4px;">
+      <h2 class="section-title" style="font-size: 32px; font-weight: 800;">Watch history</h2>
+      <div class="section-sub" style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">Movies and shows you've already watched</div>
+    </div>
+    <div class="empty" style="padding: 60px 20px; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 0 20px; background: var(--bg-card);">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 20px; background: var(--bg-elevated); border: 1px solid var(--border); margin-bottom: 20px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+          <line x1="7" y1="2" x2="7" y2="22"></line>
+          <line x1="17" y1="2" x2="17" y2="22"></line>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <polygon points="10 8 16 12 10 16 10 8" fill="var(--text-muted)" stroke="none"></polygon>
+        </svg>
+      </div>
+      <b style="font-size: 18px; color: #fff; display: block; margin-bottom: 8px;">No watch history yet</b>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">Everything you start watching shows up here, ready to resume.</p>
+      <button class="btn-play" onclick="window.location.hash='#movies'" style="margin: 0 auto;">Browse movies</button>
+    </div>
+  </div>
+</div>
 
 <div id="view-watchparty" class="view"><div class="main" style="padding-top:20px">
 <div class="section-head"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Watch Party</h2></div></div>
@@ -893,17 +912,12 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v76 — 2026-10-25
-// CHANGELOG (v75 → v76):
-//   • Added missing applyYearFilter() — the #1 cause of Movies page
-//     stuck on "Loading..." and the empty grid under All Movies.
-//   • Simplified signup wizard: removed movie/TV genre steps,
-//     single "Create your profile" step with "Start watching" button.
-//   • saveWizardProfile now async: pulls session from Supabase so the
-//     new profile is reliably tied to the signed-in user, then lands
-//     them on #home as a logged-in viewer.
-//   • getUserCountry() now has a 2.5s per-provider timeout so it can
-//     never block the Movies "Trending in your region" row.
+// TUBEMOCHA BUILD v77 — 2026-10-25
+// CHANGELOG (v76 → v77):
+//   • Redesigned Watch History page to match movy.sx layout (empty state, icon, text, browse movies button).
+//   • Ensured history page is strictly gated behind authentication.
+//   • Fixed "Show ads" toggle to actually control the injection of ad scripts across the site (saved to localStorage).
+//   • Extracted ad scripts into a dynamic loader so they only run when ads are enabled.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -942,7 +956,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v76-2026-10-25-single-step-wizard-applyYearFix';
+var TUBEMOCHA_BUILD = 'v77-2026-10-25-movy-history-ads-toggle';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -968,6 +982,33 @@ var COUNTRIES_LIST = [
     { name: 'Thailand', id: 'TH' }, { name: 'Türkiye', id: 'TR' }, { name: 'United Kingdom', id: 'GB' },
     { name: 'United States', id: 'US' }
 ];
+
+// ==========================================
+// ADS SYSTEM
+// ==========================================
+function loadAdScripts() {
+    if (localStorage.getItem('tubemocha_ads') === 'false') return;
+    
+    // First ad script (nap5k.com)
+    if (!document.querySelector('script[data-zone="12094769"]')) {
+        (function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    }
+    // Second ad script (5gvci.com)
+    if (!document.querySelector('script[src="https://5gvci.com/act/files/tag.min.js?z=12094778"]')) {
+        var s = document.createElement('script');
+        s.src = 'https://5gvci.com/act/files/tag.min.js?z=12094778';
+        s.setAttribute('data-cfasync', 'false');
+        document.body.appendChild(s);
+    }
+}
+
+function toggleAds(checked) {
+    localStorage.setItem('tubemocha_ads', checked);
+    toast('Ads ' + (checked ? 'enabled' : 'disabled'));
+    if (checked) {
+        loadAdScripts();
+    }
+}
 
 // ==========================================
 // SESSION & AUTH UI RESTORATION
@@ -1071,8 +1112,6 @@ async function wizardStartWatching() {
 }
 
 async function saveWizardProfile() {
-    // Resolve the signed-in user's id directly from Supabase — this is the
-    // most reliable way to avoid race conditions after sign-up.
     var userId = null;
     try {
         var sess = await supabaseClient.auth.getSession();
@@ -1098,13 +1137,11 @@ async function saveWizardProfile() {
     localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
 
     if (existingUserProfiles.length === 0) {
-        // First profile after sign-up → auto-select and drop them on Home
         localStorage.setItem('tubemocha_active_profile', JSON.stringify(newProfile));
         updateHeaderAvatar(newProfile);
         toast('Welcome to Tubemocha, ' + newProfile.name + '!');
         window.location.hash = '#home';
     } else {
-        // Adding an extra profile → back to the picker
         toast('Profile created');
         window.location.hash = '#whos-watching';
     }
@@ -1716,10 +1753,6 @@ document.addEventListener('click', function(e) {
     dropdown.classList.remove('open');
   }
 });
-function toggleAds(checked) {
-  localStorage.setItem('tubemocha_ads', checked);
-  toast('Ads ' + (checked ? 'enabled' : 'disabled'));
-}
 
 // === DESKTOP LIVE SEARCH LOGIC ===
 var searchDebounceTimer;
@@ -1883,9 +1916,6 @@ function upcomingCardHTML(m) {
     } catch(e) { return ''; }
 }
 
-// ============================================================
-// TMDB FETCH with 8s timeout
-// ============================================================
 async function tmdb(path, params) {
     if(!params) params = {};
     var target = new URL(TMDB_BASE + path);
@@ -1911,9 +1941,6 @@ async function tmdb(path, params) {
     }
 }
 
-// ============================================================
-// applyYearFilter — critical helper for TMDB /discover endpoints
-// ============================================================
 function applyYearFilter(params, years, isTV) {
     if (!years || years.length === 0) return;
     var sorted = years.map(Number).filter(function(n) { return !isNaN(n); }).sort(function(a, b) { return a - b; });
@@ -2302,7 +2329,9 @@ function getEmbedUrl(index) {
 
 async function playCurrentMedia(){
     if(!currentMovie) return;
-    (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    if (localStorage.getItem('tubemocha_ads') !== 'false') {
+        (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    }
     var overlay = document.getElementById('playerOverlay'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; 
     currentProviderIndex = 0; hideSwitchBanner(); loadPlayerSource(0);
     clearTimeout(window._idleTimer); overlay.classList.remove('idle');
@@ -2501,7 +2530,6 @@ async function loadMoviesRegionTrending() {
     setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50);
 }
 
-// Country lookup with a hard 2.5s per-provider timeout so it can never hang.
 async function getUserCountry() {
     if (window.cachedGeo && window.cachedGeo.code) return window.cachedGeo;
     function withTimeout(url, ms) {
@@ -2700,6 +2728,14 @@ window.addEventListener('DOMContentLoaded', function() {
         handleAuthState(res && res.data ? res.data.session : null);
     });
 
+    // Initialize Ads Toggle
+    var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
+    var adsToggle = document.getElementById('adsToggle');
+    if (adsToggle) adsToggle.checked = adsEnabled;
+    if (adsEnabled) {
+        loadAdScripts();
+    }
+
     if (!window.location.hash) {
         window.location.hash = '#home';
     } else {
@@ -2720,7 +2756,5 @@ window.addEventListener('DOMContentLoaded', function() {
 
 window.addEventListener('hashchange', handleRouting);
 </script>
-<script>(function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-<script src="https://5gvci.com/act/files/tag.min.js?z=12094778" data-cfasync="false"></script>
 </body>
 </html>
