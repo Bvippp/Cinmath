@@ -161,7 +161,7 @@
 .auth-input-group svg { position: absolute; left: 14px; width: 18px; height: 18px; stroke: var(--text-dim); fill: none; stroke-width: 2; }
 .auth-input-group input { width: 100%; height: 48px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 14px 0 42px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
 .auth-input-group input:focus { border-color: var(--accent-light); }
-.auth-submit-btn { height: 48px; border-radius: var(--radius-md); background: var(--accent-light); color: var(--bg-main); font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 8px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.auth-submit-btn { height: 48px; border-radius: var(--radius-md); background: var(--accent-light); color: var(--bg-main); font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 8px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; /* Added full width */ }
 .auth-submit-btn:hover { opacity: 0.9; }
 .auth-switch { margin-top: 16px; font-size: 13px; color: var(--text-muted); }
 .auth-switch a { color: var(--accent-light); font-weight: 700; cursor: pointer; }
@@ -784,11 +784,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v68 — 2026-10-25
-// CHANGELOG (v67 → v68):
-//   • Removed the fake QR code and timer from the Auth Modal.
-//   • Centered the login/signup form inside the modal (Option A) for a cleaner, wider look.
-//   • Updated CSS to ensure the modal is perfectly responsive without the side panels.
+// TUBEMOCHA BUILD v69 — 2026-10-25
+// CHANGELOG (v68 → v69):
+//   • Styled the Login and Sign Up submit buttons to be full width (width: 100%) to match the requested layout.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -810,7 +808,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v68-2026-10-25-clean-auth-modal';
+var TUBEMOCHA_BUILD = 'v69-2026-10-25-full-width-auth-buttons';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
