@@ -240,7 +240,6 @@
       </div>
       <div class="profile-dropdown" id="profileDropdown">
         
-        <!-- Always Visible Options -->
         <div class="profile-dropdown-item" onclick="handleAuthRequiredClick('#history')">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
           History
@@ -259,7 +258,6 @@
           <label for="adsToggle" class="toggle-switch"></label>
         </div>
 
-        <!-- Logged In Specific Options -->
         <div id="dropdownAuthProfile" style="display:none; border-top:1px solid var(--border); padding-top:8px; margin-top:8px;">
           <div class="profile-dropdown-item" style="pointer-events:none; color:#fff; font-weight:800; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:8px;" id="activeProfileNameDisplay">Profile</div>
           <div class="profile-dropdown-item" onclick="window.location.hash='#whos-watching'; closeProfileDropdown()">
@@ -276,7 +274,6 @@
           </div>
         </div>
 
-        <!-- Logged Out Specific Options -->
         <div id="dropdownAuthButtons" class="profile-dropdown-actions">
           <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
           <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
@@ -526,7 +523,7 @@
       <p class="auth-subtitle">Fill in your details to get started</p>
       
       <div class="auth-qr-box">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
         <p>Scan this code on a signed-in device</p>
         <p style="font-size: 11px; opacity: 0.7;">Open the Camera app on a signed-in device and scan this code to log in here</p>
         <div class="auth-qr-timer">Code expires in 2:00</div>
@@ -793,7 +790,7 @@
         <ul>
             <li>The exact TUBEMOCHA URL where the link/embed is found.</li>
             <li>Specific details regarding the copyrighted work claimed to have been infringed.</li>
-            <li>Proof of your copyright ownership or authorization to act on behalf of the owner.</li>
+            <li>Proof of copyright ownership or authorization to act on behalf of the owner.</li>
         </ul>
     </div>
 </div>
@@ -896,11 +893,17 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v75 — 2026-10-25
-// CHANGELOG (v74 → v75):
-//   • Fixed a critical ReferenceError that crashed the auth flow (missing showLoggedInUI).
-//   • Added a timeout to the TMDB fetch so the Movies page never hangs on "Loading...".
-//   • Added graceful handling for "User already registered" error during signup.
+// TUBEMOCHA BUILD v76 — 2026-10-25
+// CHANGELOG (v75 → v76):
+//   • Added missing applyYearFilter() — the #1 cause of Movies page
+//     stuck on "Loading..." and the empty grid under All Movies.
+//   • Simplified signup wizard: removed movie/TV genre steps,
+//     single "Create your profile" step with "Start watching" button.
+//   • saveWizardProfile now async: pulls session from Supabase so the
+//     new profile is reliably tied to the signed-in user, then lands
+//     them on #home as a logged-in viewer.
+//   • getUserCountry() now has a 2.5s per-provider timeout so it can
+//     never block the Movies "Trending in your region" row.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -915,7 +918,6 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var currentUser = null;
 
-// --- PROFILE DATA ---
 const AVATARS = [
     'https://api.dicebear.com/7.x/adventurer/svg?seed=1',
     'https://api.dicebear.com/7.x/adventurer/svg?seed=2',
@@ -940,7 +942,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v75-2026-10-25-fixed-js-crash-tmdb-timeout';
+var TUBEMOCHA_BUILD = 'v76-2026-10-25-single-step-wizard-applyYearFix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1018,7 +1020,6 @@ function updateHeaderAvatar(profile) {
     }
 }
 
-// Dropdown routing logic for protected routes
 function handleAuthRequiredClick(targetHash) {
     closeProfileDropdown();
     if (currentUser) {
@@ -1029,7 +1030,7 @@ function handleAuthRequiredClick(targetHash) {
 }
 
 // ==========================================
-// WIZARD & PROFILE LOGIC
+// WIZARD (single step now)
 // ==========================================
 function startWizard() {
     wizardState = { step: 1, name: '', avatar: Math.floor(Math.random() * 8), movieGenres: [], tvGenres: [] };
@@ -1038,140 +1039,103 @@ function startWizard() {
 }
 
 function renderWizard() {
-    const container = document.getElementById('wizardContent');
-    const seg1 = document.getElementById('seg1');
-    const seg2 = document.getElementById('seg2');
-    const seg3 = document.getElementById('seg3');
+    var container = document.getElementById('wizardContent');
+    var progressEl = document.querySelector('.wizard-progress');
+    if (progressEl) progressEl.style.display = 'none';
 
-    seg1.className = 'step-segment'; seg2.className = 'step-segment'; seg3.className = 'step-segment';
-    if (wizardState.step >= 1) seg1.classList.add('active');
-    if (wizardState.step >= 2) seg2.classList.add('active');
-    if (wizardState.step >= 3) seg3.classList.add('active');
-
-    if (wizardState.step === 1) {
-        container.innerHTML = `
-            <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">Create your profile</h2>
-            <p style="color:#888; text-align:center; margin-bottom:30px;">Give it a name — this is who's watching</p>
-            <input type="text" id="wizardName" value="${wizardState.name}" placeholder="Profile name" maxlength="20" style="width:100%; max-width:400px; margin:0 auto 20px; padding:15px; border-radius:8px; background:#222; border:1px solid #444; color:#fff; display:block; text-align:center; font-size:16px; outline:none;">
-            <div style="text-align:center;">
-                <button class="btn-play" onclick="wizardNext()">Continue</button>
-            </div>
-        `;
-        document.getElementById('wizardName').focus();
-    } 
-    else if (wizardState.step === 2) {
-        container.innerHTML = `
-            <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">What movies do you love?</h2>
-            <p style="color:#888; text-align:center; margin-bottom:30px;">Pick up to 3 film genres — half of your first For You comes from these.</p>
-            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:600px; margin:0 auto 30px;" id="movieGenreGrid">
-                ${MOVIE_GENRES.map(g => `<button class="genre-btn ${wizardState.movieGenres.includes(g) ? 'active' : ''}" onclick="toggleWizardGenre('movie', '${g}')">${g}</button>`).join('')}
-            </div>
-            <div style="text-align:center; display:flex; justify-content:center; gap:20px;">
-                <button onclick="wizardBack()" style="color:#888; font-size:15px; font-weight:600;">Back</button>
-                <button onclick="window.location.hash='#whos-watching'" style="color:#888; font-size:15px; font-weight:600;">Skip</button>
-                <button class="btn-play" onclick="wizardNext()">Continue</button>
-            </div>
-        `;
-    }
-    else if (wizardState.step === 3) {
-        container.innerHTML = `
-            <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">What series do you love?</h2>
-            <p style="color:#888; text-align:center; margin-bottom:30px;">Now pick up to 3 TV genres. The other half of For You is built from these.</p>
-            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:600px; margin:0 auto 30px;" id="tvGenreGrid">
-                ${TV_GENRES.map(g => `<button class="genre-btn ${wizardState.tvGenres.includes(g) ? 'active' : ''}" onclick="toggleWizardGenre('tv', '${g}')">${g}</button>`).join('')}
-            </div>
-            <div style="text-align:center; display:flex; justify-content:center; gap:20px;">
-                <button onclick="wizardBack()" style="color:#888; font-size:15px; font-weight:600;">Back</button>
-                <button onclick="window.location.hash='#whos-watching'" style="color:#888; font-size:15px; font-weight:600;">Skip</button>
-                <button class="btn-play" onclick="wizardNext()">Start watching</button>
-            </div>
-        `;
+    var safeName = (wizardState.name || '').replace(/"/g, '&quot;');
+    container.innerHTML = ''
+        + '<h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">Create your profile</h2>'
+        + '<p style="color:#888; text-align:center; margin-bottom:30px;">Give it a name — this is who\'s watching</p>'
+        + '<input type="text" id="wizardName" value="' + safeName + '" placeholder="Profile name" maxlength="20" style="width:100%; max-width:400px; margin:0 auto 20px; padding:15px; border-radius:8px; background:#222; border:1px solid #444; color:#fff; display:block; text-align:center; font-size:16px; outline:none;">'
+        + '<div style="text-align:center;">'
+        + '<button class="btn-play" onclick="wizardStartWatching()" id="wizardStartBtn">Start watching</button>'
+        + '</div>';
+    var inp = document.getElementById('wizardName');
+    if (inp) {
+        inp.focus();
+        inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') { e.preventDefault(); wizardStartWatching(); } });
     }
 }
 
-function toggleWizardGenre(type, genre) {
-    let arr = type === 'movie' ? wizardState.movieGenres : wizardState.tvGenres;
-    if (arr.includes(genre)) {
-        arr.splice(arr.indexOf(genre), 1);
-    } else {
-        if (arr.length >= 3) return;
-        arr.push(genre);
-    }
-    const gridId = type === 'movie' ? 'movieGenreGrid' : 'tvGenreGrid';
-    const grid = document.getElementById(gridId);
-    Array.from(grid.children).forEach(btn => {
-        btn.classList.toggle('active', arr.includes(btn.textContent));
-    });
+async function wizardStartWatching() {
+    var inp = document.getElementById('wizardName');
+    var name = inp ? inp.value.trim() : '';
+    if (!name) { toast('Please enter a profile name'); return; }
+    wizardState.name = name;
+
+    var btn = document.getElementById('wizardStartBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+
+    await saveWizardProfile();
 }
 
-function wizardNext() {
-    if (wizardState.step === 1) {
-        let name = document.getElementById('wizardName').value.trim();
-        if (!name) { toast('Please enter a profile name'); return; }
-        wizardState.name = name;
-        wizardState.step = 2;
-    } else if (wizardState.step === 2) {
-        wizardState.step = 3;
-    } else if (wizardState.step === 3) {
-        saveWizardProfile();
-        return;
-    }
-    renderWizard();
-}
+async function saveWizardProfile() {
+    // Resolve the signed-in user's id directly from Supabase — this is the
+    // most reliable way to avoid race conditions after sign-up.
+    var userId = null;
+    try {
+        var sess = await supabaseClient.auth.getSession();
+        if (sess && sess.data && sess.data.session && sess.data.session.user) {
+            userId = sess.data.session.user.id;
+        }
+    } catch (e) { /* ignore */ }
+    if (!userId && currentUser) userId = currentUser.id;
+    if (!userId) userId = 'guest';
 
-function wizardBack() {
-    if (wizardState.step > 1) {
-        wizardState.step--;
-        renderWizard();
-    } else {
-        window.location.hash = '#whos-watching';
-    }
-}
+    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var existingUserProfiles = profiles.filter(function(p) { return p.userId === userId; });
 
-function saveWizardProfile() {
-    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    let newProfile = {
+    var newProfile = {
         id: Date.now().toString(),
         name: wizardState.name,
         avatarIndex: wizardState.avatar,
         movieGenres: wizardState.movieGenres,
         tvGenres: wizardState.tvGenres,
-        userId: currentUser ? currentUser.id : 'guest'
+        userId: userId
     };
     profiles.push(newProfile);
     localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
-    toast('Registered successfully');
-    window.location.hash = '#whos-watching';
+
+    if (existingUserProfiles.length === 0) {
+        // First profile after sign-up → auto-select and drop them on Home
+        localStorage.setItem('tubemocha_active_profile', JSON.stringify(newProfile));
+        updateHeaderAvatar(newProfile);
+        toast('Welcome to Tubemocha, ' + newProfile.name + '!');
+        window.location.hash = '#home';
+    } else {
+        // Adding an extra profile → back to the picker
+        toast('Profile created');
+        window.location.hash = '#whos-watching';
+    }
 }
 
 function renderWhosWatching() {
-    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    if (currentUser) profiles = profiles.filter(p => p.userId === currentUser.id);
+    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    if (currentUser) profiles = profiles.filter(function(p) { return p.userId === currentUser.id; });
     
-    const grid = document.getElementById('whosWatchingGrid');
-    let html = profiles.map(p => `
-        <div style="cursor:pointer; text-align:center;" onclick="selectProfile('${p.id}')">
-            <div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='transparent'">
-                <img src="${AVATARS[p.avatarIndex]}" style="width:100%; height:100%; object-fit:cover;">
-            </div>
-            <div style="font-weight:600; font-size:14px; color:#fff;">${p.name}</div>
-        </div>
-    `).join('');
+    var grid = document.getElementById('whosWatchingGrid');
+    var html = profiles.map(function(p) {
+        return '<div style="cursor:pointer; text-align:center;" onclick="selectProfile(\'' + p.id + '\')">'
+            + '<div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor=\'#fff\'" onmouseout="this.style.borderColor=\'transparent\'">'
+            + '<img src="' + AVATARS[p.avatarIndex] + '" style="width:100%; height:100%; object-fit:cover;">'
+            + '</div>'
+            + '<div style="font-weight:600; font-size:14px; color:#fff;">' + p.name + '</div>'
+            + '</div>';
+    }).join('');
     
-    html += `
-        <div style="cursor:pointer; text-align:center;" onclick="startWizard()">
-            <div style="width:120px; height:120px; border-radius:16px; background:#222; display:flex; align-items:center; justify-content:center; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='transparent'">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-            </div>
-            <div style="font-weight:600; font-size:14px; color:#888;">Add profile</div>
-        </div>
-    `;
+    html += '<div style="cursor:pointer; text-align:center;" onclick="startWizard()">'
+        + '<div style="width:120px; height:120px; border-radius:16px; background:#222; display:flex; align-items:center; justify-content:center; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor=\'#fff\'" onmouseout="this.style.borderColor=\'transparent\'">'
+        + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>'
+        + '</div>'
+        + '<div style="font-weight:600; font-size:14px; color:#888;">Add profile</div>'
+        + '</div>';
     grid.innerHTML = html;
 }
 
 function selectProfile(id) {
-    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    const profile = profiles.find(p => p.id === id);
+    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profile = profiles.find(function(p) { return p.id === id; });
     if (profile) {
         localStorage.setItem('tubemocha_active_profile', JSON.stringify(profile));
         updateHeaderAvatar(profile);
@@ -1180,30 +1144,27 @@ function selectProfile(id) {
 }
 
 function renderManageProfiles() {
-    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    if (currentUser) profiles = profiles.filter(p => p.userId === currentUser.id);
+    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    if (currentUser) profiles = profiles.filter(function(p) { return p.userId === currentUser.id; });
     
-    const grid = document.getElementById('manageProfilesGrid');
-    grid.innerHTML = profiles.map(p => `
-        <div style="text-align:center; position:relative;">
-            <div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin:0 auto 10px; position:relative; cursor:pointer;" onclick="openEditProfile('${p.id}')">
-                <img src="${AVATARS[p.avatarIndex]}" style="width:100%; height:100%; object-fit:cover;">
-                <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-                </div>
-            </div>
-            <div style="font-weight:600; font-size:14px; color:#fff;">${p.name}</div>
-        </div>
-    `).join('');
+    var grid = document.getElementById('manageProfilesGrid');
+    grid.innerHTML = profiles.map(function(p) {
+        return '<div style="text-align:center; position:relative;">'
+            + '<div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin:0 auto 10px; position:relative; cursor:pointer;" onclick="openEditProfile(\'' + p.id + '\')">'
+            + '<img src="' + AVATARS[p.avatarIndex] + '" style="width:100%; height:100%; object-fit:cover;">'
+            + '</div>'
+            + '<div style="font-weight:600; font-size:14px; color:#fff;">' + p.name + '</div>'
+            + '</div>';
+    }).join('');
 }
 
 function openEditProfile(id) {
     editingProfileId = id;
-    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    const p = profiles.find(x => x.id === id);
+    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var p = profiles.find(function(x) { return x.id === id; });
     if (!p) return;
     
-    document.getElementById('editAvatar').innerHTML = `<img src="${AVATARS[p.avatarIndex]}" style="width:100%; height:100%; object-fit:cover;">`;
+    document.getElementById('editAvatar').innerHTML = '<img src="' + AVATARS[p.avatarIndex] + '" style="width:100%; height:100%; object-fit:cover;">';
     document.getElementById('editProfileName').value = p.name;
     document.getElementById('editNameCounter').textContent = p.name.length + '/20';
     window.location.hash = '#edit-profile';
@@ -1214,16 +1175,16 @@ document.getElementById('editProfileName').addEventListener('input', function(e)
 });
 
 function saveEditedProfile() {
-    let newName = document.getElementById('editProfileName').value.trim();
+    var newName = document.getElementById('editProfileName').value.trim();
     if (!newName) { toast('Name cannot be empty'); return; }
     
-    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    const idx = profiles.findIndex(p => p.id === editingProfileId);
+    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var idx = profiles.findIndex(function(p) { return p.id === editingProfileId; });
     if (idx > -1) {
         profiles[idx].name = newName;
         localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
         
-        let active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+        var active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
         if (active && active.id === editingProfileId) {
             localStorage.setItem('tubemocha_active_profile', JSON.stringify(profiles[idx]));
             updateHeaderAvatar(profiles[idx]);
@@ -1236,11 +1197,11 @@ function saveEditedProfile() {
 function deleteCurrentProfile() {
     if (!confirm('Are you sure you want to delete this profile?')) return;
     
-    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    profiles = profiles.filter(p => p.id !== editingProfileId);
+    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    profiles = profiles.filter(function(p) { return p.id !== editingProfileId; });
     localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
     
-    let active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    var active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
     if (active && active.id === editingProfileId) {
         localStorage.removeItem('tubemocha_active_profile');
         updateHeaderAvatar(null);
@@ -1250,13 +1211,13 @@ function deleteCurrentProfile() {
 }
 
 function openAvatarModal() {
-    let active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    var active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
     if (!active) return;
     
-    let newIdx = prompt("Enter avatar number (1-8):", active.avatarIndex + 1);
+    var newIdx = prompt("Enter avatar number (1-8):", active.avatarIndex + 1);
     if (newIdx && newIdx >= 1 && newIdx <= 8) {
-        let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-        let idx = profiles.findIndex(p => p.id === active.id);
+        var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+        var idx = profiles.findIndex(function(p) { return p.id === active.id; });
         if (idx > -1) {
             profiles[idx].avatarIndex = parseInt(newIdx) - 1;
             localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
@@ -1270,7 +1231,8 @@ function openAvatarModal() {
 // ==========================================
 // AUTH MODAL LOGIC
 // ==========================================
-function openAuthModal(mode = 'login') {
+function openAuthModal(mode) {
+    if (!mode) mode = 'login';
     var container = document.getElementById('authModalFormContainer');
     var title = document.getElementById('authModalTitle');
     var subtitle = document.getElementById('authModalSubtitle');
@@ -1278,45 +1240,43 @@ function openAuthModal(mode = 'login') {
     if (mode === 'login') {
         title.textContent = 'Welcome back to Tubemocha';
         subtitle.textContent = 'Sign in to use this feature';
-        container.innerHTML = `
-            <form onsubmit="handleModalLogin(event)">
-                <div class="auth-input-group" style="margin-bottom:12px;">
-                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                    <input type="email" id="modalLoginEmail" placeholder="Email" required>
-                </div>
-                <div class="auth-input-group" style="margin-bottom:12px;">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    <input type="password" id="modalLoginPassword" placeholder="Password" required>
-                </div>
-                <button type="submit" class="auth-submit-btn">Login</button>
-            </form>
-            <div class="auth-switch" style="text-align:center; margin-top:16px;">
-                New to Tubemocha? <a onclick="openAuthModal('signup')">Create an account</a>
-            </div>
-        `;
+        container.innerHTML = ''
+            + '<form onsubmit="handleModalLogin(event)">'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>'
+            + '<input type="email" id="modalLoginEmail" placeholder="Email" required>'
+            + '</div>'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'
+            + '<input type="password" id="modalLoginPassword" placeholder="Password" required>'
+            + '</div>'
+            + '<button type="submit" class="auth-submit-btn">Login</button>'
+            + '</form>'
+            + '<div class="auth-switch" style="text-align:center; margin-top:16px;">'
+            + 'New to Tubemocha? <a onclick="openAuthModal(\'signup\')">Create an account</a>'
+            + '</div>';
     } else {
         title.textContent = 'Create your Tubemocha account';
         subtitle.textContent = 'Fill in your details to get started';
-        container.innerHTML = `
-            <form onsubmit="handleModalSignUp(event)">
-                <div class="auth-input-group" style="margin-bottom:12px;">
-                    <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    <input type="text" id="modalSignupUsername" placeholder="Username" required>
-                </div>
-                <div class="auth-input-group" style="margin-bottom:12px;">
-                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                    <input type="email" id="modalSignupEmail" placeholder="Email" required>
-                </div>
-                <div class="auth-input-group" style="margin-bottom:12px;">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    <input type="password" id="modalSignupPassword" placeholder="Password" required minlength="6">
-                </div>
-                <button type="submit" class="auth-submit-btn">Sign up</button>
-            </form>
-            <div class="auth-switch" style="text-align:center; margin-top:16px;">
-                Already have an account? <a onclick="openAuthModal('login')">Login</a>
-            </div>
-        `;
+        container.innerHTML = ''
+            + '<form onsubmit="handleModalSignUp(event)">'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+            + '<input type="text" id="modalSignupUsername" placeholder="Username" required>'
+            + '</div>'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>'
+            + '<input type="email" id="modalSignupEmail" placeholder="Email" required>'
+            + '</div>'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'
+            + '<input type="password" id="modalSignupPassword" placeholder="Password" required minlength="6">'
+            + '</div>'
+            + '<button type="submit" class="auth-submit-btn">Sign up</button>'
+            + '</form>'
+            + '<div class="auth-switch" style="text-align:center; margin-top:16px;">'
+            + 'Already have an account? <a onclick="openAuthModal(\'login\')">Login</a>'
+            + '</div>';
     }
     
     document.getElementById('authModal').classList.add('open');
@@ -1332,7 +1292,9 @@ async function handleModalLogin(e) {
     e.preventDefault();
     var email = document.getElementById('modalLoginEmail').value;
     var password = document.getElementById('modalLoginPassword').value;
-    var { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    var error = res.error;
+    var data = res.data;
     
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
@@ -1347,8 +1309,8 @@ async function handleModalLogin(e) {
         toast('Logged in successfully!'); 
         closeAuthModal(); 
         
-        let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-        let userProfiles = profiles.filter(p => p.userId === data.user.id);
+        var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+        var userProfiles = profiles.filter(function(p) { return p.userId === data.user.id; });
         if (userProfiles.length > 0) {
             window.location.hash = '#whos-watching';
         } else {
@@ -1362,9 +1324,10 @@ async function handleModalSignUp(e) {
     var username = document.getElementById('modalSignupUsername').value;
     var email = document.getElementById('modalSignupEmail').value;
     var password = document.getElementById('modalSignupPassword').value;
-    var { data, error } = await supabaseClient.auth.signUp({
+    var res = await supabaseClient.auth.signUp({
         email: email, password: password, options: { data: { username: username } }
     });
+    var error = res.error;
     
     if (error) { 
         if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
@@ -1383,24 +1346,18 @@ async function handleModalSignUp(e) {
     }
 }
 
-// ==========================================
-// AUTH & USER STATE
-// ==========================================
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    handleAuthState(session);
-});
-
 async function handleSignUp(e) {
     e.preventDefault();
     var username = document.getElementById('signupUsername').value;
     var email = document.getElementById('signupEmail').value;
     var password = document.getElementById('signupPassword').value;
     
-    var { data, error } = await supabaseClient.auth.signUp({
+    var res = await supabaseClient.auth.signUp({
         email: email,
         password: password,
         options: { data: { username: username } }
     });
+    var error = res.error;
     
     if (error) { 
         if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
@@ -1420,7 +1377,9 @@ async function handleLogin(e) {
     var email = document.getElementById('loginEmail').value;
     var password = document.getElementById('loginPassword').value;
     
-    var { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
+    var error = res.error;
+    var data = res.data;
     
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
@@ -1433,8 +1392,9 @@ async function handleLogin(e) {
     } 
     else { 
         toast('Logged in successfully!'); 
-        let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-        let userProfiles = profiles.filter(p => p.userId === currentUser.id);
+        var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+        var userId = data && data.user ? data.user.id : (currentUser ? currentUser.id : null);
+        var userProfiles = profiles.filter(function(p) { return p.userId === userId; });
         if (userProfiles.length > 0) window.location.hash = '#whos-watching';
         else startWizard();
     }
@@ -1452,20 +1412,22 @@ async function handleLogout() {
 // ==========================================
 async function fetchWatchlistFromDB() {
     if (!currentUser) return;
-    var { data, error } = await supabaseClient
+    var res = await supabaseClient
         .from('watchlists')
         .select('*')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
         
-    if (!error && data) {
-        watchlist = data.map(item => ({
-            id: parseInt(item.movie_id),
-            media_type: item.media_type,
-            _tv: item.media_type === 'tv',
-            t: item.title,
-            poster_path: item.poster_path
-        }));
+    if (!res.error && res.data) {
+        watchlist = res.data.map(function(item) {
+            return {
+                id: parseInt(item.movie_id),
+                media_type: item.media_type,
+                _tv: item.media_type === 'tv',
+                t: item.title,
+                poster_path: item.poster_path
+            };
+        });
         renderWatchlist();
     }
 }
@@ -1477,7 +1439,7 @@ async function toggleWatchlist() {
         return;
     }
     
-    var idx = watchlist.findIndex(x => String(x.id) === String(currentMovie.id));
+    var idx = watchlist.findIndex(function(x) { return String(x.id) === String(currentMovie.id); });
     var isRemoving = idx > -1;
 
     if (isRemoving) {
@@ -1501,18 +1463,18 @@ async function toggleWatchlist() {
 }
 
 // ==========================================
-// UI & UTILS
+// FILTERS
 // ==========================================
 function renderFilterCheckboxes() {
-    var gHtml = GENRES_LIST.map(g => `<label class="checkbox-label"><input type="checkbox" value="${g.id}" ${filterState.genres.includes(g.id) ? 'checked' : ''} onchange="toggleFilter('genres', '${g.id}')"> ${g.name}</label>`).join('');
+    var gHtml = GENRES_LIST.map(function(g) { return '<label class="checkbox-label"><input type="checkbox" value="' + g.id + '" ' + (filterState.genres.includes(g.id) ? 'checked' : '') + ' onchange="toggleFilter(\'genres\', \'' + g.id + '\')"> ' + g.name + '</label>'; }).join('');
     document.getElementById('genreCheckboxes').innerHTML = gHtml;
 
-    var cHtml = COUNTRIES_LIST.map(c => `<label class="checkbox-label"><input type="checkbox" value="${c.id}" ${filterState.countries.includes(c.id) ? 'checked' : ''} onchange="toggleFilter('countries', '${c.id}')"> ${c.name}</label>`).join('');
+    var cHtml = COUNTRIES_LIST.map(function(c) { return '<label class="checkbox-label"><input type="checkbox" value="' + c.id + '" ' + (filterState.countries.includes(c.id) ? 'checked' : '') + ' onchange="toggleFilter(\'countries\', \'' + c.id + '\')"> ' + c.name + '</label>'; }).join('');
     document.getElementById('countryCheckboxes').innerHTML = cHtml;
 
     var yHtml = '';
     for (var y = 2026; y >= 1970; y--) {
-        yHtml += `<label class="checkbox-label"><input type="checkbox" value="${y}" ${filterState.years.includes(String(y)) ? 'checked' : ''} onchange="toggleFilter('years', '${y}')"> ${y}</label>`;
+        yHtml += '<label class="checkbox-label"><input type="checkbox" value="' + y + '" ' + (filterState.years.includes(String(y)) ? 'checked' : '') + ' onchange="toggleFilter(\'years\', \'' + y + '\')"> ' + y + '</label>';
     }
     document.getElementById('yearCheckboxes').innerHTML = yHtml;
 
@@ -1521,15 +1483,15 @@ function renderFilterCheckboxes() {
 }
 
 function renderTVFilterCheckboxes() {
-    var gHtml = GENRES_LIST.map(g => `<label class="checkbox-label"><input type="checkbox" value="${g.id}" ${tvFilterState.genres.includes(g.id) ? 'checked' : ''} onchange="toggleTVFilter('genres', '${g.id}')"> ${g.name}</label>`).join('');
+    var gHtml = GENRES_LIST.map(function(g) { return '<label class="checkbox-label"><input type="checkbox" value="' + g.id + '" ' + (tvFilterState.genres.includes(g.id) ? 'checked' : '') + ' onchange="toggleTVFilter(\'genres\', \'' + g.id + '\')"> ' + g.name + '</label>'; }).join('');
     document.getElementById('tvGenreCheckboxes').innerHTML = gHtml;
 
-    var cHtml = COUNTRIES_LIST.map(c => `<label class="checkbox-label"><input type="checkbox" value="${c.id}" ${tvFilterState.countries.includes(c.id) ? 'checked' : ''} onchange="toggleTVFilter('countries', '${c.id}')"> ${c.name}</label>`).join('');
+    var cHtml = COUNTRIES_LIST.map(function(c) { return '<label class="checkbox-label"><input type="checkbox" value="' + c.id + '" ' + (tvFilterState.countries.includes(c.id) ? 'checked' : '') + ' onchange="toggleTVFilter(\'countries\', \'' + c.id + '\')"> ' + c.name + '</label>'; }).join('');
     document.getElementById('tvCountryCheckboxes').innerHTML = cHtml;
 
     var yHtml = '';
     for (var y = 2026; y >= 1970; y--) {
-        yHtml += `<label class="checkbox-label"><input type="checkbox" value="${y}" ${tvFilterState.years.includes(String(y)) ? 'checked' : ''} onchange="toggleTVFilter('years', '${y}')"> ${y}</label>`;
+        yHtml += '<label class="checkbox-label"><input type="checkbox" value="' + y + '" ' + (tvFilterState.years.includes(String(y)) ? 'checked' : '') + ' onchange="toggleTVFilter(\'years\', \'' + y + '\')"> ' + y + '</label>';
     }
     document.getElementById('tvYearCheckboxes').innerHTML = yHtml;
 
@@ -1540,18 +1502,17 @@ function renderTVFilterCheckboxes() {
 function toggleFilterDropdown(id, event) {
     if(event) event.stopPropagation();
     var dropdowns = document.querySelectorAll('.filter-dropdown');
-    dropdowns.forEach(d => { if(d.id !== id) d.classList.remove('show'); });
+    dropdowns.forEach(function(d) { if(d.id !== id) d.classList.remove('show'); });
     var target = document.getElementById(id);
     target.classList.toggle('show');
 }
 
 document.addEventListener('click', function(e) {
     if (!e.target.closest('.movies-filter-bar')) {
-        document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
+        document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
     }
 });
 
-// --- MOVIES FILTERS ---
 function toggleFilter(type, value) {
     var arr = filterState[type];
     var idx = arr.indexOf(value);
@@ -1563,30 +1524,32 @@ function handleSortChange(value) {
     filterState.sort = value;
     updateActiveFiltersUI();
     applyFilters();
-    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
 }
 function updateActiveFiltersUI() {
     var container = document.getElementById('activeFiltersContainer');
     var html = '';
     var hasFilters = false;
 
-    filterState.genres.forEach(g => {
+    filterState.genres.forEach(function(g) {
         hasFilters = true;
-        var name = GENRES_LIST.find(x => x.id === g)?.name || g;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleFilter('genres', '${g}'); document.querySelectorAll('input[value=\\'${g}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        var found = GENRES_LIST.find(function(x) { return x.id === g; });
+        var name = found ? found.name : g;
+        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
-    filterState.years.forEach(y => {
+    filterState.years.forEach(function(y) {
         hasFilters = true;
-        html += `<div class="active-filter-tag">${y} <span onclick="toggleFilter('years', '${y}'); document.querySelectorAll('input[value=\\'${y}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        html += '<div class="active-filter-tag">' + y + ' <span onclick="toggleFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
-    filterState.countries.forEach(c => {
+    filterState.countries.forEach(function(c) {
         hasFilters = true;
-        var name = COUNTRIES_LIST.find(x => x.id === c)?.name || c;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleFilter('countries', '${c}'); document.querySelectorAll('input[value=\\'${c}\\']').forEach(cb=>cb.checked=false)">×</span></div>`;
+        var found = COUNTRIES_LIST.find(function(x) { return x.id === c; });
+        var name = found ? found.name : c;
+        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
     });
 
     if (hasFilters) {
-        html += `<button class="reset-filters-btn" onclick="resetFilters()">Reset</button>`;
+        html += '<button class="reset-filters-btn" onclick="resetFilters()">Reset</button>';
         container.style.display = 'flex';
     } else {
         container.style.display = 'none';
@@ -1594,20 +1557,20 @@ function updateActiveFiltersUI() {
     container.innerHTML = html;
 
     var gBtn = document.getElementById('btnFilterGenre');
-    if (filterState.genres.length > 0) gBtn.innerHTML = `Genres (${filterState.genres.length}) ▾`;
+    if (filterState.genres.length > 0) gBtn.innerHTML = 'Genres (' + filterState.genres.length + ') ▾';
     else gBtn.innerHTML = 'Genres ▾';
 
     var yBtn = document.getElementById('btnFilterYear');
-    if (filterState.years.length > 0) yBtn.innerHTML = `Years (${filterState.years.length}) ▾`;
+    if (filterState.years.length > 0) yBtn.innerHTML = 'Years (' + filterState.years.length + ') ▾';
     else yBtn.innerHTML = 'Years ▾';
 
     var cBtn = document.getElementById('btnFilterCountry');
-    if (filterState.countries.length > 0) cBtn.innerHTML = `Countries (${filterState.countries.length}) ▾`;
+    if (filterState.countries.length > 0) cBtn.innerHTML = 'Countries (' + filterState.countries.length + ') ▾';
     else cBtn.innerHTML = 'Countries ▾';
 }
 function resetFilters() {
     filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
-    document.querySelectorAll('#moviesFilterBar input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#moviesFilterBar input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
     var sr = document.querySelector('#moviesFilterBar input[name="sortRadio"][value="popularity.desc"]'); if (sr) sr.checked = true;
     updateActiveFiltersUI();
     applyFilters();
@@ -1620,7 +1583,6 @@ function applyFilters() {
     loadMoviesRegionTrending();
 }
 
-// --- TV FILTERS ---
 function toggleTVFilter(type, value) {
     var arr = tvFilterState[type];
     var idx = arr.indexOf(value);
@@ -1632,30 +1594,32 @@ function handleTVSortChange(value) {
     tvFilterState.sort = value;
     updateTVActiveFiltersUI();
     applyTVFilters();
-    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
 }
 function updateTVActiveFiltersUI() {
     var container = document.getElementById('tvActiveFiltersContainer');
     var html = '';
     var hasFilters = false;
 
-    tvFilterState.genres.forEach(g => {
+    tvFilterState.genres.forEach(function(g) {
         hasFilters = true;
-        var name = GENRES_LIST.find(x => x.id === g)?.name || g;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleTVFilter('genres', '${g}'); document.querySelectorAll('input[value=\\'${g}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        var found = GENRES_LIST.find(function(x) { return x.id === g; });
+        var name = found ? found.name : g;
+        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleTVFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
-    tvFilterState.years.forEach(y => {
+    tvFilterState.years.forEach(function(y) {
         hasFilters = true;
-        html += `<div class="active-filter-tag">${y} <span onclick="toggleTVFilter('years', '${y}'); document.querySelectorAll('input[value=\\'${y}\\']').forEach(c=>c.checked=false)">×</span></div>`;
+        html += '<div class="active-filter-tag">' + y + ' <span onclick="toggleTVFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
-    tvFilterState.countries.forEach(c => {
+    tvFilterState.countries.forEach(function(c) {
         hasFilters = true;
-        var name = COUNTRIES_LIST.find(x => x.id === c)?.name || c;
-        html += `<div class="active-filter-tag">${name} <span onclick="toggleTVFilter('countries', '${c}'); document.querySelectorAll('input[value=\\'${c}\\']').forEach(cb=>cb.checked=false)">×</span></div>`;
+        var found = COUNTRIES_LIST.find(function(x) { return x.id === c; });
+        var name = found ? found.name : c;
+        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleTVFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
     });
 
     if (hasFilters) {
-        html += `<button class="reset-filters-btn" onclick="resetTVFilters()">Reset</button>`;
+        html += '<button class="reset-filters-btn" onclick="resetTVFilters()">Reset</button>';
         container.style.display = 'flex';
     } else {
         container.style.display = 'none';
@@ -1663,20 +1627,20 @@ function updateTVActiveFiltersUI() {
     container.innerHTML = html;
 
     var gBtn = document.getElementById('btnTVFilterGenre');
-    if (tvFilterState.genres.length > 0) gBtn.innerHTML = `Genres (${tvFilterState.genres.length}) ▾`;
+    if (tvFilterState.genres.length > 0) gBtn.innerHTML = 'Genres (' + tvFilterState.genres.length + ') ▾';
     else gBtn.innerHTML = 'Genres ▾';
 
     var yBtn = document.getElementById('btnTVFilterYear');
-    if (tvFilterState.years.length > 0) yBtn.innerHTML = `Years (${tvFilterState.years.length}) ▾`;
+    if (tvFilterState.years.length > 0) yBtn.innerHTML = 'Years (' + tvFilterState.years.length + ') ▾';
     else yBtn.innerHTML = 'Years ▾';
 
     var cBtn = document.getElementById('btnTVFilterCountry');
-    if (tvFilterState.countries.length > 0) cBtn.innerHTML = `Countries (${tvFilterState.countries.length}) ▾`;
+    if (tvFilterState.countries.length > 0) cBtn.innerHTML = 'Countries (' + tvFilterState.countries.length + ') ▾';
     else cBtn.innerHTML = 'Countries ▾';
 }
 function resetTVFilters() {
     tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
-    document.querySelectorAll('#tvFilterBar input[type="checkbox"]').forEach(cb => cb.checked = false);
+    document.querySelectorAll('#tvFilterBar input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
     var sr = document.querySelector('#tvFilterBar input[name="tvSortRadio"][value="popularity.desc"]'); if (sr) sr.checked = true;
     updateTVActiveFiltersUI();
     applyTVFilters();
@@ -1800,8 +1764,9 @@ function openSearchDropdown() {
 
 function setSearchTab(tab) {
     currentSearchTab = tab;
-    document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector(`.search-tab[data-tab="${tab}"]`).classList.add('active');
+    document.querySelectorAll('.search-tab').forEach(function(t) { t.classList.remove('active'); });
+    var el = document.querySelector('.search-tab[data-tab="' + tab + '"]');
+    if (el) el.classList.add('active');
     var query = document.getElementById('q').value.trim();
     if (query.length > 1) performLiveSearch(query);
 }
@@ -1818,17 +1783,18 @@ async function performLiveSearch(query) {
         if (!d || !d.results) { resultsContainer.innerHTML = '<div class="search-empty-text">No results found.</div>'; return; }
         var results = d.results;
         if (currentSearchTab === 'anime') {
-            results = results.filter(r => (r.genre_ids && r.genre_ids.includes(16)) || r.original_language === 'ja');
+            results = results.filter(function(r) { return (r.genre_ids && r.genre_ids.includes(16)) || r.original_language === 'ja'; });
         } else if (currentSearchTab === 'all') {
-            results = results.filter(r => r.media_type !== 'person');
+            results = results.filter(function(r) { return r.media_type !== 'person'; });
         }
         results = results.slice(0, 5);
         if (results.length === 0) { resultsContainer.innerHTML = '<div class="search-empty-text">No results found.</div>'; return; }
-        resultsContainer.innerHTML = results.map(r => {
+        resultsContainer.innerHTML = results.map(function(r) {
             var mapped = mapResult(r);
             var poster = getSafeImageUrl(mapped);
             var clickId = mapped._tv ? ('tv-' + mapped.id) : ('movie-' + mapped.id);
-            return `<div class="search-result-item" onclick="selectLiveSearchResult('${clickId}')"><img src="${poster}" class="search-result-poster" alt=""><div class="search-result-info"><div class="search-result-title">${mapped.t}</div><div class="search-result-meta"><span>${mapped._tv ? 'Show' : 'Movie'}</span><span>${mapped.y}</span><span class="search-result-rating">★ ${mapped.r}</span><span>${(mapped.g || []).slice(0, 2).join(', ')}</span></div></div></div>`;
+            var genres = (mapped.g || []).slice(0, 2).join(', ');
+            return '<div class="search-result-item" onclick="selectLiveSearchResult(\'' + clickId + '\')"><img src="' + poster + '" class="search-result-poster" alt=""><div class="search-result-info"><div class="search-result-title">' + mapped.t + '</div><div class="search-result-meta"><span>' + (mapped._tv ? 'Show' : 'Movie') + '</span><span>' + mapped.y + '</span><span class="search-result-rating">★ ' + mapped.r + '</span><span>' + genres + '</span></div></div></div>';
         }).join('');
     } catch(e) { resultsContainer.innerHTML = '<div class="search-empty-text">Error searching.</div>'; }
 }
@@ -1842,7 +1808,7 @@ function selectLiveSearchResult(hashId) {
 function renderRecentSearches() {
     var list = document.getElementById('recentSearchesList');
     if (recentSearches.length === 0) { list.innerHTML = '<div class="search-empty-text" style="padding:0;text-align:left;">No recent searches</div>'; return; }
-    list.innerHTML = recentSearches.map(q => `<div class="recent-search-item" onclick="applyRecentSearch('${q}')">${q}</div>`).join('');
+    list.innerHTML = recentSearches.map(function(q) { return '<div class="recent-search-item" onclick="applyRecentSearch(\'' + q + '\')">' + q + '</div>'; }).join('');
 }
 function applyRecentSearch(query) { document.getElementById('q').value = query; openSearchDropdown(); performLiveSearch(query); }
 function clearRecentSearches(e) { e.stopPropagation(); recentSearches = []; localStorage.setItem('tubemocha_recent_searches', JSON.stringify(recentSearches)); renderRecentSearches(); }
@@ -1868,7 +1834,7 @@ function hideSwitchBanner() { var b = document.getElementById('serverSwitchBanne
 function renderWatchlist() {
     var grid = document.getElementById('watchlistGrid'); var empty = document.getElementById('watchlistEmpty');
     if (!grid) return;
-    if (!currentUser) { grid.innerHTML = ''; empty.style.display = 'block'; return; } // Safety check
+    if (!currentUser) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
     if (watchlist.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
     empty.style.display = 'none'; grid.innerHTML = watchlist.map(cardHTML).join('');
 }
@@ -1916,6 +1882,10 @@ function upcomingCardHTML(m) {
         return '<div class="card" onclick="window.location.hash=\'#' + clickId + '\'"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge rating"><span>★</span> ' + rating + '</span>' + newSeasonBadge + '</div><div class="card-info"><div class="card-title">' + title + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span> ' + seasonInfo + '<span class="s-sep">·</span> ' + dateStr + '</div></div></div>';
     } catch(e) { return ''; }
 }
+
+// ============================================================
+// TMDB FETCH with 8s timeout
+// ============================================================
 async function tmdb(path, params) {
     if(!params) params = {};
     var target = new URL(TMDB_BASE + path);
@@ -1928,7 +1898,7 @@ async function tmdb(path, params) {
         }
     }
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(function() { controller.abort(); }, 8000);
     try{
         var res = await fetch(target.href, {headers: {'Accept':'application/json'}, signal: controller.signal});
         clearTimeout(timeoutId);
@@ -1936,10 +1906,29 @@ async function tmdb(path, params) {
         return await res.json();
     }catch(e){
         clearTimeout(timeoutId);
-        console.log('[TUBEMOCHA] TMDB fail '+path+' : '+e.message+' -> using FALLBACK');
+        console.log('[TUBEMOCHA] TMDB fail ' + path + ' : ' + e.message + ' -> using FALLBACK');
         return null;
     }
 }
+
+// ============================================================
+// applyYearFilter — critical helper for TMDB /discover endpoints
+// ============================================================
+function applyYearFilter(params, years, isTV) {
+    if (!years || years.length === 0) return;
+    var sorted = years.map(Number).filter(function(n) { return !isNaN(n); }).sort(function(a, b) { return a - b; });
+    if (sorted.length === 0) return;
+    var minYear = sorted[0];
+    var maxYear = sorted[sorted.length - 1];
+    if (isTV) {
+        params['first_air_date.gte'] = minYear + '-01-01';
+        params['first_air_date.lte'] = maxYear + '-12-31';
+    } else {
+        params['primary_release_date.gte'] = minYear + '-01-01';
+        params['primary_release_date.lte'] = maxYear + '-12-31';
+    }
+}
+
 function mapResult(r){
     var isTV = r.media_type === 'tv' || (!r.title && !!r.name);
     return {
@@ -1998,27 +1987,32 @@ async function loadDiscover(page, isTv) {
     } else {
         isLoadingMovies = true; filterState.page = page;
     }
-    var params = { sort_by: filterState.sort, page: page, 'vote_count.gte': 50 };
-    if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
-    applyYearFilter(params, filterState.years, isTv);
-    if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
-    var endpoint = isTv ? '/discover/tv' : '/discover/movie';
-    var d = await tmdb(endpoint, params);
-    if (d && d.results) {
-        var mapped = d.results.map(mapResult);
-        if (page === 1) document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
-        else document.getElementById('moviesGrid').innerHTML += mapped.map(cardHTML).join('');
-        allCache = allCache.concat(mapped);
-        if (d.page >= d.total_pages) hasMoreMovies = false;
-    } else {
-        if (page === 1) {
-            var mapped = FALLBACK.map(mapResult);
-            document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
+    try {
+        var params = { sort_by: filterState.sort, page: page, 'vote_count.gte': 50 };
+        if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
+        applyYearFilter(params, filterState.years, isTv);
+        if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
+        var endpoint = isTv ? '/discover/tv' : '/discover/movie';
+        var d = await tmdb(endpoint, params);
+        if (d && d.results) {
+            var mapped = d.results.map(mapResult);
+            if (page === 1) document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
+            else document.getElementById('moviesGrid').innerHTML += mapped.map(cardHTML).join('');
+            allCache = allCache.concat(mapped);
+            if (d.page >= d.total_pages) hasMoreMovies = false;
+        } else {
+            if (page === 1) {
+                var mapped2 = FALLBACK.map(mapResult);
+                document.getElementById('moviesGrid').innerHTML = mapped2.map(cardHTML).join('');
+            }
+            hasMoreMovies = false;
         }
+    } catch (err) {
+        console.error('[TUBEMOCHA] loadDiscover error:', err);
+        if (page === 1) document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>Could not load movies</b>Please try again in a moment.</div>';
         hasMoreMovies = false;
     }
     isLoadingMovies = false;
-    return d && d.results ? d.results.map(mapResult) : [];
 }
 
 async function loadTVDiscover(page) {
@@ -2028,19 +2022,25 @@ async function loadTVDiscover(page) {
     } else {
         isLoadingTV = true; tvFilterState.page = page;
     }
-    var params = { sort_by: tvFilterState.sort, page: page, 'vote_count.gte': 50 };
-    if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
-    applyYearFilter(params, tvFilterState.years, true);
-    if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
-    
-    var d = await tmdb('/discover/tv', params);
-    if (d && d.results) {
-        var mapped = d.results.map(mapResult);
-        if (page === 1) document.getElementById('tvGrid').innerHTML = mapped.map(cardHTML).join('');
-        else document.getElementById('tvGrid').innerHTML += mapped.map(cardHTML).join('');
-        if (d.page >= d.total_pages) hasMoreTV = false;
-    } else {
-        if (page === 1) document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
+    try {
+        var params = { sort_by: tvFilterState.sort, page: page, 'vote_count.gte': 50 };
+        if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
+        applyYearFilter(params, tvFilterState.years, true);
+        if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
+        
+        var d = await tmdb('/discover/tv', params);
+        if (d && d.results) {
+            var mapped = d.results.map(mapResult);
+            if (page === 1) document.getElementById('tvGrid').innerHTML = mapped.map(cardHTML).join('');
+            else document.getElementById('tvGrid').innerHTML += mapped.map(cardHTML).join('');
+            if (d.page >= d.total_pages) hasMoreTV = false;
+        } else {
+            if (page === 1) document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
+            hasMoreTV = false;
+        }
+    } catch (err) {
+        console.error('[TUBEMOCHA] loadTVDiscover error:', err);
+        if (page === 1) document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>Could not load shows</b>Please try again in a moment.</div>';
         hasMoreTV = false;
     }
     isLoadingTV = false;
@@ -2052,53 +2052,59 @@ async function loadTVUpcoming() {
     if (!track) return;
     track.innerHTML = '<div class="empty" style="padding:20px;">Loading...</div>';
     
-    var hasAnyFilter = tvFilterState.genres.length > 0 || tvFilterState.years.length > 0 || tvFilterState.countries.length > 0;
-    var today = new Date().toISOString().split('T')[0];
-    var combinedTv = [];
-    
-    if (!hasAnyFilter) {
-        var results = await Promise.all([ tmdb('/tv/on_the_air', { page: 1 }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 }) ]);
-        if (results[0] && results[0].results) combinedTv = combinedTv.concat(results[0].results);
-        if (results[1] && results[1].results) combinedTv = combinedTv.concat(results[1].results);
-        if (headEl) headEl.textContent = 'Current & upcoming TV shows';
-    } else {
-        var params = { sort_by: tvFilterState.sort, page: 1, 'vote_count.gte': 30 };
-        if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
-        applyYearFilter(params, tvFilterState.years, true);
-        if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
-        var d = await tmdb('/discover/tv', params);
-        if (d && d.results) combinedTv = d.results;
-        // Dynamic heading
-        var parts = [];
-        var genreNames = tvFilterState.genres.map(function(id) { return GENRE_MAP[id] || id; });
-        if (genreNames.length > 0) parts.push(genreNames.slice(0,2).join(' • '));
-        if (tvFilterState.years.length > 0) parts.push('(' + tvFilterState.years.slice(0,2).join(', ') + ')');
-        if (tvFilterState.countries.length > 0) {
-            var countryNames = tvFilterState.countries.map(function(c){ var f = COUNTRIES_LIST.find(function(x){return x.id===c;}); return f ? f.name : c; });
-            parts.push('from ' + countryNames.slice(0,2).join(', '));
+    try {
+        var hasAnyFilter = tvFilterState.genres.length > 0 || tvFilterState.years.length > 0 || tvFilterState.countries.length > 0;
+        var today = new Date().toISOString().split('T')[0];
+        var combinedTv = [];
+        
+        if (!hasAnyFilter) {
+            var results = await Promise.all([ tmdb('/tv/on_the_air', { page: 1 }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 }) ]);
+            if (results[0] && results[0].results) combinedTv = combinedTv.concat(results[0].results);
+            if (results[1] && results[1].results) combinedTv = combinedTv.concat(results[1].results);
+            if (headEl) headEl.textContent = 'Current & upcoming TV shows';
+        } else {
+            var params = { sort_by: tvFilterState.sort, page: 1, 'vote_count.gte': 30 };
+            if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
+            applyYearFilter(params, tvFilterState.years, true);
+            if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
+            var d = await tmdb('/discover/tv', params);
+            if (d && d.results) combinedTv = d.results;
+            var parts = [];
+            var genreNames = tvFilterState.genres.map(function(id) { return GENRE_MAP[id] || id; });
+            if (genreNames.length > 0) parts.push(genreNames.slice(0,2).join(' • '));
+            if (tvFilterState.years.length > 0) parts.push('(' + tvFilterState.years.slice(0,2).join(', ') + ')');
+            if (tvFilterState.countries.length > 0) {
+                var countryNames = tvFilterState.countries.map(function(c){ var f = COUNTRIES_LIST.find(function(x){return x.id===c;}); return f ? f.name : c; });
+                parts.push('from ' + countryNames.slice(0,2).join(', '));
+            }
+            if (headEl) headEl.textContent = parts.join(' ') || 'Current & upcoming TV shows';
         }
-        if (headEl) headEl.textContent = parts.join(' ') || 'Current & upcoming TV shows';
-    }
-    
-    var uniqueTv = []; var map = {};
-    for (var i = 0; i < combinedTv.length; i++) {
-        if (!map[combinedTv[i].id]) { uniqueTv.push(combinedTv[i]); map[combinedTv[i].id] = true; }
-    }
-    
-    if (uniqueTv.length > 0) {
-        track.innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
-    } else {
-        track.innerHTML = '<div class="empty" style="padding:20px;">No shows match these filters.</div>';
+        
+        var uniqueTv = []; var map = {};
+        for (var i = 0; i < combinedTv.length; i++) {
+            if (!map[combinedTv[i].id]) { uniqueTv.push(combinedTv[i]); map[combinedTv[i].id] = true; }
+        }
+        
+        if (uniqueTv.length > 0) {
+            track.innerHTML = uniqueTv.slice(0,15).map(mapResult).map(upcomingCardHTML).join('');
+        } else {
+            track.innerHTML = '<div class="empty" style="padding:20px;">No shows match these filters.</div>';
+        }
+    } catch (err) {
+        console.error('[TUBEMOCHA] loadTVUpcoming error:', err);
+        track.innerHTML = '<div class="empty" style="padding:20px;">Could not load shows.</div>';
     }
     setTimeout(function() { updateScrollArrows('tvUpcomingTrack'); }, 50);
 }
 
 async function loadTVPage(){
-    var headerBg = document.getElementById('tvHeaderBg');
-    if (!headerBg.src || headerBg.src.includes('base64')) {
-        var tr0 = await tmdb('/trending/tv/week', {page:1});
-        if (tr0 && tr0.results) { var withBackdrop = tr0.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; }
-    }
+    try {
+        var headerBg = document.getElementById('tvHeaderBg');
+        if (!headerBg.src || headerBg.src.includes('base64')) {
+            var tr0 = await tmdb('/trending/tv/week', {page:1});
+            if (tr0 && tr0.results) { var withBackdrop = tr0.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; }
+        }
+    } catch(e) { /* ignore */ }
     renderTVFilterCheckboxes();
     loadTVUpcoming();
     if (!document.getElementById('tvGrid').innerHTML) {
@@ -2145,7 +2151,7 @@ function handleSearch(e){
     if (window.innerWidth >= 768) {
         document.getElementById('searchDropdown').classList.remove('open');
         recentSearches.unshift(q);
-        recentSearches = [...new Set(recentSearches)].slice(0, 5);
+        recentSearches = Array.from(new Set(recentSearches)).slice(0, 5);
         localStorage.setItem('tubemocha_recent_searches', JSON.stringify(recentSearches));
     }
     window.location.hash = '#search=' + encodeURIComponent(q);
@@ -2442,65 +2448,84 @@ function setAnimeGenre(id, name) { animeGenre = id; document.getElementById('ani
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
-// MOVIES REGION TRENDING
+// ==== REGION-AWARE MOVIE TRENDING ====
 async function loadMoviesRegionTrending() {
     var track = document.getElementById('moviesRegionTrending');
     var headEl = document.querySelector('#moviesTrendingHead .section-title');
     if (!track) return;
     track.innerHTML = '<div class="empty" style="padding:20px;">Loading...</div>';
     
-    var geo = await getUserCountry();
-    var hasAnyFilter = filterState.genres.length > 0 || filterState.years.length > 0 || filterState.countries.length > 0;
-    
-    var params = { sort_by: 'popularity.desc', page: 1, 'vote_count.gte': 30 };
-    if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
-    applyYearFilter(params, filterState.years, false);
-    if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
-    else if (!hasAnyFilter && geo.code) params.with_origin_country = geo.code;
-    
-    if (!hasAnyFilter) {
-        if (headEl) headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
-    } else {
-        var parts = [];
-        var genreNames = filterState.genres.map(function(id) { return GENRE_MAP[id] || id; });
-        if (genreNames.length > 0) parts.push(genreNames.slice(0,2).join(' • '));
-        if (filterState.years.length > 0) parts.push('(' + filterState.years.slice(0,2).join(', ') + ')');
-        if (filterState.countries.length > 0) {
-            var countryNames = filterState.countries.map(function(c){ var f = COUNTRIES_LIST.find(function(x){return x.id===c;}); return f ? f.name : c; });
-            parts.push('from ' + countryNames.slice(0,2).join(', '));
-        } else if (geo.code) {
-            parts.push('in ' + geo.name);
+    try {
+        var geo = await getUserCountry();
+        var hasAnyFilter = filterState.genres.length > 0 || filterState.years.length > 0 || filterState.countries.length > 0;
+        
+        var params = { sort_by: 'popularity.desc', page: 1, 'vote_count.gte': 30 };
+        if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
+        applyYearFilter(params, filterState.years, false);
+        if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
+        else if (!hasAnyFilter && geo.code) params.with_origin_country = geo.code;
+        
+        if (!hasAnyFilter) {
+            if (headEl) headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
+        } else {
+            var parts = [];
+            var genreNames = filterState.genres.map(function(id) { return GENRE_MAP[id] || id; });
+            if (genreNames.length > 0) parts.push(genreNames.slice(0,2).join(' • '));
+            if (filterState.years.length > 0) parts.push('(' + filterState.years.slice(0,2).join(', ') + ')');
+            if (filterState.countries.length > 0) {
+                var countryNames = filterState.countries.map(function(c){ var f = COUNTRIES_LIST.find(function(x){return x.id===c;}); return f ? f.name : c; });
+                parts.push('from ' + countryNames.slice(0,2).join(', '));
+            } else if (geo.code) {
+                parts.push('in ' + geo.name);
+            }
+            if (headEl) headEl.textContent = parts.join(' ') || 'Trending Now';
         }
-        if (headEl) headEl.textContent = parts.join(' ') || 'Trending Now';
-    }
-    
-    var data = await tmdb('/discover/movie', params);
-    if (hasAnyFilter && (!data || !data.results || data.results.length === 0) && params.with_origin_country && filterState.countries.length === 0) {
-        delete params.with_origin_country;
-        data = await tmdb('/discover/movie', params);
-    }
-    if (!data || !data.results || data.results.length === 0) {
-        data = await tmdb('/trending/movie/week', {page:1});
-    }
-    if (data && data.results) {
-        track.innerHTML = data.results.slice(0,10).map(mapResult).map(cardHTML).join('');
-    } else {
+        
+        var data = await tmdb('/discover/movie', params);
+        if (hasAnyFilter && (!data || !data.results || data.results.length === 0) && params.with_origin_country && filterState.countries.length === 0) {
+            delete params.with_origin_country;
+            data = await tmdb('/discover/movie', params);
+        }
+        if (!data || !data.results || data.results.length === 0) {
+            data = await tmdb('/trending/movie/week', {page:1});
+        }
+        if (data && data.results) {
+            track.innerHTML = data.results.slice(0,10).map(mapResult).map(cardHTML).join('');
+        } else {
+            track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+        }
+    } catch (err) {
+        console.error('[TUBEMOCHA] loadMoviesRegionTrending error:', err);
         track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
     }
     setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50);
 }
 
+// Country lookup with a hard 2.5s per-provider timeout so it can never hang.
 async function getUserCountry() {
     if (window.cachedGeo && window.cachedGeo.code) return window.cachedGeo;
+    function withTimeout(url, ms) {
+        return Promise.race([
+            fetch(url).then(function(r) { return r.json(); }),
+            new Promise(function(_, rej) { setTimeout(function() { rej(new Error('timeout')); }, ms); })
+        ]);
+    }
     try {
-        var res = await fetch('https://ipwho.is/'); var data = await res.json();
-        if (data.success && data.country_code && data.country) { window.cachedGeo = { code: data.country_code, name: data.country }; return window.cachedGeo; }
+        var data = await withTimeout('https://ipwho.is/', 2500);
+        if (data.success && data.country_code && data.country) {
+            window.cachedGeo = { code: data.country_code, name: data.country };
+            return window.cachedGeo;
+        }
     } catch(e) { console.log('ipwho.is failed', e); }
     try {
-        var res2 = await fetch('https://ipapi.co/json/'); var data2 = await res2.json();
-        if (data2.country_code && data2.country_name) { window.cachedGeo = { code: data2.country_code, name: data2.country_name }; return window.cachedGeo; }
+        var data2 = await withTimeout('https://ipapi.co/json/', 2500);
+        if (data2.country_code && data2.country_name) {
+            window.cachedGeo = { code: data2.country_code, name: data2.country_name };
+            return window.cachedGeo;
+        }
     } catch(e) { console.log('ipapi.co failed', e); }
-    return { code: null, name: 'Your Region' };
+    window.cachedGeo = { code: null, name: 'Your Region' };
+    return window.cachedGeo;
 }
 
 // Render posters for auth pages
@@ -2510,7 +2535,7 @@ function populateAuthPosters() {
         '/f89U3ADr1oiB1s9GkdPOEpXUk5H.jpg', '/1X4h40fcB4WWUmIBK0auT4zRBAV.jpg', '/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg',
         '/xJHokMbljvjADYdit5RUhDsSH0r.jpg', '/56v2KjBlU4XaOv9rVYEQypROD7P.jpg', '/etj8E2o0Bud0HkONVQPjyCkIvpv.jpg'
     ];
-    var html = posters.map(p => `<img src="${IMG}${p}" loading="lazy" alt="">`).join('');
+    var html = posters.map(function(p) { return '<img src="' + IMG + p + '" loading="lazy" alt="">'; }).join('');
     var signupEl = document.getElementById('signupPosters');
     var loginEl = document.getElementById('loginPosters');
     if (signupEl) signupEl.innerHTML = html;
@@ -2521,16 +2546,16 @@ function populateAuthPosters() {
 function handleRouting() {
     var hash = window.location.hash.replace('#', '') || 'home';
     
-    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-    document.querySelectorAll('.bottom button').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.desktop-nav-link').forEach(l => l.classList.remove('active'));
-    document.querySelectorAll('.desktop-nav-icon-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+    document.querySelectorAll('.bottom button').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.desktop-nav-link').forEach(function(l) { l.classList.remove('active'); });
+    document.querySelectorAll('.desktop-nav-icon-btn').forEach(function(b) { b.classList.remove('active'); });
     document.getElementById('detailOverlay').classList.remove('open');
     document.getElementById('playerOverlay').classList.remove('open');
     document.body.style.overflow = '';
     var searchDropdown = document.getElementById('searchDropdown');
     if (searchDropdown) searchDropdown.classList.remove('open');
-    document.querySelectorAll('.filter-dropdown').forEach(d => d.classList.remove('show'));
+    document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
 
     if (hash === 'home' || hash === '') {
         document.getElementById('view-home').classList.add('active');
@@ -2547,7 +2572,7 @@ function handleRouting() {
             renderFilterCheckboxes();
             var headerBg = document.getElementById('moviesHeaderBg');
             if (!headerBg.src || headerBg.src.includes('base64')) {
-                tmdb('/trending/movie/week', {page:1}).then(tr => { if (tr && tr.results) { var withBackdrop = tr.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; } });
+                tmdb('/trending/movie/week', {page:1}).then(function(tr) { if (tr && tr.results) { var withBackdrop = tr.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; } });
             }
             loadDiscover(1, false);
         }
@@ -2628,7 +2653,7 @@ function handleRouting() {
         window.currentView = 'login';
         populateAuthPosters();
     }
-    else if (['help', 'terms', 'privacy', 'dmca'].includes(hash)) {
+    else if (['help', 'terms', 'privacy', 'dmca'].indexOf(hash) !== -1) {
         document.getElementById('view-' + hash).classList.add('active');
         window.currentView = hash;
     }
@@ -2671,9 +2696,8 @@ function handleRouting() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-    // Explicitly check session on load
-    supabaseClient.auth.getSession().then(({ data: { session } }) => {
-        handleAuthState(session);
+    supabaseClient.auth.getSession().then(function(res) {
+        handleAuthState(res && res.data ? res.data.session : null);
     });
 
     if (!window.location.hash) {
