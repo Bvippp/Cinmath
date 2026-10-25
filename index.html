@@ -232,7 +232,7 @@
       </div>
     </div>
     
-    <!-- Profile Dropdown (now works on mobile too) -->
+    <!-- Profile Dropdown -->
     <div class="profile-dropdown-container" style="margin-left: 8px;">
       <div class="desktop-nav-icon-btn" id="d-profile" onclick="toggleProfileDropdown(event)" style="overflow:hidden; border-radius:50%;">
         <img id="headerAvatar" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
@@ -896,11 +896,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v74 — 2026-10-25
-// CHANGELOG (v73 → v74):
-//   • Forced the Movies page to show the FALLBACK content if the API returns empty/fails.
-//   • Handled the "User already registered" signup error by auto-switching to Login.
-//   • Provided clearer UI error messages for Supabase Auth issues.
+// TUBEMOCHA BUILD v75 — 2026-10-25
+// CHANGELOG (v74 → v75):
+//   • Fixed a critical ReferenceError that crashed the auth flow (missing showLoggedInUI).
+//   • Added a timeout to the TMDB fetch so the Movies page never hangs on "Loading...".
+//   • Added graceful handling for "User already registered" error during signup.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -940,7 +940,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v74-2026-10-25-bulletproof-movies-auth-errors';
+var TUBEMOCHA_BUILD = 'v75-2026-10-25-fixed-js-crash-tmdb-timeout';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1337,6 +1337,8 @@ async function handleModalLogin(e) {
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
             toast('Email not confirmed. Go to Supabase > Auth > Users, delete this user, and sign up again.');
+        } else if (error.message.toLowerCase().includes('invalid login credentials')) {
+            toast('Invalid email or password. Please try again.');
         } else {
             toast(error.message); 
         }
@@ -1365,7 +1367,7 @@ async function handleModalSignUp(e) {
     });
     
     if (error) { 
-        if (error.message.toLowerCase().includes('already registered')) {
+        if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
             toast('Account already exists. Please log in.');
             openAuthModal('login');
         } else if (error.message.toLowerCase().includes('rate limit')) {
@@ -1385,17 +1387,7 @@ async function handleModalSignUp(e) {
 // AUTH & USER STATE
 // ==========================================
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
-    if (session) {
-        currentUser = session.user;
-        showLoggedInUI();
-        await fetchWatchlistFromDB();
-    } else {
-        currentUser = null;
-        localStorage.removeItem('tubemocha_active_profile');
-        showLoggedOutUI();
-        watchlist = [];
-        renderWatchlist();
-    }
+    handleAuthState(session);
 });
 
 async function handleSignUp(e) {
@@ -1411,7 +1403,7 @@ async function handleSignUp(e) {
     });
     
     if (error) { 
-        if (error.message.toLowerCase().includes('already registered')) {
+        if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
             toast('Account already exists. Please log in.');
             window.location.hash = '#login';
         } else if (error.message.toLowerCase().includes('rate limit')) {
@@ -1433,6 +1425,8 @@ async function handleLogin(e) {
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
             toast('Email not confirmed. Go to Supabase > Auth > Users, delete this user, and sign up again.');
+        } else if (error.message.toLowerCase().includes('invalid login credentials')) {
+            toast('Invalid email or password. Please try again.');
         } else {
             toast(error.message); 
         }
@@ -1933,11 +1927,15 @@ async function tmdb(path, params) {
             if(v != null && v !== '') target.searchParams.set(key, String(v));
         }
     }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     try{
-        var res = await fetch(target.href, {headers: {'Accept':'application/json'}});
+        var res = await fetch(target.href, {headers: {'Accept':'application/json'}, signal: controller.signal});
+        clearTimeout(timeoutId);
         if(!res.ok) throw new Error('HTTP ' + res.status);
         return await res.json();
     }catch(e){
+        clearTimeout(timeoutId);
         console.log('[TUBEMOCHA] TMDB fail '+path+' : '+e.message+' -> using FALLBACK');
         return null;
     }
