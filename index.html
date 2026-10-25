@@ -896,13 +896,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v71 — 2026-10-25
-// CHANGELOG (v70 → v71):
-//   • Fixed session persistence on page refresh (getSession on load).
-//   • Redesigned header dropdown: "History", "Watchlist", "Watch Party" are always visible.
-//   • If user is logged in, they show the profile options. If not, they show Login/Signup below.
-//   • Clicking protected options while logged out prompts the auth modal.
-//   • Added robust restoration of the active profile image on page reload.
+// TUBEMOCHA BUILD v72 — 2026-10-25
+// CHANGELOG (v71 → v72):
+//   • Fixed session persistence bug on page refresh by centralizing auth state logic into handleAuthState.
+//   • Restored Supabase session properly on load using getSession() combined with onAuthStateChange.
+//   • Ensured the active profile avatar is correctly reloaded on page refresh.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -942,7 +940,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v71-2026-10-25-session-persistence-universal-dropdown';
+var TUBEMOCHA_BUILD = 'v72-2026-10-25-fixed-session-persistence';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -972,29 +970,27 @@ var COUNTRIES_LIST = [
 // ==========================================
 // SESSION & AUTH UI RESTORATION
 // ==========================================
-async function initAuth() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+function handleAuthState(session) {
     if (session) {
         currentUser = session.user;
-        showLoggedInUI();
-        await fetchWatchlistFromDB();
+        document.getElementById('dropdownAuthProfile').style.display = 'block';
+        document.getElementById('dropdownAuthButtons').style.display = 'none';
+        restoreActiveProfile();
+        fetchWatchlistFromDB();
     } else {
         currentUser = null;
-        showLoggedOutUI();
+        localStorage.removeItem('tubemocha_active_profile');
+        document.getElementById('dropdownAuthProfile').style.display = 'none';
+        document.getElementById('dropdownAuthButtons').style.display = 'flex';
+        updateHeaderAvatar(null);
+        watchlist = [];
+        renderWatchlist();
     }
-    restoreActiveProfile();
 }
 
-function showLoggedInUI() {
-    document.getElementById('dropdownAuthProfile').style.display = 'block';
-    document.getElementById('dropdownAuthButtons').style.display = 'none';
-}
-
-function showLoggedOutUI() {
-    document.getElementById('dropdownAuthProfile').style.display = 'none';
-    document.getElementById('dropdownAuthButtons').style.display = 'flex';
-    updateHeaderAvatar(null);
-}
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    handleAuthState(session);
+});
 
 function restoreActiveProfile() {
     let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
@@ -1341,11 +1337,9 @@ async function handleModalLogin(e) {
     else { 
         toast('Logged in successfully!'); 
         closeAuthModal(); 
-        showLoggedInUI();
         
-        // Check if user has profiles
         let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-        let userProfiles = profiles.filter(p => p.userId === currentUser.id);
+        let userProfiles = profiles.filter(p => p.userId === data.user.id);
         if (userProfiles.length > 0) {
             window.location.hash = '#whos-watching';
         } else {
@@ -1366,7 +1360,6 @@ async function handleModalSignUp(e) {
     else { 
         toast('Registered successfully'); 
         closeAuthModal(); 
-        showLoggedInUI();
         startWizard();
     }
 }
@@ -2645,8 +2638,11 @@ function handleRouting() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-    initAuth(); // Check for session on load
-    
+    // Explicitly check session on load
+    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+        handleAuthState(session);
+    });
+
     if (!window.location.hash) {
         window.location.hash = '#home';
     } else {
