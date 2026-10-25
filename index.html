@@ -6,7 +6,6 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="monetag" content="52e38885034f09b41235e3ffa0100d30">
-<!-- Cache Control to prevent mobile carrier DNS failure caching -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -143,7 +142,7 @@
 .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-main); cursor: pointer; padding: 4px 0; }
 .checkbox-label:hover { color: var(--text-muted); }
 .checkbox-label input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent-light); cursor: pointer; }
-#moviesSentinel, #tvSentinel { height: 40px; width: 100%; visibility: hidden; margin-top: 20px; }
+#moviesSentinel, #tvSentinel, #animeSentinel, #searchSentinel { height: 60px; width: 100%; visibility: hidden; margin-top: 20px; }
 
 /* Auth Page Styles */
 .auth-page { display: flex; min-height: calc(100vh - 60px); background: var(--bg-main); padding: 20px; gap: 40px; align-items: center; justify-content: center; flex-wrap: wrap; }
@@ -549,7 +548,7 @@
 <div id="view-search" class="view"><div class="main" style="padding-top:20px">
 <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title" id="searchTitle">Search Results</h2><div class="section-sub" id="searchSub">Found <span id="searchCount">0</span> results</div></div></div>
 <div class="grid" id="searchGrid"></div><div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try a different spelling.</div>
-<div style="display:flex;justify-content:center;margin-top:20px"><button class="btn-play" id="searchLoadMore" style="display:none" onclick="loadMoreSearch()">Load More</button></div>
+<div id="searchSentinel"></div>
 </div></div>
 <div id="view-watchlist" class="view"><div class="main" style="padding-top:20px">
 <div class="section-head"><div class="section-accent" style="background:var(--accent-light)"></div><div class="section-title-box"><h2 class="section-title">My Watchlist</h2><div class="section-sub">Your saved movies and shows</div></div></div>
@@ -980,16 +979,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v83</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v84</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v83 — 2026-10-25
-// CHANGELOG (v82 → v83):
-//   • Added Cache-Control headers to prevent mobile Safari from caching DNS failures.
-//   • Added explanation for mobile data (5G) DNS blocks on subdomains.
+// TUBEMOCHA BUILD v84 — 2026-10-25
+// CHANGELOG (v83 → v84):
+//   • Implemented full infinite scroll for search results.
+//   • Removed "Load More" button from search.
+//   • Enhanced infinite scroll for movies, TV, and anime with a 600px pre-fetch margin.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1017,13 +1017,14 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v83-2026-10-25-dns-cache-fix';
+var TUBEMOCHA_BUILD = 'v84-2026-10-25-full-infinite-scroll';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
 var isLoadingMovies = false, hasMoreMovies = true;
 var isLoadingTV = false, hasMoreTV = true;
 var isLoadingAnime = false, hasMoreAnime = true;
+var isLoadingSearch = false, hasMoreSearch = true;
 var animePage = 1, animeGenre = '';
 
 var GENRES_LIST = [
@@ -1350,7 +1351,6 @@ function triggerSearch(e) {
     var q = document.getElementById('q');
     if (q) {
         q.focus();
-        // iOS sometimes needs this to ensure the cursor is placed
         q.setSelectionRange(0, 0);
         if (window.innerWidth >= 768) {
             openSearchDropdown();
@@ -1968,20 +1968,26 @@ var moviesObserver = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) {
         loadDiscover(filterState.page + 1, false);
     }
-}, { rootMargin: '300px' });
+}, { rootMargin: '600px' });
 
 var tvObserver = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && window.currentView === 'tv' && !isLoadingTV && hasMoreTV) {
         loadTVDiscover(tvFilterState.page + 1);
     }
-}, { rootMargin: '300px' });
+}, { rootMargin: '600px' });
 
 var animeObserver = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && window.currentView === 'anime' && !isLoadingAnime && hasMoreAnime) {
         animePage++;
         loadAnime(false);
     }
-}, { rootMargin: '200px' });
+}, { rootMargin: '600px' });
+
+var searchObserver = new IntersectionObserver(function(entries) {
+    if (entries[0].isIntersecting && window.currentView === 'search' && !isLoadingSearch && hasMoreSearch) {
+        loadMoreSearch();
+    }
+}, { rootMargin: '600px' });
 
 // === VIDY SINGLE SERVER ===
 var VIDY_COLOR = 'DC2626';
@@ -2461,42 +2467,60 @@ function handleSearch(e){
 }
 
 async function doSearch(q){
-    searchQuery = q; searchPage = 1; searchAllResults = [];
+    searchQuery = q; searchPage = 1; searchAllResults = []; hasMoreSearch = true; isLoadingSearch = false;
     var grid = document.getElementById('searchGrid');
     grid.innerHTML = '<div class="empty">Searching…</div>';
     document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
+    document.getElementById('searchEmpty').style.display = 'none';
+    
     var params = { query: q, page: 1, include_adult: 'false' };
     var results = await Promise.all([ tmdb('/search/movie', params), tmdb('/search/tv', params) ]);
     var mov = results[0]; var tv = results[1];
     var out = [];
     if(mov && mov.results) mov.results.forEach(function(r) { r.media_type = 'movie'; out.push(r); });
     if(tv && tv.results) tv.results.forEach(function(r) { r.media_type = 'tv'; out.push(r); });
+    
     searchAllResults = out;
     var movPages = (mov && mov.total_pages) ? mov.total_pages : 0;
     var tvPages = (tv && tv.total_pages) ? tv.total_pages : 0;
     searchTotalPages = Math.min(500, Math.max(movPages, tvPages));
-    renderSearchResults();
+    
+    if (searchPage >= searchTotalPages) hasMoreSearch = false;
+    
+    if(searchAllResults.length === 0) {
+        grid.innerHTML = '';
+        document.getElementById('searchEmpty').style.display = 'block';
+        document.getElementById('searchCount').textContent = '0';
+    } else {
+        grid.innerHTML = searchAllResults.map(mapResult).map(cardHTML).join('');
+        document.getElementById('searchCount').textContent = searchAllResults.length;
+    }
 }
-function renderSearchResults(){
-    var grid = document.getElementById('searchGrid'); var count = document.getElementById('searchCount');
-    if(searchAllResults.length === 0) { grid.innerHTML = ''; document.getElementById('searchEmpty').style.display = 'block'; count.textContent = '0'; document.getElementById('searchLoadMore').style.display = 'none'; return; }
-    document.getElementById('searchEmpty').style.display = 'none';
-    grid.innerHTML = searchAllResults.map(mapResult).map(cardHTML).join('');
-    count.textContent = searchAllResults.length;
-    document.getElementById('searchLoadMore').style.display = (searchPage < searchTotalPages) ? 'inline-flex' : 'none';
-}
+
 async function loadMoreSearch(){
-    if(searchPage >= searchTotalPages) return;
+    if(isLoadingSearch || !hasMoreSearch) return;
+    isLoadingSearch = true;
     searchPage++;
+    
     var params = { query: searchQuery, page: searchPage, include_adult: 'false' };
     var results = await Promise.all([ tmdb('/search/movie', params), tmdb('/search/tv', params) ]);
     var mov = results[0]; var tv = results[1];
     var out = [];
     if(mov && mov.results) mov.results.forEach(function(r) { r.media_type = 'movie'; out.push(r); });
     if(tv && tv.results) tv.results.forEach(function(r) { r.media_type = 'tv'; out.push(r); });
+    
     searchAllResults = searchAllResults.concat(out);
-    renderSearchResults();
+    if (searchPage >= searchTotalPages) hasMoreSearch = false;
+    
+    if (out.length > 0) {
+        var grid = document.getElementById('searchGrid');
+        grid.innerHTML += out.map(mapResult).map(cardHTML).join('');
+        document.getElementById('searchCount').textContent = searchAllResults.length;
+    }
+    
+    isLoadingSearch = false;
 }
+
 var currentSeason = 1; var currentEpisode = 1;
 
 async function showDetail(rawId, shouldPlay){
@@ -3027,6 +3051,9 @@ window.addEventListener('DOMContentLoaded', function() {
     
     var tvSentinel = document.getElementById('tvSentinel');
     if (tvSentinel) tvObserver.observe(tvSentinel);
+    
+    var sSentinel = document.getElementById('searchSentinel');
+    if (sSentinel) searchObserver.observe(sSentinel);
     
     renderAnimeGenres();
 });
