@@ -161,7 +161,7 @@
 .auth-input-group svg { position: absolute; left: 14px; width: 18px; height: 18px; stroke: var(--text-dim); fill: none; stroke-width: 2; }
 .auth-input-group input { width: 100%; height: 48px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 0 14px 0 42px; color: var(--text-main); font-size: 14px; outline: none; transition: border-color 0.2s; }
 .auth-input-group input:focus { border-color: var(--accent-light); }
-.auth-submit-btn { height: 48px; border-radius: var(--radius-md); background: var(--accent-light); color: var(--bg-main); font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 8px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; /* Added full width */ }
+.auth-submit-btn { height: 48px; border-radius: var(--radius-md); background: var(--accent-light); color: var(--bg-main); font-weight: 800; font-size: 15px; cursor: pointer; margin-top: 8px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
 .auth-submit-btn:hover { opacity: 0.9; }
 .auth-switch { margin-top: 16px; font-size: 13px; color: var(--text-muted); }
 .auth-switch a { color: var(--accent-light); font-weight: 700; cursor: pointer; }
@@ -183,6 +183,13 @@
 @media (max-width: 600px) {
   .auth-modal-body { padding: 20px; }
 }
+
+/* Wizard & Profile Styles */
+.wizard-progress { display: flex; gap: 6px; justify-content: center; margin-bottom: 40px; width: 100%; max-width: 400px; margin-left: auto; margin-right: auto; }
+.step-segment { flex: 1; height: 4px; background: #333; border-radius: 2px; transition: background 0.3s; }
+.step-segment.active { background: var(--accent); }
+.genre-btn { padding: 10px 20px; border-radius: 20px; background: #222; border: 1px solid #444; color: #ccc; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
+.genre-btn.active { background: var(--accent-light); color: var(--bg-main); border-color: var(--accent-light); }
 </style>
 </head>
 <body>
@@ -227,35 +234,135 @@
     
     <!-- Desktop Profile Dropdown -->
     <div class="profile-dropdown-container desktop-nav" style="margin-left: 8px;">
-      <div class="desktop-nav-icon-btn" id="d-profile" onclick="toggleProfileDropdown(event)">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      <div class="desktop-nav-icon-btn" id="d-profile" onclick="toggleProfileDropdown(event)" style="overflow:hidden; border-radius:50%;">
+        <img id="headerAvatar" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+        <svg id="headerDefaultIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
       </div>
       <div class="profile-dropdown" id="profileDropdown">
-        <div class="profile-dropdown-item" onclick="window.location.hash='#history'; closeProfileDropdown()">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          History
+        <div id="dropdownLoggedOut">
+            <div class="profile-dropdown-actions">
+              <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
+              <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
+            </div>
         </div>
-        <div class="profile-dropdown-item" onclick="handleWatchlistClick(); closeProfileDropdown()">
-          <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-          Watchlist
-        </div>
-        <div class="profile-dropdown-item" onclick="window.location.hash='#watchparty'; closeProfileDropdown()">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-          Watch Party
-        </div>
-        <div class="profile-dropdown-toggle">
-          <span>Show ads</span>
-          <input type="checkbox" id="adsToggle" checked onchange="toggleAds(this.checked)">
-          <label for="adsToggle" class="toggle-switch"></label>
-        </div>
-        <div class="profile-dropdown-actions" id="profileActionContainer">
-          <!-- Dynamic Auth Buttons -->
-          <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
-          <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
+        <div id="dropdownLoggedIn" style="display:none;">
+            <div class="profile-dropdown-item" id="activeProfileName" style="font-weight:800; color:#fff; pointer-events:none; border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:8px;">Profile Name</div>
+            <div class="profile-dropdown-item" onclick="window.location.hash='#history'; closeProfileDropdown()">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              History
+            </div>
+            <div class="profile-dropdown-item" onclick="handleWatchlistClick(); closeProfileDropdown()">
+              <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+              Watchlist
+            </div>
+            <div class="profile-dropdown-item" onclick="window.location.hash='#watchparty'; closeProfileDropdown()">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              Watch Party
+            </div>
+            <div class="profile-dropdown-toggle">
+              <span>Show ads</span>
+              <input type="checkbox" id="adsToggle" checked onchange="toggleAds(this.checked)">
+              <label for="adsToggle" class="toggle-switch"></label>
+            </div>
+            <div class="profile-dropdown-item" onclick="window.location.hash='#whos-watching'; closeProfileDropdown()">
+              <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              Switch profile
+            </div>
+            <div class="profile-dropdown-item" onclick="openAvatarModal(); closeProfileDropdown()">
+              <svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              Change avatar
+            </div>
+            <div class="profile-dropdown-item" onclick="handleLogout(); closeProfileDropdown()" style="color:#ff6b6b; border-top:1px solid var(--border); margin-top:8px;">
+              <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Logout
+            </div>
         </div>
       </div>
     </div>
   </div>
+</div>
+
+<!-- WIZARD VIEW -->
+<div id="view-wizard" class="view">
+    <div style="padding: 60px 20px; max-width: 800px; margin: 0 auto;">
+        <div class="wizard-progress">
+            <div class="step-segment active" id="seg1"></div>
+            <div class="step-segment" id="seg2"></div>
+            <div class="step-segment" id="seg3"></div>
+        </div>
+        <div id="wizardContent"></div>
+    </div>
+</div>
+
+<!-- WHOS WATCHING VIEW -->
+<div id="view-whos-watching" class="view">
+    <div style="text-align:center; padding: 80px 20px;">
+        <h1 style="font-size:40px; font-weight:800; margin-bottom:40px; color:#fff;">Who's watching?</h1>
+        <div id="whosWatchingGrid" style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:40px;"></div>
+        <div style="display:flex; justify-content:center; gap:20px;">
+            <button class="btn-info" onclick="window.location.hash='#manage-profiles'">Manage profiles</button>
+            <button class="btn-info" onclick="window.location.hash='#settings'">Settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- MANAGE PROFILES VIEW -->
+<div id="view-manage" class="view">
+    <div style="text-align:center; padding: 80px 20px;">
+        <h1 style="font-size:40px; font-weight:800; margin-bottom:40px; color:#fff;">Manage profiles</h1>
+        <div id="manageProfilesGrid" style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:40px;"></div>
+        <div style="display:flex; justify-content:center; gap:20px;">
+            <button class="btn-info" onclick="window.location.hash='#whos-watching'">Done</button>
+            <button class="btn-info" onclick="window.location.hash='#settings'">Settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT PROFILE VIEW -->
+<div id="view-edit-profile" class="view">
+    <div style="max-width:400px; margin:80px auto; text-align:center; padding: 20px;">
+        <h1 style="font-size:32px; font-weight:800; margin-bottom:30px; color:#fff;">Edit profile</h1>
+        <div id="editAvatar" style="width:120px; height:120px; border-radius:20px; margin:0 auto 20px; background:#222; overflow:hidden;"></div>
+        <div style="position:relative; margin-bottom:30px;">
+            <input type="text" id="editProfileName" maxlength="20" style="width:100%; padding:15px; border-radius:8px; background:#222; border:1px solid #444; color:#fff; font-size:16px; outline:none;">
+            <div style="position:absolute; right:15px; top:15px; color:#888; font-size:12px;" id="editNameCounter">0/20</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <button onclick="window.location.hash='#manage-profiles'" style="color:#888; font-size:15px; font-weight:600;">Back</button>
+            <button class="btn-play" onclick="saveEditedProfile()">Save</button>
+        </div>
+        <div style="margin-top:60px; border-top:1px solid #333; padding-top:30px;">
+            <h3 style="font-size:16px; font-weight:700; margin-bottom:10px; color:#fff;">Delete Profile</h3>
+            <p style="color:#888; font-size:13px; margin-bottom:15px;">This cannot be undone. History, continue watching, and the watchlist for this profile will be permanently deleted.</p>
+            <button onclick="deleteCurrentProfile()" style="color:#ff6b6b; background:none; border:none; cursor:pointer; font-size:14px; font-weight:600;">I understand and want to delete this profile</button>
+        </div>
+    </div>
+</div>
+
+<!-- SETTINGS VIEW -->
+<div id="view-settings" class="view">
+    <div style="max-width:600px; margin:80px auto; padding: 20px;">
+        <h1 style="font-size:36px; font-weight:800; margin-bottom:40px; color:#fff;">Settings</h1>
+        <div style="margin-bottom:40px;">
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">My Account</h3>
+            <p style="color:#888; font-size:14px; margin-bottom:15px;" id="settingsEmail">loading...</p>
+            <button class="btn-info" style="width:100%; justify-content:space-between;">Change password <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
+        </div>
+        <div style="margin-bottom:40px;">
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">Devices</h3>
+            <p style="color:#888; font-size:13px; margin-bottom:15px;">Sessions signed in to your account</p>
+            <div style="background:#1e1814; border:1px solid #333; border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-weight:600; color:#fff;">Edge • Windows <span style="background:#333; padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:#aaa;">This device</span></div>
+                    <div style="font-size:12px; color:#888; margin-top:4px;">Johannesburg, South Africa | last active Oct 2...</div>
+                </div>
+                <button style="color:#888; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600;">Sign out device</button>
+            </div>
+        </div>
+        <button onclick="window.location.hash='#whos-watching'" style="color:#888; font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back
+        </button>
+    </div>
 </div>
 
 <div id="view-home" class="view active"><div class="hero" id="hero">
@@ -784,9 +891,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v69 — 2026-10-25
-// CHANGELOG (v68 → v69):
-//   • Styled the Login and Sign Up submit buttons to be full width (width: 100%) to match the requested layout.
+// TUBEMOCHA BUILD v70 — 2026-10-25
+// CHANGELOG (v69 → v70):
+//   • Implemented the full Profile Creation Wizard (Step 1: Name, Step 2: Movie Genres, Step 3: TV Genres).
+//   • Implemented "Who's Watching" screen with profile grid, Add Profile, Manage Profiles, Settings.
+//   • Implemented "Edit Profile" screen (Change name, Delete profile).
+//   • Implemented Settings screen.
+//   • Header updated to show active profile avatar and custom dropdown options (Switch profile, Change avatar, Logout).
+//   • Added max 3 selection limit to Wizard genres.
+//   • Progress bar styled with dark brown var(--accent).
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -801,6 +914,24 @@ var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var currentUser = null;
 
+// --- PROFILE DATA ---
+const AVATARS = [
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=1',
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=2',
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=3',
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=4',
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=5',
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=6',
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=7',
+    'https://api.dicebear.com/7.x/adventurer/svg?seed=8'
+];
+
+const MOVIE_GENRES = ['Comedy', 'Action', 'Drama', 'Horror', 'Romance', 'Adventure', 'Science Fiction', 'Thriller', 'Animation', 'Crime', 'Fantasy', 'Mystery', 'Documentary', 'Family', 'History', 'Music', 'War', 'Western'];
+const TV_GENRES = ['Comedy', 'Drama', 'Action & Adventure', 'Crime', 'Sci-Fi & Fantasy', 'Mystery', 'Animation', 'Family', 'Documentary', 'Kids', 'War & Politics', 'Western'];
+
+let wizardState = { step: 1, name: '', avatar: 0, movieGenres: [], tvGenres: [] };
+let editingProfileId = null;
+
 var filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
 var tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
 
@@ -808,7 +939,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v69-2026-10-25-full-width-auth-buttons';
+var TUBEMOCHA_BUILD = 'v70-2026-10-25-profiles-wizard-whos-watching';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -844,6 +975,248 @@ function applyYearFilter(params, years, isTv) {
     } else {
         params[isTv ? 'first_air_date.gte' : 'primary_release_date.gte'] = ys[0] + '-01-01';
         params[isTv ? 'first_air_date.lte' : 'primary_release_date.lte'] = ys[ys.length - 1] + '-12-31';
+    }
+}
+
+// ==========================================
+// WIZARD & PROFILE LOGIC
+// ==========================================
+function startWizard() {
+    wizardState = { step: 1, name: '', avatar: Math.floor(Math.random() * 8), movieGenres: [], tvGenres: [] };
+    window.location.hash = '#wizard';
+    renderWizard();
+}
+
+function renderWizard() {
+    const container = document.getElementById('wizardContent');
+    const seg1 = document.getElementById('seg1');
+    const seg2 = document.getElementById('seg2');
+    const seg3 = document.getElementById('seg3');
+
+    // Reset classes
+    seg1.className = 'step-segment'; seg2.className = 'step-segment'; seg3.className = 'step-segment';
+    
+    // Update progress bar
+    if (wizardState.step >= 1) seg1.classList.add('active');
+    if (wizardState.step >= 2) seg2.classList.add('active');
+    if (wizardState.step >= 3) seg3.classList.add('active');
+
+    if (wizardState.step === 1) {
+        container.innerHTML = `
+            <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">Create your profile</h2>
+            <p style="color:#888; text-align:center; margin-bottom:30px;">Give it a name — this is who's watching</p>
+            <input type="text" id="wizardName" value="${wizardState.name}" placeholder="Profile name" maxlength="20" style="width:100%; max-width:400px; margin:0 auto 20px; padding:15px; border-radius:8px; background:#222; border:1px solid #444; color:#fff; display:block; text-align:center; font-size:16px; outline:none;">
+            <div style="text-align:center;">
+                <button class="btn-play" onclick="wizardNext()">Continue</button>
+            </div>
+        `;
+        document.getElementById('wizardName').focus();
+    } 
+    else if (wizardState.step === 2) {
+        container.innerHTML = `
+            <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">What movies do you love?</h2>
+            <p style="color:#888; text-align:center; margin-bottom:30px;">Pick up to 3 film genres — half of your first For You comes from these.</p>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:600px; margin:0 auto 30px;" id="movieGenreGrid">
+                ${MOVIE_GENRES.map(g => `<button class="genre-btn ${wizardState.movieGenres.includes(g) ? 'active' : ''}" onclick="toggleWizardGenre('movie', '${g}')">${g}</button>`).join('')}
+            </div>
+            <div style="text-align:center; display:flex; justify-content:center; gap:20px;">
+                <button onclick="wizardBack()" style="color:#888; font-size:15px; font-weight:600;">Back</button>
+                <button onclick="window.location.hash='#whos-watching'" style="color:#888; font-size:15px; font-weight:600;">Skip</button>
+                <button class="btn-play" onclick="wizardNext()">Continue</button>
+            </div>
+        `;
+    }
+    else if (wizardState.step === 3) {
+        container.innerHTML = `
+            <h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">What series do you love?</h2>
+            <p style="color:#888; text-align:center; margin-bottom:30px;">Now pick up to 3 TV genres. The other half of For You is built from these.</p>
+            <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; max-width:600px; margin:0 auto 30px;" id="tvGenreGrid">
+                ${TV_GENRES.map(g => `<button class="genre-btn ${wizardState.tvGenres.includes(g) ? 'active' : ''}" onclick="toggleWizardGenre('tv', '${g}')">${g}</button>`).join('')}
+            </div>
+            <div style="text-align:center; display:flex; justify-content:center; gap:20px;">
+                <button onclick="wizardBack()" style="color:#888; font-size:15px; font-weight:600;">Back</button>
+                <button onclick="window.location.hash='#whos-watching'" style="color:#888; font-size:15px; font-weight:600;">Skip</button>
+                <button class="btn-play" onclick="wizardNext()">Start watching</button>
+            </div>
+        `;
+    }
+}
+
+function toggleWizardGenre(type, genre) {
+    let arr = type === 'movie' ? wizardState.movieGenres : wizardState.tvGenres;
+    if (arr.includes(genre)) {
+        arr.splice(arr.indexOf(genre), 1);
+    } else {
+        if (arr.length >= 3) return;
+        arr.push(genre);
+    }
+    const gridId = type === 'movie' ? 'movieGenreGrid' : 'tvGenreGrid';
+    const grid = document.getElementById(gridId);
+    Array.from(grid.children).forEach(btn => {
+        btn.classList.toggle('active', arr.includes(btn.textContent));
+    });
+}
+
+function wizardNext() {
+    if (wizardState.step === 1) {
+        let name = document.getElementById('wizardName').value.trim();
+        if (!name) { toast('Please enter a profile name'); return; }
+        wizardState.name = name;
+        wizardState.step = 2;
+    } else if (wizardState.step === 2) {
+        wizardState.step = 3;
+    } else if (wizardState.step === 3) {
+        saveWizardProfile();
+        return;
+    }
+    renderWizard();
+}
+
+function wizardBack() {
+    if (wizardState.step > 1) {
+        wizardState.step--;
+        renderWizard();
+    } else {
+        window.location.hash = '#whos-watching';
+    }
+}
+
+function saveWizardProfile() {
+    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    let newProfile = {
+        id: Date.now().toString(),
+        name: wizardState.name,
+        avatarIndex: wizardState.avatar,
+        movieGenres: wizardState.movieGenres,
+        tvGenres: wizardState.tvGenres,
+        userId: currentUser ? currentUser.id : 'guest'
+    };
+    profiles.push(newProfile);
+    localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+    toast('Registered successfully');
+    window.location.hash = '#whos-watching';
+}
+
+function renderWhosWatching() {
+    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    if (currentUser) profiles = profiles.filter(p => p.userId === currentUser.id);
+    
+    const grid = document.getElementById('whosWatchingGrid');
+    let html = profiles.map(p => `
+        <div style="cursor:pointer; text-align:center;" onclick="selectProfile('${p.id}')">
+            <div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='transparent'">
+                <img src="${AVATARS[p.avatarIndex]}" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <div style="font-weight:600; font-size:14px; color:#fff;">${p.name}</div>
+        </div>
+    `).join('');
+    
+    html += `
+        <div style="cursor:pointer; text-align:center;" onclick="startWizard()">
+            <div style="width:120px; height:120px; border-radius:16px; background:#222; display:flex; align-items:center; justify-content:center; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='transparent'">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </div>
+            <div style="font-weight:600; font-size:14px; color:#888;">Add profile</div>
+        </div>
+    `;
+    grid.innerHTML = html;
+}
+
+function selectProfile(id) {
+    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    const profile = profiles.find(p => p.id === id);
+    if (profile) {
+        localStorage.setItem('tubemocha_active_profile', JSON.stringify(profile));
+        updateHeaderAvatar(profile);
+        window.location.hash = '#home';
+    }
+}
+
+function renderManageProfiles() {
+    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    if (currentUser) profiles = profiles.filter(p => p.userId === currentUser.id);
+    
+    const grid = document.getElementById('manageProfilesGrid');
+    grid.innerHTML = profiles.map(p => `
+        <div style="text-align:center; position:relative;">
+            <div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin:0 auto 10px; position:relative; cursor:pointer;" onclick="openEditProfile('${p.id}')">
+                <img src="${AVATARS[p.avatarIndex]}" style="width:100%; height:100%; object-fit:cover;">
+                <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                </div>
+            </div>
+            <div style="font-weight:600; font-size:14px; color:#fff;">${p.name}</div>
+        </div>
+    `).join('');
+}
+
+function openEditProfile(id) {
+    editingProfileId = id;
+    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    const p = profiles.find(x => x.id === id);
+    if (!p) return;
+    
+    document.getElementById('editAvatar').innerHTML = `<img src="${AVATARS[p.avatarIndex]}" style="width:100%; height:100%; object-fit:cover;">`;
+    document.getElementById('editProfileName').value = p.name;
+    document.getElementById('editNameCounter').textContent = p.name.length + '/20';
+    window.location.hash = '#edit-profile';
+}
+
+document.getElementById('editProfileName').addEventListener('input', function(e) {
+    document.getElementById('editNameCounter').textContent = this.value.length + '/20';
+});
+
+function saveEditedProfile() {
+    let newName = document.getElementById('editProfileName').value.trim();
+    if (!newName) { toast('Name cannot be empty'); return; }
+    
+    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    const idx = profiles.findIndex(p => p.id === editingProfileId);
+    if (idx > -1) {
+        profiles[idx].name = newName;
+        localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+        
+        let active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+        if (active && active.id === editingProfileId) {
+            localStorage.setItem('tubemocha_active_profile', JSON.stringify(profiles[idx]));
+            updateHeaderAvatar(profiles[idx]);
+        }
+        toast('Profile updated');
+        window.location.hash = '#manage-profiles';
+    }
+}
+
+function deleteCurrentProfile() {
+    if (!confirm('Are you sure you want to delete this profile?')) return;
+    
+    let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    profiles = profiles.filter(p => p.id !== editingProfileId);
+    localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+    
+    let active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    if (active && active.id === editingProfileId) {
+        localStorage.removeItem('tubemocha_active_profile');
+        updateHeaderAvatar(null);
+    }
+    toast('Profile deleted');
+    window.location.hash = '#manage-profiles';
+}
+
+function openAvatarModal() {
+    let active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    if (!active) return;
+    
+    let newIdx = prompt("Enter avatar number (1-8):", active.avatarIndex + 1);
+    if (newIdx && newIdx >= 1 && newIdx <= 8) {
+        let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+        let idx = profiles.findIndex(p => p.id === active.id);
+        if (idx > -1) {
+            profiles[idx].avatarIndex = parseInt(newIdx) - 1;
+            localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+            localStorage.setItem('tubemocha_active_profile', JSON.stringify(profiles[idx]));
+            updateHeaderAvatar(profiles[idx]);
+            toast('Avatar updated');
+        }
     }
 }
 
@@ -917,7 +1290,15 @@ async function handleModalLogin(e) {
     else { 
         toast('Logged in successfully!'); 
         closeAuthModal(); 
-        handleRouting(); 
+        
+        // Check if user has profiles
+        let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+        let userProfiles = profiles.filter(p => p.userId === currentUser.id);
+        if (userProfiles.length > 0) {
+            window.location.hash = '#whos-watching';
+        } else {
+            startWizard();
+        }
     }
 }
 
@@ -931,9 +1312,9 @@ async function handleModalSignUp(e) {
     });
     if (error) { toast(error.message); } 
     else { 
-        toast('Account created! Check your email to confirm.'); 
+        toast('Registered successfully'); 
         closeAuthModal(); 
-        handleRouting();
+        startWizard();
     }
 }
 
@@ -951,29 +1332,32 @@ function handleWatchlistClick() {
 supabaseClient.auth.onAuthStateChange(async (event, session) => {
     if (session) {
         currentUser = session.user;
-        updateProfileUI(true, currentUser.email);
+        document.getElementById('dropdownLoggedIn').style.display = 'block';
+        document.getElementById('dropdownLoggedOut').style.display = 'none';
+        
         await fetchWatchlistFromDB();
     } else {
         currentUser = null;
-        updateProfileUI(false);
+        localStorage.removeItem('tubemocha_active_profile');
+        updateHeaderAvatar(null);
         watchlist = [];
         renderWatchlist();
+        document.getElementById('dropdownLoggedIn').style.display = 'none';
+        document.getElementById('dropdownLoggedOut').style.display = 'block';
     }
 });
 
-function updateProfileUI(isLoggedIn, email) {
-    var container = document.getElementById('profileActionContainer');
-    if (!container) return;
-    if (isLoggedIn) {
-        container.innerHTML = `
-            <div style="font-size: 11px; color: var(--text-dim); text-align: center; width: 100%; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis;">${email}</div>
-            <button class="login" onclick="handleLogout()" style="width: 100%;">Log Out</button>
-        `;
+function updateHeaderAvatar(profile) {
+    const img = document.getElementById('headerAvatar');
+    const icon = document.getElementById('headerDefaultIcon');
+    if (profile) {
+        img.src = AVATARS[profile.avatarIndex];
+        img.style.display = 'block';
+        icon.style.display = 'none';
+        document.getElementById('activeProfileName').textContent = profile.name;
     } else {
-        container.innerHTML = `
-            <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
-            <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
-        `;
+        img.style.display = 'none';
+        icon.style.display = 'block';
     }
 }
 
@@ -990,7 +1374,7 @@ async function handleSignUp(e) {
     });
     
     if (error) { toast(error.message); } 
-    else { toast('Account created! Check your email to confirm.'); window.location.hash = '#home'; }
+    else { toast('Registered successfully'); startWizard(); }
 }
 
 async function handleLogin(e) {
@@ -1001,7 +1385,13 @@ async function handleLogin(e) {
     var { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     
     if (error) { toast(error.message); } 
-    else { toast('Logged in successfully!'); window.location.hash = '#home'; }
+    else { 
+        toast('Logged in successfully!'); 
+        let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+        let userProfiles = profiles.filter(p => p.userId === currentUser.id);
+        if (userProfiles.length > 0) window.location.hash = '#whos-watching';
+        else startWizard();
+    }
 }
 
 async function handleLogout() {
@@ -2178,6 +2568,30 @@ function handleRouting() {
     else if (['help', 'terms', 'privacy', 'dmca'].includes(hash)) {
         document.getElementById('view-' + hash).classList.add('active');
         window.currentView = hash;
+    }
+    else if (hash === 'wizard') {
+        document.getElementById('view-wizard').classList.add('active');
+        window.currentView = 'wizard';
+        renderWizard();
+    }
+    else if (hash === 'whos-watching') {
+        document.getElementById('view-whos-watching').classList.add('active');
+        renderWhosWatching();
+        window.currentView = 'whos-watching';
+    }
+    else if (hash === 'manage-profiles') {
+        document.getElementById('view-manage').classList.add('active');
+        renderManageProfiles();
+        window.currentView = 'manage';
+    }
+    else if (hash === 'edit-profile') {
+        document.getElementById('view-edit-profile').classList.add('active');
+        window.currentView = 'edit-profile';
+    }
+    else if (hash === 'settings') {
+        document.getElementById('view-settings').classList.add('active');
+        document.getElementById('settingsEmail').textContent = currentUser ? currentUser.email : 'Guest';
+        window.currentView = 'settings';
     }
     else if (hash.indexOf('movie-') === 0) {
         showDetail(hash, false);
