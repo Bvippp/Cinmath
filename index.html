@@ -232,7 +232,8 @@
           <input type="checkbox" id="adsToggle" checked onchange="toggleAds(this.checked)">
           <label for="adsToggle" class="toggle-switch"></label>
         </div>
-        <div class="profile-dropdown-actions">
+        <div class="profile-dropdown-actions" id="profileActionContainer">
+          <!-- Dynamic Auth Buttons -->
           <button class="login" onclick="window.location.hash='#login'; closeProfileDropdown()">Login</button>
           <button class="signup" onclick="window.location.hash='#signup'; closeProfileDropdown()">Sign up</button>
         </div>
@@ -748,11 +749,13 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v65 — 2026-10-24
-// CHANGELOG (v64 → v65):
-//   • Connected the live Supabase Database using specific API keys.
-//   • Renamed the Supabase instance to `supabaseClient` to prevent
-//     global variable shadowing errors with the SDK script.
+// TUBEMOCHA BUILD v66 — 2026-10-25
+// CHANGELOG (v65 → v66):
+//   • Connected Watchlist to Supabase Database.
+//   • If logged in, Watchlist saves to Supabase `watchlists` table.
+//   • If logged out, Watchlist falls back to browser localStorage.
+//   • Added Auth State Listener to automatically fetch saved list on login.
+//   • Updated Profile Dropdown to show Log Out and User Email.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -761,10 +764,11 @@ var IMG = 'https://image.tmdb.org/t/p/w500';
 var BACKDROP = 'https://image.tmdb.org/t/p/original';
 var PROFILE = 'https://image.tmdb.org/t/p/w185';
 
-// --- SUPABASE LIVE CONFIGURATION ---
+// --- SUPABASE CONFIGURATION ---
 var SUPABASE_URL = 'https://emplegscxgcwflajkhxb.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcGxlZ3NjeGdjd2ZsYWpraHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NjE0NDgsImV4cCI6MjEwODQzNzQ0OH0.2nqVlpIK5fI9nbtdKlBIdON971ZikHctB0KW9AcW0t8';
 var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+var currentUser = null;
 
 var filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
 var tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
@@ -773,7 +777,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v65-2026-10-24-supabase-connected';
+var TUBEMOCHA_BUILD = 'v66-2026-10-25-watchlist-supabase';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -812,7 +816,38 @@ function applyYearFilter(params, years, isTv) {
     }
 }
 
-// Auth Handlers
+// ==========================================
+// AUTH & USER STATE
+// ==========================================
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (session) {
+        currentUser = session.user;
+        updateProfileUI(true, currentUser.email);
+        await fetchWatchlistFromDB();
+    } else {
+        currentUser = null;
+        updateProfileUI(false);
+        watchlist = JSON.parse(localStorage.getItem('tubemocha_watchlist')) || [];
+        renderWatchlist();
+    }
+});
+
+function updateProfileUI(isLoggedIn, email) {
+    var container = document.getElementById('profileActionContainer');
+    if (!container) return;
+    if (isLoggedIn) {
+        container.innerHTML = `
+            <div style="font-size: 11px; color: var(--text-dim); text-align: center; width: 100%; margin-bottom: 8px; overflow: hidden; text-overflow: ellipsis;">${email}</div>
+            <button class="login" onclick="handleLogout()" style="width: 100%;">Log Out</button>
+        `;
+    } else {
+        container.innerHTML = `
+            <button class="login" onclick="window.location.hash='#login'; closeProfileDropdown()">Login</button>
+            <button class="signup" onclick="window.location.hash='#signup'; closeProfileDropdown()">Sign up</button>
+        `;
+    }
+}
+
 async function handleSignUp(e) {
     e.preventDefault();
     var username = document.getElementById('signupUsername').value;
@@ -822,19 +857,11 @@ async function handleSignUp(e) {
     var { data, error } = await supabaseClient.auth.signUp({
         email: email,
         password: password,
-        options: {
-            data: {
-                username: username
-            }
-        }
+        options: { data: { username: username } }
     });
     
-    if (error) {
-        toast(error.message);
-    } else {
-        toast('Account created! Check your email to confirm.');
-        window.location.hash = '#home';
-    }
+    if (error) { toast(error.message); } 
+    else { toast('Account created! Check your email to confirm.'); window.location.hash = '#home'; }
 }
 
 async function handleLogin(e) {
@@ -842,20 +869,78 @@ async function handleLogin(e) {
     var email = document.getElementById('loginEmail').value;
     var password = document.getElementById('loginPassword').value;
     
-    var { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password
-    });
+    var { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     
-    if (error) {
-        toast(error.message);
-    } else {
-        toast('Logged in successfully!');
-        window.location.hash = '#home';
-        // Update UI to show logged in state if needed
+    if (error) { toast(error.message); } 
+    else { toast('Logged in successfully!'); window.location.hash = '#home'; }
+}
+
+async function handleLogout() {
+    await supabaseClient.auth.signOut();
+    toast('Logged out');
+    closeProfileDropdown();
+    window.location.hash = '#home';
+}
+
+// ==========================================
+// WATCHLIST LOGIC (Supabase / LocalStorage)
+// ==========================================
+async function fetchWatchlistFromDB() {
+    if (!currentUser) return;
+    var { data, error } = await supabaseClient
+        .from('watchlists')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+        
+    if (!error && data) {
+        watchlist = data.map(item => ({
+            id: parseInt(item.movie_id),
+            media_type: item.media_type,
+            _tv: item.media_type === 'tv',
+            t: item.title,
+            poster_path: item.poster_path
+        }));
+        renderWatchlist();
     }
 }
 
+async function toggleWatchlist() {
+    if(!currentMovie) return;
+    var idx = watchlist.findIndex(x => String(x.id) === String(currentMovie.id));
+    var isRemoving = idx > -1;
+
+    if (currentUser) {
+        // Database Mode
+        if (isRemoving) {
+            watchlist.splice(idx, 1);
+            await supabaseClient.from('watchlists').delete().match({ user_id: currentUser.id, movie_id: String(currentMovie.id) });
+            toast('Removed from Watchlist');
+            document.getElementById('detailListText').textContent = 'Add to List';
+        } else {
+            watchlist.unshift(currentMovie);
+            await supabaseClient.from('watchlists').insert({
+                user_id: currentUser.id,
+                movie_id: String(currentMovie.id),
+                media_type: currentMovie._tv ? 'tv' : 'movie',
+                title: currentMovie.t,
+                poster_path: currentMovie.poster_path
+            });
+            toast('Added to Watchlist');
+            document.getElementById('detailListText').textContent = 'Added to List';
+        }
+    } else {
+        // Local Storage Mode (Guest)
+        if (isRemoving) { watchlist.splice(idx, 1); toast('Removed from Watchlist'); document.getElementById('detailListText').textContent = 'Add to List'; }
+        else { watchlist.push(currentMovie); toast('Added to Watchlist'); document.getElementById('detailListText').textContent = 'Added to List'; }
+        localStorage.setItem('tubemocha_watchlist', JSON.stringify(watchlist));
+    }
+    renderWatchlist();
+}
+
+// ==========================================
+// UI & UTILS
+// ==========================================
 function renderFilterCheckboxes() {
     var gHtml = GENRES_LIST.map(g => `<label class="checkbox-label"><input type="checkbox" value="${g.id}" ${filterState.genres.includes(g.id) ? 'checked' : ''} onchange="toggleFilter('genres', '${g.id}')"> ${g.name}</label>`).join('');
     document.getElementById('genreCheckboxes').innerHTML = gHtml;
@@ -1217,13 +1302,7 @@ function showSwitchBanner(html, duration, isSuccess) {
     if (duration && duration > 0) { b._t = setTimeout(function() { b.classList.remove('show'); }, duration); }
 }
 function hideSwitchBanner() { var b = document.getElementById('serverSwitchBanner'); if (!b) return; clearTimeout(b._t); b.classList.remove('show', 'success'); }
-function toggleWatchlist() {
-    if(!currentMovie) return; var idx = -1;
-    for(var i=0; i<watchlist.length; i++) { if(watchlist[i].id === currentMovie.id) { idx = i; break; } }
-    if(idx > -1) { watchlist.splice(idx, 1); toast('Removed from Watchlist'); document.getElementById('detailListText').textContent = 'Add to List'; }
-    else { watchlist.push(currentMovie); toast('Added to Watchlist'); document.getElementById('detailListText').textContent = 'Added to List'; }
-    localStorage.setItem('tubemocha_watchlist', JSON.stringify(watchlist));
-}
+
 function renderWatchlist() {
     var grid = document.getElementById('watchlistGrid'); var empty = document.getElementById('watchlistEmpty');
     if (!grid) return;
@@ -1560,7 +1639,7 @@ async function showDetail(rawId, shouldPlay){
     document.getElementById('detailDesc').textContent = m.d || '';
     var durationStr = isTV ? (m.seasons ? m.seasons + ' Season' + (m.seasons > 1 ? 's' : '') : 'TV Show') : (m.runtime ? m.runtime + 'm' : '2h 10m');
     document.getElementById('detailMeta').innerHTML = '<span class="star">★ ' + m.r + '</span><span class="divider">·</span><span>' + m.y + '</span><span class="divider">·</span><span>' + durationStr + '</span><span class="divider">·</span><span class="vote-box" style="color:#fff; border-color:#fff;">4K</span><span class="vote-box" style="color:#fff; border-color:#fff;">' + (isTV ? 'M18' : 'R') + '</span><br><span style="font-size:13px; color:var(--text-dim); margin-top:4px;">' + (m.g || ['Movie']).slice(0,3).join(' · ') + '</span>';
-    var inList = watchlist.some(function(x) { return x.id === currentMovie.id; });
+    var inList = watchlist.some(function(x) { return String(x.id) === String(currentMovie.id); });
     document.getElementById('detailListText').textContent = inList ? 'Added to List' : 'Add to List';
     var bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
     document.getElementById('detailOverlay').style.background = 'url(' + bgUrl + ') center/cover no-repeat';
