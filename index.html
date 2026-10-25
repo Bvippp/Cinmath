@@ -85,7 +85,7 @@
 .profile-dropdown-toggle input { display: none; }
 .profile-dropdown-toggle .toggle-switch { width: 44px; height: 24px; background: #333; border-radius: 12px; position: relative; transition: background 0.2s; }
 .profile-dropdown-toggle .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: transform 0.2s; }
-.profile-dropdown-toggle input:checked + .toggle-switch { background: #e50914; }
+.profile-dropdown-toggle input:checked + .toggle-switch { background: var(--accent); }
 .profile-dropdown-toggle input:checked + .toggle-switch::after { transform: translateX(20px); }
 .profile-dropdown-actions { display: flex; gap: 8px; padding: 16px; }
 .profile-dropdown-actions button { flex: 1; height: 40px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
@@ -365,23 +365,62 @@
 <div id="view-settings" class="view">
     <div style="max-width:600px; margin:80px auto; padding: 20px;">
         <h1 style="font-size:36px; font-weight:800; margin-bottom:40px; color:#fff;">Settings</h1>
+        
         <div style="margin-bottom:40px;">
             <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">My Account</h3>
-            <p style="color:#888; font-size:14px; margin-bottom:15px;" id="settingsEmail">loading...</p>
-            <button class="btn-info" style="width:100%; justify-content:space-between;">Change password <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>
-        </div>
-        <div style="margin-bottom:40px;">
-            <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">Devices</h3>
-            <p style="color:#888; font-size:13px; margin-bottom:15px;">Sessions signed in to your account</p>
-            <div style="background:#1e1814; border:1px solid #333; border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="font-weight:600; color:#fff;">Edge • Windows <span style="background:#333; padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:#aaa;">This device</span></div>
-                    <div style="font-size:12px; color:#888; margin-top:4px;">Johannesburg, South Africa | last active Oct 2...</div>
+            <p style="color:var(--text-dim); font-size:14px; margin-bottom:15px;" id="settingsUsernameDisplay">loading...</p>
+            
+            <!-- Accordion for Change Password -->
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:15px;">
+                <button id="changePasswordToggle" onclick="toggleChangePasswordForm()" style="width:100%; display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:transparent; border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                        Change password
+                    </div>
+                    <svg id="changePasswordChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s;"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div id="changePasswordFormContainer" style="display:none; padding: 0 20px 20px 20px; border-top: 1px solid var(--border);">
+                    <form onsubmit="submitChangePassword(event)" style="margin-top:15px; display:flex; flex-direction:column; gap:12px;">
+                        <div>
+                            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:4px;">Old password</label>
+                            <input type="password" id="oldPassword" required style="width:100%; padding:10px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); color:#fff; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:4px;">New password</label>
+                            <input type="password" id="newPassword" required minlength="6" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); color:#fff; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:4px;">Confirm password</label>
+                            <input type="password" id="confirmPassword" required minlength="6" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); color:#fff; font-size:14px;">
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                            <button type="button" onclick="cancelChangePassword()" style="padding:8px 16px; background:transparent; border:none; color:var(--text-muted); font-weight:600; cursor:pointer;">Cancel</button>
+                            <button type="submit" id="confirmPasswordBtn" style="padding:8px 16px; background:var(--accent-light); border:none; color:var(--bg-main); font-weight:800; border-radius:6px; cursor:pointer;">Confirm</button>
+                        </div>
+                    </form>
                 </div>
-                <button style="color:#888; background:none; border:none; cursor:pointer; font-size:13px; font-weight:600;">Sign out device</button>
             </div>
         </div>
-        <button onclick="window.location.hash='#whos-watching'" style="color:#888; font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px;">
+
+        <div style="margin-bottom:40px;">
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">Devices</h3>
+            <p style="color:var(--text-dim); font-size:13px; margin-bottom:15px;">Sessions signed in to your account</p>
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    <div>
+                        <div style="font-weight:600; color:#fff;" id="settingsDeviceName">Loading...</div>
+                        <div style="font-size:12px; color:var(--text-dim); margin-top:4px;" id="settingsDeviceLocation">Loading...</div>
+                    </div>
+                </div>
+                <button onclick="toast('Device signed out successfully (Mock)')" style="color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Sign out device
+                </button>
+            </div>
+        </div>
+        
+        <button onclick="window.location.hash='#whos-watching'" style="color:var(--text-muted); font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; background:transparent; border:none; cursor:pointer;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back
         </button>
     </div>
@@ -565,7 +604,7 @@
       <p class="auth-subtitle">Fill in your details to get started</p>
       
       <div class="auth-qr-box">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
         <p>Scan this code on a signed-in device</p>
         <p style="font-size: 11px; opacity: 0.7;">Open the Camera app on a signed-in device and scan this code to log in here</p>
         <div class="auth-qr-timer">Code expires in 2:00</div>
@@ -937,16 +976,18 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v79</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v80</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v79 — 2026-10-25
-// CHANGELOG (v78 → v79):
-//   • Ads toggle is strictly gated to logged-in users. Logging out forces ads back on.
-//   • Added version string to footer matching the requested movy.sx layout.
+// TUBEMOCHA BUILD v80 — 2026-10-25
+// CHANGELOG (v79 → v80):
+//   • Ads toggle is now dark brown.
+//   • Settings page matches movy.sx layout (accordion for password, devices section).
+//   • Change Password functionality is fully working via Supabase.
+//   • Devices section accurately detects browser, OS, and timezone.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -974,7 +1015,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v79-2026-10-25-ads-gating-footer-version';
+var TUBEMOCHA_BUILD = 'v80-2026-10-25-ads-toggle-color-settings-password-change';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1081,6 +1122,113 @@ function renderHistoryPage() {
         }
         if (empty) empty.style.display = 'none';
     }
+}
+
+// ==========================================
+// SETTINGS & PASSWORD LOGIC
+// ==========================================
+function getDeviceInfo() {
+    let os = "Unknown OS";
+    if (navigator.userAgent.indexOf("Win") != -1) os = "Windows";
+    if (navigator.userAgent.indexOf("Mac") != -1) os = "MacOS";
+    if (navigator.userAgent.indexOf("Linux") != -1) os = "Linux";
+    if (navigator.userAgent.indexOf("Android") != -1) os = "Android";
+    if (navigator.userAgent.indexOf("like Mac") != -1) os = "iOS";
+
+    let browser = "Unknown Browser";
+    if (navigator.userAgent.indexOf("Edg") != -1) browser = "Edge";
+    else if (navigator.userAgent.indexOf("Chrome") != -1) browser = "Chrome";
+    else if (navigator.userAgent.indexOf("Firefox") != -1) browser = "Firefox";
+    else if (navigator.userAgent.indexOf("Safari") != -1) browser = "Safari";
+
+    let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let lastActive = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+    
+    return { name: `${browser} • ${os}`, location: timezone, lastActive: lastActive };
+}
+
+function initSettingsPage() {
+    let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
+    document.getElementById('settingsUsernameDisplay').textContent = displayName;
+    
+    let devInfo = getDeviceInfo();
+    document.getElementById('settingsDeviceName').innerHTML = devInfo.name + ' <span style="background:var(--border); padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:var(--text-muted);">This device</span>';
+    document.getElementById('settingsDeviceLocation').textContent = devInfo.location + ' • Last active ' + devInfo.lastActive;
+    
+    cancelChangePassword();
+}
+
+function toggleChangePasswordForm() {
+    const form = document.getElementById('changePasswordFormContainer');
+    const chevron = document.getElementById('changePasswordChevron');
+    if (form.style.display === 'none' || !form.style.display) {
+        form.style.display = 'block';
+        chevron.style.transform = 'rotate(180deg)';
+    } else {
+        form.style.display = 'none';
+        chevron.style.transform = 'rotate(0deg)';
+    }
+}
+
+function cancelChangePassword() {
+    document.getElementById('changePasswordFormContainer').style.display = 'none';
+    document.getElementById('changePasswordChevron').style.transform = 'rotate(0deg)';
+    document.getElementById('oldPassword').value = '';
+    document.getElementById('newPassword').value = '';
+    document.getElementById('confirmPassword').value = '';
+    const btn = document.getElementById('confirmPasswordBtn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Confirm'; }
+}
+
+async function submitChangePassword(e) {
+    e.preventDefault();
+    const oldPass = document.getElementById('oldPassword').value;
+    const newPass = document.getElementById('newPassword').value;
+    const confirmPass = document.getElementById('confirmPassword').value;
+    const btn = document.getElementById('confirmPasswordBtn');
+
+    if (newPass !== confirmPass) {
+        toast('New passwords do not match.');
+        return;
+    }
+    if (!currentUser) {
+        toast('Not logged in.');
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+
+    // Verify old password
+    const res = await supabaseClient.auth.signInWithPassword({
+        email: currentUser.email,
+        password: oldPass
+    });
+
+    if (res.error) {
+        toast('Incorrect old password.');
+        btn.disabled = false;
+        btn.textContent = 'Confirm';
+        return;
+    }
+
+    btn.textContent = 'Updating...';
+
+    // Update password
+    const updateRes = await supabaseClient.auth.updateUser({
+        password: newPass
+    });
+
+    if (updateRes.error) {
+        toast('Failed to update password: ' + updateRes.error.message);
+    } else {
+        toast('Password updated successfully!');
+        cancelChangePassword();
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Confirm';
 }
 
 // ==========================================
@@ -2802,7 +2950,7 @@ function handleRouting() {
     }
     else if (hash === 'settings') {
         document.getElementById('view-settings').classList.add('active');
-        document.getElementById('settingsEmail').textContent = currentUser ? currentUser.email : 'Guest';
+        initSettingsPage();
         window.currentView = 'settings';
     }
     else if (hash.indexOf('movie-') === 0) {
