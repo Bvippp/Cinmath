@@ -232,8 +232,8 @@
       </div>
     </div>
     
-    <!-- Desktop Profile Dropdown -->
-    <div class="profile-dropdown-container desktop-nav" style="margin-left: 8px;">
+    <!-- Profile Dropdown (now works on mobile too) -->
+    <div class="profile-dropdown-container" style="margin-left: 8px;">
       <div class="desktop-nav-icon-btn" id="d-profile" onclick="toggleProfileDropdown(event)" style="overflow:hidden; border-radius:50%;">
         <img id="headerAvatar" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
         <svg id="headerDefaultIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -896,11 +896,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v72 — 2026-10-25
-// CHANGELOG (v71 → v72):
-//   • Fixed session persistence bug on page refresh by centralizing auth state logic into handleAuthState.
-//   • Restored Supabase session properly on load using getSession() combined with onAuthStateChange.
-//   • Ensured the active profile avatar is correctly reloaded on page refresh.
+// TUBEMOCHA BUILD v73 — 2026-10-25
+// CHANGELOG (v72 → v73):
+//   • Added fallback logic to Movies page so it never fails to load even if TMDB is down.
+//   • Added specific error handling for Supabase email confirmation and rate limits.
+//   • Removed `desktop-nav` from Profile Dropdown container so it works on mobile.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -940,7 +940,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v72-2026-10-25-fixed-session-persistence';
+var TUBEMOCHA_BUILD = 'v73-2026-10-25-fixed-movies-fallback-auth-errors';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1333,7 +1333,16 @@ async function handleModalLogin(e) {
     var email = document.getElementById('modalLoginEmail').value;
     var password = document.getElementById('modalLoginPassword').value;
     var { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
-    if (error) { toast(error.message); } 
+    
+    if (error) { 
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+            toast('Email not confirmed. Please check your inbox, or disable "Confirm email" in your Supabase dashboard.');
+        } else if (error.message.toLowerCase().includes('rate limit')) {
+            toast('Supabase Email Rate Limit exceeded. Please disable "Confirm email" in your Supabase dashboard.');
+        } else {
+            toast(error.message); 
+        }
+    } 
     else { 
         toast('Logged in successfully!'); 
         closeAuthModal(); 
@@ -1356,7 +1365,14 @@ async function handleModalSignUp(e) {
     var { data, error } = await supabaseClient.auth.signUp({
         email: email, password: password, options: { data: { username: username } }
     });
-    if (error) { toast(error.message); } 
+    
+    if (error) { 
+        if (error.message.toLowerCase().includes('rate limit')) {
+            toast('Sign up rate limit exceeded. Go to Supabase > Authentication > Providers > Email and disable "Confirm email".');
+        } else {
+            toast(error.message); 
+        }
+    } 
     else { 
         toast('Registered successfully'); 
         closeAuthModal(); 
@@ -1393,7 +1409,13 @@ async function handleSignUp(e) {
         options: { data: { username: username } }
     });
     
-    if (error) { toast(error.message); } 
+    if (error) { 
+        if (error.message.toLowerCase().includes('rate limit')) {
+            toast('Sign up rate limit exceeded. Disable "Confirm email" in Supabase.');
+        } else {
+            toast(error.message); 
+        }
+    } 
     else { toast('Registered successfully'); startWizard(); }
 }
 
@@ -1404,7 +1426,13 @@ async function handleLogin(e) {
     
     var { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     
-    if (error) { toast(error.message); } 
+    if (error) { 
+        if (error.message.toLowerCase().includes('email not confirmed')) {
+            toast('Email not confirmed. Disable "Confirm email" in Supabase.');
+        } else {
+            toast(error.message); 
+        }
+    } 
     else { 
         toast('Logged in successfully!'); 
         let profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
@@ -1829,7 +1857,7 @@ function toggleHelp(element) {
 }
 function toast(m){
     var e = document.getElementById('toast'); if(!e) return;
-    e.textContent = m; e.classList.add('show'); clearTimeout(e._t); e._t = setTimeout(function(){ e.classList.remove('show'); }, 3000);
+    e.textContent = m; e.classList.add('show'); clearTimeout(e._t); e._t = setTimeout(function(){ e.classList.remove('show'); }, 5000);
 }
 function showSwitchBanner(html, duration, isSuccess) {
     var b = document.getElementById('serverSwitchBanner'); if (!b) return;
@@ -1981,7 +2009,10 @@ async function loadDiscover(page, isTv) {
         allCache = allCache.concat(mapped);
         if (d.page >= d.total_pages) hasMoreMovies = false;
     } else {
-        if (page === 1) document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
+        if (page === 1) {
+            var mapped = FALLBACK.map(mapResult);
+            document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
+        }
         hasMoreMovies = false;
     }
     isLoadingMovies = false;
@@ -2452,7 +2483,7 @@ async function loadMoviesRegionTrending() {
     if (data && data.results) {
         track.innerHTML = data.results.slice(0,10).map(mapResult).map(cardHTML).join('');
     } else {
-        track.innerHTML = '<div class="empty" style="padding:20px;">Failed to load trending.</div>';
+        track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
     }
     setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50);
 }
