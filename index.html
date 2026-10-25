@@ -976,16 +976,16 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v81</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v82</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v81 — 2026-10-25
-// CHANGELOG (v80 → v81):
-//   • Fixed mobile search focus bug: Clicking the bottom nav search icon now correctly focuses the top search bar and opens the keyboard on mobile devices.
-//   • Added triggerSearch() to ensure focus occurs even if already on the #search route.
+// TUBEMOCHA BUILD v82 — 2026-10-25
+// CHANGELOG (v81 → v82):
+//   • Resolved an iOS Safari issue where tapping the mobile search icon would not focus the input or open the keyboard.
+//   • Made the search view switch and input focus synchronous within the click event to satisfy iOS user-gesture requirements.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1013,7 +1013,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v81-2026-10-25-mobile-search-focus-fix';
+var TUBEMOCHA_BUILD = 'v82-2026-10-25-ios-search-focus-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1332,23 +1332,31 @@ function handleAuthRequiredClick(targetHash) {
 // ==========================================
 function triggerSearch(e) {
     if (e) e.preventDefault();
+    
+    // 1. Show the view synchronously (iOS requires the target to be visible)
+    document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+    document.querySelectorAll('.bottom button').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.desktop-nav-link').forEach(function(l) { l.classList.remove('active'); });
+    document.querySelectorAll('.desktop-nav-icon-btn').forEach(function(b) { b.classList.remove('active'); });
+    
+    document.getElementById('view-search').classList.add('active');
+    document.getElementById('b-search').classList.add('active');
+    
+    // 2. Focus synchronously (CRITICAL FOR IOS KEYBOARD)
+    var q = document.getElementById('q');
+    if (q) {
+        q.focus();
+        // iOS sometimes needs this to ensure the cursor is placed
+        q.setSelectionRange(0, 0);
+        if (window.innerWidth >= 768) {
+            openSearchDropdown();
+        }
+    }
+    
+    // 3. Update the hash
     if (window.location.hash !== '#search') {
         window.location.hash = '#search';
-    } else {
-        focusSearchInput();
     }
-}
-
-function focusSearchInput() {
-    setTimeout(function() {
-        var searchInput = document.getElementById('q');
-        if (searchInput) {
-            searchInput.focus();
-            if (window.innerWidth >= 768) {
-                openSearchDropdown();
-            }
-        }
-    }, 100);
 }
 
 // ==========================================
@@ -2927,7 +2935,6 @@ function handleRouting() {
         document.getElementById('searchTitle').textContent = 'Search Results';
         document.getElementById('searchGrid').innerHTML = '';
         window.currentView = 'search';
-        focusSearchInput();
     }
     else if (hash.indexOf('search=') === 0) {
         var q = decodeURIComponent(hash.substring(7));
