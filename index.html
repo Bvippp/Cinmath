@@ -13,7 +13,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233e2723'/%3E%3Cstop offset='50%25' stop-color='%235d4037'/%3E%3Cstop offset='75%25' stop-color='%238d6e63'/%3E%3Cstop offset='76%25' stop-color='%234e342e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='12' fill='%2314100d'/%3E%3Ctext x='50%25' y='52%25' dominant-baseline='middle' text-anchor='middle' font-family='Impact,sans-serif' font-weight='900' font-size='38' letter-spacing='-2' fill='url(%23g)'%3ETM%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg-main:#14100d;--bg-card:#1e1814;--bg-elevated:#2a211a;--border:#3a2e26;--border-light:#302520;--text-main:#f0e8dd;--text-muted:#9a8e80;--text-dim:#7a6e62;--accent:#5d4037;--accent-light:#f5ede3;--accent-red:#5d4037;--accent-blue:#8ba5c4;--star:#c89666;--radius-sm:8px;--radius-md:12px;--radius-lg:20px;--radius-pill:999px;--bottom-nav-height:72px}*{margin:0;padding:0;box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;min-height:100vh; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;}a{color:inherit;text-decoration:none}button{font-family:inherit;-webkit-tap-highlight-color:transparent;border:none;background:none;cursor:pointer}::-webkit-scrollbar{width:0;height:0}img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;background:linear-gradient(to bottom,rgba(20,16,13,0.98) 0%,rgba(20,16,13,0.85) 70%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.topbar-inner{height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;max-width:1400px;margin:0 auto}
+:root{--bg-main:#14100d;--bg-card:#1e1814;--bg-elevated:#2a211a;--border:#3a2e26;--border-light:#302520;--text-main:#f0e8dd;--text-muted:#9a8e80;--text-dim:#7a6e62;--accent:#5d4037;--accent-light:#f5ede3;--accent-red:#5d4037;--accent-blue:#8ba5c4;--star:#c89666;--radius-sm:8px;--radius-md:12px;--radius-lg:20px;--radius-pill:999px;--bottom-nav-height:72px}*{margin:0;padding:0;box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;min-height:100vh;}a{color:inherit;text-decoration:none}button{font-family:inherit;-webkit-tap-highlight-color:transparent;border:none;background:none;cursor:pointer}::-webkit-scrollbar{width:0;height:0}img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;background:linear-gradient(to bottom,rgba(20,16,13,0.98) 0%,rgba(20,16,13,0.85) 70%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.topbar-inner{height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;max-width:1400px;margin:0 auto}
 .logo{position:relative !important;top:auto !important;left:auto !important;z-index:10 !important;display:flex !important;align-items:center !important;gap:8px !important;background:transparent !important;padding:0 !important;cursor:pointer !important;filter:none !important;transform:none !important;flex-shrink:0 !important}
 .logo .m{width:auto !important;height:auto !important;border-radius:0 !important;display:block !important;position:relative !important;transform:none !important;box-shadow:none !important;overflow:visible !important;flex-shrink:0 !important;padding:0 !important;margin:0 !important;font-family:'Bebas Neue','Anton','Oswald',sans-serif !important;font-weight:900 !important;font-size:48px !important;letter-spacing:-0.05em !important;line-height:1 !important;text-transform:uppercase !important;background: linear-gradient(115deg, #3e2723 30%, #5d4037 50%, #8d6e63 75%, #4e342e 75%) !important;-webkit-background-clip: text !important;-webkit-text-fill-color: transparent !important;filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.8)) !important;}
 .logo b{display:inline-block !important;font-family:'Bebas Neue','Anton','Oswald',sans-serif !important;font-weight:800 !important;font-size:24px !important;letter-spacing:0.02em !important;line-height:1 !important;transform:none !important;color:#8d6e63 !important;background:none !important;-webkit-text-fill-color:#8d6e63 !important;background-clip:unset !important;-webkit-background-clip:unset !important;filter:none !important;margin-left:4px !important;text-transform:uppercase !important;opacity:0.95;}
@@ -195,40 +195,793 @@
 .genre-btn.active { background: var(--accent-light); color: var(--bg-main); border-color: var(--accent-light); }
 </style>
 </head>
-<body oncontextmenu="return false;">
+<body>
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="logo" onclick="window.location.hash='#home'"><div class="m">TM</div><b>TUBEMOCHA</b></div>
+    
+    <nav class="desktop-nav">
+      <a class="desktop-nav-link" id="d-home" href="#home">Home</a>
+      <a class="desktop-nav-link" id="d-movies" href="#movies">Movies</a>
+      <a class="desktop-nav-link" id="d-tv" href="#tv">Shows</a>
+      <a class="desktop-nav-link" id="d-anime" href="#anime">Anime</a>
+    </nav>
+
+    <div class="search-top">
+      <form class="search-form" action="." method="get" role="search" autocomplete="off" onsubmit="return handleSearch(event)">
+        <input id="q" type="search" name="search" placeholder="Search movies, TV shows..." autocomplete="off" />
+        <button type="submit" aria-label="Search">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </button>
+      </form>
+      
+      <div class="search-dropdown" id="searchDropdown">
+        <div class="search-tabs">
+          <div class="search-tab active" data-tab="all" onclick="setSearchTab('all')">All</div>
+          <div class="search-tab" data-tab="movie" onclick="setSearchTab('movie')">Movies</div>
+          <div class="search-tab" data-tab="tv" onclick="setSearchTab('tv')">Shows</div>
+          <div class="search-tab" data-tab="anime" onclick="setSearchTab('anime')">Anime</div>
+        </div>
+        
+        <div class="search-results-list" id="liveSearchResults" style="display:none;"></div>
+        
+        <div class="recent-searches" id="recentSearchesContainer">
+          <div class="recent-searches-title">
+            <span>Recent searches</span>
+            <span class="recent-searches-clear" onclick="clearRecentSearches(event)">Clear</span>
+          </div>
+          <div id="recentSearchesList"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Profile Dropdown Trigger -->
+    <div class="profile-dropdown-container" style="margin-left: 8px;">
+      <div class="desktop-nav-icon-btn" id="d-profile" onclick="toggleProfileDropdown(event)" style="overflow:hidden; border-radius:50%;">
+        <img id="headerAvatar" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+        <svg id="headerDefaultIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      
+      <!-- Movy.sx Style Dropdown -->
+      <div class="profile-dropdown" id="profileDropdown">
+        
+        <!-- Logged In View -->
+        <div id="dropdownAuthProfile" style="display:none; flex-direction: column;">
+          
+          <!-- Header (Avatar, Name, Email) -->
+          <div style="display:flex; align-items:center; gap:12px; padding: 16px;">
+            <img id="dropdownAvatarImg" src="" style="width:48px; height:48px; border-radius:50%; background:#333;">
+            <div style="display:flex; flex-direction:column; overflow:hidden;">
+              <span style="font-weight:700; color:#fff; font-size:15px; line-height:1.2;" id="activeProfileNameDisplay">User</span>
+              <span style="font-size:13px; color:#888; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" id="activeProfileEmailDisplay">email@example.com</span>
+            </div>
+          </div>
+
+          <div style="height:1px; background:var(--border); margin: 0 0 8px 0;"></div>
+
+          <div class="profile-dropdown-item" onclick="handleAuthRequiredClick('#history')">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            History
+          </div>
+          <div class="profile-dropdown-item" onclick="handleAuthRequiredClick('#watchlist')">
+            <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+            Watchlist
+          </div>
+          
+          <div style="height:1px; background:var(--border); margin: 8px 0;"></div>
+
+          <div class="profile-dropdown-toggle">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <svg viewBox="0 0 24 24" style="width:20px; height:20px; stroke:#a3a3a3; fill:none; stroke-width:2;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path></svg>
+              <span>Show ads</span>
+            </div>
+            <input type="checkbox" id="adsToggle" checked onchange="toggleAds(this.checked)">
+            <label for="adsToggle" class="toggle-switch"></label>
+          </div>
+
+          <div style="height:1px; background:var(--border); margin: 8px 0;"></div>
+
+          <div class="profile-dropdown-item" onclick="window.location.hash='#whos-watching'; closeProfileDropdown()">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Switch profile
+          </div>
+          
+          <div class="profile-dropdown-item" onclick="handleLogout(); closeProfileDropdown()" style="color:#ff5c5c; margin-top:8px;">
+            <svg viewBox="0 0 24 24" style="stroke:#ff5c5c;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Logout
+          </div>
+        </div>
+
+        <!-- Logged Out View -->
+        <div id="dropdownAuthButtons" class="profile-dropdown-actions" style="display:flex;">
+          <button class="login" onclick="openAuthModal('login'); closeProfileDropdown()">Login</button>
+          <button class="signup" onclick="openAuthModal('signup'); closeProfileDropdown()">Sign up</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WIZARD VIEW -->
+<div id="view-wizard" class="view">
+    <div style="padding: 60px 20px; max-width: 800px; margin: 0 auto;">
+        <div class="wizard-progress" style="display:none;">
+            <div class="step-segment active" id="seg1"></div>
+            <div class="step-segment" id="seg2"></div>
+            <div class="step-segment" id="seg3"></div>
+        </div>
+        <div id="wizardContent"></div>
+    </div>
+</div>
+
+<!-- WHOS WATCHING VIEW -->
+<div id="view-whos-watching" class="view">
+    <div style="text-align:center; padding: 80px 20px;">
+        <h1 style="font-size:40px; font-weight:800; margin-bottom:40px; color:#fff;">Who's watching?</h1>
+        <div id="whosWatchingGrid" style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:40px;"></div>
+        <div style="display:flex; justify-content:center; gap:20px;">
+            <button class="btn-info" onclick="window.location.hash='#manage-profiles'">Manage profiles</button>
+            <button class="btn-info" onclick="window.location.hash='#settings'">Settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- MANAGE PROFILES VIEW -->
+<div id="view-manage" class="view">
+    <div style="text-align:center; padding: 80px 20px;">
+        <h1 style="font-size:40px; font-weight:800; margin-bottom:40px; color:#fff;">Manage profiles</h1>
+        <div id="manageProfilesGrid" style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-bottom:40px;"></div>
+        <div style="display:flex; justify-content:center; gap:20px;">
+            <button class="btn-info" onclick="window.location.hash='#whos-watching'">Done</button>
+            <button class="btn-info" onclick="window.location.hash='#settings'">Settings</button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT PROFILE VIEW -->
+<div id="view-edit-profile" class="view">
+    <div style="max-width:400px; margin:80px auto; text-align:center; padding: 20px;">
+        <h1 style="font-size:32px; font-weight:800; margin-bottom:30px; color:#fff;">Edit profile</h1>
+        <div id="editAvatar" style="width:120px; height:120px; border-radius:20px; margin:0 auto 20px; background:#222; overflow:hidden;"></div>
+        <div style="position:relative; margin-bottom:30px;">
+            <input type="text" id="editProfileName" maxlength="20" style="width:100%; padding:15px; border-radius:8px; background:#222; border:1px solid #444; color:#fff; font-size:16px; outline:none;">
+            <div style="position:absolute; right:15px; top:15px; color:#888; font-size:12px;" id="editNameCounter">0/20</div>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <button onclick="window.location.hash='#manage-profiles'" style="color:#888; font-size:15px; font-weight:600;">Back</button>
+            <button class="btn-play" onclick="saveEditedProfile()">Save</button>
+        </div>
+        <div style="margin-top:60px; border-top:1px solid #333; padding-top:30px;">
+            <h3 style="font-size:16px; font-weight:700; margin-bottom:10px; color:#fff;">Delete Profile</h3>
+            <p style="color:#888; font-size:13px; margin-bottom:15px;">This cannot be undone. History, continue watching, and the watchlist for this profile will be permanently deleted.</p>
+            <button onclick="deleteCurrentProfile()" style="color:#ff6b6b; background:none; border:none; cursor:pointer; font-size:14px; font-weight:600;">I understand and want to delete this profile</button>
+        </div>
+    </div>
+</div>
+
+<!-- SETTINGS VIEW -->
+<div id="view-settings" class="view">
+    <div style="max-width:600px; margin:80px auto; padding: 20px;">
+        <h1 style="font-size:36px; font-weight:800; margin-bottom:40px; color:#fff;">Settings</h1>
+        
+        <div style="margin-bottom:40px;">
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">My Account</h3>
+            <p style="color:var(--text-dim); font-size:14px; margin-bottom:15px;" id="settingsUsernameDisplay">loading...</p>
+            
+            <!-- Accordion for Change Password -->
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; overflow:hidden; margin-bottom:15px;">
+                <button id="changePasswordToggle" onclick="toggleChangePasswordForm()" style="width:100%; display:flex; justify-content:space-between; align-items:center; padding:16px 20px; background:transparent; border:none; color:#fff; font-size:15px; font-weight:600; cursor:pointer;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+                        Change password
+                    </div>
+                    <svg id="changePasswordChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s;"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+                <div id="changePasswordFormContainer" style="display:none; padding: 0 20px 20px 20px; border-top: 1px solid var(--border);">
+                    <form onsubmit="submitChangePassword(event)" style="margin-top:15px; display:flex; flex-direction:column; gap:12px;">
+                        <div>
+                            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:4px;">Old password</label>
+                            <input type="password" id="oldPassword" required style="width:100%; padding:10px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); color:#fff; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:4px;">New password</label>
+                            <input type="password" id="newPassword" required minlength="6" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); color:#fff; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-size:13px; color:var(--text-muted); margin-bottom:4px;">Confirm password</label>
+                            <input type="password" id="confirmPassword" required minlength="6" style="width:100%; padding:10px; border-radius:8px; background:var(--bg-elevated); border:1px solid var(--border); color:#fff; font-size:14px;">
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:10px;">
+                            <button type="button" onclick="cancelChangePassword()" style="padding:8px 16px; background:transparent; border:none; color:var(--text-muted); font-weight:600; cursor:pointer;">Cancel</button>
+                            <button type="submit" id="confirmPasswordBtn" style="padding:8px 16px; background:var(--accent-light); border:none; color:var(--bg-main); font-weight:800; border-radius:6px; cursor:pointer;">Confirm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-bottom:40px;">
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">Devices</h3>
+            <p style="color:var(--text-dim); font-size:13px; margin-bottom:15px;">Sessions signed in to your account</p>
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    <div>
+                        <div style="font-weight:600; color:#fff;" id="settingsDeviceName">Loading...</div>
+                        <div style="font-size:12px; color:var(--text-dim); margin-top:4px;" id="settingsDeviceLocation">Loading...</div>
+                    </div>
+                </div>
+                <button onclick="toast('Device signed out successfully (Mock)')" style="color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Sign out device
+                </button>
+            </div>
+        </div>
+        
+        <button onclick="window.location.hash='#whos-watching'" style="color:var(--text-muted); font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; background:transparent; border:none; cursor:pointer;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back
+        </button>
+    </div>
+</div>
+
+<div id="view-home" class="view active"><div class="hero" id="hero">
+<div class="hero-slide active" id="heroSlide1"><img class="hero-bg" id="heroBg1" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle1">Loading...</h1><div class="hero-meta" id="heroMeta1"></div><p class="hero-desc" id="heroDesc1"></p><div class="hero-actions"><button class="btn-play" id="heroPlay1">Play</button><button class="btn-info" id="heroInfo1">More info</button></div></div></div>
+<div class="hero-slide" id="heroSlide2"><img class="hero-bg" id="heroBg2" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle2">Loading...</h1><div class="hero-meta" id="heroMeta2"></div><p class="hero-desc" id="heroDesc2"></p><div class="hero-actions"><button class="btn-play" id="heroPlay2">Play</button><button class="btn-info" id="heroInfo2">More info</button></div></div></div>
+<div class="hero-slide" id="heroSlide3"><img class="hero-bg" id="heroBg3" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle3">Loading...</h1><div class="hero-meta" id="heroMeta3"></div><p class="hero-desc" id="heroDesc3"></p><div class="hero-actions"><button class="btn-play" id="heroPlay3">Play</button><button class="btn-info" id="heroInfo3">More info</button></div></div></div>
+<div class="hero-slide" id="heroSlide4"><img class="hero-bg" id="heroBg4" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle4">Loading...</h1><div class="hero-meta" id="heroMeta4"></div><p class="hero-desc" id="heroDesc4"></p><div class="hero-actions"><button class="btn-play" id="heroPlay4">Play</button><button class="btn-info" id="heroInfo4">More info</button></div></div></div>
+<div class="hero-slide" id="heroSlide5"><img class="hero-bg" id="heroBg5" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><div class="hero-c"><h1 class="hero-title" id="heroTitle5">Loading...</h1><div class="hero-meta" id="heroMeta5"></div><p class="hero-desc" id="heroDesc5"></p><div class="hero-actions"><button class="btn-play" id="heroPlay5">Play</button><button class="btn-info" id="heroInfo5">More info</button></div></div></div>
+<div class="hero-dots"><div class="dot active" onclick="setHeroSlide(0)"></div><div class="dot" onclick="setHeroSlide(1)"></div><div class="dot" onclick="setHeroSlide(2)"></div><div class="dot" onclick="setHeroSlide(3)"></div><div class="dot" onclick="setHeroSlide(4)"></div></div>
+</div>
+<div class="main">
+<div class="section-head"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">TOP 10 on Tubemocha</h2><div class="section-sub">The most watched titles right now</div></div></div>
+<div class="scroller-wrapper"><button class="scroll-arrow left" onclick="scrollRow('trendingTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="trendingTrack" onscroll="updateScrollArrows('trendingTrack')"></div><button class="scroll-arrow right" onclick="scrollRow('trendingTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+<div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">Latest & Trending</h2></div></div>
+<div class="scroller-wrapper"><button class="scroll-arrow left" onclick="scrollRow('latestTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="latestTrack" onscroll="updateScrollArrows('latestTrack')"></div><button class="scroll-arrow right" onclick="scrollRow('latestTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+<div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Current & upcoming TV shows</h2><div class="section-sub">New episodes and premieres on the way</div></div></div>
+<div class="scroller-wrapper"><button class="scroll-arrow left" onclick="scrollRow('upcomingTvTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="upcomingTvTrack" onscroll="updateScrollArrows('upcomingTvTrack')"></div><button class="scroll-arrow right" onclick="scrollRow('upcomingTvTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+<div class="section-head"><div class="section-accent red"></div><div class="section-title-box"><h2 class="section-title">Popular Genres</h2><div class="section-sub">Find something by mood</div></div></div>
+<div class="scroller-wrapper"><button class="scroll-arrow left" onclick="scrollRow('genresTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="genresTrack" onscroll="updateScrollArrows('genresTrack')"></div><button class="scroll-arrow right" onclick="scrollRow('genresTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+</div></div>
+
+<div id="view-movies" class="view"><div class="main" style="padding-top:10px">
+<div class="page-header"><img class="page-header-img" id="moviesHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line"></span>Movies</div><div class="page-header-sub">Discover the latest and greatest films</div></div></div>
+<div class="section-head" id="moviesTrendingHead"><div class="section-accent red"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+<div class="scroller-wrapper" style="margin-bottom: 20px;"><button class="scroll-arrow left" onclick="scrollRow('moviesRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="moviesRegionTrending" onscroll="updateScrollArrows('moviesRegionTrending')"></div><button class="scroll-arrow right" onclick="scrollRow('moviesRegionTrending', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+
+<div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">All Movies</h2></div></div>
+
+<div class="movies-filter-bar" id="moviesFilterBar">
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnFilterGenre" onclick="toggleFilterDropdown('dropdownGenre', event)">Genres ▾</button>
+    <div class="filter-dropdown" id="dropdownGenre"><div class="filter-dropdown-col" id="genreCheckboxes"></div></div>
+  </div>
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnFilterYear" onclick="toggleFilterDropdown('dropdownYear', event)">Years ▾</button>
+    <div class="filter-dropdown" id="dropdownYear"><div class="filter-dropdown-col" id="yearCheckboxes"></div></div>
+  </div>
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnFilterCountry" onclick="toggleFilterDropdown('dropdownCountry', event)">Countries ▾</button>
+    <div class="filter-dropdown" id="dropdownCountry"><div class="filter-dropdown-col" id="countryCheckboxes"></div></div>
+  </div>
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnFilterSort" onclick="toggleFilterDropdown('dropdownSort', event)">Sort By ▾</button>
+    <div class="filter-dropdown" id="dropdownSort">
+      <div class="filter-dropdown-col" id="sortRadios">
+        <label class="checkbox-label"><input type="radio" name="sortRadio" value="popularity.desc" checked onchange="handleSortChange(this.value)"> Most Popular</label>
+        <label class="checkbox-label"><input type="radio" name="sortRadio" value="vote_average.desc" onchange="handleSortChange(this.value)"> Top Rated</label>
+        <label class="checkbox-label"><input type="radio" name="sortRadio" value="primary_release_date.desc" onchange="handleSortChange(this.value)"> Newest</label>
+        <label class="checkbox-label"><input type="radio" name="sortRadio" value="primary_release_date.asc" onchange="handleSortChange(this.value)"> Oldest</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="movies-filter-bar" id="activeFiltersContainer" style="padding-top:0; display:none;"></div>
+
+<div class="grid" id="moviesGrid"></div>
+<div id="moviesSentinel"></div>
+
+</div></div>
+
+<div id="view-tv" class="view"><div class="main" style="padding-top:10px">
+<div class="page-header"><img class="page-header-img" id="tvHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line" style="background:#8ba5c4"></span>TV Shows</div><div class="page-header-sub">Binge the best series on the web</div></div></div>
+
+<div class="section-head" id="tvUpcomingHead"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">Current & upcoming TV shows</h2></div></div>
+<div class="scroller-wrapper"><button class="scroll-arrow left" onclick="scrollRow('tvUpcomingTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="tvUpcomingTrack" onscroll="updateScrollArrows('tvUpcomingTrack')"></div><button class="scroll-arrow right" onclick="scrollRow('tvUpcomingTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
+
+<div class="section-head"><div class="section-accent blue"></div><div class="section-title-box"><h2 class="section-title">All Shows</h2></div></div>
+
+<div class="movies-filter-bar" id="tvFilterBar">
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnTVFilterGenre" onclick="toggleFilterDropdown('tvDropdownGenre', event)">Genres ▾</button>
+    <div class="filter-dropdown" id="tvDropdownGenre"><div class="filter-dropdown-col" id="tvGenreCheckboxes"></div></div>
+  </div>
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnTVFilterYear" onclick="toggleFilterDropdown('tvDropdownYear', event)">Years ▾</button>
+    <div class="filter-dropdown" id="tvDropdownYear"><div class="filter-dropdown-col" id="tvYearCheckboxes"></div></div>
+  </div>
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnTVFilterCountry" onclick="toggleFilterDropdown('tvDropdownCountry', event)">Countries ▾</button>
+    <div class="filter-dropdown" id="tvDropdownCountry"><div class="filter-dropdown-col" id="tvCountryCheckboxes"></div></div>
+  </div>
+  <div style="position: relative;">
+    <button class="filter-btn" id="btnTVFilterSort" onclick="toggleFilterDropdown('tvDropdownSort', event)">Sort By ▾</button>
+    <div class="filter-dropdown" id="tvDropdownSort">
+      <div class="filter-dropdown-col" id="tvSortRadios">
+        <label class="checkbox-label"><input type="radio" name="tvSortRadio" value="popularity.desc" checked onchange="handleTVSortChange(this.value)"> Most Popular</label>
+        <label class="checkbox-label"><input type="radio" name="tvSortRadio" value="vote_average.desc" onchange="handleTVSortChange(this.value)"> Top Rated</label>
+        <label class="checkbox-label"><input type="radio" name="tvSortRadio" value="first_air_date.desc" onchange="handleTVSortChange(this.value)"> Newest</label>
+        <label class="checkbox-label"><input type="radio" name="tvSortRadio" value="first_air_date.asc" onchange="handleTVSortChange(this.value)"> Oldest</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="movies-filter-bar" id="tvActiveFiltersContainer" style="padding-top:0; display:none;"></div>
+
+<div class="grid" id="tvGrid"></div>
+<div id="tvSentinel"></div>
+
+</div></div>
+
+<div id="view-anime" class="view">
+  <div class="main" style="padding-top:20px">
+    <div class="anime-header">
+      <h1 class="anime-title">Anime</h1>
+      <p class="anime-subtitle">Discover the latest and trending anime</p>
+    </div>
+    
+    <div class="filters" style="padding-top:10px;">
+      <button class="anime-genre-select" id="animeGenreBtn" onclick="openModal('animeGenreModal')">All ▾</button>
+    </div>
+    
+    <div class="grid" id="animeGrid"></div>
+    <div id="animeSentinel"></div>
+  </div>
+</div>
+
+<div id="view-search" class="view"><div class="main" style="padding-top:20px">
+<div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title" id="searchTitle">Search Results</h2><div class="section-sub" id="searchSub">Found <span id="searchCount">0</span> results</div></div></div>
+<div class="grid" id="searchGrid"></div><div id="searchEmpty" class="empty" style="display:none"><b>No results</b>Try a different spelling.</div>
+<div id="searchSentinel"></div>
+</div></div>
+<div id="view-watchlist" class="view"><div class="main" style="padding-top:20px">
+<div class="section-head"><div class="section-accent" style="background:var(--accent-light)"></div><div class="section-title-box"><h2 class="section-title">My Watchlist</h2><div class="section-sub">Your saved movies and shows</div></div></div>
+<div class="grid" id="watchlistGrid"></div><div id="watchlistEmpty" class="empty"><b>Your watchlist is empty</b>Click the star on any movie to save it.</div>
+</div></div>
+
+<!-- UPDATED HISTORY VIEW -->
+<div id="view-history" class="view">
+  <div class="main" style="padding-top:20px">
+    <div class="section-head" style="padding: 0 20px; margin-bottom: 20px; flex-direction: column; align-items: flex-start; gap: 4px;">
+      <h2 class="section-title" style="font-size: 32px; font-weight: 800;">Watch history</h2>
+      <div class="section-sub" style="font-size: 14px; color: var(--text-muted); margin-top: 4px;">Movies and shows you've already watched</div>
+    </div>
+    
+    <div class="grid" id="historyGrid" style="display: none; padding: 0 20px;"></div>
+    
+    <div id="historyEmpty" class="empty" style="padding: 60px 20px; text-align: center; border: 1px solid var(--border); border-radius: var(--radius-lg); margin: 0 20px; background: var(--bg-card);">
+      <div style="display: inline-flex; align-items: center; justify-content: center; width: 80px; height: 80px; border-radius: 20px; background: var(--bg-elevated); border: 1px solid var(--border); margin-bottom: 20px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.5">
+          <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+          <line x1="7" y1="2" x2="7" y2="22"></line>
+          <line x1="17" y1="2" x2="17" y2="22"></line>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <polygon points="10 8 16 12 10 16 10 8" fill="var(--text-muted)" stroke="none"></polygon>
+        </svg>
+      </div>
+      <b style="font-size: 18px; color: #fff; display: block; margin-bottom: 8px;">No watch history yet</b>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 24px; max-width: 400px; margin-left: auto; margin-right: auto;">Everything you start watching shows up here, ready to resume.</p>
+      <button class="btn-play" onclick="window.location.hash='#movies'" style="margin: 0 auto;">Browse movies</button>
+    </div>
+  </div>
+</div>
+
+<div id="view-profile" class="view"><div class="main" style="padding-top:40px;text-align:center">
+<div style="width:80px;height:80px;border-radius:50%;background:var(--accent);color:var(--bg-main);display:grid;place-items:center;font-size:32px;font-weight:900;margin:0 auto 20px;letter-spacing:-0.05em">TM</div>
+<h2 style="font-size:24px;font-weight:800;color:var(--text-main);margin-bottom:8px">Guest User</h2>
+<p style="color:var(--text-dim);font-size:14px;margin-bottom:30px">Sign in to sync your watchlist across devices.</p>
+<button class="btn-play" style="width:200px" onclick="openAuthModal('login')">Sign In</button>
+</div></div>
+
+<!-- SIGN UP VIEW -->
+<div id="view-signup" class="view">
+  <div class="auth-page">
+    <div class="auth-left">
+      <div style="text-align: left; width: 100%; margin-bottom: 20px;">
+        <button onclick="window.location.hash='#home'" style="color: var(--text-main); display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back
+        </button>
+      </div>
+      <h1 class="auth-title">Create your Tubemocha account</h1>
+      <p class="auth-subtitle">Fill in your details to get started</p>
+      
+      <div class="auth-qr-box">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
+        <p>Scan this code on a signed-in device</p>
+        <p style="font-size: 11px; opacity: 0.7;">Open the Camera app on a signed-in device and scan this code to log in here</p>
+        <div class="auth-qr-timer">Code expires in 2:00</div>
+      </div>
+      
+      <div class="auth-divider">OR</div>
+      
+      <form class="auth-form" onsubmit="handleSignUp(event)">
+        <div class="auth-input-group">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <input type="text" id="signupUsername" placeholder="Username" required>
+        </div>
+        <div class="auth-input-group">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <input type="email" id="signupEmail" placeholder="Email" required>
+        </div>
+        <div class="auth-input-group">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <input type="password" id="signupPassword" placeholder="Password" required minlength="6">
+        </div>
+        <button type="submit" class="auth-submit-btn">Sign up</button>
+      </form>
+      
+      <div class="auth-switch">
+        Already have an account? <a onclick="window.location.hash='#login'">Login</a>
+      </div>
+      <div class="auth-footer-links">
+        By continuing you agree to our <a onclick="window.location.hash='#terms'">Terms</a>, <a onclick="window.location.hash='#privacy'">Privacy</a> and <a onclick="window.location.hash='#dmca'">DMCA</a>.
+      </div>
+    </div>
+    
+    <div class="auth-right" id="signupPosters">
+      <!-- Posters injected via JS -->
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN VIEW -->
+<div id="view-login" class="view">
+  <div class="auth-page">
+    <div class="auth-left">
+      <div style="text-align: left; width: 100%; margin-bottom: 20px;">
+        <button onclick="window.location.hash='#home'" style="color: var(--text-main); display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Back
+        </button>
+      </div>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-subtitle">Sign in to your Tubemocha account</p>
+      
+      <form class="auth-form" onsubmit="handleLogin(event)">
+        <div class="auth-input-group">
+          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <input type="email" id="loginEmail" placeholder="Email" required>
+        </div>
+        <div class="auth-input-group">
+          <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <input type="password" id="loginPassword" placeholder="Password" required>
+        </div>
+        <button type="submit" class="auth-submit-btn">Login</button>
+      </form>
+      
+      <div class="auth-switch">
+        Don't have an account? <a onclick="window.location.hash='#signup'">Sign up</a>
+      </div>
+      <div class="auth-footer-links">
+        By continuing you agree to our <a onclick="window.location.hash='#terms'">Terms</a>, <a onclick="window.location.hash='#privacy'">Privacy</a> and <a onclick="window.location.hash='#dmca'">DMCA</a>.
+      </div>
+    </div>
+    
+    <div class="auth-right" id="loginPosters">
+      <!-- Posters injected via JS -->
+    </div>
+  </div>
+</div>
+
+<div id="view-help" class="view">
+<div class="help-container">
+    <div class="help-header">
+        <div style="font-size: 60px; margin-bottom: 10px; line-height: 1;">🎞️❓</div>
+        <h1 class="help-title">Help</h1>
+        <p class="help-subtitle">Most questions are already answered below.</p>
+    </div>
+    
+    <div class="help-category-title">About TUBEMOCHA</div>
+    <div class="help-accordion">
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">What is TUBEMOCHA? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">TUBEMOCHA is a catalog and player. We show titles, artwork, and info, then point your browser at third-party sources that already exist on the internet. We don't run a library of files we own.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Do you host the movies and shows? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">No, we do not host any files. We only index links from third-party services.</div>
+        </div>
+    </div>
+
+    <div class="help-category-title">Playback</div>
+    <div class="help-accordion">
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Why isn't a title playing? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Not every film or episode has a working source. Availability depends on third-party sites we don't control, and it changes all the time. If playback fails, it means Vidy doesn't have that title yet. Try again later or try another title.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">How do I try another source? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Vidy is the only server now. No need to switch - it automatically plays the title using your TMDB ID.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Why are new releases missing? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">New or obscure titles are often missing because nothing has shown up yet on the public sources we check. We don't add files by hand — indexing is automatic.</div>
+        </div>
+    </div>
+
+    <div class="help-category-title">Connection</div>
+    <div class="help-accordion">
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Why do I need IPv4? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Most streaming hosts only answer on IPv4. If your connection is IPv6-only (common on some mobile networks and ISPs), playback will fail even when the title exists. Enable IPv4 or dual-stack, switch to Wi-Fi, or use a VPN that provides IPv4.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Should I use a VPN? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">A VPN isn't required. It can help if a source host blocks your ISP or country, or if you want to hide your IP from those hosts — your browser talks to them directly. It won't create a source that doesn't exist. Prefer a VPN with IPv4.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">The video buffers or errors out <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Stuttering and random errors usually come from the third-party host, not from TUBEMOCHA. Switch server, lower quality if available, check your connection, or retry later. Ad blockers and strict privacy extensions can also break some players.</div>
+        </div>
+    </div>
+
+    <div class="help-category-title">Account & profiles</div>
+    <div class="help-accordion">
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Do I need an account? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">You can browse and watch without one. Sign in to sync history, continue watching, watchlist, profiles, Watch Party, and devices across sessions.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">How do profiles work? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Each account can have up to 4 profiles. History, continue watching, and the watchlist are per profile (up to 1,000 items each). For You starts from the movie and TV genres you pick when creating a profile.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">What does the profile PIN do? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">An optional 4-digit PIN locks a profile. Others on the account can still see it, but they can't open it without the code. Leave it empty to skip. You can add or remove it later in Manage profiles.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">I'm already watching on another device <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Each profile can only actively watch on one device at a time. Another profile on the same account can watch elsewhere. If you start playback here while this profile is already watching, you'll be asked to take over or go back. Signed-in devices are listed in Settings on the profile screen — you can sign a device out from there.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">I forgot my password <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Password recovery isn't available yet. If you forget your password, you'll need to create a new account.</div>
+        </div>
+    </div>
+
+    <div class="help-category-title">Watch Party</div>
+    <div class="help-accordion">
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">How does Watch Party work? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Signed-in users can watch the same title in sync. Create a public room or a private one with a password. Only the room owner controls play, pause, and seek. There's a chat in the room. If the owner leaves and others remain, ownership moves; if the room empties, it's deleted.</div>
+        </div>
+    </div>
+
+    <div class="help-category-title">Player & extras</div>
+    <div class="help-accordion">
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Where are the subtitles? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Open subtitles from the player. Tracks come from public subtitle providers and aren't guaranteed for every title or language. You can change size and style in subtitle settings.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Can I download titles? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Some titles offer a download option. Not everything can be downloaded, and there is a limit of 3 downloads per hour.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Why are there ads? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">Ads help keep TUBEMOCHA free. Blocking them with extensions may also break playback on some sources.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">Interface language vs spoken language <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">The interface is available in English, Portuguese, Spanish, German, French, Italian, Russian, Turkish, and Indonesian. It's detected automatically from your system — there's no in-app language picker. Audio depends on the server — some carry original audio, others carry dubs. Switch server if you need a different spoken language.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">How does For You work? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">For You starts from the movie and TV genres you choose on a profile. After you watch a bit, it also uses that profile's history. Each profile has its own For You.</div>
+        </div>
+    </div>
+
+    <div class="help-category-title">Privacy & copyright</div>
+    <div class="help-accordion">
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">This is my copyrighted work <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">We don't host the files. A valid notice can get a link de-indexed from TUBEMOCHA; that doesn't remove the file from the internet. Use Get in touch with the TUBEMOCHA URL, a description of the work, and proof you can act for the owner.</div>
+        </div>
+        <div class="help-item">
+            <div class="help-question" onclick="toggleHelp(this)">What data do you keep? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
+            <div class="help-answer">If you register, we store your email, username, and encrypted password, plus per-profile history and watchlist, and device session info (including IP/location for the devices list). We don't sell your account data. Third-party stream hosts can see your IP because your browser connects to them directly.</div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div id="view-terms" class="view">
+<div class="legal-container">
+    <div class="legal-icon">📄</div>
+    <h1 class="legal-title">Terms of Service</h1>
+    <div class="legal-date">Last updated: August 1, 2026</div>
+    <div class="legal-content">
+        <p>Welcome to TUBEMOCHA. These Terms of Service ("Terms") govern your use of the TUBEMOCHA platform. By accessing or using our services, you agree to be bound by these Terms.</p>
+        <h2>1. Nature of the Service</h2>
+        <p><strong>TUBEMOCHA is an automated search engine and indexing tool.</strong> We provide a sleek, unified interface that aggregates metadata and links to media files available on the public internet.</p>
+        <p>TUBEMOCHA does not host, upload, or control any of the video content, streams, or download files made available through the platform. All media is fetched directly from third-party servers. We do not verify the legality or licensing of the content hosted on these third-party servers.</p>
+        <h2>2. User Responsibility</h2>
+        <p>By using TUBEMOCHA, you acknowledge that you are accessing third-party content at your own risk. You agree to use the service for personal, non-commercial entertainment purposes only. You are solely responsible for ensuring that your access to and consumption of third-party streams complies with the laws and regulations of your jurisdiction.</p>
+        <p>TUBEMOCHA acts purely as a conduit and cannot be held liable for any copyright infringements, malware, or damages resulting from interactions with third-party hosting servers.</p>
+        <h2>3. Account Security</h2>
+        <p>If you create an account to save preferences, watchlists, or sync history, you are responsible for safeguarding your login credentials. TUBEMOCHA reserves the right to suspend or terminate accounts that abuse the platform, attempt to reverse-engineer our APIs, or otherwise violate these Terms.</p>
+        <h2>4. Intellectual Property</h2>
+        <p>The TUBEMOCHA interface, branding, code, and custom assets are the exclusive property of TUBEMOCHA. However, all movie posters, backdrops, character images, and metadata belong to their respective copyright holders (such as TMDB, AniList, or the studios).</p>
+        <h2>5. Modifications to Terms</h2>
+        <p>We reserve the right to modify these Terms at any time without prior notice. Continued use of the platform after changes have been made constitutes acceptance of the new Terms.</p>
+    </div>
+</div>
+</div>
+
+<div id="view-privacy" class="view">
+<div class="legal-container">
+    <div class="legal-icon">🎭🔒</div>
+    <h1 class="legal-title">Privacy Policy</h1>
+    <div class="legal-date">Last updated: August 1, 2026</div>
+    <div class="legal-content">
+        <p>At TUBEMOCHA, your privacy and digital security are highly prioritized. This Privacy Policy outlines how we handle data when you use our web application. By using TUBEMOCHA, you consent to the practices described below.</p>
+        <h2>1. Information We Collect</h2>
+        <p>TUBEMOCHA is designed to be as minimally invasive as possible. We only collect the information necessary to provide account features:</p>
+        <ul>
+            <li><strong>Account Data:</strong> If you choose to register, we store your email address, username, and encrypted password. For OAuth logins, we store basic profile information provided by the authentication provider.</li>
+            <li><strong>Usage Data:</strong> We may locally store preferences (such as watchlist items or watch history) to enhance your experience.</li>
+        </ul>
+        <h2>2. Third-Party Content & IP Addresses</h2>
+        <div class="legal-notice">
+            <strong>Crucial Notice:</strong> TUBEMOCHA does NOT host any media. All video streams, images, and download links are fetched directly from external, third-party servers.
+        </div>
+        <p>Because your browser connects directly to these third-party servers to stream video or download files, <strong>those external servers will be able to see your IP address.</strong> We do not control these third-party servers, and their data collection practices are governed by their respective privacy policies. If you wish to protect your IP address from third-party hosts, we strongly recommend using a reputable VPN service.</p>
+        <h2>3. Data Sharing & Security</h2>
+        <p>We will never sell, rent, or trade your personal account information to marketers or unauthorized third parties. We employ industry-standard encryption to protect your account credentials. However, no method of transmission over the internet is 100% secure.</p>
+        <h2>4. Contact Us</h2>
+        <p>If you have questions about your privacy or wish to request data deletion, please contact us through our <a href="#" class="legal-link">contact form</a>.</p>
+    </div>
+</div>
+</div>
+
+<div id="view-dmca" class="view">
+<div class="legal-container">
+    <div class="legal-icon">🎞️🚫</div>
+    <h1 class="legal-title">DMCA Notice</h1>
+    <div class="legal-date">Last updated: August 1, 2026</div>
+    <div class="legal-content">
+        <div class="legal-notice">
+            TUBEMOCHA functions strictly as an automated search engine and metadata aggregator. <strong>We DO NOT host, store, stream, or upload any video, media file, or copyrighted material on our servers.</strong>
+        </div>
+        <h2>1. Automated Third-Party Indexing</h2>
+        <p>All media content, streams, and downloads accessible via TUBEMOCHA are scraped, indexed, and fetched in real-time from unaffiliated third-party websites and APIs. TUBEMOCHA acts merely as a client-side directory and proxy tool, similar to Google Search, linking you to content that is already publicly accessible on the internet.</p>
+        <p>We have absolutely no control over the content hosted by these third parties. We do not curate, upload, or manage any of the media files. Therefore, we cannot directly delete or remove videos from the internet because they do not reside on our infrastructure.</p>
+        <h2>2. Copyright Infringement & Removal</h2>
+        <p>TUBEMOCHA fully respects intellectual property rights. If you are a copyright owner or an authorized agent and you believe that a specific link or embedded player on TUBEMOCHA infringes upon your copyright, you may submit a takedown request. Upon receiving a valid request, we will promptly blacklist and remove the indexing of the requested link from our platform.</p>
+        <p><em>Important: Removing a link from TUBEMOCHA will NOT remove the actual media file from the internet. The content will remain active on the third-party server hosting it. You must contact the actual hosting provider or server administrator to request a complete and permanent takedown of the file.</em></p>
+        <h2>3. Submitting a Notice</h2>
+        <p>To request the removal of an indexed link from TUBEMOCHA, please contact our administrative team through our <a href="#" class="legal-link">contact form</a>. To ensure a prompt response, your request must include:</p>
+        <ul>
+            <li>The exact TUBEMOCHA URL where the link/embed is found.</li>
+            <li>Specific details regarding the copyrighted work claimed to have been infringed.</li>
+            <li>Proof of copyright ownership or authorization to act on behalf of the owner.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- AUTH MODAL OVERLAY -->
+<div class="auth-modal-overlay" id="authModal">
+  <div class="auth-modal-content">
+    <button class="auth-modal-close" onclick="closeAuthModal()">&times;</button>
+    <div class="auth-modal-header">
+      <h2 id="authModalTitle">Welcome back to Tubemocha</h2>
+      <p id="authModalSubtitle">Sign in to use this feature</p>
+    </div>
+    <div class="auth-modal-body">
+      <div class="auth-modal-form" id="authModalFormContainer">
+        <!-- Injected via JS -->
+      </div>
+    </div>
+    <div class="auth-modal-footer">
+      By continuing you agree to our <a onclick="window.location.hash='#terms'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">Terms</a>, <a onclick="window.location.hash='#privacy'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">Privacy</a> and <a onclick="window.location.hash='#dmca'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">DMCA</a>.
+    </div>
+  </div>
+</div>
+
+<div class="detail-overlay" id="detailOverlay">
+<div class="detail-trailer-bg" id="detailTrailerBg"></div>
+<div class="detail-content">
+<button class="detail-back" onclick="window.location.hash='#home'"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+<div class="detail-body">
+<h1 class="detail-title" id="detailTitle">Loading...</h1>
+<div class="detail-meta" id="detailMeta"></div>
+<p class="detail-desc" id="detailDesc"></p>
+<div class="detail-actions">
+<button class="btn-detail-play" id="detailPlayBtn" onclick="playCurrentMedia()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now</button>
+<button class="btn-detail-secondary" id="detailListBtn" onclick="toggleWatchlist()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span id="detailListText">Add to List</span></button>
+</div></div>
+<div class="tv-seasons-container" id="tvSeasonsContainer" style="display:none;">
+<div class="section-head" style="padding:0; margin-bottom:16px;"><div class="section-accent"></div><div class="section-title-box"><div class="tv-seasons-header" style="width:100%;"><select class="tv-season-select" id="tvSeasonSelect" onchange="changeSeason(this.value)"></select><div class="tv-episode-count" id="tvEpisodeCount"></div></div></div></div>
+<div class="tv-episode-list" id="tvEpisodeList"></div>
+</div>
+<div class="cast-section">
+<div class="section-head" style="padding:0; margin-bottom:16px;"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Cast</h2><div class="section-sub">The cast behind this title</div></div></div>
+<div class="cast-scroller" id="castScroller"></div>
+</div>
+<div class="recommendations-container" id="recommendationsContainer" style="display:none;">
+<div class="rec-title"><span>|</span> More Like This</div><div class="rec-sub" id="recSub">Because you clicked this title</div><div class="rec-scroller" id="recommendationsScroller"></div>
+</div>
+<div class="site-disclaimer"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div>
+</div></div>
+<div class="player-overlay" id="playerOverlay">
+<div class="player-video-container" id="playerIframeContainer"><div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div></div>
+<div class="server-switch-banner" id="serverSwitchBanner"></div>
+<div class="player-controls">
+<div class="player-header-left">
+    <button class="player-back-btn" onclick="closePlayer(event)" title="Back">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+    </button>
+    <div class="player-title-box">
+        <div class="player-title" id="playerTitleText">Loading...</div>
+        <div class="player-subtitle" id="playerSubtitleText"></div>
+    </div>
+</div>
+</div></div>
+<div class="bottom" id="bottomNav">
+<button id="b-home" class="active" onclick="window.location.hash='#home'"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></button>
+<button id="b-movies" onclick="window.location.hash='#movies'"><svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></button>
+<button id="b-tv" onclick="window.location.hash='#tv'"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg></button>
+<button id="b-anime" onclick="window.location.hash='#anime'"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+<button id="b-search" onclick="triggerSearch(event)"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+<button id="b-profile" onclick="handleBottomProfileClick(event)">
+    <svg id="bottomProfileDefaultIcon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    <img id="bottomProfileAvatar" src="" style="display:none; width:32px; height:32px; border-radius:50%; object-fit:cover;">
+</button>
+</div>
+<div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')"><div class="genre-sheet"><h3>Select Genre</h3><div class="ggrid"><button onclick="setFilter('genre','','All Genres')">All Genres</button><button onclick="setFilter('genre','28','Action')">Action</button><button onclick="setFilter('genre','12','Adventure')">Adventure</button><button onclick="setFilter('genre','16','Animation')">Animation</button><button onclick="setFilter('genre','35','Comedy')">Comedy</button><button onclick="setFilter('genre','80','Crime')">Crime</button><button onclick="setFilter('genre','18','Drama')">Drama</button><button onclick="setFilter('genre','27','Horror')">Horror</button><button onclick="setFilter('genre','10749','Romance')">Romance</button><button onclick="setFilter('genre','878','Sci-Fi')">Sci-Fi</button><button onclick="setFilter('genre','53','Thriller')">Thriller</button></div></div></div>
+<div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')"><div class="genre-sheet"><h3>Select Year</h3><div class="ggrid"><button onclick="setFilter('year','','All Years')">All Years</button><button onclick="setFilter('year','2025','2025')">2025</button><button onclick="setFilter('year','2024','2024')">2024</button><button onclick="setFilter('year','2023','2023')">2023</button><button onclick="setFilter('year','2022','2022')">2022</button><button onclick="setFilter('year','2020','2020')">2020</button><button onclick="setFilter('year','2010','2010')">2010</button><button onclick="setFilter('year','2000','2000')">2000</button></div></div></div>
+<div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')"><div class="genre-sheet"><h3>Select Country</h3><div class="ggrid"><button onclick="setFilter('country','','All Countries')">All Countries</button><button onclick="setFilter('country','US','United States')">United States</button><button onclick="setFilter('country','GB','United Kingdom')">United Kingdom</button><button onclick="setFilter('country','JP','Japan')">Japan</button><button onclick="setFilter('country','KR','South Korea')">South Korea</button></div></div></div>
+<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest Releases')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Box Office')">Highest Box Office</button></div></div></div>
+
+<div class="genre-modal" id="animeGenreModal" onclick="if(event.target===this) closeModal('animeGenreModal')">
+  <div class="genre-sheet" style="max-width:800px; margin:0 auto; border-radius:12px 12px 0 0;">
+    <h3>Anime Genres</h3>
+    <div class="ggrid anime-genre-grid" id="animeGenreGrid"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<footer>
+    <div class="legal-links">
+        <a onclick="window.location.hash='#help'">Get Help</a>
+        <span>•</span>
+        <a onclick="window.location.hash='#terms'">Terms</a>
+        <span>•</span>
+        <a onclick="window.location.hash='#privacy'">Privacy</a>
+        <span>•</span>
+        <a onclick="window.location.hash='#dmca'">DMCA</a>
+    </div>
+    <div style="max-width: 800px; margin: 0 auto; text-align: left; padding: 0 20px;">
+        <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
+            <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v88</p>
+    </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v87 — 2026-10-25
-// CHANGELOG (v86 → v87):
-//   • Implemented strong client-side source code protection.
-//   • Added context menu blocking, developer tools shortcut blocking (F12, Ctrl+U, etc.).
-//   • Added DevTools resize detection trap to discourage code inspection.
-//   • Disabled text selection via CSS.
+// TUBEMOCHA BUILD v88 — 2026-10-25
+// CHANGELOG (v87 → v88):
+//   • Removed the aggressive anti-debugging script that caused a black screen on load.
+//   • Removed text selection blocking to restore normal browsing.
+//   • Removed the Watch Party page, menu item, and routing logic entirely.
 // ============================================================
-
-(function() {
-    // Anti-Debugging & Code Protection
-    document.addEventListener('contextmenu', event => event.preventDefault());
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'F12' || 
-           (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) || 
-           (e.ctrlKey && (e.key === 'U' || e.key === 'u'))) {
-            e.preventDefault();
-            return false;
-        }
-    });
-
-    // Trap for DevTools resize
-    setInterval(function() {
-        const threshold = 160;
-        const widthDiff = window.outerWidth - window.innerWidth > threshold;
-        const heightDiff = window.outerHeight - window.innerHeight > threshold;
-        if (widthDiff || heightDiff) {
-            document.body.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#14100d; color:#f0e8dd; font-family:sans-serif; text-align:center; flex-direction:column;"><h1>Access Denied</h1><p>Please close developer tools to continue browsing.</p></div>';
-            throw new Error("DevTools detected");
-        }
-    }, 1000);
-})();
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
 var TMDB_BASE = 'https://api.themoviedb.org/3';
@@ -255,9 +1008,9 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v87-2026-10-25-source-protection';
+var TUBEMOCHA_BUILD = 'v88-2026-10-25-black-screen-fix-no-watch-party';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
-console.log('[TUBEMOCHA] Build:', btoa(TUBEMOCHA_BUILD)); // Obfuscated log
+console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
 var isLoadingMovies = false, hasMoreMovies = true;
 var isLoadingTV = false, hasMoreTV = true;
@@ -2196,15 +2949,6 @@ function handleRouting() {
         document.getElementById('view-history').classList.add('active');
         renderHistoryPage();
         window.currentView = 'history';
-    }
-    else if (hash === 'watchparty') {
-        if (!currentUser) {
-            openAuthModal('login');
-            window.location.hash = '#home';
-            return;
-        }
-        document.getElementById('view-watchparty').classList.add('active');
-        window.currentView = 'watchparty';
     }
     else if (hash === 'profile') {
         document.getElementById('view-profile').classList.add('active');
