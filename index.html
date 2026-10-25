@@ -565,7 +565,7 @@
       <p class="auth-subtitle">Fill in your details to get started</p>
       
       <div class="auth-qr-box">
-        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 29 29'%3E%3Cpath fill='%23f0e8dd' d='M0 0h7v7H0zm22 0h7v7h-7zM0 22h7v7H0z'/%3E%3Cpath fill='%2314100d' d='M1 1h5v5H1zm1 1h3v3H2zm20-2h5v5h-5zm1 1h3v3h-3zM1 23h5v5H1zm1 1h3v3H2z'/%3E%3Cpath fill='%23f0e8dd' d='M9 0h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm-8 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2zm-12 3h2v2H9zm4 0h2v2h-2zm4 0h2v2h-2zm4 0h2v2h-2z'/%3E%3C/svg%3E" alt="QR Code">
         <p>Scan this code on a signed-in device</p>
         <p style="font-size: 11px; opacity: 0.7;">Open the Camera app on a signed-in device and scan this code to log in here</p>
         <div class="auth-qr-timer">Code expires in 2:00</div>
@@ -924,28 +924,29 @@
 
 <div class="toast" id="toast"></div>
 <footer>
-<div class="legal-links">
-    <a onclick="window.location.hash='#help'">Get Help</a>
-    <span>•</span>
-    <a onclick="window.location.hash='#terms'">Terms</a>
-    <span>•</span>
-    <a onclick="window.location.hash='#privacy'">Privacy</a>
-    <span>•</span>
-    <a onclick="window.location.hash='#dmca'">DMCA</a>
-</div>
-<div class="site-disclaimer" style="border:none; margin:0 auto;"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div>
+    <div class="legal-links">
+        <a onclick="window.location.hash='#help'">Get Help</a>
+        <span>•</span>
+        <a onclick="window.location.hash='#terms'">Terms</a>
+        <span>•</span>
+        <a onclick="window.location.hash='#privacy'">Privacy</a>
+        <span>•</span>
+        <a onclick="window.location.hash='#dmca'">DMCA</a>
+    </div>
+    <div style="max-width: 800px; margin: 0 auto; text-align: left; padding: 0 20px;">
+        <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
+            <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v79</p>
+    </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v78 — 2026-10-25
-// CHANGELOG (v77 → v78):
-//   • Implemented Watch History tracking: items are saved when played and rendered in #history.
-//   • Removed cartoon avatars. Built a dynamic letter-avatar generator (dark brown text, unique pastel background based on username).
-//   • Redesigned the Profile Dropdown to match the movy.sx screenshot (Header with name/email, list items, red toggle switch, red logout).
-//   • Removed "Change avatar" option.
-//   • Made the bottom nav profile icon display the user's letter avatar when logged in.
-//   • Clicking the bottom nav profile icon opens the dropdown.
+// TUBEMOCHA BUILD v79 — 2026-10-25
+// CHANGELOG (v78 → v79):
+//   • Ads toggle is strictly gated to logged-in users. Logging out forces ads back on.
+//   • Added version string to footer matching the requested movy.sx layout.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -973,7 +974,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v78-2026-10-25-history-tracking-letter-avatars-movy-dropdown';
+var TUBEMOCHA_BUILD = 'v79-2026-10-25-ads-gating-footer-version';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1007,14 +1008,13 @@ function generateAvatar(name) {
     if (!name) name = 'User';
     const letter = name.charAt(0).toUpperCase();
     
-    // Create a unique, soft pastel background color based on the name hash
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
         hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
     const hue = Math.abs(hash) % 360;
     const bgColor = `hsl(${hue}, 45%, 70%)`; 
-    const textColor = '#3e2723'; // Dark brown as requested
+    const textColor = '#3e2723'; // Dark brown
     
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
         <rect width="100" height="100" fill="${bgColor}" />
@@ -1041,6 +1041,11 @@ function loadAdScripts() {
 }
 
 function toggleAds(checked) {
+    if (!currentUser) {
+        toast('Please log in to change ad preferences.');
+        document.getElementById('adsToggle').checked = true;
+        return;
+    }
     localStorage.setItem('tubemocha_ads', checked);
     toast('Ads ' + (checked ? 'enabled' : 'disabled'));
     if (checked) {
@@ -1054,10 +1059,9 @@ function toggleAds(checked) {
 function saveToHistory(movie) {
     if (!currentUser) return;
     let hist = JSON.parse(localStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
-    // Remove if already exists to move to top
     hist = hist.filter(x => String(x.id) !== String(movie.id) || x._tv !== movie._tv);
     hist.unshift({ ...movie, watched_at: Date.now() });
-    hist = hist.slice(0, 50); // Keep last 50
+    hist = hist.slice(0, 50);
     localStorage.setItem('tubemocha_history_' + currentUser.id, JSON.stringify(hist));
 }
 
@@ -1089,9 +1093,22 @@ function handleAuthState(session) {
         document.getElementById('dropdownAuthButtons').style.display = 'none';
         restoreActiveProfile();
         fetchWatchlistFromDB();
+        
+        // Sync toggle state
+        var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
+        var adsToggle = document.getElementById('adsToggle');
+        if (adsToggle) adsToggle.checked = adsEnabled;
     } else {
         currentUser = null;
         localStorage.removeItem('tubemocha_active_profile');
+        // Force ads ON when logged out
+        localStorage.setItem('tubemocha_ads', 'true');
+        var adsToggle = document.getElementById('adsToggle');
+        if (adsToggle) adsToggle.checked = true;
+        
+        // Ensure scripts are loaded
+        loadAdScripts();
+        
         document.getElementById('dropdownAuthProfile').style.display = 'none';
         document.getElementById('dropdownAuthButtons').style.display = 'flex';
         updateHeaderAvatar(null);
@@ -1148,7 +1165,6 @@ function handleBottomProfileClick(e) {
     e.preventDefault();
     e.stopPropagation();
     if (currentUser) {
-        // Toggle dropdown at the top
         const dropdown = document.getElementById('profileDropdown');
         dropdown.classList.toggle('open');
     } else {
