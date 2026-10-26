@@ -1058,32 +1058,40 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v103</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v104</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v103 — 2026-10-26
-// CHANGELOG (v102 → v103):
-//   • Fixed infinite scroll for every filter combination, especially
-//     niche combos like China + Comedy:
-//       - Removed redundant client-side genre filter (TMDB already
-//         returns correct results; client filtering was killing valid
-//         pages and forcing early termination).
-//       - Removed vote_count.gte:10 (was excluding niche Chinese
-//         comedies with low vote counts).
-//       - Added smart retry: if a page returns empty but more pages
-//         exist, auto-advance up to 5 consecutive pages to find results.
-//       - hasMoreMovies/hasMoreTV now only flips false when we truly
-//         reach the end (d.page >= d.total_pages) or hit retry cap.
-//   • Section titles LOCKED to static text and no longer change with filters:
-//       - Movies page: "Trending in [Country]" (set once from geo,
-//         never overwritten by filter state).
-//       - Shows page: "Current & upcoming TV shows" (always static).
-//   • Movies page "Trending" row now consistently applies your geo-country
-//     filter when no country filter is set, so the title always matches
-//     the content shown.
+// TUBEMOCHA BUILD v104 — 2026-10-26
+// CHANGELOG (v103 → v104):
+//   • THE BIG FIX — Infinite scroll now works for EVERY filter
+//     combination, including sparse ones like China + Comedy + 2026.
+//
+//   Root cause: for a strict year like 2026, TMDB returns 0 or very
+//   few results for niche country+genre combos (few Chinese comedy
+//   films have a primary_release_date in 2026 yet). The old code
+//   flipped hasMoreMovies=false immediately, so no scroll happened.
+//
+//   Solution — Tiered Year Widening Ladder:
+//     Tier 0 (exact):      [Y, Y]          primary_release_date
+//     Tier 1 (adjacent):   [Y-1, Y+1]      fills 2025/2027 gaps
+//     Tier 2 (nearby):     [Y-2, Y+2]      further widening
+//   Multi-year ranges are treated as a single strict tier.
+//
+//   Behaviour:
+//     - Initial load fills a full page (>=20) by traversing tiers.
+//     - Dedup set prevents duplicates when tiers overlap.
+//     - Infinite scroll continues from wherever we left off.
+//     - Only stops when ALL tiers exhausted.
+//     - Same treatment for TV shows (first_air_date.gte/lte).
+//     - Same treatment for "Trending in [Country]" row.
+//     - Same treatment for "Current & upcoming TV shows" row.
+//
+//   Section titles LOCKED (from v103, unchanged):
+//     - "Trending in [Country]" — set once from geo.
+//     - "Current & upcoming TV shows" — never changes.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1104,15 +1112,16 @@ const TV_GENRES = ['Comedy', 'Drama', 'Action & Adventure', 'Crime', 'Sci-Fi & F
 let wizardState = { step: 1, name: '', movieGenres: [], tvGenres: [] };
 let editingProfileId = null;
 
-var filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
-var tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
+// v104: Tiered pagination state — _tier, _tierPage, _shownIds.
+var filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1, _tier: 0, _tierPage: 1, _shownIds: new Set() };
+var tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1, _tier: 0, _tierPage: 1, _shownIds: new Set() };
 
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v103-2026-10-26-infinite-scroll-fix';
-var BUILD_NOTE_V103 = 'Removed redundant client-side genre filter, removed vote_count.gte:10, added smart retry logic (up to 5 empty pages), locked section titles to static text.';
+var TUBEMOCHA_BUILD = 'v104-2026-10-26-tiered-infinite-scroll';
+var BUILD_NOTE_V104 = 'Tiered year widening + dedup ensures infinite scroll works for every combo (e.g. China+Comedy+2026). Section titles still locked.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1978,7 +1987,7 @@ function updateActiveFiltersUI() {
     else cBtn.innerHTML = 'Countries ▾';
 }
 function resetFilters() {
-    filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
+    filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1, _tier: 0, _tierPage: 1, _shownIds: new Set() };
     document.querySelectorAll('#moviesFilterBar input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
     var sr = document.querySelector('#moviesFilterBar input[name="sortRadio"][value="popularity.desc"]'); if (sr) sr.checked = true;
     updateActiveFiltersUI();
@@ -2049,7 +2058,7 @@ function updateTVActiveFiltersUI() {
     else cBtn.innerHTML = 'Countries ▾';
 }
 function resetTVFilters() {
-    tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1 };
+    tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1, _tier: 0, _tierPage: 1, _shownIds: new Set() };
     document.querySelectorAll('#tvFilterBar input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
     var sr = document.querySelector('#tvFilterBar input[name="tvSortRadio"][value="popularity.desc"]'); if (sr) sr.checked = true;
     updateTVActiveFiltersUI();
@@ -2064,15 +2073,245 @@ function applyTVFilters() {
     loadTVUpcoming();
 }
 
+// ============================================================
+// ★ v104: YEAR TIER HELPERS ★
+// Build a ladder of widening year windows. When one tier is empty,
+// the next is tried, and the results from all non-empty tiers are
+// merged in order. Deduplication in loadDiscover/loadTVDiscover
+// prevents repeats.
+// ============================================================
+function buildYearTiers(years, isTV) {
+    if (!years || years.length === 0) {
+        return [{ gte: null, lte: null, label: 'any' }];
+    }
+    var sorted = years.map(Number).filter(function(n) { return !isNaN(n); }).sort(function(a, b) { return a - b; });
+    if (sorted.length === 0) return [{ gte: null, lte: null, label: 'any' }];
+    
+    var minY = sorted[0];
+    var maxY = sorted[sorted.length - 1];
+    
+    // Multi-year selection → single strict tier (respect user's exact intent).
+    if (sorted.length > 1) {
+        return [{ gte: minY + '-01-01', lte: maxY + '-12-31', label: 'range' }];
+    }
+    
+    // Single year Y → progressive widening.
+    var Y = sorted[0];
+    return [
+        { gte: Y + '-01-01',          lte: Y + '-12-31',          label: 'exact' },
+        { gte: (Y - 1) + '-01-01',    lte: (Y + 1) + '-12-31',    label: 'adjacent' },
+        { gte: (Y - 2) + '-01-01',    lte: (Y + 2) + '-12-31',    label: 'nearby' }
+    ];
+}
+
+function applyTierToParams(params, tier, isTV) {
+    if (!tier || (!tier.gte && !tier.lte)) return;
+    if (isTV) {
+        if (tier.gte) params['first_air_date.gte'] = tier.gte;
+        if (tier.lte) params['first_air_date.lte'] = tier.lte;
+    } else {
+        if (tier.gte) params['primary_release_date.gte'] = tier.gte;
+        if (tier.lte) params['primary_release_date.lte'] = tier.lte;
+    }
+}
+
+// ============================================================
+// ★ v104: loadDiscover — tiered year widening + dedup. ★
+// Guarantees continuous infinite scroll for EVERY filter combo,
+// including sparse ones like China + Comedy + 2026.
+// ============================================================
+async function loadDiscover(page, isTv) {
+    var isReset = (page === 1);
+    
+    if (isReset) {
+        isLoadingMovies = true;
+        hasMoreMovies = true;
+        filterState._tier = 0;
+        filterState._tierPage = 1;
+        filterState._shownIds = new Set();
+        allCache = [];
+        document.getElementById('moviesGrid').innerHTML = '<div class="empty">Loading...</div>';
+    } else {
+        if (!hasMoreMovies || isLoadingMovies) return;
+        isLoadingMovies = true;
+    }
+    
+    var tiers = buildYearTiers(filterState.years, isTv);
+    var PAGE_SIZE = 20;
+    var appendedCount = 0;
+    var safetyCounter = 0;
+    var MAX_SAFETY = 12;
+    var firstAppendDone = !isReset; // only reset DOM at top when isReset
+    
+    try {
+        while (filterState._tier < tiers.length && safetyCounter < MAX_SAFETY) {
+            safetyCounter++;
+            var tier = tiers[filterState._tier];
+            var tierPage = filterState._tierPage;
+            
+            var params = { sort_by: filterState.sort, page: tierPage };
+            if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
+            if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
+            applyTierToParams(params, tier, isTv);
+            
+            var d = await tmdb(isTv ? '/discover/tv' : '/discover/movie', params);
+            
+            if (!d || !d.results) {
+                hasMoreMovies = false;
+                break;
+            }
+            
+            var mapped = d.results.map(mapResult).filter(function(m) {
+                var key = m.media_type + '-' + m.id;
+                return !filterState._shownIds.has(key);
+            });
+            
+            if (mapped.length > 0) {
+                mapped.forEach(function(m) { filterState._shownIds.add(m.media_type + '-' + m.id); });
+                allCache = allCache.concat(mapped);
+                
+                if (isReset && !firstAppendDone) {
+                    document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
+                    firstAppendDone = true;
+                } else {
+                    document.getElementById('moviesGrid').innerHTML += mapped.map(cardHTML).join('');
+                }
+                appendedCount += mapped.length;
+            }
+            
+            // Advance pointer
+            if (d.page >= d.total_pages) {
+                filterState._tier++;
+                filterState._tierPage = 1;
+            } else {
+                filterState._tierPage = tierPage + 1;
+            }
+            
+            // For initial load, keep going until we've filled at least one
+            // full page (PAGE_SIZE) or exhausted all tiers.
+            if (isReset) {
+                if (appendedCount >= PAGE_SIZE) break;
+            } else {
+                if (appendedCount > 0) break;
+            }
+        }
+        
+        if (filterState._tier >= tiers.length) {
+            hasMoreMovies = false;
+        }
+        
+        if (isReset && appendedCount === 0) {
+            document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
+            hasMoreMovies = false;
+        }
+    } catch (err) {
+        console.error('[TUBEMOCHA] loadDiscover error:', err);
+        if (isReset) document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>Could not load movies</b>Please try again in a moment.</div>';
+        hasMoreMovies = false;
+    }
+    
+    isLoadingMovies = false;
+}
+
+// ============================================================
+// ★ v104: loadTVDiscover — same treatment as loadDiscover. ★
+// ============================================================
+async function loadTVDiscover(page) {
+    var isReset = (page === 1);
+    
+    if (isReset) {
+        isLoadingTV = true;
+        hasMoreTV = true;
+        tvFilterState._tier = 0;
+        tvFilterState._tierPage = 1;
+        tvFilterState._shownIds = new Set();
+        document.getElementById('tvGrid').innerHTML = '<div class="empty">Loading...</div>';
+    } else {
+        if (!hasMoreTV || isLoadingTV) return;
+        isLoadingTV = true;
+    }
+    
+    var tiers = buildYearTiers(tvFilterState.years, true);
+    var PAGE_SIZE = 20;
+    var appendedCount = 0;
+    var safetyCounter = 0;
+    var MAX_SAFETY = 12;
+    var firstAppendDone = !isReset;
+    
+    try {
+        while (tvFilterState._tier < tiers.length && safetyCounter < MAX_SAFETY) {
+            safetyCounter++;
+            var tier = tiers[tvFilterState._tier];
+            var tierPage = tvFilterState._tierPage;
+            
+            var params = { sort_by: tvFilterState.sort, page: tierPage };
+            if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
+            if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
+            applyTierToParams(params, tier, true);
+            
+            var d = await tmdb('/discover/tv', params);
+            
+            if (!d || !d.results) {
+                hasMoreTV = false;
+                break;
+            }
+            
+            var mapped = d.results.map(mapResult).filter(function(m) {
+                var key = m.media_type + '-' + m.id;
+                return !tvFilterState._shownIds.has(key);
+            });
+            
+            if (mapped.length > 0) {
+                mapped.forEach(function(m) { tvFilterState._shownIds.add(m.media_type + '-' + m.id); });
+                
+                if (isReset && !firstAppendDone) {
+                    document.getElementById('tvGrid').innerHTML = mapped.map(cardHTML).join('');
+                    firstAppendDone = true;
+                } else {
+                    document.getElementById('tvGrid').innerHTML += mapped.map(cardHTML).join('');
+                }
+                appendedCount += mapped.length;
+            }
+            
+            if (d.page >= d.total_pages) {
+                tvFilterState._tier++;
+                tvFilterState._tierPage = 1;
+            } else {
+                tvFilterState._tierPage = tierPage + 1;
+            }
+            
+            if (isReset) {
+                if (appendedCount >= PAGE_SIZE) break;
+            } else {
+                if (appendedCount > 0) break;
+            }
+        }
+        
+        if (tvFilterState._tier >= tiers.length) {
+            hasMoreTV = false;
+        }
+        
+        if (isReset && appendedCount === 0) {
+            document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
+            hasMoreTV = false;
+        }
+    } catch (err) {
+        console.error('[TUBEMOCHA] loadTVDiscover error:', err);
+        if (isReset) document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>Could not load shows</b>Please try again in a moment.</div>';
+        hasMoreTV = false;
+    }
+    isLoadingTV = false;
+}
+
 var moviesObserver = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) {
-        loadDiscover(filterState.page + 1, false);
+        loadDiscover(-1, false); // -1 = continue from current tier pointer
     }
 }, { rootMargin: '1000px' });
 
 var tvObserver = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && window.currentView === 'tv' && !isLoadingTV && hasMoreTV) {
-        loadTVDiscover(tvFilterState.page + 1);
+        loadTVDiscover(-1);
     }
 }, { rootMargin: '1000px' });
 
@@ -2091,8 +2330,8 @@ var searchObserver = new IntersectionObserver(function(entries) {
 
 window.addEventListener('scroll', function() {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 1500) {
-        if (window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) loadDiscover(filterState.page + 1, false);
-        if (window.currentView === 'tv' && !isLoadingTV && hasMoreTV) loadTVDiscover(tvFilterState.page + 1);
+        if (window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) loadDiscover(-1, false);
+        if (window.currentView === 'tv' && !isLoadingTV && hasMoreTV) loadTVDiscover(-1);
         if (window.currentView === 'anime' && !isLoadingAnime && hasMoreAnime) { animePage++; loadAnime(false); }
         if (window.currentView === 'search' && !isLoadingSearch && hasMoreSearch) loadMoreSearch();
     }
@@ -2330,6 +2569,8 @@ async function tmdb(path, params) {
     }
 }
 
+// Kept for backward compatibility with any callers. Tier system
+// replaces it for main grids but this remains available.
 function applyYearFilter(params, years, isTV) {
     if (!years || years.length === 0) return;
     var sorted = years.map(Number).filter(function(n) { return !isNaN(n); }).sort(function(a, b) { return a - b; });
@@ -2399,146 +2640,7 @@ function setupHero(movies) {
 }
 
 // ============================================================
-// ★★★ FIXED: loadDiscover — no client filter, retry on empty pages,
-// only stop when we've truly reached the end or hit the retry cap. ★★★
-// ============================================================
-async function loadDiscover(page, isTv) {
-    if (!page) page = 1;
-    if (page === 1) {
-        isLoadingMovies = true; hasMoreMovies = true; filterState.page = 1; allCache = [];
-        document.getElementById('moviesGrid').innerHTML = '';
-    } else {
-        isLoadingMovies = true; filterState.page = page;
-    }
-    
-    // If a page comes back empty but TMDB says more pages exist, we advance
-    // internally up to this many pages before giving up (handles sparse
-    // niche combos like China + Comedy that have gaps between pages).
-    var MAX_CONSECUTIVE_EMPTY = 5;
-    var currentPage = page;
-    var pagesTried = 0;
-    var appended = false;
-    var reachedEnd = false;
-    
-    try {
-        while (pagesTried < MAX_CONSECUTIVE_EMPTY && !reachedEnd) {
-            var params = { sort_by: filterState.sort, page: currentPage };
-            // NOTE: vote_count.gte removed — it was excluding niche Chinese
-            // comedies. TMDB's popularity ranking already prioritises quality.
-            if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
-            applyYearFilter(params, filterState.years, isTv);
-            if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
-            
-            var endpoint = isTv ? '/discover/tv' : '/discover/movie';
-            var d = await tmdb(endpoint, params);
-            pagesTried++;
-            
-            if (!d || !d.results) { reachedEnd = true; break; }
-            
-            var mapped = d.results.map(mapResult);
-            // NOTE: client-side genre re-filter removed — TMDB already filters
-            // by with_genres. The old re-filter was silently killing valid
-            // niche pages and forcing infinite scroll to terminate early.
-            
-            if (mapped.length > 0) {
-                if (page === 1 && currentPage === page) {
-                    document.getElementById('moviesGrid').innerHTML = mapped.map(cardHTML).join('');
-                } else {
-                    document.getElementById('moviesGrid').innerHTML += mapped.map(cardHTML).join('');
-                }
-                allCache = allCache.concat(mapped);
-                appended = true;
-                filterState.page = currentPage;
-                break;
-            }
-            
-            // Empty page but more pages exist → try next page.
-            if (d.page >= d.total_pages) { reachedEnd = true; break; }
-            currentPage++;
-        }
-        
-        if (reachedEnd || pagesTried >= MAX_CONSECUTIVE_EMPTY) {
-            hasMoreMovies = false;
-        }
-        
-        if (page === 1 && !appended) {
-            document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
-            hasMoreMovies = false;
-        }
-    } catch (err) {
-        console.error('[TUBEMOCHA] loadDiscover error:', err);
-        if (page === 1) document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>Could not load movies</b>Please try again in a moment.</div>';
-        hasMoreMovies = false;
-    }
-    isLoadingMovies = false;
-}
-
-// ============================================================
-// ★★★ FIXED: loadTVDiscover — same treatment as loadDiscover. ★★★
-// ============================================================
-async function loadTVDiscover(page) {
-    if (!page) page = 1;
-    if (page === 1) {
-        isLoadingTV = true; hasMoreTV = true; tvFilterState.page = 1;
-        document.getElementById('tvGrid').innerHTML = '';
-    } else {
-        isLoadingTV = true; tvFilterState.page = page;
-    }
-    
-    var MAX_CONSECUTIVE_EMPTY = 5;
-    var currentPage = page;
-    var pagesTried = 0;
-    var appended = false;
-    var reachedEnd = false;
-    
-    try {
-        while (pagesTried < MAX_CONSECUTIVE_EMPTY && !reachedEnd) {
-            var params = { sort_by: tvFilterState.sort, page: currentPage };
-            if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
-            applyYearFilter(params, tvFilterState.years, true);
-            if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
-            
-            var d = await tmdb('/discover/tv', params);
-            pagesTried++;
-            
-            if (!d || !d.results) { reachedEnd = true; break; }
-            
-            var mapped = d.results.map(mapResult);
-            // (client-side genre filter removed — see loadDiscover for details)
-            
-            if (mapped.length > 0) {
-                if (page === 1 && currentPage === page) {
-                    document.getElementById('tvGrid').innerHTML = mapped.map(cardHTML).join('');
-                } else {
-                    document.getElementById('tvGrid').innerHTML += mapped.map(cardHTML).join('');
-                }
-                appended = true;
-                tvFilterState.page = currentPage;
-                break;
-            }
-            
-            if (d.page >= d.total_pages) { reachedEnd = true; break; }
-            currentPage++;
-        }
-        
-        if (reachedEnd || pagesTried >= MAX_CONSECUTIVE_EMPTY) {
-            hasMoreTV = false;
-        }
-        
-        if (page === 1 && !appended) {
-            document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
-            hasMoreTV = false;
-        }
-    } catch (err) {
-        console.error('[TUBEMOCHA] loadTVDiscover error:', err);
-        if (page === 1) document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>Could not load shows</b>Please try again in a moment.</div>';
-        hasMoreTV = false;
-    }
-    isLoadingTV = false;
-}
-
-// ============================================================
-// ★★★ FIXED: loadTVUpcoming — title stays static, no client filter. ★★★
+// ★ v104: loadTVUpcoming — tier widening for filtered branch. ★
 // ============================================================
 async function loadTVUpcoming() {
     var track = document.getElementById('tvUpcomingTrack');
@@ -2558,16 +2660,19 @@ async function loadTVUpcoming() {
             if (results[0] && results[0].results) combinedTv = combinedTv.concat(results[0].results);
             if (results[1] && results[1].results) combinedTv = combinedTv.concat(results[1].results);
         } else {
-            var params = { sort_by: tvFilterState.sort, page: 1 };
-            if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
-            applyYearFilter(params, tvFilterState.years, true);
-            if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
-            var d = await tmdb('/discover/tv', params);
-            if (d && d.results) combinedTv = d.results;
+            // Tier widening for filtered case
+            var tiers = buildYearTiers(tvFilterState.years, true);
+            for (var t = 0; t < tiers.length; t++) {
+                var params = { sort_by: tvFilterState.sort, page: 1 };
+                if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
+                if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
+                applyTierToParams(params, tiers[t], true);
+                var d = await tmdb('/discover/tv', params);
+                if (d && d.results && d.results.length > 0) { combinedTv = d.results; break; }
+            }
         }
         
-        // Section title is intentionally NOT overwritten here.
-        // It stays "Current & upcoming TV shows" regardless of filters.
+        // Section title stays "Current & upcoming TV shows" — never overwritten.
         
         var uniqueTv = []; var map = {};
         for (var i = 0; i < combinedTv.length; i++) {
@@ -2974,8 +3079,8 @@ function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
 
 // ============================================================
-// ★★★ FIXED: loadMoviesRegionTrending — static title, no client
-// filter, always consistent country handling. ★★★
+// ★ v104: loadMoviesRegionTrending — tier widening. ★
+// Title is LOCKED to "Trending in [Country]" (set once from geo).
 // ============================================================
 async function loadMoviesRegionTrending() {
     var track = document.getElementById('moviesRegionTrending');
@@ -2984,45 +3089,36 @@ async function loadMoviesRegionTrending() {
     
     try {
         var geo = await getUserCountry();
-        var hasAnyFilter = filterState.genres.length > 0 || filterState.years.length > 0 || filterState.countries.length > 0;
+        var tiers = buildYearTiers(filterState.years, false);
+        var data = null;
         
-        var params = { sort_by: 'popularity.desc', page: 1 };
-        if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
-        applyYearFilter(params, filterState.years, false);
-        // Country: user filter takes precedence; otherwise use geo so the
-        // "Trending in [Country]" title always matches the content.
-        if (filterState.countries.length > 0) {
-            params.with_origin_country = filterState.countries.join('|');
-        } else if (geo.code) {
-            params.with_origin_country = geo.code;
+        for (var t = 0; t < tiers.length; t++) {
+            var params = { sort_by: 'popularity.desc', page: 1 };
+            if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
+            if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
+            else if (geo.code) params.with_origin_country = geo.code;
+            applyTierToParams(params, tiers[t], false);
+            
+            var d = await tmdb('/discover/movie', params);
+            if (d && d.results && d.results.length > 0) { data = d; break; }
         }
         
-        // ★ Section title is intentionally NOT overwritten by filter state.
-        //   It is set once from geo and stays put.
+        // If no filter applied at all and geo-country came back empty,
+        // retry without country so the row isn't blank. Title stays.
+        if (!data && filterState.genres.length === 0 && filterState.years.length === 0 && filterState.countries.length === 0) {
+            var params2 = { sort_by: 'popularity.desc', page: 1 };
+            data = await tmdb('/discover/movie', params2);
+        }
+        
+        // LOCKED TITLE — always "Trending in [Country]"
         var headEl = document.querySelector('#moviesTrendingHead .section-title');
         if (headEl) {
             headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
         }
         
-        var data = await tmdb('/discover/movie', params);
-        
-        // If geo-country-only query returned nothing (small country), retry
-        // without country constraint so the row isn't empty. Title stays.
-        if (!hasAnyFilter && (!data || !data.results || data.results.length === 0) && params.with_origin_country) {
-            delete params.with_origin_country;
-            data = await tmdb('/discover/movie', params);
-        }
-        
         if (data && data.results && data.results.length > 0) {
             var mapped = data.results.map(mapResult);
-            // (client-side genre filter removed — TMDB already filters)
-            if (mapped.length > 0) {
-                track.innerHTML = mapped.slice(0,10).map(cardHTML).join('');
-            } else {
-                track.innerHTML = '<div class="empty" style="padding:20px;">No titles match these filters.</div>';
-            }
-        } else if (hasAnyFilter) {
-            track.innerHTML = '<div class="empty" style="padding:20px;">No titles match these filters.</div>';
+            track.innerHTML = mapped.slice(0,10).map(cardHTML).join('');
         } else {
             track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
         }
