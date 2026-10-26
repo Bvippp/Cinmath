@@ -1058,17 +1058,19 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v100</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v101</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v100 — 2026-10-26
-// CHANGELOG (v99 → v100):
-//   • Thicker player progress line: Injected custom CSS overrides to 
-//     target the Vidy scrubber track, increasing thickness to 6px 
-//     and ensuring dark brown color for high visibility.
+// TUBEMOCHA BUILD v101 — 2026-10-26
+// CHANGELOG (v100 → v101):
+//   • Progress line thickness: Appended multiple brute-force URL 
+//     parameters (&thickness=8, &barSize=8, etc.) to the Vidy iframe 
+//     URL to try and force the player to render a thicker scrubber 
+//     track. Since the iframe is cross-origin, direct CSS injection is 
+//     blocked, making this the most reliable creative workaround.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1096,8 +1098,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v100-2026-10-26-thick-player-progress';
-var BUILD_NOTE_V100 = 'Injected custom CSS overrides to target Vidy scrubber track, increasing thickness to 6px for high visibility.';
+var TUBEMOCHA_BUILD = 'v101-2026-10-26-thick-line-params';
+var BUILD_NOTE_V101 = 'Brute-forced iframe URL parameters (&thickness=8, &barSize=8, etc.) to try and force the Vidy player to render a thicker progress bar, circumventing cross-origin CSS blocks.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -2089,8 +2091,8 @@ var VIDY_BASE = 'https://www.vidy.st';
 var EMBED_PROVIDERS = [
 { 
   name: 'Vidy', 
-  movie: function(id) { return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true'; }, 
-  tv: function(id, s, e) { return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true'; }
+  movie: function(id) { return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; }, 
+  tv: function(id, s, e) { return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; }
 }
 ];
 var currentProviderIndex = 0;
