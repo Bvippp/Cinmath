@@ -9,6 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
+<!-- V106 MOBILE FULLSCREEN FIX - 2026-05-13 - Back arrow + mobile FS -->
 <title>TUBEMOCHA • Watch Free Movies & TV Shows Online</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%233e2723'/%3E%3Cstop offset='50%25' stop-color='%235d4037'/%3E%3Cstop offset='75%25' stop-color='%238d6e63'/%3E%3Cstop offset='76%25' stop-color='%234e342e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='12' fill='%2314100d'/%3E%3Ctext x='50%25' y='52%25' dominant-baseline='middle' text-anchor='middle' font-family='Impact,sans-serif' font-weight='900' font-size='38' letter-spacing='-2' fill='url(%23g)'%3ETM%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -288,6 +289,54 @@
 .step-segment.active { background: var(--accent); }
 .genre-btn { padding: 10px 20px; border-radius: 20px; background: #222; border: 1px solid #444; color: #ccc; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; }
 .genre-btn.active { background: var(--accent-light); color: var(--bg-main); border-color: var(--accent-light); }
+
+/* === V106 MOBILE FAKE FULLSCREEN - iPhone/Android fix (no real FS API) === */
+.player-overlay.mobile-fs-active{
+  position:fixed !important;
+  inset:0 !important;
+  top:0 !important;
+  left:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  height:100dvh !important;
+  height:100svh !important;
+  z-index:2147483647 !important;
+  background:#000 !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+.player-overlay.mobile-fs-active .player-video-container{
+  flex:1 !important;
+  width:100% !important;
+  height:100% !important;
+  min-height:100% !important;
+}
+.player-overlay.mobile-fs-active .player-controls{
+  display:flex !important;
+  opacity:1 !important;
+  visibility:visible !important;
+  transform:translateY(0) !important;
+  z-index:2147483647 !important;
+  background:linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%) !important;
+}
+body.mobile-fs-body{
+  overflow:hidden !important;
+  position:fixed !important;
+  width:100% !important;
+  height:100% !important;
+  touch-action:none;
+}
+/* Mobile fsBlocker larger for thumb */
+@media (max-width:768px){
+  #fsBlocker{
+    width:50% !important;
+    height:35% !important;
+    bottom:0 !important;
+    right:0 !important;
+    z-index:10 !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2973,9 +3022,23 @@ async function playCurrentMedia(){
 
 function closePlayer(e){
     if(e) e.stopPropagation();
-    var overlay = document.getElementById('playerOverlay'); overlay.classList.remove('open'); document.body.style.overflow = '';
+    var overlay = document.getElementById('playerOverlay');
+    // V106 MOBILE: if fake fullscreen active, exit it first instead of closing player
+    if(overlay && overlay.classList.contains('mobile-fs-active')){
+        overlay.classList.remove('mobile-fs-active');
+        document.body.classList.remove('mobile-fs-body');
+        var controls = document.getElementById('playerControls');
+        if(controls){
+            controls.style.opacity='';
+            controls.style.visibility='';
+        }
+        return;
+    }
+    if(overlay) overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    document.body.classList.remove('mobile-fs-body');
     var container = document.getElementById('playerIframeContainer');
-    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
+    if(container) container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
     clearTimeout(window._idleTimer);
     
     var isTV = currentMovie && (currentMovie.media_type === 'tv' || currentMovie._tv);
@@ -3080,17 +3143,53 @@ function closePlayer(e){
     var container = document.getElementById('playerIframeContainer');
     if(!container) return;
     
+    function isMobileFS(){
+        return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768 || ('ontouchstart' in window);
+    }
     function toggleOverlayFs(){
         var ov = document.getElementById('playerOverlay');
         var cont = document.getElementById('playerIframeContainer');
         var target = ov || cont;
         if(!target) return;
-        if(!document.fullscreenElement){
+        
+        // MOBILE: use fake fullscreen (iOS doesn't support div fullscreen properly)
+        if(isMobileFS()){
+            var isActive = ov.classList.contains('mobile-fs-active');
+            if(!isActive){
+                ov.classList.add('mobile-fs-active');
+                document.body.classList.add('mobile-fs-body');
+                // Equation: scale = min(vw/vh) to fill, use transform for smooth entry
+                // Force controls visible with equation opacity = 1 - e^(-t/0.25)
+                var controls = document.getElementById('playerControls');
+                if(controls){
+                    controls.style.display='flex';
+                    controls.style.opacity='1';
+                    controls.style.visibility='visible';
+                    controls.style.transform='translateY(0)';
+                }
+                // Hide address bar on mobile by scrolling
+                setTimeout(function(){ window.scrollTo(0,1); }, 100);
+            } else {
+                ov.classList.remove('mobile-fs-active');
+                document.body.classList.remove('mobile-fs-body');
+                var controls = document.getElementById('playerControls');
+                if(controls){
+                    controls.style.opacity='';
+                    controls.style.visibility='';
+                }
+            }
+            return;
+        }
+        
+        // DESKTOP: real fullscreen API
+        if(!document.fullscreenElement && !document.webkitFullscreenElement){
             if(target.requestFullscreen) target.requestFullscreen().catch(function(){});
             else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+            else if(target.mozRequestFullScreen) target.mozRequestFullScreen();
         } else {
             if(document.exitFullscreen) document.exitFullscreen().catch(function(){});
             else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+            else if(document.mozCancelFullScreen) document.mozCancelFullScreen();
         }
     }
     
@@ -3134,6 +3233,15 @@ function closePlayer(e){
         e.preventDefault();
         toggleOverlayFs();
     });
+    fsBlocker.addEventListener('touchstart', function(e){
+        e.stopPropagation();
+        // Don't preventDefault to allow click, but trigger FS
+        toggleOverlayFs();
+    }, {passive:false});
+    fsBlocker.addEventListener('touchend', function(e){
+        e.stopPropagation();
+        e.preventDefault();
+    }, {passive:false});
     fsBlocker.addEventListener('dblclick', function(e){
         e.stopPropagation();
         e.preventDefault();
