@@ -265,35 +265,25 @@
 </head>
 <body>
 
-<!-- ANTI-INSPECTION & CODE PROTECTION SCRIPT -->
+<!-- SAFE ANTI-INSPECTION SCRIPT -->
 <script>
 (function() {
+    // 1. Disable right-click
     document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+    
+    // 2. Disable text selection
     document.addEventListener('selectstart', function(e) { e.preventDefault(); });
+
+    // 3. Disable DevTools shortcuts (F12, Ctrl+Shift+I, Ctrl+U, Ctrl+S)
     document.addEventListener('keydown', function(e) {
         if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
         if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
         if (e.ctrlKey && (e.key === 'U' || e.key === 'S')) { e.preventDefault(); return false; }
     });
-
-    var devtoolsOpen = false;
-    setInterval(function() {
-        var start = performance.now();
-        debugger;
-        var end = performance.now();
-        if (end - start > 100) {
-            document.body.innerHTML = '<div style="color:#fff;background:#14100d;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;"><div><h1>Access Denied</h1><p>Please close developer tools to continue.</p></div></div>';
-            window.stop();
-        }
-        if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
-            if (!devtoolsOpen) {
-                devtoolsOpen = true;
-                document.body.innerHTML = '<div style="color:#fff;background:#14100d;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;"><div><h1>Access Denied</h1><p>Please close developer tools to continue.</p></div></div>';
-            }
-        } else {
-            devtoolsOpen = false;
-        }
-    }, 1000);
+    
+    // Note: Removed the aggressive devtools size check and debugger trap
+    // because mobile keyboards and address bars change window size drastically, 
+    // causing false "Access Denied" screens on mobile devices.
 })();
 </script>
 
@@ -1077,18 +1067,18 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v98</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v99</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v98 — 2026-10-25
-// CHANGELOG (v97 → v98):
-//   • Changed Vidy player progress color from red (DC2626) to dark brown (5D4037).
-//   • Changed "Add to List" text to "Add to Watchlist" across HTML and JS.
-//   • Added visible custom scrollbar to filter dropdowns (Genres, Years, etc.)
-//     by adding ::-webkit-scrollbar styles specifically for .filter-dropdown.
+// TUBEMOCHA BUILD v99 — 2026-10-26
+// CHANGELOG (v98 → v99):
+//   • Fixed "Access Denied" bug on mobile: Removed the aggressive
+//     devtools window-size check and debugger trap. Mobile keyboards 
+//     caused false positives. Kept right-click, text selection, and
+//     keyboard shortcut blocks.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1116,8 +1106,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v98-2026-10-26-player-color-watchlist-text-scrollbars';
-var BUILD_NOTE_V98 = 'Changed Vidy progress color to 5D4037 (dark brown), updated button text to Add to Watchlist, added visible scrollbars to filter dropdowns.';
+var TUBEMOCHA_BUILD = 'v99-2026-10-26-safe-antidebug-fix';
+var BUILD_NOTE_V99 = 'Removed aggressive window size check and debugger trap from anti-inspection script to fix mobile keyboard triggering "Access Denied". Kept right-click and keyboard blocks.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
