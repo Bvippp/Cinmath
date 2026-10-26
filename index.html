@@ -188,7 +188,23 @@
 .reset-filters-btn { font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 6px 12px; margin-left: 8px; }
 .reset-filters-btn:hover { color: #fff; }
 
+/* Scrollable Filter Dropdowns */
 .filter-dropdown { position: absolute; top: 100%; left: 20px; z-index: 200; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; display: none; width: 280px; max-height: 400px; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.8); margin-top: 8px; }
+.filter-dropdown::-webkit-scrollbar {
+    width: 8px;
+    display: block;
+}
+.filter-dropdown::-webkit-scrollbar-track {
+    background: var(--bg-elevated);
+    border-radius: 4px;
+}
+.filter-dropdown::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 4px;
+}
+.filter-dropdown::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-light);
+}
 .filter-dropdown.show { display: block; }
 .filter-dropdown-col { display: flex; flex-direction: column; gap: 8px; }
 .checkbox-label { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-main); cursor: pointer; padding: 4px 0; }
@@ -252,32 +268,23 @@
 <!-- ANTI-INSPECTION & CODE PROTECTION SCRIPT -->
 <script>
 (function() {
-    // 1. Disable right-click
     document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-    
-    // 2. Disable text selection
     document.addEventListener('selectstart', function(e) { e.preventDefault(); });
-
-    // 3. Disable DevTools shortcuts
     document.addEventListener('keydown', function(e) {
         if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); return false; }
         if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) { e.preventDefault(); return false; }
         if (e.ctrlKey && (e.key === 'U' || e.key === 'S')) { e.preventDefault(); return false; }
     });
 
-    // 4. DevTools detection via debugger trap & size check
     var devtoolsOpen = false;
     setInterval(function() {
         var start = performance.now();
         debugger;
         var end = performance.now();
         if (end - start > 100) {
-            // DevTools paused the execution
             document.body.innerHTML = '<div style="color:#fff;background:#14100d;height:100vh;display:flex;align-items:center;justify-content:center;font-family:sans-serif;text-align:center;"><div><h1>Access Denied</h1><p>Please close developer tools to continue.</p></div></div>';
             window.stop();
         }
-        
-        // Window size check (detects docked DevTools)
         if (window.outerWidth - window.innerWidth > 160 || window.outerHeight - window.innerHeight > 160) {
             if (!devtoolsOpen) {
                 devtoolsOpen = true;
@@ -1000,7 +1007,7 @@
 <p class="detail-desc" id="detailDesc"></p>
 <div class="detail-actions">
 <button class="btn-detail-play" id="detailPlayBtn" onclick="playCurrentMedia()"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now</button>
-<button class="btn-detail-secondary" id="detailListBtn" onclick="toggleWatchlist()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span id="detailListText">Add to List</span></button>
+<button class="btn-detail-secondary" id="detailListBtn" onclick="toggleWatchlist()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> <span id="detailListText">Add to Watchlist</span></button>
 </div></div>
 <div class="tv-seasons-container" id="tvSeasonsContainer" style="display:none;">
 <div class="section-head" style="padding:0; margin-bottom:16px;"><div class="section-accent"></div><div class="section-title-box"><div class="tv-seasons-header" style="width:100%;"><select class="tv-season-select" id="tvSeasonSelect" onchange="changeSeason(this.value)"></select><div class="tv-episode-count" id="tvEpisodeCount"></div></div></div></div>
@@ -1070,19 +1077,18 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v97</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v98</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v97 — 2026-10-25
-// CHANGELOG (v96 → v97):
-//   • Added Code Protection (Anti-Inspection) script.
-//   • Right-click disabled.
-//   • F12 / Ctrl+Shift+I / Ctrl+U disabled.
-//   • Text selection disabled on body.
-//   • DevTools detection loop added to crash the page if opened.
+// TUBEMOCHA BUILD v98 — 2026-10-25
+// CHANGELOG (v97 → v98):
+//   • Changed Vidy player progress color from red (DC2626) to dark brown (5D4037).
+//   • Changed "Add to List" text to "Add to Watchlist" across HTML and JS.
+//   • Added visible custom scrollbar to filter dropdowns (Genres, Years, etc.)
+//     by adding ::-webkit-scrollbar styles specifically for .filter-dropdown.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1110,8 +1116,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v97-2026-10-25-code-protection-anti-inspection';
-var BUILD_NOTE_V97 = 'Added anti-inspection script (blocks right-click, F12, text selection, DevTools detection crash). Kept v96 logo fixes.';
+var TUBEMOCHA_BUILD = 'v98-2026-10-26-player-color-watchlist-text-scrollbars';
+var BUILD_NOTE_V98 = 'Changed Vidy progress color to 5D4037 (dark brown), updated button text to Add to Watchlist, added visible scrollbars to filter dropdowns.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1854,7 +1860,7 @@ async function toggleWatchlist() {
         watchlist.splice(idx, 1);
         await supabaseClient.from('watchlists').delete().match({ user_id: currentUser.id, movie_id: String(currentMovie.id) });
         toast('Removed from Watchlist');
-        document.getElementById('detailListText').textContent = 'Add to List';
+        document.getElementById('detailListText').textContent = 'Add to Watchlist';
     } else {
         watchlist.unshift(currentMovie);
         await supabaseClient.from('watchlists').insert({
@@ -1865,7 +1871,7 @@ async function toggleWatchlist() {
             poster_path: currentMovie.poster_path
         });
         toast('Added to Watchlist');
-        document.getElementById('detailListText').textContent = 'Added to List';
+        document.getElementById('detailListText').textContent = 'Added to Watchlist';
     }
     renderWatchlist();
 }
@@ -2098,7 +2104,7 @@ window.addEventListener('scroll', function() {
 });
 
 // === VIDY SINGLE SERVER ===
-var VIDY_COLOR = 'DC2626';
+var VIDY_COLOR = '5D4037';
 var VIDY_BASE = 'https://www.vidy.st';
 var EMBED_PROVIDERS = [
 { 
@@ -2708,7 +2714,7 @@ async function showDetail(rawId, shouldPlay){
     var durationStr = isTV ? (m.seasons ? m.seasons + ' Season' + (m.seasons > 1 ? 's' : '') : 'TV Show') : (m.runtime ? m.runtime + 'm' : '2h 10m');
     document.getElementById('detailMeta').innerHTML = '<span class="star">★ ' + m.r + '</span><span class="divider">·</span><span>' + m.y + '</span><span class="divider">·</span><span>' + durationStr + '</span><span class="divider">·</span><span class="vote-box" style="color:#fff; border-color:#fff;">4K</span><span class="vote-box" style="color:#fff; border-color:#fff;">' + (isTV ? 'M18' : 'R') + '</span><br><span style="font-size:13px; color:var(--text-dim); margin-top:4px;">' + (m.g || ['Movie']).slice(0,3).join(' · ') + '</span>';
     var inList = watchlist.some(function(x) { return String(x.id) === String(currentMovie.id); });
-    document.getElementById('detailListText').textContent = inList ? 'Added to List' : 'Add to List';
+    document.getElementById('detailListText').textContent = inList ? 'Added to Watchlist' : 'Add to Watchlist';
     var bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
     document.getElementById('detailOverlay').style.background = 'url(' + bgUrl + ') center/cover no-repeat';
     var trailerBg = document.getElementById('detailTrailerBg'); trailerBg.innerHTML = '';
