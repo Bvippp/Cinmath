@@ -3121,23 +3121,69 @@ function closePlayer(e){
     });
 })();
 
+// === EXTRA ROBUST FS CAPTURE (movy.sx style - no visible custom fullscreen button) ===
+(function(){
+    var overlay = document.getElementById('playerOverlay');
+    var container = document.getElementById('playerIframeContainer');
+    if(!container) return;
+    
+    // Double-click on container => overlay fullscreen (keeps back arrow)
+    container.addEventListener('dblclick', function(e){
+        if(!document.fullscreenElement){
+            (overlay||container).requestFullscreen().catch(function(){});
+        } else {
+            document.exitFullscreen().catch(function(){});
+        }
+        e.preventDefault();
+    });
+    
+    // Also listen for 'f' key to toggle overlay fullscreen like movy.sx
+    document.addEventListener('keydown', function(e){
+        if(e.key.toLowerCase()==='f' && overlay && overlay.classList.contains('open')){
+            if(!document.fullscreenElement){
+                (overlay||container).requestFullscreen().catch(function(){});
+            } else {
+                document.exitFullscreen().catch(function(){});
+            }
+        }
+    });
+})();
+
 function loadPlayerSource(index) {
-    var container = document.getElementById('playerIframeContainer'); var url = getEmbedUrl(index);
+    var container = document.getElementById('playerIframeContainer'); 
+    var url = getEmbedUrl(index);
     if (!url) { toast('Vidy unavailable - check TMDB ID'); return; }
     playerState.currentServer = 0; playerState.loadStartTime = Date.now();
+    // V105 FIX: Preserve back button controls when reloading iframe
+    var existingControls = document.getElementById('playerControls');
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
+    if(existingControls){
+        container.appendChild(existingControls);
+    }
     hideSwitchBanner();
     setTimeout(function(){
-        var iframeStr = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
-        container.innerHTML = iframeStr + '<div class="branding-mask" style="display:none; pointer-events:none;"></div>';
+        var controls = document.getElementById('playerControls');
+        var loader = document.getElementById('playerLoader');
+        var iframeStr = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay *; fullscreen *; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
+        // Rebuild but keep controls
+        container.innerHTML = iframeStr + '<div class="branding-mask" style="display:none; pointer-events:none;"></div><div class="loader" id="playerLoader" style="display:none;"></div>';
+        if(controls){
+            container.appendChild(controls);
+            controls.style.display='flex';
+            controls.style.opacity='1';
+            controls.style.visibility='visible';
+        }
         var iframe = container.querySelector('iframe');
         if(!iframe){ toast('Failed to create Vidy player'); return; }
         iframe.onload = function() {
-            var loader = document.getElementById('playerLoader'); if (loader) loader.style.display = 'none';
+            var l = document.getElementById('playerLoader'); if (l) l.style.display = 'none';
             iframe.style.opacity = '1'; iframe.style.pointerEvents = 'auto'; hideSwitchBanner();
+            // Ensure back arrow visible after load (movy.sx style)
+            var c = document.getElementById('playerControls');
+            if(c){ c.style.display='flex'; c.style.opacity='1'; c.style.visibility='visible'; }
         };
         iframe.onerror = function() {
-            var loader = document.getElementById('playerLoader'); if (loader) loader.style.display = 'none';
+            var l = document.getElementById('playerLoader'); if (l) l.style.display = 'none';
             hideSwitchBanner(); toast('Vidy failed - check internet or TMDB ID');
         };
     }, 150);
