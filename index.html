@@ -326,49 +326,9 @@ body.mobile-fs-body{
   height:100% !important;
   touch-action:none;
 }
-/* Mobile fsBlocker larger for thumb */
-@media (max-width:768px){
-  #fsBlocker{
-    width:50% !important;
-    height:35% !important;
-    bottom:0 !important;
-    right:0 !important;
-    z-index:10 !important;
-  }
-}
 
 
-/* === V107 MOBILE FS BUTTON - visible button that actually works on iPhone === */
-.mobile-fs-btn{
-  position:absolute;
-  bottom:12px;
-  right:12px;
-  width:44px;
-  height:44px;
-  z-index:15;
-  background:rgba(0,0,0,0.6);
-  backdrop-filter:blur(6px);
-  -webkit-backdrop-filter:blur(6px);
-  border:1px solid rgba(255,255,255,0.2);
-  border-radius:10px;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  opacity:0.9;
-  transition:all 0.2s;
-}
-.mobile-fs-btn:active{transform:scale(0.9); background:rgba(0,0,0,0.8);}
-.mobile-fs-btn svg{width:20px;height:20px;stroke:#fff;fill:none;}
-@media (min-width:769px){
-  .mobile-fs-btn{display:none !important;}
-}
-.player-overlay.mobile-fs-active .mobile-fs-btn{
-  bottom:20px;
-  right:20px;
-  background:rgba(255,255,255,0.15);
-}
+
 
 </style>
 </head>
@@ -3170,12 +3130,6 @@ function closePlayer(e){
     });
 })();
 
-// === OVERLAY FULLSCREEN TRIGGERS (movy.sx style - no visible custom button) ===
-(function(){
-    var overlay = document.getElementById('playerOverlay');
-    var container = document.getElementById('playerIframeContainer');
-    if(!container) return;
-    
     function isMobileFS(){
         return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768 || ('ontouchstart' in window);
     }
@@ -3185,36 +3139,30 @@ function closePlayer(e){
         var target = ov || cont;
         if(!target) return;
         
-        // MOBILE: use fake fullscreen (iOS doesn't support div fullscreen properly)
+        // V108: On mobile, let Vidy handle FS natively (don't fake), on desktop use overlay FS to keep back arrow
+        // Equation: if mobile, do nothing here - Vidy's own button will trigger video.webkitEnterFullscreen()
+        // For desktop double-click/F, use overlay FS
         if(isMobileFS()){
+            // For mobile double-click, still allow fake FS as fallback (equation: 100dvh)
             var isActive = ov.classList.contains('mobile-fs-active');
             if(!isActive){
+                // Only fake FS on double-click, not blocking native button
                 ov.classList.add('mobile-fs-active');
                 document.body.classList.add('mobile-fs-body');
-                // Equation: scale = min(vw/vh) to fill, use transform for smooth entry
-                // Force controls visible with equation opacity = 1 - e^(-t/0.25)
                 var controls = document.getElementById('playerControls');
                 if(controls){
                     controls.style.display='flex';
                     controls.style.opacity='1';
                     controls.style.visibility='visible';
-                    controls.style.transform='translateY(0)';
                 }
-                // Hide address bar on mobile by scrolling
-                setTimeout(function(){ window.scrollTo(0,1); }, 100);
             } else {
                 ov.classList.remove('mobile-fs-active');
                 document.body.classList.remove('mobile-fs-body');
-                var controls = document.getElementById('playerControls');
-                if(controls){
-                    controls.style.opacity='';
-                    controls.style.visibility='';
-                }
             }
             return;
         }
         
-        // DESKTOP: real fullscreen API
+        // DESKTOP: real fullscreen API for overlay (keeps back arrow)
         if(!document.fullscreenElement && !document.webkitFullscreenElement){
             if(target.requestFullscreen) target.requestFullscreen().catch(function(){});
             else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen();
@@ -3226,108 +3174,48 @@ function closePlayer(e){
         }
     }
     
-    // Double-click anywhere on video container => overlay fullscreen (keeps back arrow)
-    container.addEventListener('dblclick', function(e){
-        // Don't trigger if clicking on back button itself
-        if(e.target.closest && e.target.closest('.player-back-btn')) return;
-        toggleOverlayFs();
-        e.preventDefault();
-    });
-    
-    // 'f' key toggles overlay fullscreen
-    document.addEventListener('keydown', function(e){
-        var ov = document.getElementById('playerOverlay');
-        if(e.key.toLowerCase()==='f' && ov && ov.classList.contains('open')){
+    // V108: No blocker - let Vidy button work natively like movy.sx
+    // Only double-click and F key for overlay FS on desktop
+    (function(){
+        var container = document.getElementById('playerIframeContainer');
+        if(!container) return;
+        container.addEventListener('dblclick', function(e){
+            if(e.target.closest && e.target.closest('.player-back-btn')) return;
             toggleOverlayFs();
-        }
-    });
-    
-    // V107: Visible mobile fullscreen button + invisible blocker that actually works on iPhone
-    var fsBlocker = document.createElement('div');
-    fsBlocker.id = 'fsBlocker';
-    fsBlocker.style.cssText = 'position:absolute;bottom:0;right:0;width:50%;height:35%;z-index:5;cursor:pointer;background:transparent;touch-action:manipulation;';
-    fsBlocker.title = 'Fullscreen';
-    
-    var mobileFsBtn = document.createElement('button');
-    mobileFsBtn.id = 'mobileFsBtn';
-    mobileFsBtn.className = 'mobile-fs-btn';
-    mobileFsBtn.innerHTML = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><polyline points="21 14 21 21 15 21"></polyline><polyline points="3 10 3 3 9 3"></polyline></svg>';
-    mobileFsBtn.title = 'Fullscreen';
-    
-    function tryAppendBlocker(){
-        var cont = document.getElementById('playerIframeContainer');
-        var controls = document.getElementById('playerControls');
-        if(!cont) return;
-        if(!document.getElementById('fsBlocker')){
-            cont.appendChild(fsBlocker);
-        }
-        if(!document.getElementById('mobileFsBtn')){
-            cont.appendChild(mobileFsBtn);
-        }
-        // Keep controls and mobile button on top (controls highest)
-        if(controls) cont.appendChild(controls);
-        var btn = document.getElementById('mobileFsBtn');
-        if(btn) cont.appendChild(btn);
-        // Keep blocker just below button but above iframe
-        var blocker = document.getElementById('fsBlocker');
-        if(blocker && btn){
-            cont.insertBefore(blocker, btn);
-        }
-    }
-    tryAppendBlocker();
-    setInterval(tryAppendBlocker, 1000);
-    
-    function handleFsTrigger(e){
-        if(e) { e.stopPropagation(); e.preventDefault(); }
-        toggleOverlayFs();
-    }
-    
-    fsBlocker.addEventListener('click', handleFsTrigger);
-    fsBlocker.addEventListener('touchstart', handleFsTrigger, {passive:false});
-    fsBlocker.addEventListener('touchend', function(e){ e.stopPropagation(); e.preventDefault(); }, {passive:false});
-    fsBlocker.addEventListener('dblclick', handleFsTrigger);
-    
-    mobileFsBtn.addEventListener('click', handleFsTrigger);
-    mobileFsBtn.addEventListener('touchstart', handleFsTrigger, {passive:false});
-    mobileFsBtn.addEventListener('touchend', function(e){ e.stopPropagation(); e.preventDefault(); }, {passive:false});
-})();
+            e.preventDefault();
+        });
+        document.addEventListener('keydown', function(e){
+            var ov = document.getElementById('playerOverlay');
+            if(e.key.toLowerCase()==='f' && ov && ov.classList.contains('open')){
+                toggleOverlayFs();
+            }
+        });
+    })();
+
+
 
 function loadPlayerSource(index) {
     var container = document.getElementById('playerIframeContainer'); 
     var url = getEmbedUrl(index);
     if (!url) { toast('Vidy unavailable - check TMDB ID'); return; }
     playerState.currentServer = 0; playerState.loadStartTime = Date.now();
-    // V107 FIX: Preserve back button + mobile FS button + blocker when reloading iframe
+    // V108 FIX: Preserve back button only, no blocker/button - let Vidy native FS work like movy.sx
     var existingControls = document.getElementById('playerControls');
-    var existingBtn = document.getElementById('mobileFsBtn');
-    var existingBlocker = document.getElementById('fsBlocker');
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
     if(existingControls){ container.appendChild(existingControls); }
-    if(existingBlocker){ container.appendChild(existingBlocker); }
-    if(existingBtn){ container.appendChild(existingBtn); }
     hideSwitchBanner();
     setTimeout(function(){
         var controls = document.getElementById('playerControls');
-        var btn = document.getElementById('mobileFsBtn');
-        var blocker = document.getElementById('fsBlocker');
         var loader = document.getElementById('playerLoader');
-        var iframeStr = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay *; fullscreen *; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
-        // Rebuild but keep controls + mobile buttons (equation: z-order = iframe(1) < blocker(5) < mobileBtn(15) < controls(2147483646))
+        // V108: Use exact allow attribute from vidy.st docs: "encrypted-media; autoplay *; fullscreen *"
+        // Equation: allow = encrypted-media + autoplay* + fullscreen* ensures native FS works on mobile
+        var iframeStr = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen webkitallowfullscreen mozallowfullscreen allow="encrypted-media; autoplay *; fullscreen *" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
         container.innerHTML = iframeStr + '<div class="branding-mask" style="display:none; pointer-events:none;"></div><div class="loader" id="playerLoader" style="display:none;"></div>';
-        if(blocker){ container.appendChild(blocker); }
-        if(btn){ 
-            container.appendChild(btn);
-            btn.style.display='flex';
-        }
         if(controls){
             container.appendChild(controls);
             controls.style.display='flex';
             controls.style.opacity='1';
             controls.style.visibility='visible';
-        }
-        // Re-ensure blocker is below btn but above iframe
-        if(blocker && btn && blocker.nextSibling !== btn){
-            container.insertBefore(blocker, btn);
         }
         var iframe = container.querySelector('iframe');
         if(!iframe){ toast('Failed to create Vidy player'); return; }
