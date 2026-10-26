@@ -53,7 +53,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.3s ease, transform 0.2s ease;
+    transition: opacity 0.4s ease, transform 0.2s ease;
 }
 .player-back-btn svg {
     width: 32px;
@@ -1076,21 +1076,22 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v117</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v118</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v117 — 2026-10-26
-// CHANGELOG (v116 → v117):
-//   • ENHANCED NATIVE UI: Added the &title= parameter to the 
-//     Vidy iframe URL. This triggers Vidy to render its native 
-//     back arrow and title in the top left, perfectly aligned 
-//     with its native progress bar.
-//   • SYNC FIX: The custom overlay timer now strictly waits for 
-//     the 'timeupdate' event (actual video playback) to start, 
-//     preventing it from disappearing during buffering.
+// TUBEMOCHA BUILD v118 — 2026-10-26
+// CHANGELOG (v117 → v118):
+//   • API DOCS ALIGNMENT: Removed the invalid &title parameter 
+//     from the Vidy URL.
+//   • SYNCED FADE: Updated the message listener to parse the 
+//     JSON payload exactly as shown in the API docs.
+//   • When 'timeupdate' is received, the video is playing, so 
+//     we start the 3-second fade timer.
+//   • When 'pause' is received, the video is paused, so we show 
+//     the arrow and keep it visible.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1118,7 +1119,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v117-2026-10-26-title-param';
+var TUBEMOCHA_BUILD = 'v118-2026-10-26-api-docs-alignment';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -2322,12 +2323,10 @@ var EMBED_PROVIDERS = [
 { 
   name: 'Vidy', 
   movie: function(id) { 
-      var title = currentMovie ? encodeURIComponent(currentMovie.t) : '';
-      return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&title=' + title + '&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; 
+      return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; 
   }, 
   tv: function(id, s, e) { 
-      var title = currentMovie ? encodeURIComponent(currentMovie.t + ' S' + s + ' E' + e) : '';
-      return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true&title=' + title + '&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; 
+      return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; 
   }
 }
 ];
@@ -2335,6 +2334,7 @@ var currentProviderIndex = 0;
 var playerState = { currentServer: 0, loadStartTime: 0 };
 var consecutiveFailures = 0;
 var autoSwitchTimer = null;
+var isPlaying = false;
 
 // Message listener to sync custom controls with Vidy player state
 window.addEventListener('message', function(event) {
@@ -2343,14 +2343,20 @@ window.addEventListener('message', function(event) {
     var dataStr = '';
     try{ if(typeof raw === 'string') dataStr = raw.toLowerCase(); else dataStr = JSON.stringify(raw).toLowerCase(); }catch(e){ dataStr = String(raw).toLowerCase(); }
     
-    // Handle player state changes
-    if (dataStr.indexOf('"event":"play"') > -1) {
-        // Optional: Start fade timer slightly after play to ensure it aligns
-    } else if (dataStr.indexOf('"event":"pause"') > -1) {
-        showPlayerControls(); // Ensure controls are visible when paused
-    } else if (dataStr.indexOf('timeupdate') > -1) {
-        // Timeupdate implies actual video playback. Start the fade timer here.
-        if (!playerControlsTimer) { showPlayerControls(); }
+    // Handle player state changes based on the API docs
+    if (dataStr.indexOf('"event":"pause"') > -1) {
+        isPlaying = false;
+        showPlayerControls();
+        clearTimeout(playerControlsTimer);
+        playerControlsTimer = null;
+    } else if (dataStr.indexOf('"event":"timeupdate"') > -1) {
+        // Timeupdate implies actual video playback.
+        if (!isPlaying) {
+            isPlaying = true;
+            showPlayerControls();
+        } else if (!playerControlsTimer) {
+            showPlayerControls();
+        }
     } else if (dataStr.indexOf('playing')>-1 || dataStr.indexOf('progress')>-1 || dataStr.indexOf('ready')>-1) {
         // Hide loader on ready/playing
         var iframeEl = document.getElementById('playerIframeContainer') ? document.getElementById('playerIframeContainer').querySelector('iframe') : null;
@@ -2911,9 +2917,9 @@ function showPlayerControls() {
     if (!btn) return;
     btn.style.opacity = '1';
     clearTimeout(playerControlsTimer);
-    playerControlsTimer = setTimeout(function() {
-        hidePlayerControls();
-    }, 3000); // Match Vidy's native control fade time
+    if (isPlaying) {
+        playerControlsTimer = setTimeout(hidePlayerControls, 3000);
+    }
 }
 
 function hidePlayerControls() {
@@ -2932,10 +2938,11 @@ async function playCurrentMedia(){
     var overlay = document.getElementById('playerOverlay'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; 
     currentProviderIndex = 0; hideSwitchBanner(); loadPlayerSource(0);
     
-    // Show controls immediately on open, but don't start timer until video plays
+    isPlaying = false;
     var btn = document.getElementById('customBackBtn');
     if (btn) btn.style.opacity = '1';
     clearTimeout(playerControlsTimer);
+    playerControlsTimer = null;
     
     document.addEventListener('mousemove', showPlayerControls);
     document.addEventListener('touchstart', showPlayerControls);
@@ -2948,6 +2955,8 @@ function closePlayer(e){
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
     
     clearTimeout(playerControlsTimer);
+    playerControlsTimer = null;
+    isPlaying = false;
     document.removeEventListener('mousemove', showPlayerControls);
     document.removeEventListener('touchstart', showPlayerControls);
     
