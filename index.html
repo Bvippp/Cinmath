@@ -2986,11 +2986,10 @@ function closePlayer(e){
     }
 }
 
-// === V105 FULLSCREEN BACK ARROW FIX - NO CUSTOM FULLSCREEN NEEDED (like movy.sx) ===
+// === V105 FIXED V2: BACK ARROW IN FULLSCREEN + FULLSCREEN WORKS (movy.sx style) ===
 (function(){
     var fsControlsTimeout = null;
     var isPlayerPaused = false;
-    var lastFsElement = null;
     function getControls(){ return document.getElementById('playerControls') || document.querySelector('.player-controls'); }
     function getOverlay(){ return document.getElementById('playerOverlay'); }
     function getContainer(){ return document.getElementById('playerIframeContainer'); }
@@ -3001,11 +3000,11 @@ function closePlayer(e){
         if(!controls) return;
         controls.classList.remove('fs-hidden');
         controls.classList.add('fs-visible');
+        controls.style.display='flex';
         controls.style.opacity='1';
         controls.style.visibility='visible';
         controls.style.transform='translateY(0)';
         clearTimeout(fsControlsTimeout);
-        // Equation: hideDelay = 3000ms * (1 + 0.5*isPaused) => stays longer when paused
         var hideDelay = isPlayerPaused ? 5000 : 3000;
         if(document.fullscreenElement || document.webkitFullscreenElement){
             fsControlsTimeout = setTimeout(function(){
@@ -3020,7 +3019,7 @@ function closePlayer(e){
     window.hideFsControls = function(){
         var controls = getControls();
         if(!controls) return;
-        if(document.fullscreenElement || document.webkitFullscreenElement){
+        if(document.fullscreenElement){
             if(!isPlayerPaused){
                 controls.classList.remove('fs-visible');
                 controls.classList.add('fs-hidden');
@@ -3028,127 +3027,121 @@ function closePlayer(e){
         }
     };
     
-    // When Vidy iframe tries to go fullscreen, switch to overlay fullscreen to keep back arrow (like movy.sx does)
+    // FIXED: Don't block iframe fullscreen, just ensure overlay fullscreen is primary
     function handleFullscreenChange(){
-        var fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+        var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
         var overlay = getOverlay();
         var container = getContainer();
-        var iframe = getIframe();
         var controls = getControls();
         
-        // If iframe entered fullscreen - this is the key fix, move fullscreen to overlay
-        if(fsEl && iframe && (fsEl === iframe)){
-            lastFsElement = fsEl;
-            // Exit iframe fullscreen, enter overlay fullscreen
-            var exitPromise = document.exitFullscreen ? document.exitFullscreen() : 
-                             (document.webkitExitFullscreen ? document.webkitExitFullscreen() : Promise.resolve());
-            exitPromise.then(function(){
-                setTimeout(function(){
-                    var target = overlay || container;
-                    if(target){
-                        if(target.requestFullscreen) target.requestFullscreen().catch(function(){});
-                        else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen();
-                    }
-                }, 100);
-            }).catch(function(){
-                // fallback
-                var target = overlay || container;
-                if(target && target.requestFullscreen) target.requestFullscreen().catch(function(){});
-            });
-            return;
-        }
-        
-        // When our overlay/container enters fullscreen, ensure back button visible
-        if(fsEl && (fsEl === overlay || fsEl === container || (container && container.contains(fsEl)))){
+        // When overlay/container goes fullscreen -> show back arrow
+        if(fsEl && (fsEl === overlay || fsEl === container)){
             if(controls){
                 controls.style.display='flex';
+                controls.style.opacity='1';
+                controls.style.visibility='visible';
                 showFsControls();
-                // Add mousemove listener to show on move (pause scenario)
-                overlay.addEventListener('mousemove', showFsControls);
-                overlay.addEventListener('touchstart', showFsControls, {passive:true});
+                if(overlay){
+                    overlay.addEventListener('mousemove', showFsControls);
+                    overlay.addEventListener('touchstart', showFsControls, {passive:true});
+                }
             }
         } else if(!fsEl){
-            // Exited fullscreen
             if(controls){
                 controls.classList.remove('fs-hidden','fs-visible');
                 controls.style.opacity='';
                 controls.style.visibility='';
                 controls.style.transform='';
             }
-            var overlayEl = getOverlay();
-            if(overlayEl){
-                overlayEl.removeEventListener('mousemove', showFsControls);
-                overlayEl.removeEventListener('touchstart', showFsControls);
-            }
             clearTimeout(fsControlsTimeout);
         }
+        // If iframe goes fullscreen, we let it be fullscreen (don't exit), but back arrow will be hidden
+        // That's why we use overlay fullscreen via our own triggers below
     }
     
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
     
-    // Listen to Vidy player events to keep back arrow on pause (your requirement: when about to pause)
+    // Listen to Vidy pause to keep arrow
     window.addEventListener('message', function(event){
         try{
             if(!event.data || typeof event.data !== 'string') return;
             if(event.origin && event.origin.indexOf('vidy.st') === -1) return;
             var payload = JSON.parse(event.data);
-            if(payload.event === 'pause'){
-                isPlayerPaused = true;
-                showFsControls();
-            } else if(payload.event === 'play'){
-                isPlayerPaused = false;
-                showFsControls();
-            } else if(payload.event === 'timeupdate'){
-                // keep controls logic running
-            }
+            if(payload.event === 'pause'){ isPlayerPaused = true; showFsControls(); }
+            else if(payload.event === 'play'){ isPlayerPaused = false; showFsControls(); }
         }catch(e){}
-    });
-    
-    // Also show controls on overlay hover/touch - mimics movy.sx behavior
-    document.addEventListener('DOMContentLoaded', function(){
-        var overlay = getOverlay();
-        if(overlay){
-            overlay.addEventListener('mousemove', function(e){
-                // Equation: distance from top < 120px => always show back arrow (Fitt's law)
-                if(e.clientY < 120) showFsControls();
-            });
-            overlay.addEventListener('mouseleave', function(){
-                if(document.fullscreenElement) hideFsControls();
-            });
-        }
     });
 })();
 
-// === EXTRA ROBUST FS CAPTURE (movy.sx style - no visible custom fullscreen button) ===
+// === OVERLAY FULLSCREEN TRIGGERS (movy.sx style - no visible custom button) ===
 (function(){
     var overlay = document.getElementById('playerOverlay');
     var container = document.getElementById('playerIframeContainer');
     if(!container) return;
     
-    // Double-click on container => overlay fullscreen (keeps back arrow)
-    container.addEventListener('dblclick', function(e){
+    function toggleOverlayFs(){
+        var ov = document.getElementById('playerOverlay');
+        var cont = document.getElementById('playerIframeContainer');
+        var target = ov || cont;
+        if(!target) return;
         if(!document.fullscreenElement){
-            (overlay||container).requestFullscreen().catch(function(){});
+            if(target.requestFullscreen) target.requestFullscreen().catch(function(){});
+            else if(target.webkitRequestFullscreen) target.webkitRequestFullscreen();
         } else {
-            document.exitFullscreen().catch(function(){});
+            if(document.exitFullscreen) document.exitFullscreen().catch(function(){});
+            else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
         }
+    }
+    
+    // Double-click anywhere on video container => overlay fullscreen (keeps back arrow)
+    container.addEventListener('dblclick', function(e){
+        // Don't trigger if clicking on back button itself
+        if(e.target.closest && e.target.closest('.player-back-btn')) return;
+        toggleOverlayFs();
         e.preventDefault();
     });
     
-    // Also listen for 'f' key to toggle overlay fullscreen like movy.sx
+    // 'f' key toggles overlay fullscreen
     document.addEventListener('keydown', function(e){
-        if(e.key.toLowerCase()==='f' && overlay && overlay.classList.contains('open')){
-            if(!document.fullscreenElement){
-                (overlay||container).requestFullscreen().catch(function(){});
-            } else {
-                document.exitFullscreen().catch(function(){});
-            }
+        var ov = document.getElementById('playerOverlay');
+        if(e.key.toLowerCase()==='f' && ov && ov.classList.contains('open')){
+            toggleOverlayFs();
         }
+    });
+    
+    // Capture clicks on Vidy's fullscreen button area (bottom-right 120x80) and redirect to overlay fullscreen
+    // This makes Vidy's button act like overlay fullscreen, keeping back arrow
+    var fsBlocker = document.createElement('div');
+    fsBlocker.id = 'fsBlocker';
+    fsBlocker.style.cssText = 'position:absolute;bottom:0;right:0;width:120px;height:80px;z-index:5;cursor:pointer;background:transparent;';
+    fsBlocker.title = 'Fullscreen';
+    // We'll append it after iframe loads via observer
+    function tryAppendBlocker(){
+        var cont = document.getElementById('playerIframeContainer');
+        var controls = document.getElementById('playerControls');
+        if(cont && !document.getElementById('fsBlocker')){
+            cont.appendChild(fsBlocker);
+            if(controls) cont.appendChild(controls); // keep controls on top
+        }
+    }
+    // Try now and on interval
+    tryAppendBlocker();
+    setInterval(tryAppendBlocker, 1000);
+    
+    fsBlocker.addEventListener('click', function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        toggleOverlayFs();
+    });
+    fsBlocker.addEventListener('dblclick', function(e){
+        e.stopPropagation();
+        e.preventDefault();
+        toggleOverlayFs();
     });
 })();
 
+function loadPlayerSource(index)
 function loadPlayerSource(index) {
     var container = document.getElementById('playerIframeContainer'); 
     var url = getEmbedUrl(index);
