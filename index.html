@@ -1076,18 +1076,21 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v114</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v115</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v114 — 2026-10-26
-// CHANGELOG (v113 → v114):
-//   • Added custom overlay back button with 3-second inactivity 
-//     timer to perfectly mimic Vidy's native controls fade-out.
-//   • The arrow and player controls now fade together on inactivity.
-//   • Arrow reappears when moving mouse or touching screen.
+// TUBEMOCHA BUILD v115 — 2026-10-26
+// CHANGELOG (v114 → v115):
+//   • FIXED FADE ALIGNMENT: The custom back arrow now listens 
+//     to Vidy's postMessage events (play, pause) to precisely 
+//     mimic the native controls fade-out behavior.
+//   • The arrow stays visible during loading and only starts 
+//     its fade timer when the video actually begins playing.
+//   • Removed the &backButton=true parameter from Vidy URL as 
+//     it is not supported by the API.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1115,7 +1118,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v114-2026-10-26-custom-overlay-fade';
+var TUBEMOCHA_BUILD = 'v115-2026-10-26-synced-fade';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -2312,7 +2315,7 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// === VIDY SINGLE SERVER ===
+// === VIDY SINGLE SERVER (NATIVE UI) ===
 var VIDY_COLOR = 'c89666';
 var VIDY_BASE = 'https://www.vidy.st';
 var EMBED_PROVIDERS = [
@@ -2331,12 +2334,20 @@ var playerState = { currentServer: 0, loadStartTime: 0 };
 var consecutiveFailures = 0;
 var autoSwitchTimer = null;
 
+// Message listener to sync custom controls with Vidy player state
 window.addEventListener('message', function(event) {
     try{ if(event.origin && event.origin.indexOf('vidy.st') === -1) return; }catch(e){}
     var raw = event.data;
     var dataStr = '';
     try{ if(typeof raw === 'string') dataStr = raw.toLowerCase(); else dataStr = JSON.stringify(raw).toLowerCase(); }catch(e){ dataStr = String(raw).toLowerCase(); }
-    if(dataStr.indexOf('playing')>-1 || dataStr.indexOf('timeupdate')>-1 || dataStr.indexOf('progress')>-1 || dataStr.indexOf('ready')>-1){
+    
+    // Handle player state changes
+    if (dataStr.indexOf('"event":"play"') > -1) {
+        showPlayerControls(); // Start fade timer when video actually starts
+    } else if (dataStr.indexOf('"event":"pause"') > -1) {
+        showPlayerControls(); // Ensure controls are visible when paused
+    } else if (dataStr.indexOf('playing')>-1 || dataStr.indexOf('timeupdate')>-1 || dataStr.indexOf('progress')>-1 || dataStr.indexOf('ready')>-1) {
+        // Hide loader on ready/playing
         var iframeEl = document.getElementById('playerIframeContainer') ? document.getElementById('playerIframeContainer').querySelector('iframe') : null;
         if(iframeEl){ iframeEl.style.opacity='1'; iframeEl.style.pointerEvents='auto'; }
         var loader = document.getElementById('playerLoader');
@@ -2897,7 +2908,7 @@ function showPlayerControls() {
     clearTimeout(playerControlsTimer);
     playerControlsTimer = setTimeout(function() {
         hidePlayerControls();
-    }, 3000);
+    }, 3000); // Match Vidy's native control fade time
 }
 
 function hidePlayerControls() {
@@ -2916,10 +2927,13 @@ async function playCurrentMedia(){
     var overlay = document.getElementById('playerOverlay'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; 
     currentProviderIndex = 0; hideSwitchBanner(); loadPlayerSource(0);
     
-    document.getElementById('customBackBtn').style.opacity = '1';
+    // Show controls immediately on open, but don't start timer until video plays
+    var btn = document.getElementById('customBackBtn');
+    if (btn) btn.style.opacity = '1';
+    clearTimeout(playerControlsTimer);
+    
     document.addEventListener('mousemove', showPlayerControls);
     document.addEventListener('touchstart', showPlayerControls);
-    showPlayerControls(); // Start timer
 }
 
 function closePlayer(e){
