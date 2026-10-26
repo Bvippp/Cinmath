@@ -53,7 +53,7 @@
 .player-video-container:-webkit-full-screen{width:100vw !important;height:100vh !important;background:#000 !important;display:flex !important;flex-direction:column !important;}
 .player-overlay:fullscreen .player-video-container,
 .player-overlay:-webkit-full-screen .player-video-container,
-.player-video-container:fullscreen #playerIframeContainer,
+.player-video-container:fullscreen #playerIframeContainer{width:100%;aspect-ratio:16/9;position:relative;} #playerIframeContainer,
 .player-video-container:-webkit-full-screen #playerIframeContainer{width:100% !important;height:100% !important;flex:1 !important;}
 .player-overlay:fullscreen 
 /* Back button always visible in fullscreen - even on pause */
@@ -2451,8 +2451,8 @@ var VIDY_BASE = 'https://www.vidy.st';
 var EMBED_PROVIDERS = [
 { 
   name: 'Vidy', 
-  movie: function(id) { return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; }, 
-  tv: function(id, s, e) { return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&progress=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true&thickness=8&barSize=8&progressThickness=8&progressBarThickness=8&progress_bar_size=8&bar_height=8&height=8'; }
+  movie: function(id) { return VIDY_BASE + '/movie/' + id + '?color=' + VIDY_COLOR + '&autoplay=true'; }, 
+  tv: function(id, s, e) { return VIDY_BASE + '/tv/' + id + '/' + s + '/' + e + '?color=' + VIDY_COLOR + '&autoplay=true&episodeSelector=true&nextEpisode=true&autoplayNextEpisode=true'; }
 }
 ];
 var currentProviderIndex = 0;
@@ -3020,8 +3020,15 @@ function selectEpisode(season, episode) {
 function getEmbedUrl(index) {
     var provider = EMBED_PROVIDERS[0];
     if (!provider) return '';
-    var url = currentMovie._tv ? provider.tv(currentMovie.tmdb, currentSeason, currentEpisode) : provider.movie(currentMovie.tmdb);
-    return url;
+    var base = currentMovie._tv ? provider.tv(currentMovie.tmdb, currentSeason, currentEpisode) : provider.movie(currentMovie.tmdb);
+    // VIDY DOCS: progress param - send when user comes back (What Vidy does not do - keep continue-watching on your side)
+    var key = "vidy_progress_" + currentMovie.tmdb + (currentMovie._tv ? "_s"+currentSeason+"_e"+currentEpisode : "");
+    var saved = localStorage.getItem(key);
+    if(saved && !base.includes("progress=")){
+        var sep = base.includes("?") ? "&" : "?";
+        base += sep + "progress=" + saved;
+    }
+    return base;
 }
 
 async function playCurrentMedia(){
@@ -3053,17 +3060,6 @@ async function playCurrentMedia(){
 function closePlayer(e){
     if(e) e.stopPropagation();
     var overlay = document.getElementById('playerOverlay');
-    // V106 MOBILE: if fake fullscreen active, exit it first instead of closing player
-    if(overlay && overlay.classList.contains('mobile-fs-active')){
-        overlay.classList.remove('mobile-fs-active');
-        document.body.classList.remove('mobile-fs-body');
-        var controls = document.getElementById('playerControls');
-        if(controls){
-            controls.style.opacity='';
-            controls.style.visibility='';
-        }
-        return;
-    }
     if(overlay) overlay.classList.remove('open');
     document.body.style.overflow = '';
     document.body.classList.remove('mobile-fs-body');
@@ -3144,19 +3140,15 @@ function closePlayer(e){
         }
     }
     
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-    
-    window.showFsControls = function(){
+    document.addEventListener('fullscreenchange'
+    document.addEventListener('mozfullscreenchange'window.showFsControls = function(){
         var controls = getControls();
         if(!controls) return;
         controls.style.display='flex';
         controls.style.opacity='1';
         controls.style.visibility='visible';
     };
-, handleFullscreenChange);
-    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+
     
     // Listen to Vidy pause to keep arrow
     window.addEventListener('message', function(event){
