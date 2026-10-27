@@ -887,10 +887,6 @@
             <div class="help-answer">Open subtitles from the player. Tracks come from public subtitle providers and aren't guaranteed for every title or language. You can change size and style in subtitle settings.</div>
         </div>
         <div class="help-item">
-            <div class="help-question" onclick="toggleHelp(this)">Can I download titles? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
-            <div class="help-answer">Some titles offer a download option. Not everything can be downloaded, and there is a limit of 3 downloads per hour.</div>
-        </div>
-        <div class="help-item">
             <div class="help-question" onclick="toggleHelp(this)">Why are there ads? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg></div>
             <div class="help-answer">Ads help keep TUBEMOCHA free. Blocking them with extensions may also break playback on some sources.</div>
         </div>
@@ -1085,23 +1081,15 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v111</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v112</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v111 — 2026-10-27
-// CHANGELOG (v110 → v111):
-//   • Removed specific Q&As from the Help page as requested:
-//     - Vidy text in "Why isn't a title playing?"
-//     - "How do I try another source?"
-//     - "How do profiles work?"
-//     - "What does the profile PIN do?"
-//     - "I forgot my password"
-//     - "How does Watch Party work?" (and the whole section)
-//     - "How does For You work?"
-//   • Removed "Watch Party" mention from "Do I need an account?".
+// TUBEMOCHA BUILD v112 — 2026-10-27
+// CHANGELOG (v111 → v112):
+//   • Removed "Can I download titles?" Q&A from the Help page.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1131,8 +1119,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v111-2026-10-27-help-cleanup';
-var BUILD_NOTE_V111 = 'Removed specific questions and answers from the Help page.';
+var TUBEMOCHA_BUILD = 'v112-2026-10-27-help-cleanup-2';
+var BUILD_NOTE_V112 = 'Removed "Can I download titles?" from Help page.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
