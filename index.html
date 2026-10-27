@@ -33,7 +33,7 @@
 .poster img{position:absolute;top:0;left:0;width:100% !important;height:100% !important;object-fit:cover !important;}
 .badge{position:absolute;top:8px;left:8px;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}.badge.hd{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.tv{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.rating{left:auto;right:8px;background:rgba(20,16,13,0.8);color:var(--accent-light);border:1px solid rgba(255,255,255,0.1)}.badge.rating span{color:var(--star)}.badge.new-season{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--bg-main);padding:4px 12px;border-radius:4px;font-size:11px;font-weight:800;text-transform:capitalize;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,0.5);white-space:nowrap;top:auto}.genre-card{flex:0 0 280px;aspect-ratio:16/9;border-radius:var(--radius-lg);overflow:hidden;position:relative;cursor:pointer;border:1px solid var(--border);transition:transform .2s}@media (min-width:390px){.genre-card{flex:0 0 320px}}@media (min-width:768px){.genre-card{flex:0 0 380px}}.genre-card:active{transform:scale(.97)}.genre-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}.genre-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.2) 60%,transparent 100%)}.genre-card-title{position:absolute;bottom:16px;left:20px;right:20px;font-size:22px;font-weight:800;color:#fff;z-index:2;text-shadow:0 2px 5px rgba(0,0,0,0.6)}.card-info{padding:10px 4px 0}.card-title{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main);line-height:1.3}.card-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}.card-sub .s-star{color:var(--star)}.card-sub .s-sep{color:var(--text-dim);margin:0 3px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px 12px;padding:0 20px}@media (min-width:390px){.grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}}@media (min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}}.grid .card{flex:none;width:100%}.view{display:none;animation:fade .3s}.view.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* --- v120: THICKER DETAIL SCROLLBAR --- */
+/* --- v121: THICKER DETAIL SCROLLBAR --- */
 .detail-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-main);overflow-y:scroll;display:none;scrollbar-width:thin;scrollbar-color:var(--star) var(--bg-elevated);}
 .detail-overlay.open{display:block}
 .detail-overlay::-webkit-scrollbar{width:24px;display:block;background:var(--bg-main);border-left:1px solid var(--border);}
@@ -68,7 +68,6 @@
 .help-item.active .help-answer { padding-bottom: 18px; }
 
 .legal-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
-.legal-icon { font-size: 50px; text-align: center; margin-bottom: 15px; }
 .legal-title { font-size: 38px; font-weight: 900; color: #fff; text-align: center; margin-bottom: 10px; }
 .legal-date { font-size: 14px; color: var(--text-dim); text-align: center; margin-bottom: 40px; font-weight: 500; }
 .legal-content { color: var(--text-muted); font-size: 15px; line-height: 1.7; }
@@ -166,7 +165,7 @@
 .search-tab:hover { color: var(--text-main); }
 .search-tab.active { color: var(--text-main); border-bottom-color: var(--accent-light); }
 
-/* --- v120: SEARCH DROPDOWN SCROLLBAR --- */
+/* --- v121: SEARCH DROPDOWN SCROLLBAR --- */
 .search-results-list { 
     max-height: 400px; 
     overflow-y: auto; 
@@ -589,7 +588,19 @@
 <div class="hero-dots"><div class="dot active" onclick="setHeroSlide(0)"></div><div class="dot" onclick="setHeroSlide(1)"></div><div class="dot" onclick="setHeroSlide(2)"></div><div class="dot" onclick="setHeroSlide(3)"></div><div class="dot" onclick="setHeroSlide(4)"></div></div>
 </div>
 <div class="main">
-<div class="section-head"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">TOP 10 on Tubemocha</h2><div class="section-sub">The most watched titles right now</div></div></div>
+<div class="section-head">
+    <div class="section-accent"></div>
+    <div class="section-title-box">
+        <h2 class="section-title" id="homeTrendingTitle">Trending in Your Region</h2>
+        <div class="section-sub">The most watched titles right now</div>
+    </div>
+    <div style="position:relative;">
+        <button class="filter-btn" id="btnTrendingCountryHome" onclick="toggleTrendingCountryDropdown('home', event)">Country ▾</button>
+        <div class="filter-dropdown" id="trendingCountryDropdownHome" style="right:0; left:auto; width: 250px;">
+            <div class="filter-dropdown-col" id="trendingCountryListHome"></div>
+        </div>
+    </div>
+</div>
 <div class="scroller-wrapper"><button class="scroll-arrow left" onclick="scrollRow('trendingTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="trendingTrack" onscroll="updateScrollArrows('trendingTrack')"></div><button class="scroll-arrow right" onclick="scrollRow('trendingTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
 <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">Latest & Trending</h2></div></div>
 <div class="scroller-wrapper"><button class="scroll-arrow left" onclick="scrollRow('latestTrack', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="latestTrack" onscroll="updateScrollArrows('latestTrack')"></div><button class="scroll-arrow right" onclick="scrollRow('latestTrack', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
@@ -601,7 +612,18 @@
 
 <div id="view-movies" class="view"><div class="main" style="padding-top:10px">
 <div class="page-header"><img class="page-header-img" id="moviesHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line"></span>Movies</div><div class="page-header-sub">Discover the latest and greatest films</div></div></div>
-<div class="section-head" id="moviesTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+<div class="section-head" id="moviesTrendingHead">
+    <div class="section-accent"></div>
+    <div class="section-title-box">
+        <h2 class="section-title" id="moviesTrendingTitle">Trending in Your Region</h2>
+    </div>
+    <div style="position:relative;">
+        <button class="filter-btn" id="btnTrendingCountryMovies" onclick="toggleTrendingCountryDropdown('movies', event)">Country ▾</button>
+        <div class="filter-dropdown" id="trendingCountryDropdownMovies" style="right:0; left:auto; width: 250px;">
+            <div class="filter-dropdown-col" id="trendingCountryListMovies"></div>
+        </div>
+    </div>
+</div>
 <div class="scroller-wrapper" style="margin-bottom: 20px;"><button class="scroll-arrow left" onclick="scrollRow('moviesRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="moviesRegionTrending" onscroll="updateScrollArrows('moviesRegionTrending')"></div><button class="scroll-arrow right" onclick="scrollRow('moviesRegionTrending', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
 
 <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">All Movies</h2></div></div>
@@ -642,7 +664,18 @@
 <div id="view-tv" class="view"><div class="main" style="padding-top:10px">
 <div class="page-header"><img class="page-header-img" id="tvHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line"></span>TV Shows</div><div class="page-header-sub">Binge the best series on the web</div></div></div>
 
-<div class="section-head" id="tvTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+<div class="section-head" id="tvTrendingHead">
+    <div class="section-accent"></div>
+    <div class="section-title-box">
+        <h2 class="section-title" id="tvTrendingTitle">Trending in Your Region</h2>
+    </div>
+    <div style="position:relative;">
+        <button class="filter-btn" id="btnTrendingCountryTv" onclick="toggleTrendingCountryDropdown('tv', event)">Country ▾</button>
+        <div class="filter-dropdown" id="trendingCountryDropdownTv" style="right:0; left:auto; width: 250px;">
+            <div class="filter-dropdown-col" id="trendingCountryListTv"></div>
+        </div>
+    </div>
+</div>
 <div class="scroller-wrapper" style="margin-bottom: 20px;"><button class="scroll-arrow left" onclick="scrollRow('tvRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="tvRegionTrending" onscroll="updateScrollArrows('tvRegionTrending')"></div><button class="scroll-arrow right" onclick="scrollRow('tvRegionTrending', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
 
 <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">All Shows</h2></div></div>
@@ -684,7 +717,18 @@
   <div class="main" style="padding-top:10px">
     <div class="page-header"><img class="page-header-img" id="animeHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line"></span>Anime</div><div class="page-header-sub">Discover the latest and trending anime</div></div></div>
     
-    <div class="section-head" id="animeTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+    <div class="section-head" id="animeTrendingHead">
+        <div class="section-accent"></div>
+        <div class="section-title-box">
+            <h2 class="section-title" id="animeTrendingTitle">Trending in Your Region</h2>
+        </div>
+        <div style="position:relative;">
+            <button class="filter-btn" id="btnTrendingCountryAnime" onclick="toggleTrendingCountryDropdown('anime', event)">Country ▾</button>
+            <div class="filter-dropdown" id="trendingCountryDropdownAnime" style="right:0; left:auto; width: 250px;">
+                <div class="filter-dropdown-col" id="trendingCountryListAnime"></div>
+            </div>
+        </div>
+    </div>
     <div class="scroller-wrapper" style="margin-bottom: 20px;"><button class="scroll-arrow left" onclick="scrollRow('animeRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="animeRegionTrending" onscroll="updateScrollArrows('animeRegionTrending')"></div><button class="scroll-arrow right" onclick="scrollRow('animeRegionTrending', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
     
     <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">All Anime</h2></div></div>
@@ -1124,16 +1168,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v120</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v121</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v120 — 2026-10-27
-// CHANGELOG (v119 → v120):
-//   • Removed all emojis/images from Help, Terms, Privacy, and DMCA pages for a cleaner, professional look.
-//   • Expanded COUNTRIES_LIST to include all ISO 3166-1 alpha-2 country codes globally.
+// TUBEMOCHA BUILD v121 — 2026-10-27
+// CHANGELOG (v120 → v121):
+//   • Added Country Selector for "Trending" rows on Home, Movies, TV, and Anime pages.
+//   • Implemented horizontal infinite scroll for all rows with arrows.
+//   • Refactored trending loaders to use /discover endpoints with with_origin_country.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1164,8 +1209,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v120-2026-10-27-pro-cleanup';
-var BUILD_NOTE_V120 = 'Removed images from legal pages. Added full global country list.';
+var TUBEMOCHA_BUILD = 'v121-2026-10-27-country-infinite-scroll';
+var BUILD_NOTE_V121 = 'Country selector for trending rows. Infinite horizontal scroll for all rows.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1179,6 +1224,17 @@ var liveSearchPage = 1;
 var liveSearchTotalPages = 1;
 var liveSearchQuery = '';
 var isLiveSearchLoading = false;
+
+// v121: State for Horizontal Rows & Country Selection
+var trendingCountry = { home: null, movies: null, tv: null, anime: null };
+var hScrollState = {
+    trendingTrack: { page: 1, loading: false, hasMore: true },
+    latestTrack: { page: 1, loading: false, hasMore: true },
+    upcomingTvTrack: { page: 1, loading: false, hasMore: true },
+    moviesRegionTrending: { page: 1, loading: false, hasMore: true },
+    tvRegionTrending: { page: 1, loading: false, hasMore: true },
+    animeRegionTrending: { page: 1, loading: false, hasMore: true }
+};
 
 // MOVIE genre list — TMDB movie IDs
 var GENRES_LIST = [
@@ -2122,7 +2178,7 @@ function applyFilters() {
     isLoadingMovies = false;
     filterState.page = 1;
     loadDiscover(1, false);
-    loadMoviesRegionTrending();
+    loadMoviesRegionTrending(true);
 }
 
 // ==========================================
@@ -2213,7 +2269,7 @@ function applyTVFilters() {
     isLoadingTV = false;
     tvFilterState.page = 1;
     loadTVDiscover(1);
-    loadTVRegionTrending();
+    loadTVRegionTrending(true);
 }
 
 // ==========================================
@@ -2304,15 +2360,11 @@ function applyAnimeFilters() {
     isLoadingAnime = false;
     animeFilterState.page = 1;
     loadAnime(1);
-    loadAnimeRegionTrending();
+    loadAnimeRegionTrending(true);
 }
 
 // ============================================================
 // ★ v104: YEAR TIER HELPERS ★
-// Build a ladder of widening year windows. When one tier is empty,
-// the next is tried, and the results from all non-empty tiers are
-// merged in order. Deduplication in loadDiscover/loadTVDiscover
-// prevents repeats.
 // ============================================================
 function buildYearTiers(years, isTV) {
     if (!years || years.length === 0) {
@@ -2324,12 +2376,10 @@ function buildYearTiers(years, isTV) {
     var minY = sorted[0];
     var maxY = sorted[sorted.length - 1];
     
-    // Multi-year selection → single strict tier (respect user's exact intent).
     if (sorted.length > 1) {
         return [{ gte: minY + '-01-01', lte: maxY + '-12-31', label: 'range' }];
     }
     
-    // Single year Y → progressive widening.
     var Y = sorted[0];
     return [
         { gte: Y + '-01-01',          lte: Y + '-12-31',          label: 'exact' },
@@ -2351,8 +2401,6 @@ function applyTierToParams(params, tier, isTV) {
 
 // ============================================================
 // ★ v104: loadDiscover — tiered year widening + dedup. ★
-// Guarantees continuous infinite scroll for EVERY filter combo,
-// including sparse ones like China + Comedy + 2026.
 // ============================================================
 async function loadDiscover(page, isTv) {
     var isReset = (page === 1);
@@ -2375,7 +2423,7 @@ async function loadDiscover(page, isTv) {
     var appendedCount = 0;
     var safetyCounter = 0;
     var MAX_SAFETY = 12;
-    var firstAppendDone = !isReset; // only reset DOM at top when isReset
+    var firstAppendDone = !isReset;
     
     try {
         while (filterState._tier < tiers.length && safetyCounter < MAX_SAFETY) {
@@ -2413,7 +2461,6 @@ async function loadDiscover(page, isTv) {
                 appendedCount += mapped.length;
             }
             
-            // Advance pointer
             if (d.page >= d.total_pages) {
                 filterState._tier++;
                 filterState._tierPage = 1;
@@ -2421,8 +2468,6 @@ async function loadDiscover(page, isTv) {
                 filterState._tierPage = tierPage + 1;
             }
             
-            // For initial load, keep going until we've filled at least one
-            // full page (PAGE_SIZE) or exhausted all tiers.
             if (isReset) {
                 if (appendedCount >= PAGE_SIZE) break;
             } else {
@@ -2569,7 +2614,6 @@ async function loadAnime(page) {
             var tierPage = animeFilterState._tierPage;
             
             var params = { sort_by: animeFilterState.sort, page: tierPage };
-            // Default anime to Genre 16 (Animation) but allow user to add others
             if (animeFilterState.genres.length > 0) params.with_genres = '16,' + animeFilterState.genres.join('|');
             else params.with_genres = '16';
             
@@ -2633,7 +2677,7 @@ async function loadAnime(page) {
 
 var moviesObserver = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) {
-        loadDiscover(-1, false); // -1 = continue from current tier pointer
+        loadDiscover(-1, false);
     }
 }, { rootMargin: '1000px' });
 
@@ -3001,547 +3045,222 @@ function setupHero(movies) {
 }
 
 // ============================================================
-// ★ v109: loadMoviesRegionTrending — geo fix. ★
-// Title is LOCKED to "Trending in [Country]" (set once from geo).
+// ★ v121: Country Dropdown & Horizontal Infinite Scroll ★
 // ============================================================
-async function loadMoviesRegionTrending() {
-    var track = document.getElementById('moviesRegionTrending');
-    if (!track) return;
-    
-    // Set title immediately to prevent stuck "Your Region"
-    var headEl = document.querySelector('#moviesTrendingHead .section-title');
-    if (headEl) headEl.textContent = 'Trending Right Now';
-    
-    track.innerHTML = '<div class="empty" style="padding:20px;">Loading...</div>';
-    
-    try {
-        var geo = await getUserCountry();
-        
-        if (headEl) {
-            headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
-        }
-        
-        var tiers = buildYearTiers(filterState.years, false);
-        var data = null;
-        
-        for (var t = 0; t < tiers.length; t++) {
-            var params = { sort_by: 'popularity.desc', page: 1 };
-            if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
-            if (filterState.countries.length > 0) params.with_origin_country = filterState.countries.join('|');
-            else if (geo.code) params.with_origin_country = geo.code;
-            applyTierToParams(params, tiers[t], false);
-            
-            var d = await tmdb('/discover/movie', params);
-            if (d && d.results && d.results.length > 0) { data = d; break; }
-        }
-        
-        // If no filter applied at all and geo-country came back empty,
-        // retry without country so the row isn't blank. Title stays.
-        if (!data && filterState.genres.length === 0 && filterState.years.length === 0 && filterState.countries.length === 0) {
-            var params2 = { sort_by: 'popularity.desc', page: 1 };
-            data = await tmdb('/discover/movie', params2);
-        }
-        
-        if (data && data.results && data.results.length > 0) {
-            var mapped = data.results.map(mapResult);
-            track.innerHTML = mapped.slice(0,10).map(cardHTML).join('');
-        } else {
-            track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-        }
-    } catch (err) {
-        console.error('[TUBEMOCHA] loadMoviesRegionTrending error:', err);
-        track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-    }
-    setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50);
-}
-
-// ============================================================
-// ★ v108: loadTVRegionTrending — tier widening. ★
-// Title is LOCKED to "Trending in [Country]" (set once from geo).
-// ============================================================
-async function loadTVRegionTrending() {
-    var track = document.getElementById('tvRegionTrending');
-    if (!track) return;
-    
-    var headEl = document.querySelector('#tvTrendingHead .section-title');
-    if (headEl) headEl.textContent = 'Trending Right Now';
-    
-    track.innerHTML = '<div class="empty" style="padding:20px;">Loading...</div>';
-    
-    try {
-        var geo = await getUserCountry();
-        
-        if (headEl) {
-            headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
-        }
-        
-        var tiers = buildYearTiers(tvFilterState.years, true);
-        var data = null;
-        
-        for (var t = 0; t < tiers.length; t++) {
-            var params = { sort_by: 'popularity.desc', page: 1 };
-            if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
-            if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
-            else if (geo.code) params.with_origin_country = geo.code;
-            applyTierToParams(params, tiers[t], true);
-            
-            var d = await tmdb('/discover/tv', params);
-            if (d && d.results && d.results.length > 0) { data = d; break; }
-        }
-        
-        if (!data && tvFilterState.genres.length === 0 && tvFilterState.years.length === 0 && tvFilterState.countries.length === 0) {
-            var params2 = { sort_by: 'popularity.desc', page: 1 };
-            data = await tmdb('/discover/tv', params2);
-        }
-        
-        if (data && data.results && data.results.length > 0) {
-            var mapped = data.results.map(mapResult);
-            track.innerHTML = mapped.slice(0,10).map(cardHTML).join('');
-        } else {
-            track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-        }
-    } catch (err) {
-        console.error('[TUBEMOCHA] loadTVRegionTrending error:', err);
-        track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-    }
-    setTimeout(function() { updateScrollArrows('tvRegionTrending'); }, 50);
-}
-
-// ============================================================
-// ★ v108: loadAnimeRegionTrending — tier widening. ★
-// Title is LOCKED to "Trending in [Country]" (set once from geo).
-// ============================================================
-async function loadAnimeRegionTrending() {
-    var track = document.getElementById('animeRegionTrending');
-    if (!track) return;
-    
-    var headEl = document.querySelector('#animeTrendingHead .section-title');
-    if (headEl) headEl.textContent = 'Trending Right Now';
-    
-    track.innerHTML = '<div class="empty" style="padding:20px;">Loading...</div>';
-    
-    try {
-        var geo = await getUserCountry();
-        
-        if (headEl) {
-            headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
-        }
-        
-        var tiers = buildYearTiers(animeFilterState.years, true);
-        var data = null;
-        
-        for (var t = 0; t < tiers.length; t++) {
-            var params = { sort_by: 'popularity.desc', page: 1, with_genres: '16' };
-            if (animeFilterState.genres.length > 0) params.with_genres = '16,' + animeFilterState.genres.join('|');
-            
-            if (animeFilterState.countries.length > 0) params.with_origin_country = animeFilterState.countries.join('|');
-            else if (geo.code) params.with_origin_country = geo.code;
-            
-            applyTierToParams(params, tiers[t], true);
-            
-            var d = await tmdb('/discover/tv', params);
-            if (d && d.results && d.results.length > 0) { data = d; break; }
-        }
-        
-        if (!data && animeFilterState.years.length === 0 && animeFilterState.countries.length === 0) {
-            var params2 = { sort_by: 'popularity.desc', page: 1, with_genres: '16' };
-            data = await tmdb('/discover/tv', params2);
-        }
-        
-        if (data && data.results && data.results.length > 0) {
-            var mapped = data.results.map(mapResult);
-            track.innerHTML = mapped.slice(0,10).map(cardHTML).join('');
-        } else {
-            track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-        }
-    } catch (err) {
-        console.error('[TUBEMOCHA] loadAnimeRegionTrending error:', err);
-        track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-    }
-    setTimeout(function() { updateScrollArrows('animeRegionTrending'); }, 50);
-}
-
-async function loadTVPage(){
-    try {
-        var headerBg = document.getElementById('tvHeaderBg');
-        if (!headerBg.src || headerBg.src.includes('base64')) {
-            var tr0 = await tmdb('/trending/tv/week', {page:1});
-            if (tr0 && tr0.results) { var withBackdrop = tr0.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; }
-        }
-    } catch(e) { /* ignore */ }
-    renderTVFilterCheckboxes();
-    loadTVRegionTrending();
-    if (!document.getElementById('tvGrid').innerHTML) {
-        loadTVDiscover(1);
-    }
-}
-
-async function loadAnimePage(){
-    try {
-        var headerBg = document.getElementById('animeHeaderBg');
-        if (!headerBg.src || headerBg.src.includes('base64')) {
-            var tr0 = await tmdb('/discover/tv', {with_genres: '16', page:1});
-            if (tr0 && tr0.results) { var withBackdrop = tr0.results.find(function(m) { return m.backdrop_path; }); if (withBackdrop) headerBg.src = BACKDROP + withBackdrop.backdrop_path; }
-        }
-    } catch(e) { /* ignore */ }
-    renderAnimeFilterCheckboxes();
-    loadAnimeRegionTrending();
-    if (!document.getElementById('animeGrid').innerHTML) {
-        loadAnime(1);
-    }
-}
-
-function openGenrePage(genreId, genreName) { 
-    window.location.hash='#movies'; 
-    setTimeout(function(){ 
-        filterState.genres = [genreId];
-        updateActiveFiltersUI();
-        applyFilters();
-    }, 100); 
-}
-
-async function loadPopularGenres() {
-    var genres = [ { id: '35', name: 'Comedy' }, { id: '28', name: 'Action' }, { id: '18', name: 'Drama' }, { id: '27', name: 'Horror' }, { id: '878', name: 'Sci-Fi' } ];
-    var track = document.getElementById('genresTrack'); if(!track) return;
-    track.innerHTML = '';
-    for (var i = 0; i < genres.length; i++) {
-        var g = genres[i];
-        var data = await tmdb('/discover/movie', { with_genres: g.id, sort_by: 'popularity.desc', page: 1 });
-        var bgUrl = '';
-        if (data && data.results && data.results.length > 0) { var movie = data.results.find(function(m) { return m.backdrop_path; }); if (movie) bgUrl = BACKDROP + movie.backdrop_path; }
-        if (!bgUrl) bgUrl = 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1000&auto=format&fit=crop';
-        var card = document.createElement('div'); card.className = 'genre-card';
-        card.onclick = (function(genreId, genreName) { return function() { openGenrePage(genreId, genreName); }; })(g.id, g.name);
-        card.innerHTML = '<img src="' + bgUrl + '" alt="' + g.name + '"><div class="genre-card-title">' + g.name + '</div>';
-        if (g.name === 'Comedy') card.style.boxShadow = 'inset 0 0 100px rgba(30, 58, 138, 0.6)';
-        if (g.name === 'Action') card.style.boxShadow = 'inset 0 0 100px rgba(153, 27, 27, 0.6)';
-        if (g.name === 'Drama') card.style.boxShadow = 'inset 0 0 100px rgba(88, 28, 135, 0.6)';
-        if (g.name === 'Horror') card.style.boxShadow = 'inset 0 0 100px rgba(0, 0, 0, 0.8)';
-        if (g.name === 'Sci-Fi') card.style.boxShadow = 'inset 0 0 100px rgba(22, 78, 99, 0.6)';
-        track.appendChild(card);
-    }
-    setTimeout(function() { updateScrollArrows('genresTrack'); }, 50);
-}
-
-function handleSearch(e){
-    e.preventDefault();
-    var q = e.target.querySelector('input').value.trim();
-    if(!q) return false;
-    
-    document.getElementById('searchDropdown').classList.remove('open');
-    
-    recentSearches.unshift(q);
-    recentSearches = Array.from(new Set(recentSearches)).slice(0, 5);
-    localStorage.setItem('tubemocha_recent_searches', JSON.stringify(recentSearches));
-    
-    window.location.hash = '#search=' + encodeURIComponent(q);
-    return false;
-}
-
-async function doSearch(q){
-    searchQuery = q; searchPage = 1; searchAllResults = []; hasMoreSearch = true; isLoadingSearch = false;
-    var grid = document.getElementById('searchGrid');
-    grid.innerHTML = '<div class="empty">Searching…</div>';
-    document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
-    document.getElementById('searchEmpty').style.display = 'none';
-    
-    var params = { query: q, page: 1, include_adult: 'false' };
-    var results = await Promise.all([ tmdb('/search/movie', params), tmdb('/search/tv', params) ]);
-    var mov = results[0]; var tv = results[1];
-    var out = [];
-    if(mov && mov.results) mov.results.forEach(function(r) { r.media_type = 'movie'; out.push(r); });
-    if(tv && tv.results) tv.results.forEach(function(r) { r.media_type = 'tv'; out.push(r); });
-    
-    searchAllResults = out;
-    var movPages = (mov && mov.total_pages) ? mov.total_pages : 0;
-    var tvPages = (tv && tv.total_pages) ? tv.total_pages : 0;
-    searchTotalPages = Math.min(500, Math.max(movPages, tvPages));
-    
-    if (searchPage >= searchTotalPages) hasMoreSearch = false;
-    
-    if(searchAllResults.length === 0) {
-        grid.innerHTML = '';
-        document.getElementById('searchEmpty').style.display = 'block';
-        document.getElementById('searchCount').textContent = '0';
-    } else {
-        grid.innerHTML = searchAllResults.map(mapResult).map(cardHTML).join('');
-        document.getElementById('searchCount').textContent = searchAllResults.length;
-    }
-}
-
-async function loadMoreSearch(){
-    if(isLoadingSearch || !hasMoreSearch) return;
-    isLoadingSearch = true;
-    searchPage++;
-    
-    var params = { query: searchQuery, page: searchPage, include_adult: 'false' };
-    var results = await Promise.all([ tmdb('/search/movie', params), tmdb('/search/tv', params) ]);
-    var mov = results[0]; var tv = results[1];
-    var out = [];
-    if(mov && mov.results) mov.results.forEach(function(r) { r.media_type = 'movie'; out.push(r); });
-    if(tv && tv.results) tv.results.forEach(function(r) { r.media_type = 'tv'; out.push(r); });
-    
-    if (out.length === 0) {
-        hasMoreSearch = false;
-    } else {
-        searchAllResults = searchAllResults.concat(out);
-        if (searchPage >= searchTotalPages) hasMoreSearch = false;
-        
-        var grid = document.getElementById('searchGrid');
-        grid.innerHTML += out.map(mapResult).map(cardHTML).join('');
-        document.getElementById('searchCount').textContent = searchAllResults.length;
-    }
-    
-    isLoadingSearch = false;
-}
-
-var currentSeason = 1; var currentEpisode = 1;
-
-async function showDetail(rawId, shouldPlay){
-    var isTV = false, id = rawId;
-    if(typeof rawId === 'string' && rawId.indexOf('tv-') === 0){ isTV = true; id = rawId.substring(3); }
-    else if(typeof rawId === 'string' && rawId.indexOf('movie-') === 0){ isTV = false; id = rawId.substring(6); }
-    else if (String(rawId).match(/^\d+$/)) { isTV = false; id = rawId; }
-    
-    var m = allCache.find(function(x) { return String(x.id) === String(id) && (x.media_type === 'tv') === isTV; }) || watchlist.find(function(x) { return String(x.id) === String(id); });
-    if(!m){
-        var endpoint = isTV ? '/tv/' + id : '/movie/' + id;
-        var d = await tmdb(endpoint, {append_to_response: 'videos,credits'});
-        if(d && d.id){ m = mapResult(d); m._tv = isTV; m.media_type = isTV ? 'tv' : 'movie'; m.videos = d.videos; m.credits = d.credits; }
-        else { m = FALLBACK[0]; }
-    }
-    currentMovie = m;
-    document.getElementById('detailTitle').textContent = m.t;
-    document.getElementById('detailDesc').textContent = m.d || '';
-    var durationStr = isTV ? (m.seasons ? m.seasons + ' Season' + (m.seasons > 1 ? 's' : '') : 'TV Show') : (m.runtime ? m.runtime + 'm' : '2h 10m');
-    
-    var genresStr = (m.g && m.g.length > 0) ? m.g.slice(0,3).join(' · ') : (isTV ? 'TV Show' : 'Movie');
-    
-    document.getElementById('detailMeta').innerHTML = '<span class="star">★ ' + m.r + '</span><span class="divider">·</span><span>' + m.y + '</span><span class="divider">·</span><span>' + durationStr + '</span><span class="divider">·</span><span class="vote-box" style="color:#fff; border-color:#fff;">4K</span><span class="vote-box" style="color:#fff; border-color:#fff;">' + (isTV ? 'M18' : 'R') + '</span><br><span style="font-size:13px; color:var(--text-dim); margin-top:4px;">' + genresStr + '</span>';
-    var inList = watchlist.some(function(x) { return String(x.id) === String(currentMovie.id); });
-    document.getElementById('detailListText').textContent = inList ? 'Added to Watchlist' : 'Add to Watchlist';
-    var bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
-    document.getElementById('detailOverlay').style.background = 'url(' + bgUrl + ') center/cover no-repeat';
-    var trailerBg = document.getElementById('detailTrailerBg'); trailerBg.innerHTML = '';
-    if (m.videos && m.videos.results) {
-        var trailer = m.videos.results.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; });
-        if (trailer) { trailerBg.innerHTML = '<iframe src="https://www.youtube.com/embed/' + trailer.key + '?autoplay=1&mute=1&controls=0&loop=1&playlist=' + trailer.key + '&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>'; }
-    }
-    var castScroller = document.getElementById('castScroller'); castScroller.innerHTML = '';
-    if (m.credits && m.credits.cast) {
-        castScroller.innerHTML = m.credits.cast.slice(0, 10).map(function(c) {
-            var defaultImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Crect fill=\'%231e1814\' width=\'100\' height=\'100\'/%3E%3Ccircle cx=\'50\' cy=\'40\' r=\'20\' fill=\'%233a2e26\'/%3E%3Cpath d=\'M20 90 Q 50 50 80 90\' stroke=\'%233a2e26\' stroke-width=\'20\' fill=\'none\'/%3E%3C/svg%3E';
-            return '<div class="cast-card"><img src="' + (c.profile_path ? PROFILE + c.profile_path : defaultImg) + '" alt=""><div class="cast-name">' + c.name + '</div><div class="cast-role">' + (c.character || '') + '</div></div>';
-        }).join('');
-    } else { castScroller.innerHTML = '<div class="empty" style="padding:20px 0">No cast information available.</div>'; }
-    
-    if (isTV) {
-        document.getElementById('tvSeasonsContainer').style.display = 'block';
-        document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S1 E1';
-        currentSeason = 1; currentEpisode = 1;
-        await setupTVSeasons(m.id);
-    } else {
-        document.getElementById('tvSeasonsContainer').style.display = 'none';
-        document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play Now';
-    }
-    loadRecommendations(currentMovie);
-    document.getElementById('detailOverlay').classList.add('open');
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { window.scrollTo(0, 1); setTimeout(function() { window.scrollTo(0, 0); }, 50); }
-    
-    if (shouldPlay) { playCurrentMedia(); }
-}
-
-async function loadRecommendations(movie) {
-    var container = document.getElementById('recommendationsContainer'); var scroller = document.getElementById('recommendationsScroller'); var recSub = document.getElementById('recSub');
-    container.style.display = 'block'; recSub.textContent = 'Because you clicked "' + movie.t + '"'; 
-    scroller.innerHTML = '<div class="empty" style="padding:20px 0">Finding similar titles...</div>';
-    
-    recState = { page: 1, totalPages: 1, movieId: movie.tmdb, isTV: movie._tv, isLoading: true };
-
-    var endpoint = movie._tv ? '/tv/' + movie.tmdb + '/recommendations' : '/movie/' + movie.tmdb + '/recommendations';
-    var data = await tmdb(endpoint, {page: 1});
-    recState.isLoading = false;
-    
-    if (data && data.results && data.results.length > 0) {
-        recState.totalPages = data.total_pages;
-        var validResults = data.results.filter(function(r) { return r.poster_path != null; });
-        if (validResults.length > 0) {
-            scroller.innerHTML = validResults.map(function(r) { var mapped = mapResult(r); return cardHTML(mapped); }).join('');
-        } else {
-            container.style.display = 'none';
-        }
-    } else {
-        container.style.display = 'none';
-    }
-    setTimeout(function() { updateScrollArrows('recommendationsScroller'); }, 50);
-}
-
-function handleRecScroll() {
-    var el = document.getElementById('recommendationsScroller');
-    if (!el) return;
-    if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 100) {
-        loadMoreRecommendations();
-    }
-}
-
-async function loadMoreRecommendations() {
-    if (recState.isLoading || recState.page >= recState.totalPages || !recState.movieId) return;
-    recState.isLoading = true;
-    recState.page++;
-
-    var endpoint = recState.isTV ? '/tv/' + recState.movieId + '/recommendations' : '/movie/' + recState.movieId + '/recommendations';
-    var data = await tmdb(endpoint, {page: recState.page});
-    
-    if (data && data.results && data.results.length > 0) {
-        var scroller = document.getElementById('recommendationsScroller');
-        var existingIds = new Set(Array.from(scroller.querySelectorAll('.card')).map(function(c) { return c.getAttribute('data-id'); }));
-        
-        var validResults = data.results.filter(function(r) { return r.poster_path != null; });
-        var htmlToAdd = validResults.map(function(r) {
-            var mapped = mapResult(r);
-            var clickId = mapped._tv ? ('tv-' + mapped.id) : ('movie-' + mapped.id);
-            if (existingIds.has(clickId)) return '';
-            return cardHTML(mapped);
-        }).join('');
-        
-        scroller.innerHTML += htmlToAdd;
-        setTimeout(function() { updateScrollArrows('recommendationsScroller'); }, 50);
-    }
-    recState.isLoading = false;
-}
-
-async function setupTVSeasons(showId) {
-    var btn = document.getElementById('tvSeasonBtn');
-    var listEl = document.getElementById('tvSeasonList');
-    if (btn) btn.innerHTML = 'Loading...';
-    if (listEl) listEl.innerHTML = '';
-    var data = await tmdb('/tv/' + showId);
-    if (!data || !data.seasons) { if(btn) btn.innerHTML = 'Season 1 ▾'; return; }
-    var validSeasons = data.seasons.filter(function(s) { return s.season_number > 0; }).sort(function(a, b) { return a.season_number - b.season_number; });
-    
-    if (listEl) {
-        listEl.innerHTML = validSeasons.map(function(s) { 
-            return '<div class="checkbox-label" style="padding:10px 16px; cursor:pointer; display:block;" onclick="changeSeason(' + s.season_number + ')">Season ' + s.season_number + '</div>'; 
-        }).join('');
-    }
-    changeSeason(validSeasons.length > 0 ? validSeasons[0].season_number : 1);
-}
-
-function toggleSeasonDropdown(event) {
+function toggleTrendingCountryDropdown(prefix, event) {
     if(event) event.stopPropagation();
-    var dropdown = document.getElementById('tvSeasonDropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    var dropdown = document.getElementById('trendingCountryDropdown' + prefix.charAt(0).toUpperCase() + prefix.slice(1));
+    if (!dropdown) return;
+    var isShown = dropdown.classList.contains('show');
+    document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
+    if (!isShown) dropdown.classList.add('show');
 }
-document.addEventListener('click', function(e) {
-    var dropdown = document.getElementById('tvSeasonDropdown');
-    var btn = document.getElementById('tvSeasonBtn');
-    if (dropdown && dropdown.style.display === 'block' && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-        dropdown.style.display = 'none';
+
+function populateTrendingCountryDropdowns() {
+    var lists = ['home', 'movies', 'tv', 'anime'];
+    lists.forEach(function(listId) {
+        var el = document.getElementById('trendingCountryList' + listId.charAt(0).toUpperCase() + listId.slice(1));
+        if (el) {
+            var html = COUNTRIES_LIST.map(function(c) {
+                return '<label class="checkbox-label"><input type="radio" name="trendingRadio_' + listId + '" value="' + c.id + '" onchange="setTrendingCountry(\'' + listId + '\', \'' + c.id + '\', \'' + c.name.replace(/'/g, "\\'") + '\')"> ' + c.name + '</label>';
+            }).join('');
+            el.innerHTML = html;
+        }
+    });
+}
+
+function setTrendingCountry(pageId, code, name) {
+    trendingCountry[pageId] = { code: code, name: name };
+    document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
+
+    var titleId = pageId === 'home' ? 'homeTrendingTitle' : pageId + 'TrendingTitle';
+    var titleEl = document.getElementById(titleId);
+    if (titleEl) titleEl.textContent = 'Trending in ' + name;
+
+    var trackId = pageId === 'home' ? 'trendingTrack' : pageId + 'RegionTrending';
+    document.getElementById(trackId).innerHTML = '';
+    hScrollState[trackId] = { page: 1, loading: false, hasMore: true };
+
+    if (pageId === 'home') loadHomeTrending(true);
+    else if (pageId === 'movies') loadMoviesRegionTrending(true);
+    else if (pageId === 'tv') loadTVRegionTrending(true);
+    else if (pageId === 'anime') loadAnimeRegionTrending(true);
+}
+
+function handleHorizontalScroll(id) {
+    var state = hScrollState[id];
+    if (!state || state.loading || !state.hasMore) return;
+    
+    var el = document.getElementById(id);
+    if (!el) return;
+    
+    if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 100) {
+        state.loading = true;
+        var loader = document.createElement('div');
+        loader.className = 'empty loading-more';
+        loader.style.padding = '20px';
+        loader.textContent = 'Loading...';
+        el.appendChild(loader);
+
+        state.page++;
+        var promise;
+        if (id === 'trendingTrack') promise = loadHomeTrending(false);
+        else if (id === 'latestTrack') promise = loadMoreLatest();
+        else if (id === 'upcomingTvTrack') promise = loadMoreUpcoming();
+        else if (id === 'moviesRegionTrending') promise = loadMoviesRegionTrending(false);
+        else if (id === 'tvRegionTrending') promise = loadTVRegionTrending(false);
+        else if (id === 'animeRegionTrending') promise = loadAnimeRegionTrending(false);
+        
+        if (promise) {
+            promise.then(() => {
+                var l = document.querySelector('#' + id + ' .loading-more');
+                if (l) l.remove();
+                state.loading = false;
+                updateScrollArrows(id);
+            });
+        } else {
+            state.loading = false;
+        }
     }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.scroller').forEach(function(scroller) {
+        scroller.addEventListener('scroll', function() { handleHorizontalScroll(this.id); });
+    });
 });
 
-async function changeSeason(seasonNum) {
-    currentSeason = parseInt(seasonNum); currentEpisode = 1;
-    var btn = document.getElementById('tvSeasonBtn');
-    if (btn) btn.innerHTML = 'Season ' + currentSeason + ' ▾';
-    var dropdown = document.getElementById('tvSeasonDropdown');
-    if (dropdown) dropdown.style.display = 'none';
+async function loadHomeTrending(isReset) {
+    var state = hScrollState.trendingTrack;
+    var geo = trendingCountry.home || await getUserCountry();
     
-    var listEl = document.getElementById('tvEpisodeList'); var countEl = document.getElementById('tvEpisodeCount');
-    listEl.innerHTML = '<div class="empty">Loading episodes...</div>';
-    document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S' + currentSeason + ' E' + currentEpisode;
-    var data = await tmdb('/tv/' + currentMovie.id + '/season/' + currentSeason);
-    if (!data || !data.episodes) { listEl.innerHTML = '<div class="empty">Failed to load episodes.</div>'; countEl.textContent = '0 episodes'; return; }
-    var episodes = data.episodes;
-    countEl.textContent = episodes.length + ' episodes';
-    if (episodes.length === 0) { listEl.innerHTML = '<div class="empty">No episodes available for this season.</div>'; return; }
-    listEl.innerHTML = episodes.map(function(ep) {
-        var thumb = ep.still_path ? 'https://image.tmdb.org/t/p/w300' + ep.still_path : getSafeImageUrl({ t: ep.name || 'Episode ' + ep.episode_number });
-        return '<div class="episode-card" onclick="selectEpisode(' + currentSeason + ', ' + ep.episode_number + ')"><img src="' + thumb + '" class="episode-thumb" alt=""><div class="episode-info"><div class="episode-number">EPISODE ' + ep.episode_number + '</div><div class="episode-title">' + (ep.name || 'Untitled Episode') + '</div><div class="episode-runtime">' + (ep.runtime ? ep.runtime + ' min' : 'N/A') + '</div></div></div>';
-    }).join('');
-}
-
-function selectEpisode(season, episode) {
-    currentSeason = season; currentEpisode = episode;
-    document.getElementById('detailPlayBtn').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Play S' + currentSeason + ' E' + currentEpisode;
-    playCurrentMedia();
-}
-
-function getEmbedUrl(index) {
-    var provider = EMBED_PROVIDERS[0];
-    if (!provider) return '';
-    var url = currentMovie._tv ? provider.tv(currentMovie.tmdb, currentSeason, currentEpisode) : provider.movie(currentMovie.tmdb);
-    return url;
-}
-
-async function playCurrentMedia(){
-    if(!currentMovie) return;
-    saveToHistory(currentMovie);
-    
-    if (localStorage.getItem('tubemocha_ads') !== 'false') {
-        (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    if (isReset) {
+        state.page = 1; state.hasMore = true;
+        document.getElementById('homeTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region');
     }
-    var overlay = document.getElementById('playerOverlay'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; 
-    currentProviderIndex = 0; hideSwitchBanner(); loadPlayerSource(0);
-    clearTimeout(window._idleTimer); overlay.classList.remove('idle');
-    var resetTimer = function() {
-        overlay.classList.remove('idle'); clearTimeout(window._idleTimer);
-        window._idleTimer = setTimeout(function() { if (overlay.classList.contains('open')) overlay.classList.add('idle'); }, 3000);
-    };
-    document.addEventListener('mousemove', resetTimer); document.addEventListener('touchstart', resetTimer); resetTimer();
     
-    document.getElementById('playerTitleText').textContent = currentMovie.t;
-    var subtitle = ''; if (currentMovie._tv) { subtitle = 'S' + currentSeason + ' E' + currentEpisode; } else { subtitle = 'Movie'; }
-    document.getElementById('playerSubtitleText').textContent = subtitle;
+    var res = await Promise.all([
+        tmdb('/discover/movie', { with_origin_country: geo.code, sort_by: 'popularity.desc', page: state.page }),
+        tmdb('/discover/tv', { with_origin_country: geo.code, sort_by: 'popularity.desc', page: state.page })
+    ]);
     
-    var isTV = currentMovie.media_type === 'tv' || currentMovie._tv;
-    var id = currentMovie.id;
-    var targetHash = 'player-' + (isTV ? 'tv-' : 'movie-') + id;
-    if (window.location.hash !== '#' + targetHash) { window.location.hash = '#' + targetHash; }
-}
-
-function closePlayer(e){
-    if(e) e.stopPropagation();
-    var overlay = document.getElementById('playerOverlay'); overlay.classList.remove('open'); document.body.style.overflow = '';
-    var container = document.getElementById('playerIframeContainer');
-    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
-    clearTimeout(window._idleTimer);
+    var mov = res[0] && res[0].results ? res[0].results.map(r => { r.media_type = 'movie'; return r; }) : [];
+    var tv = res[1] && res[1].results ? res[1].results.map(r => { r.media_type = 'tv'; return r; }) : [];
+    var combined = mov.concat(tv).sort((a,b) => b.popularity - a.popularity).map(mapResult);
     
-    var isTV = currentMovie && (currentMovie.media_type === 'tv' || currentMovie._tv);
-    var id = currentMovie ? currentMovie.id : null;
-    if(id){
-        var targetHash = (isTV ? 'tv-' : 'movie-') + id;
-        if (window.location.hash !== '#' + targetHash) { window.location.hash = '#' + targetHash; }
+    if (combined.length === 0 || (res[0] && state.page >= res[0].total_pages && res[1] && state.page >= res[1].total_pages)) {
+        state.hasMore = false;
+    }
+    
+    if (combined.length > 0) {
+        var track = document.getElementById('trendingTrack');
+        track.innerHTML += combined.map(cardHTML).join('');
     }
 }
 
-function loadPlayerSource(index) {
-    var container = document.getElementById('playerIframeContainer'); var url = getEmbedUrl(index);
-    if (!url) { toast('Vidy unavailable - check TMDB ID'); return; }
-    playerState.currentServer = 0; playerState.loadStartTime = Date.now();
-    container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
-    hideSwitchBanner();
-    setTimeout(function(){
-        var iframeStr = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
-        container.innerHTML = iframeStr + '<div class="branding-mask" style="display:none; pointer-events:none;"></div>';
-        var iframe = container.querySelector('iframe');
-        if(!iframe){ toast('Failed to create Vidy player'); return; }
-        iframe.onload = function() {
-            var loader = document.getElementById('playerLoader'); if (loader) loader.style.display = 'none';
-            iframe.style.opacity = '1'; iframe.style.pointerEvents = 'auto'; hideSwitchBanner();
-        };
-        iframe.onerror = function() {
-            var loader = document.getElementById('playerLoader'); if (loader) loader.style.display = 'none';
-            hideSwitchBanner(); toast('Vidy failed - check internet or TMDB ID');
-        };
-    }, 150);
+async function loadMoreLatest() {
+    var state = hScrollState.latestTrack;
+    var results = await Promise.all([ tmdb('/movie/now_playing', {page: state.page}), tmdb('/tv/airing_today', {page: state.page}) ]);
+    var mov = results[0] && results[0].results ? results[0].results.map(r => { r.media_type = 'movie'; return r; }) : [];
+    var tv = results[1] && results[1].results ? results[1].results.map(r => { r.media_type = 'tv'; return r; }) : [];
+    var combined = mov.concat(tv);
+    if (combined.length === 0) state.hasMore = false;
+    if (combined.length > 0) {
+        document.getElementById('latestTrack').innerHTML += combined.map(mapResult).map(cardHTML).join('');
+    }
 }
 
+async function loadMoreUpcoming() {
+    var state = hScrollState.upcomingTvTrack;
+    var today = new Date().toISOString().split('T')[0];
+    var results = await Promise.all([ 
+        tmdb('/tv/on_the_air', { page: state.page }), 
+        tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: state.page }) 
+    ]);
+    var combined = [];
+    if (results[0] && results[0].results) combined = combined.concat(results[0].results);
+    if (results[1] && results[1].results) combined = combined.concat(results[1].results);
+    if (combined.length === 0) state.hasMore = false;
+    if (combined.length > 0) {
+        document.getElementById('upcomingTvTrack').innerHTML += combined.map(mapResult).map(cardHTML).join('');
+    }
+}
+
+async function loadMoviesRegionTrending(isReset) {
+    var state = hScrollState.moviesRegionTrending;
+    var geo = trendingCountry.movies || await getUserCountry();
+    
+    if (isReset) {
+        state.page = 1; state.hasMore = true;
+        document.getElementById('moviesTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region');
+    }
+
+    var params = { sort_by: 'popularity.desc', page: state.page, with_origin_country: geo.code };
+    var d = await tmdb('/discover/movie', params);
+    
+    if (!d || !d.results || d.results.length === 0 || state.page >= d.total_pages) {
+        state.hasMore = false;
+    }
+    if (d && d.results && d.results.length > 0) {
+        document.getElementById('moviesRegionTrending').innerHTML += d.results.map(mapResult).map(cardHTML).join('');
+    }
+}
+
+async function loadTVRegionTrending(isReset) {
+    var state = hScrollState.tvRegionTrending;
+    var geo = trendingCountry.tv || await getUserCountry();
+    
+    if (isReset) {
+        state.page = 1; state.hasMore = true;
+        document.getElementById('tvTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region');
+    }
+
+    var params = { sort_by: 'popularity.desc', page: state.page, with_origin_country: geo.code };
+    var d = await tmdb('/discover/tv', params);
+    
+    if (!d || !d.results || d.results.length === 0 || state.page >= d.total_pages) {
+        state.hasMore = false;
+    }
+    if (d && d.results && d.results.length > 0) {
+        document.getElementById('tvRegionTrending').innerHTML += d.results.map(mapResult).map(cardHTML).join('');
+    }
+}
+
+async function loadAnimeRegionTrending(isReset) {
+    var state = hScrollState.animeRegionTrending;
+    var geo = trendingCountry.anime || await getUserCountry();
+    
+    if (isReset) {
+        state.page = 1; state.hasMore = true;
+        document.getElementById('animeTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region');
+    }
+
+    var params = { sort_by: 'popularity.desc', page: state.page, with_origin_country: geo.code, with_genres: '16' };
+    var d = await tmdb('/discover/tv', params);
+    
+    if (!d || !d.results || d.results.length === 0 || state.page >= d.total_pages) {
+        state.hasMore = false;
+    }
+    if (d && d.results && d.results.length > 0) {
+        document.getElementById('animeRegionTrending').innerHTML += d.results.map(mapResult).map(cardHTML).join('');
+    }
+}
+
+// ============================================================
+// ★ v121: Modified scrollRow to trigger load on arrow click ★
+// ============================================================
 function scrollRow(id, direction) {
     var el = document.getElementById(id); if (!el) return;
     var scrollAmount = el.clientWidth * 0.75;
+    
+    // If clicking right arrow and we're already at the end, trigger load
+    if (direction === 1 && el.scrollLeft + el.clientWidth >= el.scrollWidth - 50) {
+        handleHorizontalScroll(id);
+    }
+    
     el.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
 }
+
 function updateScrollArrows(id) {
     var el = document.getElementById(id); if (!el) return;
     var wrapper = el.closest('.scroller-wrapper'); if (!wrapper) return;
@@ -3557,35 +3276,17 @@ async function loadInitial(){
     var tr = await tmdb('/trending/all/week', {page:1});
     if(tr && tr.results){
         var m = tr.results.map(mapResult); setupHero(m);
-        document.getElementById('trendingTrack').innerHTML = m.slice(0, 10).map(cardHTML).join('');
-        setTimeout(function() { updateScrollArrows('trendingTrack'); }, 50);
     } else {
         setupHero(FALLBACK);
-        document.getElementById('trendingTrack').innerHTML = FALLBACK.map(cardHTML).join('');
     }
-    var results = await Promise.all([ tmdb('/movie/now_playing', {page:1}), tmdb('/tv/airing_today', {page:1}) ]);
-    var nowPlaying = results[0]; var airingToday = results[1]; var latestMixed = [];
-    if(nowPlaying && nowPlaying.results) nowPlaying.results.forEach(function(r) { r.media_type = 'movie'; latestMixed.push(r); });
-    if(airingToday && airingToday.results) airingToday.results.forEach(function(r) { r.media_type = 'tv'; latestMixed.push(r); });
-    if(latestMixed.length > 0) {
-        var uniqueLatest = []; var map = {};
-        for(var i=0; i<latestMixed.length; i++) { if(!map[latestMixed[i].id]) { uniqueLatest.push(latestMixed[i]); map[latestMixed[i].id] = true; } }
-        document.getElementById('latestTrack').innerHTML = uniqueLatest.slice(0,20).map(mapResult).map(cardHTML).join('');
-        setTimeout(function() { updateScrollArrows('latestTrack'); }, 50);
-    } else { document.getElementById('latestTrack').innerHTML = FALLBACK.map(cardHTML).join(''); }
-    var today = new Date().toISOString().split('T')[0];
-    var tvResults = await Promise.all([ tmdb('/tv/on_the_air', { page: 1 }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: 1 }) ]);
-    var onAir = tvResults[0]; var upcoming = tvResults[1]; var combinedTv = [];
-    if (onAir && onAir.results) combinedTv = combinedTv.concat(onAir.results);
-    if (upcoming && upcoming.results) combinedTv = combinedTv.concat(upcoming.results);
-    var uniqueTv = []; var tvMap = {};
-    for(var j=0; j<combinedTv.length; j++) { if(!tvMap[combinedTv[j].id]) { uniqueTv.push(combinedTv[j]); tvMap[combinedTv[j].id] = true; } }
-    if(uniqueTv.length > 0) {
-        document.getElementById('upcomingTvTrack').innerHTML = uniqueTv.slice(0,15).map(mapResult).map(cardHTML).join('');
-        setTimeout(function() { updateScrollArrows('upcomingTvTrack'); }, 50);
-    } else {
-        document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.filter(function(m) { return m.media_type === 'tv'; }).map(cardHTML).join('');
-    }
+    
+    populateTrendingCountryDropdowns();
+    var geo = await getUserCountry();
+    
+    await loadHomeTrending(true);
+    await loadMoreLatest();
+    await loadMoreUpcoming();
+    
     loadPopularGenres();
 }
 
@@ -3691,7 +3392,7 @@ function handleRouting() {
             }
             loadDiscover(1, false);
         }
-        loadMoviesRegionTrending();
+        loadMoviesRegionTrending(true);
         window.currentView = 'movies';
     } 
     else if (hash === 'tv') {
