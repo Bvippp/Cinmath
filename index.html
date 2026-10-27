@@ -1141,17 +1141,16 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v127</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v128</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v127 — 2026-10-27
-// CHANGELOG (v126 → v127):
-//   • Added revoked_devices to user metadata.
-//   • Created startDeviceCheck() interval to force logout if device is revoked.
-//   • Updated syncDeviceSession() to prevent revoked devices from re-adding themselves.
+// TUBEMOCHA BUILD v128 — 2026-10-27
+// CHANGELOG (v127 → v128):
+//   • Fixed the global logout bug caused by remote device revocation.
+//   • Forced remote revocations to use local scope, preventing other devices from signing out.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1182,8 +1181,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v127-2026-10-27-force-device-logout';
-var BUILD_NOTE_V127 = 'Added device revocation list and background checker to force logouts.';
+var TUBEMOCHA_BUILD = 'v128-2026-10-27-local-device-signout';
+var BUILD_NOTE_V128 = 'Fixed global signout bug by enforcing local scope on device revocations.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1402,7 +1401,7 @@ function startDeviceCheck() {
                 if (revoked.includes(currentDeviceId)) {
                     clearInterval(deviceCheckInterval);
                     toast('You have been signed out from another device.');
-                    await supabaseClient.auth.signOut();
+                    await supabaseClient.auth.signOut({ scope: 'local' });
                     window.location.hash = '#home';
                 }
             }
@@ -1424,7 +1423,7 @@ async function syncDeviceSession(user) {
 
         let revoked = latestMetadata.revoked_devices || [];
         if (revoked.includes(currentDeviceId)) {
-            await supabaseClient.auth.signOut();
+            await supabaseClient.auth.signOut({ scope: 'local' });
             return [];
         }
 
@@ -1536,7 +1535,7 @@ async function signOutSpecificDevice(deviceId) {
     if (!currentUser) return;
     
     if (deviceId === currentDeviceId) {
-        await supabaseClient.auth.signOut();
+        await supabaseClient.auth.signOut({ scope: 'local' });
         window.location.hash = '#home';
         return;
     }
@@ -2137,7 +2136,7 @@ async function handleLogin(e) {
 }
 
 async function handleLogout() {
-    await supabaseClient.auth.signOut();
+    await supabaseClient.auth.signOut({ scope: 'global' });
     toast('Logged out');
     closeProfileDropdown();
     window.location.hash = '#home';
@@ -3399,7 +3398,7 @@ function setupHero(movies) {
 }
 
 // ============================================================
-// ★ v127: loadMoviesRegionTrending — country selector integration. ★
+// ★ v128: loadMoviesRegionTrending — country selector integration. ★
 // ============================================================
 async function loadMoviesRegionTrending() {
     var track = document.getElementById('moviesRegionTrending');
@@ -3451,7 +3450,7 @@ async function loadMoviesRegionTrending() {
 }
 
 // ============================================================
-// ★ v127: loadTVRegionTrending — country selector integration. ★
+// ★ v128: loadTVRegionTrending — country selector integration. ★
 // ============================================================
 async function loadTVRegionTrending() {
     var track = document.getElementById('tvRegionTrending');
@@ -3503,7 +3502,7 @@ async function loadTVRegionTrending() {
 }
 
 // ============================================================
-// ★ v127: loadAnimeRegionTrending — country selector integration. ★
+// ★ v128: loadAnimeRegionTrending — country selector integration. ★
 // ============================================================
 async function loadAnimeRegionTrending() {
     var track = document.getElementById('animeRegionTrending');
