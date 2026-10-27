@@ -1151,17 +1151,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v121</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v122</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v121 — 2026-10-27
-// CHANGELOG (v120 → v121):
-//   • Added Country Selector to "Trending in [Country]" sections on Movies, TV, and Anime pages.
-//   • Implemented horizontal infinite scroll for all main carousel rows (Trending, Latest, Upcoming, Regional Trends).
-//   • Added `rowStates` to track pagination for horizontal scrolling.
+// TUBEMOCHA BUILD v122 — 2026-10-27
+// CHANGELOG (v121 → v122):
+//   • Removed "Auto-detect My Country" option from all trend dropdowns.
+//   • Fixed profile syncing race condition on login (profiles now load instantly).
+//   • Fixed cross-account profile contamination (cloud saves now only save active user's profiles).
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1192,8 +1192,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v121-2026-10-27-trending-countries-infinite-scroll';
-var BUILD_NOTE_V121 = 'Added country selector for trending rows, implemented horizontal infinite scroll for all carousels.';
+var TUBEMOCHA_BUILD = 'v122-2026-10-27-profile-sync-fix';
+var BUILD_NOTE_V122 = 'Removed auto-detect, fixed profile sync race condition, fixed cross-account metadata saving.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1477,30 +1477,34 @@ async function submitChangePassword(e) {
 // ==========================================
 // SESSION & AUTH UI RESTORATION
 // ==========================================
+function syncProfilesFromCloud(user) {
+    if (!user) return;
+    var cloudProfiles = (user.user_metadata && user.user_metadata.profiles) ? user.user_metadata.profiles : [];
+    var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    
+    // Keep profiles that belong to OTHER users
+    var otherProfiles = localProfiles.filter(function(p) { return p.userId !== user.id; });
+    
+    // Add cloud profiles for this user
+    cloudProfiles.forEach(function(cp) {
+        if (!cp.userId) cp.userId = user.id;
+        if (!otherProfiles.find(function(op) { return op.id === cp.id; })) {
+            otherProfiles.push(cp);
+        }
+    });
+    
+    localStorage.setItem('tubemocha_profiles', JSON.stringify(otherProfiles));
+}
+
 function handleAuthState(session) {
     if (session) {
         currentUser = session.user;
-        
-        // SYNC FROM SUPABASE (v105)
-        if (session.user.user_metadata && session.user.user_metadata.profiles) {
-            var cloudProfiles = session.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-            var merged = false;
-            cloudProfiles.forEach(function(cp) {
-                if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
-                    localProfiles.push(cp);
-                    merged = true;
-                }
-            });
-            if (merged) {
-                localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
-            }
-        }
-
-        document.getElementById('dropdownAuthProfile').style.display = 'flex';
-        document.getElementById('dropdownAuthButtons').style.display = 'none';
+        syncProfilesFromCloud(session.user);
         restoreActiveProfile();
         fetchWatchlistFromDB();
+        
+        document.getElementById('dropdownAuthProfile').style.display = 'flex';
+        document.getElementById('dropdownAuthButtons').style.display = 'none';
         
         var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
         var adsToggle = document.getElementById('adsToggle');
@@ -1675,11 +1679,11 @@ async function saveWizardProfile() {
     profiles.push(newProfile);
     localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
 
-    // SYNC TO SUPABASE (v105)
     if (userId !== 'guest') {
+        var myProfiles = profiles.filter(function(p) { return p.userId === userId; });
         try {
             await supabaseClient.auth.updateUser({
-                data: { profiles: profiles }
+                data: { profiles: myProfiles }
             });
         } catch(e) { console.log('Failed to sync profiles:', e); }
     }
@@ -1878,26 +1882,10 @@ async function handleModalLogin(e) {
         toast('Logged in successfully!'); 
         closeAuthModal(); 
         
-        // SYNC FROM SUPABASE (v105)
-        if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
-            var cloudProfiles = data.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-            var merged = false;
-            cloudProfiles.forEach(function(cp) {
-                if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
-                    localProfiles.push(cp);
-                    merged = true;
-                }
-            });
-            if (merged) {
-                localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
-            }
+        if (data.user) {
+            syncProfilesFromCloud(data.user);
         }
         
-        var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-        var userProfiles = profiles.filter(function(p) { return p.userId === data.user.id; });
-        
-        // v105: Always redirect to whos-watching to match desktop behavior
         window.location.hash = '#whos-watching';
     }
 }
@@ -1976,27 +1964,10 @@ async function handleLogin(e) {
     else { 
         toast('Logged in successfully!'); 
         
-        // SYNC FROM SUPABASE (v105)
-        if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
-            var cloudProfiles = data.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-            var merged = false;
-            cloudProfiles.forEach(function(cp) {
-                if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
-                    localProfiles.push(cp);
-                    merged = true;
-                }
-            });
-            if (merged) {
-                localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
-            }
+        if (data.user) {
+            syncProfilesFromCloud(data.user);
         }
         
-        var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-        var userId = data && data.user ? data.user.id : (currentUser ? currentUser.id : null);
-        var userProfiles = profiles.filter(function(p) { return p.userId === userId; });
-        
-        // v105: Always redirect to whos-watching to match desktop behavior
         window.location.hash = '#whos-watching';
     }
 }
@@ -2860,7 +2831,7 @@ function populateTrendCountries(type) {
     var container = document.getElementById('trendCountryDropdown_' + type);
     var currentCountry = type === 'movie' ? trendCountryMovies : (type === 'tv' ? trendCountryTV : trendCountryAnime);
     
-    var html = '<label class="checkbox-label" style="padding: 10px; cursor: pointer; font-weight: 700; color: var(--accent-light);" onclick="setTrendCountry(\'' + type + '\', null, \'Auto-detect\')">Auto-detect My Country</label>';
+    var html = '';
     html += COUNTRIES_LIST.map(function(c) { 
         return '<label class="checkbox-label" style="padding: 10px; cursor: pointer; ' + (currentCountry === c.id ? 'background: rgba(255,255,255,0.1); font-weight: 700;' : '') + '" onclick="setTrendCountry(\'' + type + '\', \'' + c.id + '\', \'' + c.name + '\')">' + c.name + '</label>';
     }).join('');
@@ -3293,7 +3264,7 @@ async function loadMoviesRegionTrending() {
             headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
         }
         var btn = document.getElementById('btnTrendCountryMovie');
-        if (btn) btn.textContent = (countryName || 'Auto-detect') + ' ▾';
+        if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
         
         var params = { sort_by: 'popularity.desc', page: 1 };
         if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
@@ -3345,7 +3316,7 @@ async function loadTVRegionTrending() {
             headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
         }
         var btn = document.getElementById('btnTrendCountryTV');
-        if (btn) btn.textContent = (countryName || 'Auto-detect') + ' ▾';
+        if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
         
         var params = { sort_by: 'popularity.desc', page: 1 };
         if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
@@ -3397,7 +3368,7 @@ async function loadAnimeRegionTrending() {
             headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
         }
         var btn = document.getElementById('btnTrendCountryAnime');
-        if (btn) btn.textContent = (countryName || 'Auto-detect') + ' ▾';
+        if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
         
         var params = { sort_by: 'popularity.desc', page: 1, with_genres: '16' };
         if (animeFilterState.genres.length > 0) params.with_genres = '16,' + animeFilterState.genres.join('|');
