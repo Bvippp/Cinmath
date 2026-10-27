@@ -293,6 +293,47 @@
 .share-action-btn:active svg {
     transform: scale(0.9);
 }
+
+/* Scroll to Bottom Button */
+.scroll-down-btn {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--star);
+    color: var(--bg-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    z-index: 400;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s, opacity 0.2s;
+}
+.scroll-down-btn:hover {
+    transform: scale(1.1);
+    background: var(--accent-light);
+}
+.scroll-down-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+@media (max-width: 767px) {
+    .scroll-down-btn {
+        bottom: 90px;
+        right: 16px;
+        width: 44px;
+        height: 44px;
+    }
+}
 </style>
 </head>
 <body>
@@ -1044,7 +1085,11 @@
     </div>
 </div>
 <div class="site-disclaimer"><p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p></div>
-</div></div>
+</div>
+<button id="scrollDownBtn" class="scroll-down-btn" onclick="scrollToBottom()" title="Scroll to More Like This">
+    <svg viewBox="0 0 24 24"><polyline points="7 13 12 18 17 13"></polyline><polyline points="7 6 12 11 17 6"></polyline></svg>
+</button>
+</div>
 <div class="player-overlay" id="playerOverlay">
 <div class="player-video-container" id="playerIframeContainer"><div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div></div>
 <div class="server-switch-banner" id="serverSwitchBanner"></div>
@@ -1093,16 +1138,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v115</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v116</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v115 — 2026-10-27
-// CHANGELOG (v114 → v115):
-//   • Added infinite scroll and scroll arrows to "More Like This".
-//   • Added data-id to cardHTML for smart deduplication.
+// TUBEMOCHA BUILD v116 — 2026-10-27
+// CHANGELOG (v115 → v116):
+//   • Added a floating Scroll Down button on the detail overlay.
+//   • Clicking it smoothly scrolls the page to the bottom to reveal
+//     "More Like This". Matches the HD tag color.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1133,8 +1179,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v115-2026-10-27-rec-infinite-scroll';
-var BUILD_NOTE_V115 = 'Infinite scroll and arrows for More Like This.';
+var TUBEMOCHA_BUILD = 'v116-2026-10-27-scroll-down-btn';
+var BUILD_NOTE_V116 = 'Added floating scroll down button on detail overlay.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
