@@ -559,18 +559,8 @@
         <div style="margin-bottom:40px;">
             <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">Devices</h3>
             <p style="color:var(--text-dim); font-size:13px; margin-bottom:15px;">Sessions signed in to your account</p>
-            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; gap:15px; align-items:center;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                    <div>
-                        <div style="font-weight:600; color:#fff;" id="settingsDeviceName">Loading...</div>
-                        <div style="font-size:12px; color:var(--text-dim); margin-top:4px;" id="settingsDeviceLocation">Loading...</div>
-                    </div>
-                </div>
-                <button onclick="toast('Device signed out successfully (Mock)')" style="color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                    Sign out device
-                </button>
+            <div id="settingsDevicesList" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- Dynamically injected -->
             </div>
         </div>
         
@@ -1151,17 +1141,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v122</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v123</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v122 — 2026-10-27
-// CHANGELOG (v121 → v122):
-//   • Removed "Auto-detect My Country" option from all trend dropdowns.
-//   • Fixed profile syncing race condition on login (profiles now load instantly).
-//   • Fixed cross-account profile contamination (cloud saves now only save active user's profiles).
+// TUBEMOCHA BUILD v123 — 2026-10-27
+// CHANGELOG (v122 → v123):
+//   • Added device session tracking via user_metadata.
+//   • Settings page now dynamically renders all active devices.
+//   • Added functional "Sign out device" button.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1192,10 +1182,17 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v122-2026-10-27-profile-sync-fix';
-var BUILD_NOTE_V122 = 'Removed auto-detect, fixed profile sync race condition, fixed cross-account metadata saving.';
+var TUBEMOCHA_BUILD = 'v123-2026-10-27-multi-device-sync';
+var BUILD_NOTE_V123 = 'Device tracking in settings now works correctly across multiple devices.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
+
+// Generate or retrieve a stable device ID for this browser
+var currentDeviceId = localStorage.getItem('tubemocha_device_id');
+if (!currentDeviceId) {
+    currentDeviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+    localStorage.setItem('tubemocha_device_id', currentDeviceId);
+}
 
 var isLoadingMovies = false, hasMoreMovies = true;
 var isLoadingTV = false, hasMoreTV = true;
@@ -1387,9 +1384,39 @@ function getDeviceInfo() {
     else if (navigator.userAgent.indexOf("Safari") != -1) browser = "Safari";
 
     let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    let lastActive = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
     
-    return { name: `${browser} • ${os}`, location: timezone, lastActive: lastActive };
+    return { name: `${browser} • ${os}`, location: timezone };
+}
+
+async function syncDeviceSession(user) {
+    if (!user) return;
+    let metadata = user.user_metadata || {};
+    let devices = metadata.devices || [];
+    let currentDevice = getDeviceInfo();
+
+    let existingIdx = devices.findIndex(d => d.id === currentDeviceId);
+    let sessionData = {
+        id: currentDeviceId,
+        name: currentDevice.name,
+        location: currentDevice.location,
+        lastActive: new Date().toISOString()
+    };
+
+    if (existingIdx > -1) {
+        devices[existingIdx] = sessionData;
+    } else {
+        devices.push(sessionData);
+    }
+
+    // Keep only the last 5 devices to prevent metadata bloat
+    devices = devices.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive)).slice(0, 5);
+
+    // Update Supabase metadata if it changed
+    if (JSON.stringify(metadata.devices) !== JSON.stringify(devices)) {
+        await supabaseClient.auth.updateUser({
+            data: { devices: devices }
+        });
+    }
 }
 
 function initSettingsPage() {
@@ -1397,11 +1424,53 @@ function initSettingsPage() {
     let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
     document.getElementById('settingsUsernameDisplay').textContent = displayName;
     
-    let devInfo = getDeviceInfo();
-    document.getElementById('settingsDeviceName').innerHTML = devInfo.name + ' <span style="background:var(--border); padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:var(--text-muted);">This device</span>';
-    document.getElementById('settingsDeviceLocation').textContent = devInfo.location + ' • Last active ' + devInfo.lastActive;
+    // Render devices
+    let devices = (currentUser && currentUser.user_metadata && currentUser.user_metadata.devices) ? currentUser.user_metadata.devices : [];
+    if (devices.length === 0) {
+        let devInfo = getDeviceInfo();
+        devices = [{ id: currentDeviceId, name: devInfo.name, location: devInfo.location, lastActive: new Date().toISOString() }];
+    }
+
+    let html = '';
+    devices.forEach(d => {
+        let isCurrent = d.id === currentDeviceId;
+        let dateStr = new Date(d.lastActive).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+        html += `
+        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:15px; align-items:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                <div>
+                    <div style="font-weight:600; color:#fff;">${d.name} ${isCurrent ? '<span style="background:var(--border); padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:var(--text-muted);">This device</span>' : ''}</div>
+                    <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">${d.location} • Last active ${dateStr}</div>
+                </div>
+            </div>
+            ${!isCurrent ? `<button onclick="signOutSpecificDevice('${d.id}')" style="color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Sign out</button>` : `<span style="font-size:12px; color:var(--text-muted); padding-right:10px;">Current</span>`}
+        </div>`;
+    });
+    document.getElementById('settingsDevicesList').innerHTML = html;
     
     cancelChangePassword();
+}
+
+async function signOutSpecificDevice(deviceId) {
+    if (!currentUser) return;
+    
+    if (deviceId === currentDeviceId) {
+        await supabaseClient.auth.signOut();
+        window.location.hash = '#home';
+        return;
+    }
+
+    let metadata = currentUser.user_metadata || {};
+    let devices = metadata.devices || [];
+    devices = devices.filter(d => d.id !== deviceId);
+
+    await supabaseClient.auth.updateUser({ data: { devices: devices } });
+    
+    // Update local state to force a re-render
+    currentUser.user_metadata.devices = devices;
+    initSettingsPage();
+    toast('Device signed out successfully');
 }
 
 function toggleChangePasswordForm() {
@@ -1500,6 +1569,7 @@ function handleAuthState(session) {
     if (session) {
         currentUser = session.user;
         syncProfilesFromCloud(session.user);
+        syncDeviceSession(session.user);
         restoreActiveProfile();
         fetchWatchlistFromDB();
         
@@ -3235,7 +3305,7 @@ function setupHero(movies) {
 }
 
 // ============================================================
-// ★ v121: loadMoviesRegionTrending — country selector integration. ★
+// ★ v123: loadMoviesRegionTrending — country selector integration. ★
 // ============================================================
 async function loadMoviesRegionTrending() {
     var track = document.getElementById('moviesRegionTrending');
@@ -3287,7 +3357,7 @@ async function loadMoviesRegionTrending() {
 }
 
 // ============================================================
-// ★ v121: loadTVRegionTrending — country selector integration. ★
+// ★ v123: loadTVRegionTrending — country selector integration. ★
 // ============================================================
 async function loadTVRegionTrending() {
     var track = document.getElementById('tvRegionTrending');
@@ -3339,7 +3409,7 @@ async function loadTVRegionTrending() {
 }
 
 // ============================================================
-// ★ v121: loadAnimeRegionTrending — country selector integration. ★
+// ★ v123: loadAnimeRegionTrending — country selector integration. ★
 // ============================================================
 async function loadAnimeRegionTrending() {
     var track = document.getElementById('animeRegionTrending');
