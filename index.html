@@ -1034,7 +1034,7 @@
 <div class="genre-modal" id="genreModal" onclick="if(event.target===this) closeModal('genreModal')"><div class="genre-sheet"><h3>Select Genre</h3><div class="ggrid"><button onclick="setFilter('genre','','All Genres')">All Genres</button><button onclick="setFilter('genre','28','Action')">Action</button><button onclick="setFilter('genre','12','Adventure')">Adventure</button><button onclick="setFilter('genre','16','Animation')">Animation</button><button onclick="setFilter('genre','35','Comedy')">Comedy</button><button onclick="setFilter('genre','80','Crime')">Crime</button><button onclick="setFilter('genre','18','Drama')">Drama</button><button onclick="setFilter('genre','27','Horror')">Horror</button><button onclick="setFilter('genre','10749','Romance')">Romance</button><button onclick="setFilter('genre','878','Sci-Fi')">Sci-Fi</button><button onclick="setFilter('genre','53','Thriller')">Thriller</button></div></div></div>
 <div class="genre-modal" id="yearModal" onclick="if(event.target===this) closeModal('yearModal')"><div class="genre-sheet"><h3>Select Year</h3><div class="ggrid"><button onclick="setFilter('year','','All Years')">All Years</button><button onclick="setFilter('year','2025','2025')">2025</button><button onclick="setFilter('year','2024','2024')">2024</button><button onclick="setFilter('year','2023','2023')">2023</button><button onclick="setFilter('year','2022','2022')">2022</button><button onclick="setFilter('year','2020','2020')">2020</button><button onclick="setFilter('year','2010','2010')">2010</button><button onclick="setFilter('year','2000','2000')">2000</button></div></div></div>
 <div class="genre-modal" id="countryModal" onclick="if(event.target===this) closeModal('countryModal')"><div class="genre-sheet"><h3>Select Country</h3><div class="ggrid"><button onclick="setFilter('country','','All Countries')">All Countries</button><button onclick="setFilter('country','US','United States')">United States</button><button onclick="setFilter('country','GB','United Kingdom')">United Kingdom</button><button onclick="setFilter('country','JP','Japan')">Japan</button><button onclick="setFilter('country','KR','South Korea')">South Korea</button></div></div></div>
-<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest Releases')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Box Office')">Highest Box Office</button></div></div></div>
+<div class="genre-modal" id="sortModal" onclick="if(event.target===this) closeModal('sortModal')"><div class="genre-sheet"><h3>Sort By</h3><div class="ggrid"><button onclick="setFilter('sort','popularity.desc','Most Popular')">Most Popular</button><button onclick="setFilter('sort','vote_average.desc','Top Rated')">Top Rated</button><button onclick="setFilter('sort','primary_release_date.desc','Newest Releases')">Newest Releases</button><button onclick="setFilter('sort','revenue.desc','Highest Box Office')">Highest Box Office</button></div></div></div>
 
 <div class="genre-modal" id="animeGenreModal" onclick="if(event.target===this) closeModal('animeGenreModal')">
   <div class="genre-sheet" style="max-width:800px; margin:0 auto; border-radius:12px 12px 0 0;">
@@ -1058,40 +1058,19 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v104</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v105</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v104 — 2026-10-26
-// CHANGELOG (v103 → v104):
-//   • THE BIG FIX — Infinite scroll now works for EVERY filter
-//     combination, including sparse ones like China + Comedy + 2026.
-//
-//   Root cause: for a strict year like 2026, TMDB returns 0 or very
-//   few results for niche country+genre combos (few Chinese comedy
-//   films have a primary_release_date in 2026 yet). The old code
-//   flipped hasMoreMovies=false immediately, so no scroll happened.
-//
-//   Solution — Tiered Year Widening Ladder:
-//     Tier 0 (exact):      [Y, Y]          primary_release_date
-//     Tier 1 (adjacent):   [Y-1, Y+1]      fills 2025/2027 gaps
-//     Tier 2 (nearby):     [Y-2, Y+2]      further widening
-//   Multi-year ranges are treated as a single strict tier.
-//
-//   Behaviour:
-//     - Initial load fills a full page (>=20) by traversing tiers.
-//     - Dedup set prevents duplicates when tiers overlap.
-//     - Infinite scroll continues from wherever we left off.
-//     - Only stops when ALL tiers exhausted.
-//     - Same treatment for TV shows (first_air_date.gte/lte).
-//     - Same treatment for "Trending in [Country]" row.
-//     - Same treatment for "Current & upcoming TV shows" row.
-//
-//   Section titles LOCKED (from v103, unchanged):
-//     - "Trending in [Country]" — set once from geo.
-//     - "Current & upcoming TV shows" — never changes.
+// TUBEMOCHA BUILD v105 — 2026-10-27
+// CHANGELOG (v104 → v105):
+//   • Fixed mobile login redirect: Now correctly goes to the
+//     "Who's watching?" page instead of the create profile wizard.
+//   • Added Supabase user_metadata profile sync: Profiles now
+//     sync across devices. Logging in on mobile will pull the
+//     profiles you created on desktop.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1120,8 +1099,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v104-2026-10-26-tiered-infinite-scroll';
-var BUILD_NOTE_V104 = 'Tiered year widening + dedup ensures infinite scroll works for every combo (e.g. China+Comedy+2026). Section titles still locked.';
+var TUBEMOCHA_BUILD = 'v105-2026-10-27-sync-profiles';
+var BUILD_NOTE_V105 = 'Mobile login redirects to whos-watching. Profiles sync via Supabase user_metadata.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1355,6 +1334,23 @@ async function submitChangePassword(e) {
 function handleAuthState(session) {
     if (session) {
         currentUser = session.user;
+        
+        // SYNC FROM SUPABASE (v105)
+        if (session.user.user_metadata && session.user.user_metadata.profiles) {
+            var cloudProfiles = session.user.user_metadata.profiles;
+            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+            var merged = false;
+            cloudProfiles.forEach(function(cp) {
+                if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
+                    localProfiles.push(cp);
+                    merged = true;
+                }
+            });
+            if (merged) {
+                localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
+            }
+        }
+
         document.getElementById('dropdownAuthProfile').style.display = 'flex';
         document.getElementById('dropdownAuthButtons').style.display = 'none';
         restoreActiveProfile();
@@ -1532,6 +1528,15 @@ async function saveWizardProfile() {
     };
     profiles.push(newProfile);
     localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+
+    // SYNC TO SUPABASE (v105)
+    if (userId !== 'guest') {
+        try {
+            await supabaseClient.auth.updateUser({
+                data: { profiles: profiles }
+            });
+        } catch(e) { console.log('Failed to sync profiles:', e); }
+    }
 
     if (existingUserProfiles.length === 0) {
         localStorage.setItem('tubemocha_active_profile', JSON.stringify(newProfile));
@@ -1727,13 +1732,27 @@ async function handleModalLogin(e) {
         toast('Logged in successfully!'); 
         closeAuthModal(); 
         
+        // SYNC FROM SUPABASE (v105)
+        if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
+            var cloudProfiles = data.user.user_metadata.profiles;
+            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+            var merged = false;
+            cloudProfiles.forEach(function(cp) {
+                if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
+                    localProfiles.push(cp);
+                    merged = true;
+                }
+            });
+            if (merged) {
+                localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
+            }
+        }
+        
         var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
         var userProfiles = profiles.filter(function(p) { return p.userId === data.user.id; });
-        if (userProfiles.length > 0) {
-            window.location.hash = '#whos-watching';
-        } else {
-            startWizard();
-        }
+        
+        // v105: Always redirect to whos-watching to match desktop behavior
+        window.location.hash = '#whos-watching';
     }
 }
 
@@ -1810,11 +1829,29 @@ async function handleLogin(e) {
     } 
     else { 
         toast('Logged in successfully!'); 
+        
+        // SYNC FROM SUPABASE (v105)
+        if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
+            var cloudProfiles = data.user.user_metadata.profiles;
+            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+            var merged = false;
+            cloudProfiles.forEach(function(cp) {
+                if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
+                    localProfiles.push(cp);
+                    merged = true;
+                }
+            });
+            if (merged) {
+                localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
+            }
+        }
+        
         var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
         var userId = data && data.user ? data.user.id : (currentUser ? currentUser.id : null);
         var userProfiles = profiles.filter(function(p) { return p.userId === userId; });
-        if (userProfiles.length > 0) window.location.hash = '#whos-watching';
-        else startWizard();
+        
+        // v105: Always redirect to whos-watching to match desktop behavior
+        window.location.hash = '#whos-watching';
     }
 }
 
