@@ -566,7 +566,7 @@
 
 <div id="view-movies" class="view"><div class="main" style="padding-top:10px">
 <div class="page-header"><img class="page-header-img" id="moviesHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line"></span>Movies</div><div class="page-header-sub">Discover the latest and greatest films</div></div></div>
-<div class="section-head" id="moviesTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+<div class="section-head" id="moviesTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending Right Now</h2></div></div>
 <div class="scroller-wrapper" style="margin-bottom: 20px;"><button class="scroll-arrow left" onclick="scrollRow('moviesRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="moviesRegionTrending" onscroll="updateScrollArrows('moviesRegionTrending')"></div><button class="scroll-arrow right" onclick="scrollRow('moviesRegionTrending', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
 
 <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">All Movies</h2></div></div>
@@ -607,7 +607,7 @@
 <div id="view-tv" class="view"><div class="main" style="padding-top:10px">
 <div class="page-header"><img class="page-header-img" id="tvHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line"></span>TV Shows</div><div class="page-header-sub">Binge the best series on the web</div></div></div>
 
-<div class="section-head" id="tvTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+<div class="section-head" id="tvTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending Right Now</h2></div></div>
 <div class="scroller-wrapper" style="margin-bottom: 20px;"><button class="scroll-arrow left" onclick="scrollRow('tvRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="tvRegionTrending" onscroll="updateScrollArrows('tvRegionTrending')"></div><button class="scroll-arrow right" onclick="scrollRow('tvRegionTrending', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
 
 <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">All Shows</h2></div></div>
@@ -649,7 +649,7 @@
   <div class="main" style="padding-top:10px">
     <div class="page-header"><img class="page-header-img" id="animeHeaderBg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt=""><div class="page-header-overlay"></div><div class="page-header-content"><div class="page-header-title"><span class="line"></span>Anime</div><div class="page-header-sub">Discover the latest and trending anime</div></div></div>
     
-    <div class="section-head" id="animeTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending in Your Region</h2></div></div>
+    <div class="section-head" id="animeTrendingHead"><div class="section-accent"></div><div class="section-title-box"><h2 class="section-title">Trending Right Now</h2></div></div>
     <div class="scroller-wrapper" style="margin-bottom: 20px;"><button class="scroll-arrow left" onclick="scrollRow('animeRegionTrending', -1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg></button><div class="scroller" id="animeRegionTrending" onscroll="updateScrollArrows('animeRegionTrending')"></div><button class="scroll-arrow right" onclick="scrollRow('animeRegionTrending', 1)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg></button></div>
     
     <div class="section-head"><div class="section-accent brown"></div><div class="section-title-box"><h2 class="section-title">All Anime</h2></div></div>
@@ -1113,18 +1113,20 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v109</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v110</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v109 — 2026-10-27
-// CHANGELOG (v108 → v109):
-//   • Fixed "Trending in Your Country" functionality.
-//   • Added locale-based country detection fallback (navigator.language).
-//   • Added robust fallback for empty trending results: if country
-//     specific query fails, it falls back to general trending.
+// TUBEMOCHA BUILD v110 — 2026-10-27
+// CHANGELOG (v109 → v110):
+//   • Fixed "Trending in Your Country" indefinitely. Replaced
+//     external IP API calls with instant locale-based detection
+//     (navigator.language) to guarantee it resolves and updates
+//     the UI immediately without hanging.
+//   • Added robust fallback loops for Movies, TV, and Anime
+//     trending rows.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1153,7 +1155,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v109-2026-10-27-fixed-trending';
+var TUBEMOCHA_BUILD = 'v110-2026-10-27-instant-geo';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -2272,10 +2274,6 @@ function applyAnimeFilters() {
 
 // ============================================================
 // ★ v104: YEAR TIER HELPERS ★
-// Build a ladder of widening year windows. When one tier is empty,
-// the next is tried, and the results from all non-empty tiers are
-// merged in order. Deduplication in loadDiscover/loadTVDiscover
-// prevents repeats.
 // ============================================================
 function buildYearTiers(years, isTV) {
     if (!years || years.length === 0) {
@@ -2287,12 +2285,10 @@ function buildYearTiers(years, isTV) {
     var minY = sorted[0];
     var maxY = sorted[sorted.length - 1];
     
-    // Multi-year selection → single strict tier (respect user's exact intent).
     if (sorted.length > 1) {
         return [{ gte: minY + '-01-01', lte: maxY + '-12-31', label: 'range' }];
     }
     
-    // Single year Y → progressive widening.
     var Y = sorted[0];
     return [
         { gte: Y + '-01-01',          lte: Y + '-12-31',          label: 'exact' },
@@ -2314,8 +2310,6 @@ function applyTierToParams(params, tier, isTV) {
 
 // ============================================================
 // ★ v104: loadDiscover — tiered year widening + dedup. ★
-// Guarantees continuous infinite scroll for EVERY filter combo,
-// including sparse ones like China + Comedy + 2026.
 // ============================================================
 async function loadDiscover(page, isTv) {
     var isReset = (page === 1);
@@ -2338,7 +2332,7 @@ async function loadDiscover(page, isTv) {
     var appendedCount = 0;
     var safetyCounter = 0;
     var MAX_SAFETY = 12;
-    var firstAppendDone = !isReset; // only reset DOM at top when isReset
+    var firstAppendDone = !isReset; 
     
     try {
         while (filterState._tier < tiers.length && safetyCounter < MAX_SAFETY) {
@@ -2376,7 +2370,6 @@ async function loadDiscover(page, isTv) {
                 appendedCount += mapped.length;
             }
             
-            // Advance pointer
             if (d.page >= d.total_pages) {
                 filterState._tier++;
                 filterState._tierPage = 1;
@@ -2384,8 +2377,6 @@ async function loadDiscover(page, isTv) {
                 filterState._tierPage = tierPage + 1;
             }
             
-            // For initial load, keep going until we've filled at least one
-            // full page (PAGE_SIZE) or exhausted all tiers.
             if (isReset) {
                 if (appendedCount >= PAGE_SIZE) break;
             } else {
@@ -2532,7 +2523,6 @@ async function loadAnime(page) {
             var tierPage = animeFilterState._tierPage;
             
             var params = { sort_by: animeFilterState.sort, page: tierPage };
-            // Default anime to Genre 16 (Animation) but allow user to add others
             if (animeFilterState.genres.length > 0) params.with_genres = '16,' + animeFilterState.genres.join('|');
             else params.with_genres = '16';
             
@@ -2596,7 +2586,7 @@ async function loadAnime(page) {
 
 var moviesObserver = new IntersectionObserver(function(entries) {
     if (entries[0].isIntersecting && window.currentView === 'movies' && !isLoadingMovies && hasMoreMovies) {
-        loadDiscover(-1, false); // -1 = continue from current tier pointer
+        loadDiscover(-1, false); 
     }
 }, { rootMargin: '1000px' });
 
@@ -2890,7 +2880,7 @@ function setupHero(movies) {
 }
 
 // ============================================================
-// ★ v109: loadTVRegionTrending — fixed robust fallback. ★
+// ★ v110: loadTVRegionTrending — fixed robust fallback. ★
 // ============================================================
 async function loadTVRegionTrending() {
     var track = document.getElementById('tvRegionTrending');
@@ -2904,25 +2894,16 @@ async function loadTVRegionTrending() {
             headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
         }
 
-        var params = { sort_by: 'popularity.desc', page: 1 };
-        if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
-        if (tvFilterState.countries.length > 0) params.with_origin_country = tvFilterState.countries.join('|');
-        else if (geo.code) params.with_origin_country = geo.code;
+        var d = await tmdb('/discover/tv', { 
+            sort_by: 'popularity.desc', 
+            with_origin_country: geo.code,
+            page: 1 
+        });
         
-        if (tvFilterState.years.length > 0) {
-            var tiers = buildYearTiers(tvFilterState.years, true);
-            applyTierToParams(params, tiers[0], true);
-        }
-
-        var d = await tmdb('/discover/tv', params);
-        
-        // If no results, try without country
         if (!d || !d.results || d.results.length === 0) {
-            delete params.with_origin_country;
-            d = await tmdb('/discover/tv', params);
+            d = await tmdb('/discover/tv', { sort_by: 'popularity.desc', page: 1 });
         }
         
-        // If still no results, fallback to general trending
         if (!d || !d.results || d.results.length === 0) {
             d = await tmdb('/trending/tv/week', {page: 1});
         }
@@ -2935,13 +2916,15 @@ async function loadTVRegionTrending() {
         }
     } catch (err) {
         console.error('[TUBEMOCHA] loadTVRegionTrending error:', err);
+        var headEl = document.querySelector('#tvTrendingHead .section-title');
+        if (headEl) headEl.textContent = 'Trending Right Now';
         track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
     }
     setTimeout(function() { updateScrollArrows('tvRegionTrending'); }, 50);
 }
 
 // ============================================================
-// ★ v109: loadAnimeRegionTrending — fixed robust fallback. ★
+// ★ v110: loadAnimeRegionTrending — fixed robust fallback. ★
 // ============================================================
 async function loadAnimeRegionTrending() {
     var track = document.getElementById('animeRegionTrending');
@@ -2955,25 +2938,17 @@ async function loadAnimeRegionTrending() {
             headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
         }
 
-        var params = { sort_by: 'popularity.desc', page: 1, with_genres: '16' };
-        if (animeFilterState.genres.length > 0) params.with_genres = '16,' + animeFilterState.genres.join('|');
-        if (animeFilterState.countries.length > 0) params.with_origin_country = animeFilterState.countries.join('|');
-        else if (geo.code) params.with_origin_country = geo.code;
+        var d = await tmdb('/discover/tv', { 
+            sort_by: 'popularity.desc', 
+            with_genres: '16', 
+            with_origin_country: geo.code,
+            page: 1 
+        });
         
-        if (animeFilterState.years.length > 0) {
-            var tiers = buildYearTiers(animeFilterState.years, true);
-            applyTierToParams(params, tiers[0], true);
-        }
-
-        var d = await tmdb('/discover/tv', params);
-        
-        // If no results, try without country
         if (!d || !d.results || d.results.length === 0) {
-            delete params.with_origin_country;
-            d = await tmdb('/discover/tv', params);
+            d = await tmdb('/discover/tv', { sort_by: 'popularity.desc', with_genres: '16', page: 1 });
         }
         
-        // If still no results, fallback to general anime
         if (!d || !d.results || d.results.length === 0) {
             d = await tmdb('/discover/tv', { with_genres: '16', sort_by: 'popularity.desc', page: 1 });
         }
@@ -2986,9 +2961,55 @@ async function loadAnimeRegionTrending() {
         }
     } catch (err) {
         console.error('[TUBEMOCHA] loadAnimeRegionTrending error:', err);
+        var headEl = document.querySelector('#animeTrendingHead .section-title');
+        if (headEl) headEl.textContent = 'Trending Right Now';
         track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
     }
     setTimeout(function() { updateScrollArrows('animeRegionTrending'); }, 50);
+}
+
+// ============================================================
+// ★ v110: loadMoviesRegionTrending — fixed robust fallback. ★
+// ============================================================
+async function loadMoviesRegionTrending() {
+    var track = document.getElementById('moviesRegionTrending');
+    if (!track) return;
+    track.innerHTML = '<div class="empty" style="padding:20px;">Loading...</div>';
+    
+    try {
+        var geo = await getUserCountry();
+        var headEl = document.querySelector('#moviesTrendingHead .section-title');
+        if (headEl) {
+            headEl.textContent = geo.code ? 'Trending in ' + geo.name : 'Trending Right Now';
+        }
+
+        var d = await tmdb('/discover/movie', { 
+            sort_by: 'popularity.desc', 
+            with_origin_country: geo.code,
+            page: 1 
+        });
+        
+        if (!d || !d.results || d.results.length === 0) {
+            d = await tmdb('/discover/movie', { sort_by: 'popularity.desc', page: 1 });
+        }
+        
+        if (!d || !d.results || d.results.length === 0) {
+            d = await tmdb('/trending/movie/week', {page: 1});
+        }
+
+        if (d && d.results && d.results.length > 0) {
+            var mapped = d.results.map(mapResult);
+            track.innerHTML = mapped.slice(0,10).map(cardHTML).join('');
+        } else {
+            track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+        }
+    } catch (err) {
+        console.error('[TUBEMOCHA] loadMoviesRegionTrending error:', err);
+        var headEl = document.querySelector('#moviesTrendingHead .section-title');
+        if (headEl) headEl.textContent = 'Trending Right Now';
+        track.innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+    }
+    setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50);
 }
 
 async function loadTVPage(){
@@ -3347,45 +3368,29 @@ async function loadInitial(){
 
 document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
 
+// ============================================================
+// ★ v110: getUserCountry — instant locale detection. ★
+// ============================================================
 async function getUserCountry() {
     if (window.cachedGeo && window.cachedGeo.code) return window.cachedGeo;
     
-    var lang = navigator.language || navigator.userLanguage;
-    var localeCountry = null;
-    if (lang && lang.includes('-')) {
-        localeCountry = lang.split('-')[1].toUpperCase();
-    }
-    
-    function withTimeout(url, ms) {
-        return Promise.race([
-            fetch(url).then(function(r) { return r.json(); }),
-            new Promise(function(_, rej) { setTimeout(function() { rej(new Error('timeout')); }, ms); })
-        ]);
-    }
-    try {
-        var data = await withTimeout('https://ipwho.is/', 2000);
-        if (data.success && data.country_code && data.country) {
-            window.cachedGeo = { code: data.country_code, name: data.country };
-            return window.cachedGeo;
-        }
-    } catch(e) { console.log('ipwho.is failed', e); }
-    try {
-        var data2 = await withTimeout('https://ipapi.co/json/', 2000);
-        if (data2.country_code && data2.country_name) {
-            window.cachedGeo = { code: data2.country_code, name: data2.country_name };
-            return window.cachedGeo;
-        }
-    } catch(e) { console.log('ipapi.co failed', e); }
-    
-    if (localeCountry) {
-        var countryName = localeCountry;
-        var found = COUNTRIES_LIST.find(function(c) { return c.id === localeCountry; });
-        if (found) countryName = found.name;
-        window.cachedGeo = { code: localeCountry, name: countryName };
-        return window.cachedGeo;
-    }
+    var countryCode = 'US'; 
+    var countryName = 'United States';
 
-    window.cachedGeo = { code: null, name: 'Your Region' };
+    try {
+        var lang = navigator.language || navigator.userLanguage;
+        if (lang && lang.includes('-')) {
+            var parts = lang.split('-');
+            if (parts.length > 1) {
+                countryCode = parts[1].toUpperCase();
+                var found = COUNTRIES_LIST.find(function(c) { return c.id === countryCode; });
+                if (found) countryName = found.name;
+                else countryName = countryCode;
+            }
+        }
+    } catch(e) {}
+
+    window.cachedGeo = { code: countryCode, name: countryName };
     return window.cachedGeo;
 }
 
