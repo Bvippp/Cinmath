@@ -1113,18 +1113,19 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v109</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v110</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v109 — 2026-10-27
-// CHANGELOG (v108 → v109):
-//   • Fixed "Trending in Country" on Movies page. Added bulletproof
-//     fallback for Geo IP APIs using Intl.DisplayNames so it never
-//     gets stuck on "Your Region".
-//   • Fixed hash router to handle trailing slashes (e.g. #/movies).
+// TUBEMOCHA BUILD v110 — 2026-10-27
+// CHANGELOG (v109 → v110):
+//   • Fixed content type labels (Movie vs TV Show). TV shows and
+//     anime will no longer incorrectly display "Movie" when genre
+//     data is missing from the API.
+//   • Updated mapResult and showDetail functions to smartly fallback
+//     to "TV Show" or "Movie" based on the actual media type.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1154,8 +1155,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v109-2026-10-27-geo-fix';
-var BUILD_NOTE_V109 = 'Fixed geo-location fallback for Movies page and slash routing.';
+var TUBEMOCHA_BUILD = 'v110-2026-10-27-accurate-types';
+var BUILD_NOTE_V110 = 'Fixed TV shows showing as Movies when genres are missing.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -2805,7 +2806,9 @@ function cardHTML(m){
         var poster = getSafeImageUrl(m);
         var rating = m.r || (m.vote_average ? m.vote_average.toFixed(1) : '7.5');
         var year = m.y || m.year || (m.release_date ? +m.release_date.slice(0,4) : (m.first_air_date ? +m.first_air_date.slice(0,4) : 2024));
-        var genres = (m.g || ['Movie']).slice(0,2).join(' • ');
+        
+        var genres = (m.g && m.g.length > 0) ? m.g.slice(0,2).join(' • ') : (isTV ? 'TV Show' : 'Movie');
+        
         var badgeClass = isTV ? 'tv' : 'hd';
         var badgeText = isTV ? 'TV' : 'HD';
         var clickId = isTV ? ('tv-' + m.id) : ('movie-' + m.id);
@@ -2840,9 +2843,16 @@ async function tmdb(path, params) {
 
 function mapResult(r){
     var isTV = r.media_type === 'tv' || (!r.title && !!r.name);
+    var genres = [];
+    if (r.genre_ids && r.genre_ids.length) {
+        genres = r.genre_ids.map(function(id){ return GENRE_MAP[id]; }).filter(Boolean);
+    }
+    if (genres.length === 0) {
+        genres = isTV ? ['TV Show'] : ['Movie'];
+    }
     return {
         id : r.id, t : r.title || r.name || 'Untitled', y : r.release_date ? +r.release_date.slice(0,4) : (r.first_air_date ? +r.first_air_date.slice(0,4) : 2024),
-        r : r.vote_average ? r.vote_average.toFixed(1) : '7.5', g : (r.genre_ids && r.genre_ids.length) ? r.genre_ids.map(function(id){ return GENRE_MAP[id] || 'Movie'; }) : ['Movie'],
+        r : r.vote_average ? r.vote_average.toFixed(1) : '7.5', g : genres,
         d : r.overview || '', p : r.poster_path, b : r.backdrop_path, poster_path: r.poster_path, backdrop_path: r.backdrop_path,
         tmdb: r.id, media_type: isTV ? 'tv' : 'movie', _tv: isTV, seasons: r.number_of_seasons, episodes: r.number_of_episodes, runtime: r.runtime, first_air_date: r.first_air_date,
         genre_ids: r.genre_ids || [] 
@@ -2883,7 +2893,7 @@ function setupHero(movies) {
         if(titleEl) titleEl.textContent = h.t;
         if(descEl) descEl.textContent = h.d;
         var typeStr = h._tv ? 'TV Show' : 'Movie';
-        var genresStr = h.g ? h.g.slice(0, 2).join(' & ') : '';
+        var genresStr = (h.g && h.g.length > 0) ? h.g.slice(0, 2).join(' & ') : (h._tv ? 'TV Show' : 'Movie');
         if(metaEl) metaEl.innerHTML = '<span class="star">★ ' + h.r + '</span><span class="divider">·</span><span>' + h.y + '</span><span class="divider">·</span><span>' + typeStr + '</span>' + (genresStr ? '<span class="divider">·</span><span>' + genresStr + '</span>' : '');
         if(playEl) playEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : 'movie-'+h.id); };
         if(infoEl) infoEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : 'movie-'+h.id); };
@@ -3205,7 +3215,10 @@ async function showDetail(rawId, shouldPlay){
     document.getElementById('detailTitle').textContent = m.t;
     document.getElementById('detailDesc').textContent = m.d || '';
     var durationStr = isTV ? (m.seasons ? m.seasons + ' Season' + (m.seasons > 1 ? 's' : '') : 'TV Show') : (m.runtime ? m.runtime + 'm' : '2h 10m');
-    document.getElementById('detailMeta').innerHTML = '<span class="star">★ ' + m.r + '</span><span class="divider">·</span><span>' + m.y + '</span><span class="divider">·</span><span>' + durationStr + '</span><span class="divider">·</span><span class="vote-box" style="color:#fff; border-color:#fff;">4K</span><span class="vote-box" style="color:#fff; border-color:#fff;">' + (isTV ? 'M18' : 'R') + '</span><br><span style="font-size:13px; color:var(--text-dim); margin-top:4px;">' + (m.g || ['Movie']).slice(0,3).join(' · ') + '</span>';
+    
+    var genresStr = (m.g && m.g.length > 0) ? m.g.slice(0,3).join(' · ') : (isTV ? 'TV Show' : 'Movie');
+    
+    document.getElementById('detailMeta').innerHTML = '<span class="star">★ ' + m.r + '</span><span class="divider">·</span><span>' + m.y + '</span><span class="divider">·</span><span>' + durationStr + '</span><span class="divider">·</span><span class="vote-box" style="color:#fff; border-color:#fff;">4K</span><span class="vote-box" style="color:#fff; border-color:#fff;">' + (isTV ? 'M18' : 'R') + '</span><br><span style="font-size:13px; color:var(--text-dim); margin-top:4px;">' + genresStr + '</span>';
     var inList = watchlist.some(function(x) { return String(x.id) === String(currentMovie.id); });
     document.getElementById('detailListText').textContent = inList ? 'Added to Watchlist' : 'Add to Watchlist';
     var bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
