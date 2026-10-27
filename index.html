@@ -1141,17 +1141,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v123</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v124</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v123 — 2026-10-27
-// CHANGELOG (v122 → v123):
-//   • Added device session tracking via user_metadata.
-//   • Settings page now dynamically renders all active devices.
-//   • Added functional "Sign out device" button.
+// TUBEMOCHA BUILD v124 — 2026-10-27
+// CHANGELOG (v123 → v124):
+//   • Fixed device sync bug where stale cache caused different devices to show different lists.
+//   • initSettingsPage() now fetches fresh user_metadata before rendering devices.
+//   • syncDeviceSession() fetches latest metadata before updating to prevent race conditions.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1182,8 +1182,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v123-2026-10-27-multi-device-sync';
-var BUILD_NOTE_V123 = 'Device tracking in settings now works correctly across multiple devices.';
+var TUBEMOCHA_BUILD = 'v124-2026-10-27-device-sync-fix';
+var BUILD_NOTE_V124 = 'Forced fresh metadata fetch on settings page and device sync to fix multi-device visibility bug.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1390,7 +1390,11 @@ function getDeviceInfo() {
 
 async function syncDeviceSession(user) {
     if (!user) return;
-    let metadata = user.user_metadata || {};
+    
+    // Fetch the absolute latest metadata to prevent race conditions
+    const { data: latestData } = await supabaseClient.auth.getUser();
+    let metadata = latestData && latestData.user ? latestData.user.user_metadata : (user.user_metadata || {});
+    
     let devices = metadata.devices || [];
     let currentDevice = getDeviceInfo();
 
@@ -1416,10 +1420,22 @@ async function syncDeviceSession(user) {
         await supabaseClient.auth.updateUser({
             data: { devices: devices }
         });
+        // Also update the local currentUser object so it reflects immediately
+        if (currentUser) {
+            currentUser.user_metadata = currentUser.user_metadata || {};
+            currentUser.user_metadata.devices = devices;
+        }
     }
 }
 
-function initSettingsPage() {
+async function initSettingsPage() {
+    // Fetch latest user data to ensure devices are up to date
+    const { data, error } = await supabaseClient.auth.getUser();
+    if (data && data.user) {
+        currentUser = data.user;
+        await syncDeviceSession(currentUser);
+    }
+
     let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
     let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
     document.getElementById('settingsUsernameDisplay').textContent = displayName;
@@ -1461,14 +1477,20 @@ async function signOutSpecificDevice(deviceId) {
         return;
     }
 
-    let metadata = currentUser.user_metadata || {};
+    // Fetch latest metadata to ensure we don't overwrite another device's recent additions
+    const { data: latestData } = await supabaseClient.auth.getUser();
+    let metadata = latestData && latestData.user ? latestData.user.user_metadata : currentUser.user_metadata;
     let devices = metadata.devices || [];
+
     devices = devices.filter(d => d.id !== deviceId);
 
     await supabaseClient.auth.updateUser({ data: { devices: devices } });
     
     // Update local state to force a re-render
-    currentUser.user_metadata.devices = devices;
+    if (currentUser) {
+        currentUser.user_metadata = currentUser.user_metadata || {};
+        currentUser.user_metadata.devices = devices;
+    }
     initSettingsPage();
     toast('Device signed out successfully');
 }
@@ -1954,6 +1976,7 @@ async function handleModalLogin(e) {
         
         if (data.user) {
             syncProfilesFromCloud(data.user);
+            syncDeviceSession(data.user);
         }
         
         window.location.hash = '#whos-watching';
@@ -2036,6 +2059,7 @@ async function handleLogin(e) {
         
         if (data.user) {
             syncProfilesFromCloud(data.user);
+            syncDeviceSession(data.user);
         }
         
         window.location.hash = '#whos-watching';
@@ -3305,7 +3329,7 @@ function setupHero(movies) {
 }
 
 // ============================================================
-// ★ v123: loadMoviesRegionTrending — country selector integration. ★
+// ★ v124: loadMoviesRegionTrending — country selector integration. ★
 // ============================================================
 async function loadMoviesRegionTrending() {
     var track = document.getElementById('moviesRegionTrending');
@@ -3357,7 +3381,7 @@ async function loadMoviesRegionTrending() {
 }
 
 // ============================================================
-// ★ v123: loadTVRegionTrending — country selector integration. ★
+// ★ v124: loadTVRegionTrending — country selector integration. ★
 // ============================================================
 async function loadTVRegionTrending() {
     var track = document.getElementById('tvRegionTrending');
@@ -3409,7 +3433,7 @@ async function loadTVRegionTrending() {
 }
 
 // ============================================================
-// ★ v123: loadAnimeRegionTrending — country selector integration. ★
+// ★ v124: loadAnimeRegionTrending — country selector integration. ★
 // ============================================================
 async function loadAnimeRegionTrending() {
     var track = document.getElementById('animeRegionTrending');
