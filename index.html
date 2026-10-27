@@ -1141,17 +1141,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v126</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v127</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v126 — 2026-10-27
-// CHANGELOG (v125 → v126):
-//   • Guaranteed current device inclusion in Settings page rendering.
-//   • Added mutex lock to prevent concurrent device database writes.
-//   • Optimized syncDeviceSession to bypass stale caches.
+// TUBEMOCHA BUILD v127 — 2026-10-27
+// CHANGELOG (v126 → v127):
+//   • Added revoked_devices to user metadata.
+//   • Created startDeviceCheck() interval to force logout if device is revoked.
+//   • Updated syncDeviceSession() to prevent revoked devices from re-adding themselves.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1182,8 +1182,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v126-2026-10-27-guaranteed-device-list';
-var BUILD_NOTE_V126 = 'Local device forced into list before render. Mutex added to prevent write collisions.';
+var TUBEMOCHA_BUILD = 'v127-2026-10-27-force-device-logout';
+var BUILD_NOTE_V127 = 'Added device revocation list and background checker to force logouts.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1195,6 +1195,7 @@ if (!currentDeviceId) {
 }
 
 var isSyncingDevices = false;
+var deviceCheckInterval = null;
 
 var isLoadingMovies = false, hasMoreMovies = true;
 var isLoadingTV = false, hasMoreTV = true;
@@ -1390,6 +1391,25 @@ function getDeviceInfo() {
     return { name: `${browser} • ${os}`, location: timezone };
 }
 
+function startDeviceCheck() {
+    if (deviceCheckInterval) clearInterval(deviceCheckInterval);
+    deviceCheckInterval = setInterval(async () => {
+        if (!currentUser) return;
+        try {
+            const { data } = await supabaseClient.auth.getUser();
+            if (data && data.user && data.user.user_metadata) {
+                let revoked = data.user.user_metadata.revoked_devices || [];
+                if (revoked.includes(currentDeviceId)) {
+                    clearInterval(deviceCheckInterval);
+                    toast('You have been signed out from another device.');
+                    await supabaseClient.auth.signOut();
+                    window.location.hash = '#home';
+                }
+            }
+        } catch(e) {}
+    }, 10000);
+}
+
 async function syncDeviceSession(user) {
     if (!user || isSyncingDevices) return [];
     isSyncingDevices = true;
@@ -1401,6 +1421,12 @@ async function syncDeviceSession(user) {
                 latestMetadata = refreshData.session.user.user_metadata || {};
             }
         } catch(e) { }
+
+        let revoked = latestMetadata.revoked_devices || [];
+        if (revoked.includes(currentDeviceId)) {
+            await supabaseClient.auth.signOut();
+            return [];
+        }
 
         let devices = latestMetadata.devices || [];
         let currentDevice = getDeviceInfo();
@@ -1420,11 +1446,12 @@ async function syncDeviceSession(user) {
 
         devices = devices.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive)).slice(0, 5);
 
-        await supabaseClient.auth.updateUser({ data: { devices: devices } });
+        await supabaseClient.auth.updateUser({ data: { devices: devices, revoked_devices: revoked } });
         
         if (currentUser) {
             currentUser.user_metadata = currentUser.user_metadata || {};
             currentUser.user_metadata.devices = devices;
+            currentUser.user_metadata.revoked_devices = revoked;
         }
         return devices;
     } catch (e) {
@@ -1445,6 +1472,7 @@ async function initSettingsPage() {
 
     // 1. Get latest devices from metadata
     let devices = (currentUser && currentUser.user_metadata && currentUser.user_metadata.devices) ? [...currentUser.user_metadata.devices] : [];
+    let revoked = (currentUser && currentUser.user_metadata && currentUser.user_metadata.revoked_devices) ? currentUser.user_metadata.revoked_devices : [];
     
     // 2. Ensure current device is ALWAYS in the list
     let currentDevice = getDeviceInfo();
@@ -1490,11 +1518,12 @@ async function initSettingsPage() {
     // 4. Sync in background
     try {
         await supabaseClient.auth.updateUser({
-            data: { devices: devices }
+            data: { devices: devices, revoked_devices: revoked }
         });
         if (currentUser) {
             currentUser.user_metadata = currentUser.user_metadata || {};
             currentUser.user_metadata.devices = devices;
+            currentUser.user_metadata.revoked_devices = revoked;
         }
     } catch(e) {
         console.log('Failed to sync devices to DB', e);
@@ -1515,11 +1544,17 @@ async function signOutSpecificDevice(deviceId) {
     let devices = (currentUser && currentUser.user_metadata && currentUser.user_metadata.devices) ? [...currentUser.user_metadata.devices] : [];
     devices = devices.filter(d => d.id !== deviceId);
 
+    let revoked = (currentUser && currentUser.user_metadata && currentUser.user_metadata.revoked_devices) ? [...currentUser.user_metadata.revoked_devices] : [];
+    if (!revoked.includes(deviceId)) {
+        revoked.push(deviceId);
+    }
+
     try {
-        await supabaseClient.auth.updateUser({ data: { devices: devices } });
+        await supabaseClient.auth.updateUser({ data: { devices: devices, revoked_devices: revoked } });
         if (currentUser) {
             currentUser.user_metadata = currentUser.user_metadata || {};
             currentUser.user_metadata.devices = devices;
+            currentUser.user_metadata.revoked_devices = revoked;
         }
         initSettingsPage();
         toast('Device signed out successfully');
@@ -1625,6 +1660,7 @@ function handleAuthState(session) {
         currentUser = session.user;
         syncProfilesFromCloud(session.user);
         syncDeviceSession(session.user);
+        startDeviceCheck();
         restoreActiveProfile();
         fetchWatchlistFromDB();
         
@@ -1636,6 +1672,7 @@ function handleAuthState(session) {
         if (adsToggle) adsToggle.checked = adsEnabled;
     } else {
         currentUser = null;
+        if (deviceCheckInterval) clearInterval(deviceCheckInterval);
         localStorage.removeItem('tubemocha_active_profile');
         localStorage.setItem('tubemocha_ads', 'true');
         var adsToggle = document.getElementById('adsToggle');
@@ -3362,7 +3399,7 @@ function setupHero(movies) {
 }
 
 // ============================================================
-// ★ v126: loadMoviesRegionTrending — country selector integration. ★
+// ★ v127: loadMoviesRegionTrending — country selector integration. ★
 // ============================================================
 async function loadMoviesRegionTrending() {
     var track = document.getElementById('moviesRegionTrending');
@@ -3414,7 +3451,7 @@ async function loadMoviesRegionTrending() {
 }
 
 // ============================================================
-// ★ v126: loadTVRegionTrending — country selector integration. ★
+// ★ v127: loadTVRegionTrending — country selector integration. ★
 // ============================================================
 async function loadTVRegionTrending() {
     var track = document.getElementById('tvRegionTrending');
@@ -3466,7 +3503,7 @@ async function loadTVRegionTrending() {
 }
 
 // ============================================================
-// ★ v126: loadAnimeRegionTrending — country selector integration. ★
+// ★ v127: loadAnimeRegionTrending — country selector integration. ★
 // ============================================================
 async function loadAnimeRegionTrending() {
     var track = document.getElementById('animeRegionTrending');
