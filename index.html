@@ -33,7 +33,7 @@
 .poster img{position:absolute;top:0;left:0;width:100% !important;height:100% !important;object-fit:cover !important;}
 .badge{position:absolute;top:8px;left:8px;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}.badge.hd{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.tv{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.rating{left:auto;right:8px;background:rgba(20,16,13,0.8);color:var(--accent-light);border:1px solid rgba(255,255,255,0.1)}.badge.rating span{color:var(--star)}.badge.new-season{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--bg-main);padding:4px 12px;border-radius:4px;font-size:11px;font-weight:800;text-transform:capitalize;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,0.5);white-space:nowrap;top:auto}.genre-card{flex:0 0 280px;aspect-ratio:16/9;border-radius:var(--radius-lg);overflow:hidden;position:relative;cursor:pointer;border:1px solid var(--border);transition:transform .2s}@media (min-width:390px){.genre-card{flex:0 0 320px}}@media (min-width:768px){.genre-card{flex:0 0 380px}}.genre-card:active{transform:scale(.97)}.genre-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}.genre-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.2) 60%,transparent 100%)}.genre-card-title{position:absolute;bottom:16px;left:20px;right:20px;font-size:22px;font-weight:800;color:#fff;z-index:2;text-shadow:0 2px 5px rgba(0,0,0,0.6)}.card-info{padding:10px 4px 0}.card-title{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main);line-height:1.3}.card-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}.card-sub .s-star{color:var(--star)}.card-sub .s-sep{color:var(--text-dim);margin:0 3px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px 12px;padding:0 20px}@media (min-width:390px){.grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}}@media (min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}}.grid .card{flex:none;width:100%}.view{display:none;animation:fade .3s}.view.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* --- v123: THICKER DETAIL SCROLLBAR --- */
+/* --- v124: THICKER DETAIL SCROLLBAR --- */
 .detail-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-main);overflow-y:scroll;display:none;scrollbar-width:thin;scrollbar-color:var(--star) var(--bg-elevated);}
 .detail-overlay.open{display:block}
 .detail-overlay::-webkit-scrollbar{width:24px;display:block;background:var(--bg-main);border-left:1px solid var(--border);}
@@ -165,7 +165,7 @@
 .search-tab:hover { color: var(--text-main); }
 .search-tab.active { color: var(--text-main); border-bottom-color: var(--accent-light); }
 
-/* --- v123: SEARCH DROPDOWN SCROLLBAR --- */
+/* --- v124: SEARCH DROPDOWN SCROLLBAR --- */
 .search-results-list { 
     max-height: 400px; 
     overflow-y: auto; 
@@ -330,6 +330,21 @@
 </style>
 </head>
 <body>
+
+<!-- GLOBAL ERROR HANDLER -->
+<script>
+window.onerror = function(msg, url, line, col, error) {
+    console.error(msg, url, line, col, error);
+    var errDiv = document.getElementById('global-error');
+    if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.id = 'global-error';
+        errDiv.style.cssText = 'position:fixed;bottom:0;left:0;width:100%;background:red;color:white;z-index:9999;padding:10px;font-size:12px;';
+        document.body.appendChild(errDiv);
+    }
+    errDiv.textContent = 'Error: ' + msg + ' at line ' + line;
+};
+</script>
 
 <!-- SAFE ANTI-INSPECTION SCRIPT -->
 <script>
@@ -1168,21 +1183,21 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v123</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v124</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v123 — 2026-10-27
-// CHANGELOG (v122 → v123):
-//   • Added safeStorage wrapper to prevent crashes in incognito/restricted modes.
-//   • Wrapped DOMContentLoaded initialization in try/catch to guarantee handleRouting() runs.
-//   • Forced FALLBACK data in loadInitial() to instantly populate hero and rows, preventing "Loading..." stalls.
-//   • Added isReset to loadMoreLatest/Upcoming to prevent duplicates.
+// TUBEMOCHA BUILD v124 — 2026-10-27
+// CHANGELOG (v123 → v124):
+//   • Fixed critical crashes caused by corrupted localStorage data (JSON.parse wrapped).
+//   • Guaranteed release of window._isInitialLoading using finally block.
+//   • Added a global window.onerror handler to display red banner on fatal JS errors.
+//   • Added a hard fallback rendering inside loadInitial to prevent stuck "Loading..." screens.
 // ============================================================
 
-// Safe Storage Wrapper to prevent SecurityError crashes
+// Safe Storage Wrapper
 const safeStorage = {
     getItem: function(key) {
         try { return localStorage.getItem(key); } catch(e) { return null; }
@@ -1194,6 +1209,18 @@ const safeStorage = {
         try { localStorage.removeItem(key); } catch(e) {}
     }
 };
+
+// Safe JSON Parser
+function parseStoredData(key, fallback) {
+    try {
+        var val = safeStorage.getItem(key);
+        if (!val) return fallback;
+        return JSON.parse(val);
+    } catch(e) {
+        console.warn("Failed to parse stored data for " + key, e);
+        return fallback;
+    }
+}
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
 var TMDB_BASE = 'https://api.themoviedb.org/3';
@@ -1230,8 +1257,9 @@ var recState = { page: 1, totalPages: 1, movieId: null, isTV: false, isLoading: 
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
-var recentSearches = JSON.parse(safeStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v123-2026-10-27-storage-crash-fix';
+var recentSearches = parseStoredData('tubemocha_recent_searches', null);
+if (!recentSearches || !Array.isArray(recentSearches)) recentSearches = ['the break', 'the brea', 'the bre'];
+var TUBEMOCHA_BUILD = 'v124-2026-10-27-failsafe-init';
 safeStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1353,7 +1381,7 @@ function toggleAds(checked) {
 
 function saveToHistory(movie) {
     if (!currentUser) return;
-    let hist = JSON.parse(safeStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
+    let hist = parseStoredData('tubemocha_history_' + currentUser.id, []);
     hist = hist.filter(x => String(x.id) !== String(movie.id) || x._tv !== movie._tv);
     hist.unshift({ ...movie, watched_at: Date.now() });
     hist = hist.slice(0, 50);
@@ -1362,7 +1390,7 @@ function saveToHistory(movie) {
 
 function renderHistoryPage() {
     if (!currentUser) return;
-    let hist = JSON.parse(safeStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
+    let hist = parseStoredData('tubemocha_history_' + currentUser.id, []);
     const grid = document.getElementById('historyGrid');
     const empty = document.getElementById('historyEmpty');
     if (hist.length === 0) {
@@ -1392,7 +1420,7 @@ function getDeviceInfo() {
 }
 
 function initSettingsPage() {
-    let activeProfile = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
+    let activeProfile = parseStoredData('tubemocha_active_profile', null);
     let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
     document.getElementById('settingsUsernameDisplay').textContent = displayName;
     let devInfo = getDeviceInfo();
@@ -1446,7 +1474,7 @@ function handleAuthState(session) {
         currentUser = session.user;
         if (session.user.user_metadata && session.user.user_metadata.profiles) {
             var cloudProfiles = session.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+            var localProfiles = parseStoredData('tubemocha_profiles', []);
             var merged = false;
             cloudProfiles.forEach(function(cp) {
                 if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
@@ -1482,7 +1510,7 @@ if (supabaseClient) {
 }
 
 function restoreActiveProfile() {
-    let activeProfile = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
+    let activeProfile = parseStoredData('tubemocha_active_profile', null);
     if (activeProfile && currentUser) updateHeaderAvatar(activeProfile);
     else updateHeaderAvatar(null);
 }
@@ -1578,7 +1606,7 @@ async function saveWizardProfile() {
     }
     if (!userId && currentUser) userId = currentUser.id;
     if (!userId) userId = 'guest';
-    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = parseStoredData('tubemocha_profiles', []);
     var existingUserProfiles = profiles.filter(function(p) { return p.userId === userId; });
     var newProfile = { id: Date.now().toString(), name: wizardState.name, userId: userId };
     profiles.push(newProfile);
@@ -1597,7 +1625,7 @@ async function saveWizardProfile() {
 }
 
 function renderWhosWatching() {
-    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = parseStoredData('tubemocha_profiles', []);
     if (currentUser) profiles = profiles.filter(function(p) { return p.userId === currentUser.id; });
     var grid = document.getElementById('whosWatchingGrid');
     var html = profiles.map(function(p) {
@@ -1615,7 +1643,7 @@ function renderWhosWatching() {
 }
 
 function selectProfile(id) {
-    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = parseStoredData('tubemocha_profiles', []);
     var profile = profiles.find(function(p) { return p.id === id; });
     if (profile) {
         safeStorage.setItem('tubemocha_active_profile', JSON.stringify(profile));
@@ -1625,7 +1653,7 @@ function selectProfile(id) {
 }
 
 function renderManageProfiles() {
-    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = parseStoredData('tubemocha_profiles', []);
     if (currentUser) profiles = profiles.filter(function(p) { return p.userId === currentUser.id; });
     var grid = document.getElementById('manageProfilesGrid');
     grid.innerHTML = profiles.map(function(p) {
@@ -1639,7 +1667,7 @@ function renderManageProfiles() {
 
 function openEditProfile(id) {
     editingProfileId = id;
-    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = parseStoredData('tubemocha_profiles', []);
     var p = profiles.find(function(x) { return x.id === id; });
     if (!p) return;
     document.getElementById('editAvatar').innerHTML = '<img src="' + generateAvatar(p.name) + '" style="width:100%; height:100%; object-fit:cover;">';
@@ -1653,12 +1681,12 @@ document.getElementById('editProfileName').addEventListener('input', function(e)
 function saveEditedProfile() {
     var newName = document.getElementById('editProfileName').value.trim();
     if (!newName) { toast('Name cannot be empty'); return; }
-    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = parseStoredData('tubemocha_profiles', []);
     var idx = profiles.findIndex(function(p) { return p.id === editingProfileId; });
     if (idx > -1) {
         profiles[idx].name = newName;
         safeStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
-        var active = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
+        var active = parseStoredData('tubemocha_active_profile', null);
         if (active && active.id === editingProfileId) {
             safeStorage.setItem('tubemocha_active_profile', JSON.stringify(profiles[idx]));
             updateHeaderAvatar(profiles[idx]);
@@ -1669,10 +1697,10 @@ function saveEditedProfile() {
 
 function deleteCurrentProfile() {
     if (!confirm('Are you sure you want to delete this profile?')) return;
-    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = parseStoredData('tubemocha_profiles', []);
     profiles = profiles.filter(function(p) { return p.id !== editingProfileId; });
     safeStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
-    var active = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
+    var active = parseStoredData('tubemocha_active_profile', null);
     if (active && active.id === editingProfileId) {
         safeStorage.removeItem('tubemocha_active_profile');
         updateHeaderAvatar(null);
@@ -1725,7 +1753,7 @@ async function handleModalLogin(e) {
         toast('Logged in successfully!'); closeAuthModal(); 
         if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
             var cloudProfiles = data.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+            var localProfiles = parseStoredData('tubemocha_profiles', []);
             var merged = false;
             cloudProfiles.forEach(function(cp) { if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) { localProfiles.push(cp); merged = true; } });
             if (merged) safeStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
@@ -1779,7 +1807,7 @@ async function handleLogin(e) {
         toast('Logged in successfully!'); 
         if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
             var cloudProfiles = data.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
+            var localProfiles = parseStoredData('tubemocha_profiles', []);
             var merged = false;
             cloudProfiles.forEach(function(cp) { if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) { localProfiles.push(cp); merged = true; } });
             if (merged) safeStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
@@ -2571,17 +2599,19 @@ window.addEventListener('resize', function() { document.querySelectorAll('.scrol
 async function loadInitial(){
     if (window._isInitialLoading) return;
     window._isInitialLoading = true;
-
-    // Force fallback hero immediately to avoid "Loading..." stall
-    try { setupHero(FALLBACK); } catch(e) {}
     
+    // Force fallback hero immediately to avoid "Loading..." stall
+    try { setupHero(FALLBACK); } catch(e) { console.error("Fallback hero failed:", e); }
+
     try {
         var tr = await tmdb('/trending/all/week', {page:1});
         if(tr && tr.results) setupHero(tr.results.map(mapResult));
-    } catch(e) {}
+    } catch(e) { console.error("API hero failed:", e); }
     
-    populateTrendingCountryDropdowns();
-    
+    try {
+        populateTrendingCountryDropdowns();
+    } catch(e) { console.error("Country dropdown failed:", e); }
+
     try {
         window.cachedGeo = await getUserCountry(); 
         await loadHomeTrending(true);
@@ -2590,11 +2620,14 @@ async function loadInitial(){
         await loadPopularGenres();
     } catch(e) {
         console.error("Initial load failed, applying fallbacks", e);
-        document.getElementById('trendingTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-        document.getElementById('latestTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
-        document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+        try {
+            document.getElementById('trendingTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+            document.getElementById('latestTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+            document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+        } catch(err) {}
+    } finally {
+        window._isInitialLoading = false;
     }
-    window._isInitialLoading = false;
 }
 
 async function loadPopularGenres() {
