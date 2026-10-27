@@ -33,7 +33,7 @@
 .poster img{position:absolute;top:0;left:0;width:100% !important;height:100% !important;object-fit:cover !important;}
 .badge{position:absolute;top:8px;left:8px;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}.badge.hd{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.tv{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.rating{left:auto;right:8px;background:rgba(20,16,13,0.8);color:var(--accent-light);border:1px solid rgba(255,255,255,0.1)}.badge.rating span{color:var(--star)}.badge.new-season{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--bg-main);padding:4px 12px;border-radius:4px;font-size:11px;font-weight:800;text-transform:capitalize;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,0.5);white-space:nowrap;top:auto}.genre-card{flex:0 0 280px;aspect-ratio:16/9;border-radius:var(--radius-lg);overflow:hidden;position:relative;cursor:pointer;border:1px solid var(--border);transition:transform .2s}@media (min-width:390px){.genre-card{flex:0 0 320px}}@media (min-width:768px){.genre-card{flex:0 0 380px}}.genre-card:active{transform:scale(.97)}.genre-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}.genre-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.2) 60%,transparent 100%)}.genre-card-title{position:absolute;bottom:16px;left:20px;right:20px;font-size:22px;font-weight:800;color:#fff;z-index:2;text-shadow:0 2px 5px rgba(0,0,0,0.6)}.card-info{padding:10px 4px 0}.card-title{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main);line-height:1.3}.card-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}.card-sub .s-star{color:var(--star)}.card-sub .s-sep{color:var(--text-dim);margin:0 3px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px 12px;padding:0 20px}@media (min-width:390px){.grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}}@media (min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}}.grid .card{flex:none;width:100%}.view{display:none;animation:fade .3s}.view.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* --- v122: THICKER DETAIL SCROLLBAR --- */
+/* --- v123: THICKER DETAIL SCROLLBAR --- */
 .detail-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-main);overflow-y:scroll;display:none;scrollbar-width:thin;scrollbar-color:var(--star) var(--bg-elevated);}
 .detail-overlay.open{display:block}
 .detail-overlay::-webkit-scrollbar{width:24px;display:block;background:var(--bg-main);border-left:1px solid var(--border);}
@@ -165,7 +165,7 @@
 .search-tab:hover { color: var(--text-main); }
 .search-tab.active { color: var(--text-main); border-bottom-color: var(--accent-light); }
 
-/* --- v122: SEARCH DROPDOWN SCROLLBAR --- */
+/* --- v123: SEARCH DROPDOWN SCROLLBAR --- */
 .search-results-list { 
     max-height: 400px; 
     overflow-y: auto; 
@@ -1168,18 +1168,32 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v122</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v123</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v122 — 2026-10-27
-// CHANGELOG (v121 → v122):
-//   • Fixed critical site crash: Wrapped Supabase initialization in try-catch to prevent script execution halt if the CDN is blocked.
-//   • Added fallback content to all horizontal trending rows. If the specific country API fails, it loads global trending instead.
-//   • Added debounce to horizontal scroll events to prevent overlapping API requests.
+// TUBEMOCHA BUILD v123 — 2026-10-27
+// CHANGELOG (v122 → v123):
+//   • Added safeStorage wrapper to prevent crashes in incognito/restricted modes.
+//   • Wrapped DOMContentLoaded initialization in try/catch to guarantee handleRouting() runs.
+//   • Forced FALLBACK data in loadInitial() to instantly populate hero and rows, preventing "Loading..." stalls.
+//   • Added isReset to loadMoreLatest/Upcoming to prevent duplicates.
 // ============================================================
+
+// Safe Storage Wrapper to prevent SecurityError crashes
+const safeStorage = {
+    getItem: function(key) {
+        try { return localStorage.getItem(key); } catch(e) { return null; }
+    },
+    setItem: function(key, value) {
+        try { localStorage.setItem(key, value); } catch(e) {}
+    },
+    removeItem: function(key) {
+        try { localStorage.removeItem(key); } catch(e) {}
+    }
+};
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
 var TMDB_BASE = 'https://api.themoviedb.org/3';
@@ -1216,9 +1230,9 @@ var recState = { page: 1, totalPages: 1, movieId: null, isTV: false, isLoading: 
 var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
-var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v122-2026-10-27-supabase-fix-fallbacks';
-localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
+var recentSearches = JSON.parse(safeStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
+var TUBEMOCHA_BUILD = 'v123-2026-10-27-storage-crash-fix';
+safeStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
 var isLoadingMovies = false, hasMoreMovies = true;
@@ -1314,7 +1328,7 @@ function generateAvatar(name) {
 }
 
 function loadAdScripts() {
-    if (localStorage.getItem('tubemocha_ads') === 'false') return;
+    if (safeStorage.getItem('tubemocha_ads') === 'false') return;
     if (!document.querySelector('script[data-zone="12094769"]')) {
         (function(s){s.dataset.zone='12094769',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
     }
@@ -1332,23 +1346,23 @@ function toggleAds(checked) {
         document.getElementById('adsToggle').checked = true;
         return;
     }
-    localStorage.setItem('tubemocha_ads', checked);
+    safeStorage.setItem('tubemocha_ads', checked);
     toast('Ads ' + (checked ? 'enabled' : 'disabled'));
     if (checked) loadAdScripts();
 }
 
 function saveToHistory(movie) {
     if (!currentUser) return;
-    let hist = JSON.parse(localStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
+    let hist = JSON.parse(safeStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
     hist = hist.filter(x => String(x.id) !== String(movie.id) || x._tv !== movie._tv);
     hist.unshift({ ...movie, watched_at: Date.now() });
     hist = hist.slice(0, 50);
-    localStorage.setItem('tubemocha_history_' + currentUser.id, JSON.stringify(hist));
+    safeStorage.setItem('tubemocha_history_' + currentUser.id, JSON.stringify(hist));
 }
 
 function renderHistoryPage() {
     if (!currentUser) return;
-    let hist = JSON.parse(localStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
+    let hist = JSON.parse(safeStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
     const grid = document.getElementById('historyGrid');
     const empty = document.getElementById('historyEmpty');
     if (hist.length === 0) {
@@ -1378,7 +1392,7 @@ function getDeviceInfo() {
 }
 
 function initSettingsPage() {
-    let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    let activeProfile = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
     let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
     document.getElementById('settingsUsernameDisplay').textContent = displayName;
     let devInfo = getDeviceInfo();
@@ -1432,26 +1446,26 @@ function handleAuthState(session) {
         currentUser = session.user;
         if (session.user.user_metadata && session.user.user_metadata.profiles) {
             var cloudProfiles = session.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+            var localProfiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
             var merged = false;
             cloudProfiles.forEach(function(cp) {
                 if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
                     localProfiles.push(cp); merged = true;
                 }
             });
-            if (merged) localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
+            if (merged) safeStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
         }
         document.getElementById('dropdownAuthProfile').style.display = 'flex';
         document.getElementById('dropdownAuthButtons').style.display = 'none';
         restoreActiveProfile();
         fetchWatchlistFromDB();
-        var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
+        var adsEnabled = safeStorage.getItem('tubemocha_ads') !== 'false';
         var adsToggle = document.getElementById('adsToggle');
         if (adsToggle) adsToggle.checked = adsEnabled;
     } else {
         currentUser = null;
-        localStorage.removeItem('tubemocha_active_profile');
-        localStorage.setItem('tubemocha_ads', 'true');
+        safeStorage.removeItem('tubemocha_active_profile');
+        safeStorage.setItem('tubemocha_ads', 'true');
         var adsToggle = document.getElementById('adsToggle');
         if (adsToggle) adsToggle.checked = true;
         loadAdScripts();
@@ -1468,7 +1482,7 @@ if (supabaseClient) {
 }
 
 function restoreActiveProfile() {
-    let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    let activeProfile = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
     if (activeProfile && currentUser) updateHeaderAvatar(activeProfile);
     else updateHeaderAvatar(null);
 }
@@ -1564,16 +1578,16 @@ async function saveWizardProfile() {
     }
     if (!userId && currentUser) userId = currentUser.id;
     if (!userId) userId = 'guest';
-    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
     var existingUserProfiles = profiles.filter(function(p) { return p.userId === userId; });
     var newProfile = { id: Date.now().toString(), name: wizardState.name, userId: userId };
     profiles.push(newProfile);
-    localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+    safeStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
     if (userId !== 'guest' && supabaseClient) {
         try { await supabaseClient.auth.updateUser({ data: { profiles: profiles } }); } catch(e) {}
     }
     if (existingUserProfiles.length === 0) {
-        localStorage.setItem('tubemocha_active_profile', JSON.stringify(newProfile));
+        safeStorage.setItem('tubemocha_active_profile', JSON.stringify(newProfile));
         updateHeaderAvatar(newProfile);
         toast('Welcome to Tubemocha, ' + newProfile.name + '!');
         window.location.hash = '#home';
@@ -1583,7 +1597,7 @@ async function saveWizardProfile() {
 }
 
 function renderWhosWatching() {
-    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
     if (currentUser) profiles = profiles.filter(function(p) { return p.userId === currentUser.id; });
     var grid = document.getElementById('whosWatchingGrid');
     var html = profiles.map(function(p) {
@@ -1601,17 +1615,17 @@ function renderWhosWatching() {
 }
 
 function selectProfile(id) {
-    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
     var profile = profiles.find(function(p) { return p.id === id; });
     if (profile) {
-        localStorage.setItem('tubemocha_active_profile', JSON.stringify(profile));
+        safeStorage.setItem('tubemocha_active_profile', JSON.stringify(profile));
         updateHeaderAvatar(profile);
         window.location.hash = '#home';
     }
 }
 
 function renderManageProfiles() {
-    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
     if (currentUser) profiles = profiles.filter(function(p) { return p.userId === currentUser.id; });
     var grid = document.getElementById('manageProfilesGrid');
     grid.innerHTML = profiles.map(function(p) {
@@ -1625,7 +1639,7 @@ function renderManageProfiles() {
 
 function openEditProfile(id) {
     editingProfileId = id;
-    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
     var p = profiles.find(function(x) { return x.id === id; });
     if (!p) return;
     document.getElementById('editAvatar').innerHTML = '<img src="' + generateAvatar(p.name) + '" style="width:100%; height:100%; object-fit:cover;">';
@@ -1639,14 +1653,14 @@ document.getElementById('editProfileName').addEventListener('input', function(e)
 function saveEditedProfile() {
     var newName = document.getElementById('editProfileName').value.trim();
     if (!newName) { toast('Name cannot be empty'); return; }
-    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
     var idx = profiles.findIndex(function(p) { return p.id === editingProfileId; });
     if (idx > -1) {
         profiles[idx].name = newName;
-        localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
-        var active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+        safeStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+        var active = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
         if (active && active.id === editingProfileId) {
-            localStorage.setItem('tubemocha_active_profile', JSON.stringify(profiles[idx]));
+            safeStorage.setItem('tubemocha_active_profile', JSON.stringify(profiles[idx]));
             updateHeaderAvatar(profiles[idx]);
         }
         toast('Profile updated'); window.location.hash = '#manage-profiles';
@@ -1655,12 +1669,12 @@ function saveEditedProfile() {
 
 function deleteCurrentProfile() {
     if (!confirm('Are you sure you want to delete this profile?')) return;
-    var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+    var profiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
     profiles = profiles.filter(function(p) { return p.id !== editingProfileId; });
-    localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
-    var active = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
+    safeStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
+    var active = JSON.parse(safeStorage.getItem('tubemocha_active_profile'));
     if (active && active.id === editingProfileId) {
-        localStorage.removeItem('tubemocha_active_profile');
+        safeStorage.removeItem('tubemocha_active_profile');
         updateHeaderAvatar(null);
     }
     toast('Profile deleted'); window.location.hash = '#manage-profiles';
@@ -1711,10 +1725,10 @@ async function handleModalLogin(e) {
         toast('Logged in successfully!'); closeAuthModal(); 
         if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
             var cloudProfiles = data.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+            var localProfiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
             var merged = false;
             cloudProfiles.forEach(function(cp) { if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) { localProfiles.push(cp); merged = true; } });
-            if (merged) localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
+            if (merged) safeStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
         }
         window.location.hash = '#whos-watching';
     }
@@ -1765,10 +1779,10 @@ async function handleLogin(e) {
         toast('Logged in successfully!'); 
         if (data.user && data.user.user_metadata && data.user.user_metadata.profiles) {
             var cloudProfiles = data.user.user_metadata.profiles;
-            var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+            var localProfiles = JSON.parse(safeStorage.getItem('tubemocha_profiles')) || [];
             var merged = false;
             cloudProfiles.forEach(function(cp) { if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) { localProfiles.push(cp); merged = true; } });
-            if (merged) localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
+            if (merged) safeStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
         }
         window.location.hash = '#whos-watching';
     }
@@ -2224,7 +2238,7 @@ function renderRecentSearches() {
     list.innerHTML = recentSearches.map(function(q) { return '<div class="recent-search-item" onclick="applyRecentSearch(\'' + q + '\')">' + q + '</div>'; }).join('');
 }
 function applyRecentSearch(query) { document.getElementById('q').value = query; openSearchDropdown(); performLiveSearch(query); }
-function clearRecentSearches(e) { e.stopPropagation(); recentSearches = []; localStorage.setItem('tubemocha_recent_searches', JSON.stringify(recentSearches)); renderRecentSearches(); }
+function clearRecentSearches(e) { e.stopPropagation(); recentSearches = []; safeStorage.setItem('tubemocha_recent_searches', JSON.stringify(recentSearches)); renderRecentSearches(); }
 
 function toggleHelp(element) {
     var item = element.parentElement; var answer = element.nextElementSibling;
@@ -2382,8 +2396,8 @@ function handleHorizontalScroll(id) {
         state.page++;
         var promise;
         if (id === 'trendingTrack') promise = loadHomeTrending(false);
-        else if (id === 'latestTrack') promise = loadMoreLatest();
-        else if (id === 'upcomingTvTrack') promise = loadMoreUpcoming();
+        else if (id === 'latestTrack') promise = loadMoreLatest(false);
+        else if (id === 'upcomingTvTrack') promise = loadMoreUpcoming(false);
         else if (id === 'moviesRegionTrending') promise = loadMoviesRegionTrending(false);
         else if (id === 'tvRegionTrending') promise = loadTVRegionTrending(false);
         else if (id === 'animeRegionTrending') promise = loadAnimeRegionTrending(false);
@@ -2414,6 +2428,7 @@ async function loadHomeTrending(isReset) {
     var geo = trendingCountry.home || await getUserCountry();
     if (isReset) {
         state.page = 1; state.hasMore = true;
+        document.getElementById('trendingTrack').innerHTML = '';
         document.getElementById('homeTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region');
     }
     try {
@@ -2441,8 +2456,9 @@ async function loadHomeTrending(isReset) {
     }
 }
 
-async function loadMoreLatest() {
+async function loadMoreLatest(isReset) {
     var state = hScrollState.latestTrack;
+    if (isReset) { state.page = 1; state.hasMore = true; document.getElementById('latestTrack').innerHTML = ''; }
     var results = await Promise.all([ tmdb('/movie/now_playing', {page: state.page}), tmdb('/tv/airing_today', {page: state.page}) ]);
     var mov = results[0] && results[0].results ? results[0].results.map(r => { r.media_type = 'movie'; return r; }) : [];
     var tv = results[1] && results[1].results ? results[1].results.map(r => { r.media_type = 'tv'; return r; }) : [];
@@ -2451,8 +2467,9 @@ async function loadMoreLatest() {
     if (combined.length > 0) document.getElementById('latestTrack').innerHTML += combined.map(mapResult).map(cardHTML).join('');
 }
 
-async function loadMoreUpcoming() {
+async function loadMoreUpcoming(isReset) {
     var state = hScrollState.upcomingTvTrack;
+    if (isReset) { state.page = 1; state.hasMore = true; document.getElementById('upcomingTvTrack').innerHTML = ''; }
     var today = new Date().toISOString().split('T')[0];
     var results = await Promise.all([ tmdb('/tv/on_the_air', { page: state.page }), tmdb('/discover/tv', { 'first_air_date.gte': today, sort_by: 'first_air_date.asc', page: state.page }) ]);
     var combined = [];
@@ -2465,7 +2482,11 @@ async function loadMoreUpcoming() {
 async function loadMoviesRegionTrending(isReset) {
     var state = hScrollState.moviesRegionTrending;
     var geo = trendingCountry.movies || await getUserCountry();
-    if (isReset) { state.page = 1; state.hasMore = true; document.getElementById('moviesTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region'); }
+    if (isReset) { 
+        state.page = 1; state.hasMore = true; 
+        document.getElementById('moviesRegionTrending').innerHTML = '';
+        document.getElementById('moviesTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region'); 
+    }
     try {
         var d = await tmdb('/discover/movie', { sort_by: 'popularity.desc', page: state.page, with_origin_country: geo.code });
         if (!d || !d.results || d.results.length === 0 || state.page >= d.total_pages) state.hasMore = false;
@@ -2485,7 +2506,11 @@ async function loadMoviesRegionTrending(isReset) {
 async function loadTVRegionTrending(isReset) {
     var state = hScrollState.tvRegionTrending;
     var geo = trendingCountry.tv || await getUserCountry();
-    if (isReset) { state.page = 1; state.hasMore = true; document.getElementById('tvTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region'); }
+    if (isReset) { 
+        state.page = 1; state.hasMore = true; 
+        document.getElementById('tvRegionTrending').innerHTML = '';
+        document.getElementById('tvTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region'); 
+    }
     try {
         var d = await tmdb('/discover/tv', { sort_by: 'popularity.desc', page: state.page, with_origin_country: geo.code });
         if (!d || !d.results || d.results.length === 0 || state.page >= d.total_pages) state.hasMore = false;
@@ -2505,7 +2530,11 @@ async function loadTVRegionTrending(isReset) {
 async function loadAnimeRegionTrending(isReset) {
     var state = hScrollState.animeRegionTrending;
     var geo = trendingCountry.anime || await getUserCountry();
-    if (isReset) { state.page = 1; state.hasMore = true; document.getElementById('animeTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region'); }
+    if (isReset) { 
+        state.page = 1; state.hasMore = true; 
+        document.getElementById('animeRegionTrending').innerHTML = '';
+        document.getElementById('animeTrendingTitle').textContent = 'Trending in ' + (geo.name || 'Your Region'); 
+    }
     try {
         var d = await tmdb('/discover/tv', { sort_by: 'popularity.desc', page: state.page, with_origin_country: geo.code, with_genres: '16' });
         if (!d || !d.results || d.results.length === 0 || state.page >= d.total_pages) state.hasMore = false;
@@ -2540,28 +2569,55 @@ function updateScrollArrows(id) {
 window.addEventListener('resize', function() { document.querySelectorAll('.scroller').forEach(function(el) { updateScrollArrows(el.id); }); });
 
 async function loadInitial(){
+    if (window._isInitialLoading) return;
+    window._isInitialLoading = true;
+
+    // Force fallback hero immediately to avoid "Loading..." stall
+    try { setupHero(FALLBACK); } catch(e) {}
+    
     try {
         var tr = await tmdb('/trending/all/week', {page:1});
-        if(tr && tr.results) { setupHero(tr.results.map(mapResult)); } else { setupHero(FALLBACK); }
-    } catch(e) { setupHero(FALLBACK); }
+        if(tr && tr.results) setupHero(tr.results.map(mapResult));
+    } catch(e) {}
     
     populateTrendingCountryDropdowns();
     
     try {
         window.cachedGeo = await getUserCountry(); 
         await loadHomeTrending(true);
-        await loadMoreLatest();
-        await loadMoreUpcoming();
+        await loadMoreLatest(true);
+        await loadMoreUpcoming(true);
         await loadPopularGenres();
     } catch(e) {
         console.error("Initial load failed, applying fallbacks", e);
-        var tr = await tmdb('/trending/all/week', {page:1});
-        if (tr && tr.results) document.getElementById('trendingTrack').innerHTML = tr.results.map(mapResult).map(cardHTML).join('');
-        var mov = await tmdb('/movie/now_playing', {page:1});
-        if (mov && mov.results) document.getElementById('latestTrack').innerHTML = mov.results.map(mapResult).map(cardHTML).join('');
-        var tv = await tmdb('/tv/airing_today', {page:1});
-        if (tv && tv.results) document.getElementById('upcomingTvTrack').innerHTML = tv.results.map(mapResult).map(cardHTML).join('');
+        document.getElementById('trendingTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+        document.getElementById('latestTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
+        document.getElementById('upcomingTvTrack').innerHTML = FALLBACK.map(mapResult).map(cardHTML).join('');
     }
+    window._isInitialLoading = false;
+}
+
+async function loadPopularGenres() {
+    var genres = [ { id: '35', name: 'Comedy' }, { id: '28', name: 'Action' }, { id: '18', name: 'Drama' }, { id: '27', name: 'Horror' }, { id: '878', name: 'Sci-Fi' } ];
+    var track = document.getElementById('genresTrack'); if(!track) return;
+    track.innerHTML = '';
+    for (var i = 0; i < genres.length; i++) {
+        var g = genres[i];
+        var data = await tmdb('/discover/movie', { with_genres: g.id, sort_by: 'popularity.desc', page: 1 });
+        var bgUrl = '';
+        if (data && data.results && data.results.length > 0) { var movie = data.results.find(function(m) { return m.backdrop_path; }); if (movie) bgUrl = BACKDROP + movie.backdrop_path; }
+        if (!bgUrl) bgUrl = 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1000&auto=format&fit=crop';
+        var card = document.createElement('div'); card.className = 'genre-card';
+        card.onclick = (function(genreId, genreName) { return function() { openGenrePage(genreId, genreName); }; })(g.id, g.name);
+        card.innerHTML = '<img src="' + bgUrl + '" alt="' + g.name + '"><div class="genre-card-title">' + g.name + '</div>';
+        if (g.name === 'Comedy') card.style.boxShadow = 'inset 0 0 100px rgba(30, 58, 138, 0.6)';
+        if (g.name === 'Action') card.style.boxShadow = 'inset 0 0 100px rgba(153, 27, 27, 0.6)';
+        if (g.name === 'Drama') card.style.boxShadow = 'inset 0 0 100px rgba(88, 28, 135, 0.6)';
+        if (g.name === 'Horror') card.style.boxShadow = 'inset 0 0 100px rgba(0, 0, 0, 0.8)';
+        if (g.name === 'Sci-Fi') card.style.boxShadow = 'inset 0 0 100px rgba(22, 78, 99, 0.6)';
+        track.appendChild(card);
+    }
+    setTimeout(function() { updateScrollArrows('genresTrack'); }, 50);
 }
 
 document.querySelectorAll('form.search-form').forEach(function(form) { form.onsubmit = handleSearch; });
@@ -2612,7 +2668,7 @@ function handleRouting() {
         document.getElementById('view-home').classList.add('active');
         document.getElementById('b-home').classList.add('active');
         document.getElementById('d-home').classList.add('active');
-        if (!document.getElementById('trendingTrack').innerHTML) loadInitial();
+        loadInitial();
         window.currentView = 'home';
     } 
     else if (hash === 'movies') {
@@ -2698,18 +2754,22 @@ window.addEventListener('DOMContentLoaded', function() {
         } else { handleAuthState(null); }
     } catch(e) { handleAuthState(null); }
 
-    var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
-    var adsToggle = document.getElementById('adsToggle');
-    if (adsToggle) adsToggle.checked = adsEnabled;
-    if (adsEnabled) loadAdScripts();
+    try {
+        var adsEnabled = safeStorage.getItem('tubemocha_ads') !== 'false';
+        var adsToggle = document.getElementById('adsToggle');
+        if (adsToggle) adsToggle.checked = adsEnabled;
+        if (adsEnabled) loadAdScripts();
+    } catch(e) {}
 
     if (!window.location.hash) window.location.hash = '#home';
     else handleRouting();
     
-    var sentinel = document.getElementById('moviesSentinel'); if (sentinel) moviesObserver.observe(sentinel);
-    var tvSentinel = document.getElementById('tvSentinel'); if (tvSentinel) tvObserver.observe(tvSentinel);
-    var animeSentinel = document.getElementById('animeSentinel'); if (animeSentinel) animeObserver.observe(animeSentinel);
-    var sSentinel = document.getElementById('searchSentinel'); if (sSentinel) searchObserver.observe(sSentinel);
+    try {
+        var sentinel = document.getElementById('moviesSentinel'); if (sentinel) moviesObserver.observe(sentinel);
+        var tvSentinel = document.getElementById('tvSentinel'); if (tvSentinel) tvObserver.observe(tvSentinel);
+        var animeSentinel = document.getElementById('animeSentinel'); if (animeSentinel) animeObserver.observe(animeSentinel);
+        var sSentinel = document.getElementById('searchSentinel'); if (sSentinel) searchObserver.observe(sSentinel);
+    } catch(e) { console.error("Observer setup failed:", e); }
 });
 
 window.addEventListener('hashchange', handleRouting);
