@@ -6,8 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="monetag" content="52e38885034f09b41235e3ffa0100d30">
-<!-- v133 SECURITY: Content Security Policy (CSP) to block malicious scripts & unauthorized connections -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://nap5k.com https://5gvci.com https://al5sm.com https://www.vidy.st; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://image.tmdb.org https://images.unsplash.com; connect-src 'self' https://api.themoviedb.org https://emplegscxgcwflajkhxb.supabase.co https://ipwho.is https://ipapi.co https://ipinfo.io wss://emplegscxgcwflajkhxb.supabase.co; frame-src 'self' https://www.vidy.st https://www.youtube.com; object-src 'none';">
+<!-- v134 SECURITY: Content Security Policy (CSP) blocks malicious scripts & unauthorized connections -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://nap5k.com https://5gvci.com https://al5sm.com https://www.vidy.st; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://image.tmdb.org https://images.unsplash.com; connect-src 'self' https://moviess.squadcode.workers.dev https://emplegscxgcwflajkhxb.supabase.co https://ipwho.is https://ipapi.co https://ipinfo.io wss://emplegscxgcwflajkhxb.supabase.co; frame-src 'self' https://www.vidy.st https://www.youtube.com; object-src 'none';">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -1253,21 +1253,23 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v133</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v134</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v133 — 2026-10-28
-// CHANGELOG (v132 → v133):
-//   • Removed the sandbox attribute from the Vidy player iframe to fix the "Iframe Sandbox Detected" error.
-//   • Removed the sandbox attribute from YouTube trailers to ensure they play correctly.
-//   • Retained the strict Content Security Policy (CSP) for protection.
+// TUBEMOCHA BUILD v134 — 2026-10-28
+// CHANGELOG (v133 → v134):
+//   • Integrated Cloudflare Worker Proxy URL (TMDB_BASE).
+//   • Removed hardcoded TMDB API Key (TMDB_KEY = '') for complete security.
 // ============================================================
 
-var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
-var TMDB_BASE = 'https://api.themoviedb.org/3';
+// v134 SECURITY: API Key is hidden in the Cloudflare Worker proxy
+var TMDB_KEY = ''; 
+// v134 SECURITY: Routing all requests through the Cloudflare Worker
+var TMDB_BASE = 'https://moviess.squadcode.workers.dev/3';
+
 var IMG = 'https://image.tmdb.org/t/p/w500';
 var BACKDROP = 'https://image.tmdb.org/t/p/original';
 var PROFILE = 'https://image.tmdb.org/t/p/w185';
@@ -1304,7 +1306,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v133-2026-10-28-sandbox-fix';
+var TUBEMOCHA_BUILD = 'v134-2026-10-28-cloudflare-proxy';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -3467,7 +3469,9 @@ function cardHTML(m){
 async function tmdb(path, params) {
     if(!params) params = {};
     var target = new URL(TMDB_BASE + path);
-    target.searchParams.set('api_key', TMDB_KEY);
+    // v134: TMDB_KEY is now empty, the Cloudflare Worker injects it automatically.
+    if (TMDB_KEY) target.searchParams.set('api_key', TMDB_KEY);
+    
     target.searchParams.set('language', 'en-US');
     for (var key in params) {
         if (params.hasOwnProperty(key)) {
