@@ -68,7 +68,6 @@
 .help-item.active .help-answer { padding-bottom: 18px; }
 
 .legal-container { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
-.legal-icon { font-size: 50px; text-align: center; margin-bottom: 15px; }
 .legal-title { font-size: 38px; font-weight: 900; color: #fff; text-align: center; margin-bottom: 10px; }
 .legal-date { font-size: 14px; color: var(--text-dim); text-align: center; margin-bottom: 40px; font-weight: 500; }
 .legal-content { color: var(--text-muted); font-size: 15px; line-height: 1.7; }
@@ -559,8 +558,18 @@
         <div style="margin-bottom:40px;">
             <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">Devices</h3>
             <p style="color:var(--text-dim); font-size:13px; margin-bottom:15px;">Sessions signed in to your account</p>
-            <div id="devicesListContainer">
-                <!-- Dynamically rendered -->
+            <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                    <div>
+                        <div style="font-weight:600; color:#fff;" id="settingsDeviceName">Loading...</div>
+                        <div style="font-size:12px; color:var(--text-dim); margin-top:4px;" id="settingsDeviceLocation">Loading...</div>
+                    </div>
+                </div>
+                <button onclick="toast('Device signed out successfully (Mock)')" style="color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Sign out device
+                </button>
             </div>
         </div>
         
@@ -1141,17 +1150,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v123</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v122</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v123 — 2026-10-28
-// CHANGELOG (v122 → v123):
-//   • Implemented full device management system. Devices are tracked in user_metadata.
-//   • Added background polling every 15s to automatically sign out users if their session is removed remotely.
-//   • The Settings > Devices page now dynamically renders all active devices for the account.
+// TUBEMOCHA BUILD v122 — 2026-10-27
+// CHANGELOG (v121 → v122):
+//   • Removed "Auto-detect" option from country dropdowns.
+//   • Fixed major bug with profile syncing across devices. Guest profiles are now claimed and synced properly upon login.
+//   • Added syncProfilesToCloud to ensure updates are pushed to Supabase instantly.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1165,13 +1174,6 @@ var SUPABASE_URL = 'https://emplegscxgcwflajkhxb.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcGxlZ3NjeGdjd2ZsYWpraHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NjE0NDgsImV4cCI6MjEwODQzNzQ0OH0.2nqVlpIK5fI9nbtdKlBIdON971ZikHctB0KW9AcW0t8';
 var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 var currentUser = null;
-
-// --- DEVICE IDENTIFICATION ---
-var myDeviceId = localStorage.getItem('tubemocha_device_id');
-if (!myDeviceId) {
-    myDeviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-    localStorage.setItem('tubemocha_device_id', myDeviceId);
-}
 
 const MOVIE_GENRES = ['Comedy', 'Action', 'Drama', 'Horror', 'Romance', 'Adventure', 'Science Fiction', 'Thriller', 'Animation', 'Crime', 'Fantasy', 'Mystery', 'Documentary', 'Family', 'History', 'Music', 'War', 'Western'];
 const TV_GENRES = ['Comedy', 'Drama', 'Action & Adventure', 'Crime', 'Sci-Fi & Fantasy', 'Mystery', 'Animation', 'Family', 'Documentary', 'Kids', 'War & Politics', 'Western'];
@@ -1189,8 +1191,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v123-2026-10-28-device-management';
-var BUILD_NOTE_V123 = 'Implemented full device management, remote sign-out polling, dynamic devices list.';
+var TUBEMOCHA_BUILD = 'v122-2026-10-27-fix-profile-sync-country';
+var BUILD_NOTE_V122 = 'Removed auto-detect country. Fixed profile sync across devices.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1367,7 +1369,7 @@ function renderHistoryPage() {
 }
 
 // ==========================================
-// DEVICE MANAGEMENT
+// SETTINGS & PASSWORD LOGIC
 // ==========================================
 function getDeviceInfo() {
     let os = "Unknown OS";
@@ -1384,98 +1386,9 @@ function getDeviceInfo() {
     else if (navigator.userAgent.indexOf("Safari") != -1) browser = "Safari";
 
     let timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let lastActive = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
     
-    return { name: `${browser} • ${os}`, location: timezone };
-}
-
-async function registerCurrentDevice(user) {
-    if (!user) return;
-    let devices = (user.user_metadata && user.user_metadata.devices) ? user.user_metadata.devices : [];
-    const devInfo = getDeviceInfo();
-    
-    let existing = devices.find(d => d.id === myDeviceId);
-    let changed = false;
-
-    if (existing) {
-        // Update last active
-        if (Date.now() - existing.lastActive > 60000) { // only update if >1 min old to save API calls
-            existing.lastActive = Date.now();
-            changed = true;
-        }
-    } else {
-        devices.push({
-            id: myDeviceId,
-            name: devInfo.name,
-            location: devInfo.location,
-            lastActive: Date.now()
-        });
-        changed = true;
-    }
-
-    // Clean up dead devices (older than 30 days)
-    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-    const initialLen = devices.length;
-    devices = devices.filter(d => d.lastActive > thirtyDaysAgo);
-    if (devices.length !== initialLen) changed = true;
-
-    if (changed) {
-        await supabaseClient.auth.updateUser({ data: { devices: devices } });
-        currentUser.user_metadata.devices = devices;
-    }
-}
-
-async function removeDevice(idToRemove) {
-    if (!currentUser) return;
-    if (!confirm('Sign out this device?')) return;
-    
-    var devices = (currentUser.user_metadata && currentUser.user_metadata.devices) ? currentUser.user_metadata.devices : [];
-    devices = devices.filter(d => d.id !== idToRemove);
-    
-    await supabaseClient.auth.updateUser({ data: { devices: devices } });
-    currentUser.user_metadata.devices = devices;
-    toast('Device signed out');
-    renderDevicesList();
-}
-
-function renderDevicesList() {
-    var container = document.getElementById('devicesListContainer');
-    if (!container) return;
-    
-    if (!currentUser) {
-        container.innerHTML = '<div class="empty">Not logged in</div>';
-        return;
-    }
-
-    var devices = (currentUser.user_metadata && currentUser.user_metadata.devices) ? currentUser.user_metadata.devices : [];
-    // Sort by last active descending
-    devices.sort((a, b) => b.lastActive - a.lastActive);
-
-    if (devices.length === 0) {
-        container.innerHTML = '<div class="empty">No active devices found.</div>';
-        return;
-    }
-
-    var html = devices.map(function(d) {
-        var isCurrent = d.id === myDeviceId;
-        var lastActiveStr = new Date(d.lastActive).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
-        return `
-        <div style="background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:20px; display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-            <div style="display:flex; gap:15px; align-items:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                <div>
-                    <div style="font-weight:600; color:#fff;">${d.name} ${isCurrent ? '<span style="background:var(--border); padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:var(--text-muted);">This device</span>' : ''}</div>
-                    <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">${d.location} • Last active ${lastActiveStr}</div>
-                </div>
-            </div>
-            ${!isCurrent ? `<button onclick="removeDevice('${d.id}')" style="color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                Sign out
-            </button>` : ''}
-        </div>`;
-    }).join('');
-
-    container.innerHTML = html;
+    return { name: `${browser} • ${os}`, location: timezone, lastActive: lastActive };
 }
 
 function initSettingsPage() {
@@ -1483,7 +1396,10 @@ function initSettingsPage() {
     let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
     document.getElementById('settingsUsernameDisplay').textContent = displayName;
     
-    renderDevicesList();
+    let devInfo = getDeviceInfo();
+    document.getElementById('settingsDeviceName').innerHTML = devInfo.name + ' <span style="background:var(--border); padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:var(--text-muted);">This device</span>';
+    document.getElementById('settingsDeviceLocation').textContent = devInfo.location + ' • Last active ' + devInfo.lastActive;
+    
     cancelChangePassword();
 }
 
@@ -1560,35 +1476,55 @@ async function submitChangePassword(e) {
 // ==========================================
 // SESSION & AUTH UI RESTORATION
 // ==========================================
-function syncProfilesFromCloud(user) {
-    if (!user) return;
-    var cloudProfiles = (user.user_metadata && user.user_metadata.profiles) ? user.user_metadata.profiles : [];
+async function syncProfilesToCloud() {
+    if (!currentUser) return;
     var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
-    
-    // Keep profiles that belong to OTHER users
-    var otherProfiles = localProfiles.filter(function(p) { return p.userId !== user.id; });
-    
-    // Add cloud profiles for this user
-    cloudProfiles.forEach(function(cp) {
-        if (!cp.userId) cp.userId = user.id;
-        if (!otherProfiles.find(function(op) { return op.id === cp.id; })) {
-            otherProfiles.push(cp);
-        }
-    });
-    
-    localStorage.setItem('tubemocha_profiles', JSON.stringify(otherProfiles));
+    var userProfiles = localProfiles.filter(function(p) { return p.userId === currentUser.id; });
+    try {
+        await supabaseClient.auth.updateUser({
+            data: { profiles: userProfiles }
+        });
+        console.log('[TUBEMOCHA] Profiles synced to cloud');
+    } catch(e) { console.error('[TUBEMOCHA] Failed to sync profiles to cloud', e); }
 }
 
 function handleAuthState(session) {
     if (session) {
         currentUser = session.user;
-        syncProfilesFromCloud(session.user);
-        registerCurrentDevice(session.user);
-        restoreActiveProfile();
-        fetchWatchlistFromDB();
         
+        var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
+        var migrated = false;
+        
+        // 1. Claim guest profiles for this user
+        localProfiles.forEach(function(p) {
+            if (!p.userId || p.userId === 'guest') {
+                p.userId = currentUser.id;
+                migrated = true;
+            }
+        });
+        
+        // 2. Sync from Supabase (merge cloud into local)
+        if (session.user.user_metadata && session.user.user_metadata.profiles) {
+            var cloudProfiles = session.user.user_metadata.profiles;
+            cloudProfiles.forEach(function(cp) {
+                cp.userId = currentUser.id; // Force correct userId
+                if (!localProfiles.find(function(lp) { return lp.id === cp.id; })) {
+                    localProfiles.push(cp);
+                    migrated = true;
+                }
+            });
+        }
+        
+        // 3. Save if changes were made
+        if (migrated) {
+            localStorage.setItem('tubemocha_profiles', JSON.stringify(localProfiles));
+            syncProfilesToCloud(); // Push changes back to cloud
+        }
+
         document.getElementById('dropdownAuthProfile').style.display = 'flex';
         document.getElementById('dropdownAuthButtons').style.display = 'none';
+        restoreActiveProfile();
+        fetchWatchlistFromDB();
         
         var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
         var adsToggle = document.getElementById('adsToggle');
@@ -1613,31 +1549,6 @@ function handleAuthState(session) {
 supabaseClient.auth.onAuthStateChange((event, session) => {
     handleAuthState(session);
 });
-
-// Background Poller for Remote Sign-out
-setInterval(async function() {
-    if (!currentUser) return;
-    try {
-        const { data, error } = await supabaseClient.auth.getUser();
-        if (error || !data.user) {
-            handleAuthState(null);
-            window.location.hash = '#login';
-            return;
-        }
-        const devices = (data.user.user_metadata && data.user.user_metadata.devices) ? data.user.user_metadata.devices : [];
-        const isStillActive = devices.find(d => d.id === myDeviceId);
-        
-        if (!isStillActive && devices.length > 0) {
-            await supabaseClient.auth.signOut();
-            toast('You have been signed out from another device.');
-            window.location.hash = '#login';
-        } else {
-            currentUser = data.user; // keep metadata fresh
-        }
-    } catch (e) {
-        console.log('Polling error:', e);
-    }
-}, 15000);
 
 function restoreActiveProfile() {
     let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
@@ -1789,12 +1700,7 @@ async function saveWizardProfile() {
     localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
 
     if (userId !== 'guest') {
-        var myProfiles = profiles.filter(function(p) { return p.userId === userId; });
-        try {
-            await supabaseClient.auth.updateUser({
-                data: { profiles: myProfiles }
-            });
-        } catch(e) { console.log('Failed to sync profiles:', e); }
+        await syncProfilesToCloud();
     }
 
     if (existingUserProfiles.length === 0) {
@@ -1874,7 +1780,7 @@ document.getElementById('editProfileName').addEventListener('input', function(e)
     document.getElementById('editNameCounter').textContent = this.value.length + '/20';
 });
 
-function saveEditedProfile() {
+async function saveEditedProfile() {
     var newName = document.getElementById('editProfileName').value.trim();
     if (!newName) { toast('Name cannot be empty'); return; }
     
@@ -1889,12 +1795,13 @@ function saveEditedProfile() {
             localStorage.setItem('tubemocha_active_profile', JSON.stringify(profiles[idx]));
             updateHeaderAvatar(profiles[idx]);
         }
+        await syncProfilesToCloud();
         toast('Profile updated');
         window.location.hash = '#manage-profiles';
     }
 }
 
-function deleteCurrentProfile() {
+async function deleteCurrentProfile() {
     if (!confirm('Are you sure you want to delete this profile?')) return;
     
     var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
@@ -1906,6 +1813,7 @@ function deleteCurrentProfile() {
         localStorage.removeItem('tubemocha_active_profile');
         updateHeaderAvatar(null);
     }
+    await syncProfilesToCloud();
     toast('Profile deleted');
     window.location.hash = '#manage-profiles';
 }
@@ -1976,7 +1884,6 @@ async function handleModalLogin(e) {
     var password = document.getElementById('modalLoginPassword').value;
     var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     var error = res.error;
-    var data = res.data;
     
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
@@ -1990,12 +1897,6 @@ async function handleModalLogin(e) {
     else { 
         toast('Logged in successfully!'); 
         closeAuthModal(); 
-        
-        if (data.user) {
-            syncProfilesFromCloud(data.user);
-            registerCurrentDevice(data.user);
-        }
-        
         window.location.hash = '#whos-watching';
     }
 }
@@ -2060,7 +1961,6 @@ async function handleLogin(e) {
     
     var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     var error = res.error;
-    var data = res.data;
     
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
@@ -2073,12 +1973,6 @@ async function handleLogin(e) {
     } 
     else { 
         toast('Logged in successfully!'); 
-        
-        if (data.user) {
-            syncProfilesFromCloud(data.user);
-            registerCurrentDevice(data.user);
-        }
-        
         window.location.hash = '#whos-watching';
     }
 }
@@ -2942,8 +2836,7 @@ function populateTrendCountries(type) {
     var container = document.getElementById('trendCountryDropdown_' + type);
     var currentCountry = type === 'movie' ? trendCountryMovies : (type === 'tv' ? trendCountryTV : trendCountryAnime);
     
-    var html = '';
-    html += COUNTRIES_LIST.map(function(c) { 
+    var html = COUNTRIES_LIST.map(function(c) { 
         return '<label class="checkbox-label" style="padding: 10px; cursor: pointer; ' + (currentCountry === c.id ? 'background: rgba(255,255,255,0.1); font-weight: 700;' : '') + '" onclick="setTrendCountry(\'' + type + '\', \'' + c.id + '\', \'' + c.name + '\')">' + c.name + '</label>';
     }).join('');
     container.innerHTML = html;
@@ -3375,7 +3268,7 @@ async function loadMoviesRegionTrending() {
             headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
         }
         var btn = document.getElementById('btnTrendCountryMovie');
-        if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
+        if (btn) btn.textContent = (countryName || 'Auto-detect') + ' ▾';
         
         var params = { sort_by: 'popularity.desc', page: 1 };
         if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
@@ -3427,7 +3320,7 @@ async function loadTVRegionTrending() {
             headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
         }
         var btn = document.getElementById('btnTrendCountryTV');
-        if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
+        if (btn) btn.textContent = (countryName || 'Auto-detect') + ' ▾';
         
         var params = { sort_by: 'popularity.desc', page: 1 };
         if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
@@ -3479,7 +3372,7 @@ async function loadAnimeRegionTrending() {
             headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
         }
         var btn = document.getElementById('btnTrendCountryAnime');
-        if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
+        if (btn) btn.textContent = (countryName || 'Auto-detect') + ' ▾';
         
         var params = { sort_by: 'popularity.desc', page: 1, with_genres: '16' };
         if (animeFilterState.genres.length > 0) params.with_genres = '16,' + animeFilterState.genres.join('|');
