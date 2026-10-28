@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="monetag" content="52e38885034f09b41235e3ffa0100d30">
-<!-- v138 ANTI-BAN & SECURITY -->
+<!-- v139 ANTI-BAN & SECURITY -->
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://nap5k.com https://5gvci.com https://al5sm.com https://www.vidy.st; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://image.tmdb.org https://images.unsplash.com; connect-src 'self' https://moviess.squadcode.workers.dev https://emplegscxgcwflajkhxb.supabase.co https://ipwho.is https://ipapi.co https://ipinfo.io wss://emplegscxgcwflajkhxb.supabase.co; frame-src 'self' https://www.vidy.st https://www.youtube.com; object-src 'none';">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -389,7 +389,7 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
 /* Custom Confirm Modal */
 .custom-modal-overlay { position: fixed; inset: 0; z-index: 900; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px; }
 .custom-modal-overlay.open { display: flex; }
-.custom-modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 100%; max-width: 400px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); animation: fade .2s; text-align: center; }
+.custom-modal-content { position: relative; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 100%; max-width: 400px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); animation: fade .2s; text-align: center; }
 .custom-modal-title { font-size: 20px; font-weight: 800; color: #fff; }
 .custom-modal-message { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
 .custom-modal-actions { display: flex; gap: 12px; margin-top: 8px; }
@@ -1281,26 +1281,28 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v138</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v139</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v138 — 2026-10-28
-// CHANGELOG (v137 → v138):
-//   • Updated Contact Form Modal text from "Send us a message" to "Send a message".
-//   • Ensured the "x" close button is functional and correctly positioned.
-//   • Added click-outside-to-close functionality to the Contact Modal.
+// TUBEMOCHA BUILD v139 — 2026-10-28
+// CHANGELOG (v138 → v139):
+//   • Fixed a bug where the Contact Modal's "x" button was floating 
+//     outside the modal box by adding `position: relative;` to the 
+//     `.custom-modal-content` CSS class.
+//   • Ensured the "x" button is now perfectly anchored inside the 
+//     top right corner of the Contact Form.
 // ============================================================
 
-// v138 ANTI-BAN: Emergency Ad Kill Switch
+// v139 ANTI-BAN: Emergency Ad Kill Switch
 // If Google Safe Browsing flags the site due to bad ads, change this to `true` and re-upload.
 var EMERGENCY_ADS_OFF = false;
 
-// v138 SECURITY: API Key is hidden in the Cloudflare Worker proxy
+// v139 SECURITY: API Key is hidden in the Cloudflare Worker proxy
 var TMDB_KEY = ''; 
-// v138 SECURITY: Routing all requests through the Cloudflare Worker
+// v139 SECURITY: Routing all requests through the Cloudflare Worker
 var TMDB_BASE = 'https://moviess.squadcode.workers.dev/3';
 
 var IMG = 'https://image.tmdb.org/t/p/w500';
@@ -1339,7 +1341,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v138-2026-10-28-contact-fix';
+var TUBEMOCHA_BUILD = 'v139-2026-10-28-contact-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1536,10 +1538,10 @@ function submitContactForm(e) {
 }
 
 // ==========================================
-// ADS SYSTEM (v138 EMERGENCY KILL SWITCH)
+// ADS SYSTEM (v139 EMERGENCY KILL SWITCH)
 // ==========================================
 function loadAdScripts() {
-    // v138: Check Emergency Kill Switch
+    // v139: Check Emergency Kill Switch
     if (EMERGENCY_ADS_OFF) {
         console.warn('[TUBEMOCHA] EMERGENCY ADS OFF: Scripts blocked.');
         return;
@@ -3543,7 +3545,7 @@ function cardHTML(m){
 async function tmdb(path, params) {
     if(!params) params = {};
     var target = new URL(TMDB_BASE + path);
-    // v138: TMDB_KEY is empty, the Cloudflare Worker handles the API key injection.
+    // v139: TMDB_KEY is empty, the Cloudflare Worker handles the API key injection.
     if (TMDB_KEY) target.searchParams.set('api_key', TMDB_KEY);
     
     target.searchParams.set('language', 'en-US');
@@ -4093,7 +4095,7 @@ async function playCurrentMedia(){
     if(!currentMovie) return;
     saveToHistory(currentMovie);
     
-    // v138 EMERGENCY KILL SWITCH CHECK
+    // v139 EMERGENCY KILL SWITCH CHECK
     if (!EMERGENCY_ADS_OFF && localStorage.getItem('tubemocha_ads') !== 'false') {
         (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
     }
