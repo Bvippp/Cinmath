@@ -1141,16 +1141,29 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v128</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v129</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v128 — 2026-10-27
-// CHANGELOG (v127 → v128):
-//   • Fixed the global logout bug caused by remote device revocation.
-//   • Forced remote revocations to use local scope, preventing other devices from signing out.
+// TUBEMOCHA BUILD v129 — 2026-10-28
+// CHANGELOG (v128 → v129):
+//   • FIXED mobile login persistence bug: removed refreshSession() call
+//     from syncDeviceSession(). That call was running inside the
+//     onAuthStateChange handler chain and creating a token-storage race
+//     condition on mobile, which emitted a spurious SIGNED_OUT event
+//     immediately after login — flipping the profile dropdown back to
+//     logged-out and clearing the session on refresh.
+//   • syncDeviceSession() no longer signs the user out when the current
+//     device appears in revoked_devices. Instead it clears that entry —
+//     a fresh login with valid credentials should be allowed. The
+//     periodic startDeviceCheck interval still handles legitimate remote
+//     revocations.
+//   • initSettingsPage() now uses getUser() instead of refreshSession().
+//   • Removed redundant syncProfilesFromCloud/syncDeviceSession calls
+//     from handleModalLogin() and handleLogin() (onAuthStateChange
+//     already runs handleAuthState which does this).
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1171,7 +1184,6 @@ const TV_GENRES = ['Comedy', 'Drama', 'Action & Adventure', 'Crime', 'Sci-Fi & F
 let wizardState = { step: 1, name: '', movieGenres: [], tvGenres: [] };
 let editingProfileId = null;
 
-// v104: Tiered pagination state — _tier, _tierPage, _shownIds.
 var filterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1, _tier: 0, _tierPage: 1, _shownIds: new Set() };
 var tvFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1, _tier: 0, _tierPage: 1, _shownIds: new Set() };
 var animeFilterState = { genres: [], years: [], countries: [], sort: 'popularity.desc', page: 1, _tier: 0, _tierPage: 1, _shownIds: new Set() };
@@ -1181,8 +1193,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v128-2026-10-27-local-device-signout';
-var BUILD_NOTE_V128 = 'Fixed global signout bug by enforcing local scope on device revocations.';
+var TUBEMOCHA_BUILD = 'v129-2026-10-28-mobile-auth-fix';
+var BUILD_NOTE_V129 = 'Fixed mobile login persistence by removing refreshSession from syncDeviceSession and preventing spurious signouts.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1232,7 +1244,7 @@ var GENRES_LIST = [
     { name: 'Thriller', id: '53' }, { name: 'War', id: '10752' }, { name: 'Western', id: '37' }
 ];
 
-// TV genre list — TMDB TV genre IDs (these are DIFFERENT from movie IDs)
+// TV genre list — TMDB TV genre IDs
 var TV_GENRES_LIST = [
     { name: 'Action & Adventure', id: '10759' }, { name: 'Animation', id: '16' },
     { name: 'Comedy', id: '35' }, { name: 'Crime', id: '80' },
@@ -1244,7 +1256,7 @@ var TV_GENRES_LIST = [
     { name: 'War & Politics', id: '10768' }, { name: 'Western', id: '37' }
 ];
 
-// FULL GLOBAL COUNTRY LIST (ISO 3166-1 alpha-2)
+// FULL GLOBAL COUNTRY LIST
 var COUNTRIES_LIST = [
     { name: 'Afghanistan', id: 'AF' }, { name: 'Albania', id: 'AL' }, { name: 'Algeria', id: 'DZ' }, { name: 'Andorra', id: 'AD' }, { name: 'Angola', id: 'AO' }, { name: 'Antigua and Barbuda', id: 'AG' }, { name: 'Argentina', id: 'AR' }, { name: 'Armenia', id: 'AM' }, { name: 'Australia', id: 'AU' }, { name: 'Austria', id: 'AT' }, { name: 'Azerbaijan', id: 'AZ' },
     { name: 'Bahamas', id: 'BS' }, { name: 'Bahrain', id: 'BH' }, { name: 'Bangladesh', id: 'BD' }, { name: 'Barbados', id: 'BB' }, { name: 'Belarus', id: 'BY' }, { name: 'Belgium', id: 'BE' }, { name: 'Belize', id: 'BZ' }, { name: 'Benin', id: 'BJ' }, { name: 'Bhutan', id: 'BT' }, { name: 'Bolivia', id: 'BO' }, { name: 'Bosnia and Herzegovina', id: 'BA' }, { name: 'Botswana', id: 'BW' }, { name: 'Brazil', id: 'BR' }, { name: 'Brunei', id: 'BN' }, { name: 'Bulgaria', id: 'BG' }, { name: 'Burkina Faso', id: 'BF' }, { name: 'Burundi', id: 'BI' },
@@ -1409,27 +1421,27 @@ function startDeviceCheck() {
     }, 10000);
 }
 
+// v129: syncDeviceSession NO LONGER calls refreshSession (which could
+// cause a spurious SIGNED_OUT on mobile), and NO LONGER signs the user
+// out when the current device is revoked — it clears the revocation
+// instead, allowing a legitimate re-login. The periodic startDeviceCheck
+// interval still handles genuine remote revocations.
 async function syncDeviceSession(user) {
     if (!user || isSyncingDevices) return [];
     isSyncingDevices = true;
     try {
         let latestMetadata = user.user_metadata || {};
-        try {
-            const { data: refreshData } = await supabaseClient.auth.refreshSession();
-            if (refreshData && refreshData.session && refreshData.session.user) {
-                latestMetadata = refreshData.session.user.user_metadata || {};
-            }
-        } catch(e) { }
-
+        
         let revoked = latestMetadata.revoked_devices || [];
+        // If this device was previously revoked, clear it — user has valid
+        // credentials so they're allowed to use this device again.
         if (revoked.includes(currentDeviceId)) {
-            await supabaseClient.auth.signOut({ scope: 'local' });
-            return [];
+            revoked = revoked.filter(function(id) { return id !== currentDeviceId; });
         }
 
         let devices = latestMetadata.devices || [];
         let currentDevice = getDeviceInfo();
-        let existingIdx = devices.findIndex(d => d.id === currentDeviceId);
+        let existingIdx = devices.findIndex(function(d) { return d.id === currentDeviceId; });
         let sessionData = {
             id: currentDeviceId,
             name: currentDevice.name,
@@ -1443,7 +1455,7 @@ async function syncDeviceSession(user) {
             devices.push(sessionData);
         }
 
-        devices = devices.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive)).slice(0, 5);
+        devices = devices.sort(function(a, b) { return new Date(b.lastActive) - new Date(a.lastActive); }).slice(0, 5);
 
         await supabaseClient.auth.updateUser({ data: { devices: devices, revoked_devices: revoked } });
         
@@ -1461,19 +1473,18 @@ async function syncDeviceSession(user) {
     }
 }
 
+// v129: uses getUser() instead of refreshSession() to avoid session-clearing on failure.
 async function initSettingsPage() {
     try {
-        const { data } = await supabaseClient.auth.refreshSession();
-        if (data && data.session && data.session.user) {
-            currentUser = data.session.user;
+        const { data } = await supabaseClient.auth.getUser();
+        if (data && data.user) {
+            currentUser = data.user;
         }
     } catch(e) { }
 
-    // 1. Get latest devices from metadata
     let devices = (currentUser && currentUser.user_metadata && currentUser.user_metadata.devices) ? [...currentUser.user_metadata.devices] : [];
     let revoked = (currentUser && currentUser.user_metadata && currentUser.user_metadata.revoked_devices) ? currentUser.user_metadata.revoked_devices : [];
     
-    // 2. Ensure current device is ALWAYS in the list
     let currentDevice = getDeviceInfo();
     let existingIdx = devices.findIndex(d => d.id === currentDeviceId);
     let sessionData = {
@@ -1491,7 +1502,6 @@ async function initSettingsPage() {
 
     devices = devices.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive)).slice(0, 5);
 
-    // 3. Render UI immediately
     let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
     let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
     document.getElementById('settingsUsernameDisplay').textContent = displayName;
@@ -1514,7 +1524,6 @@ async function initSettingsPage() {
     });
     document.getElementById('settingsDevicesList').innerHTML = html;
 
-    // 4. Sync in background
     try {
         await supabaseClient.auth.updateUser({
             data: { devices: devices, revoked_devices: revoked }
@@ -1640,10 +1649,8 @@ function syncProfilesFromCloud(user) {
     var cloudProfiles = (user.user_metadata && user.user_metadata.profiles) ? user.user_metadata.profiles : [];
     var localProfiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
     
-    // Keep profiles that belong to OTHER users
     var otherProfiles = localProfiles.filter(function(p) { return p.userId !== user.id; });
     
-    // Add cloud profiles for this user
     cloudProfiles.forEach(function(cp) {
         if (!cp.userId) cp.userId = user.id;
         if (!otherProfiles.find(function(op) { return op.id === cp.id; })) {
@@ -2022,13 +2029,14 @@ function closeAuthModal() {
     document.body.style.overflow = '';
 }
 
+// v129: removed redundant syncProfilesFromCloud/syncDeviceSession calls.
+// onAuthStateChange already fires handleAuthState(session) which does this.
 async function handleModalLogin(e) {
     e.preventDefault();
     var email = document.getElementById('modalLoginEmail').value;
     var password = document.getElementById('modalLoginPassword').value;
     var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     var error = res.error;
-    var data = res.data;
     
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
@@ -2042,12 +2050,6 @@ async function handleModalLogin(e) {
     else { 
         toast('Logged in successfully!'); 
         closeAuthModal(); 
-        
-        if (data.user) {
-            syncProfilesFromCloud(data.user);
-            syncDeviceSession(data.user);
-        }
-        
         window.location.hash = '#whos-watching';
     }
 }
@@ -2105,6 +2107,7 @@ async function handleSignUp(e) {
     else { toast('Registered successfully'); startWizard(); }
 }
 
+// v129: removed redundant syncProfilesFromCloud/syncDeviceSession calls.
 async function handleLogin(e) {
     e.preventDefault();
     var email = document.getElementById('loginEmail').value;
@@ -2112,7 +2115,6 @@ async function handleLogin(e) {
     
     var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     var error = res.error;
-    var data = res.data;
     
     if (error) { 
         if (error.message.toLowerCase().includes('email not confirmed')) {
@@ -2125,12 +2127,6 @@ async function handleLogin(e) {
     } 
     else { 
         toast('Logged in successfully!'); 
-        
-        if (data.user) {
-            syncProfilesFromCloud(data.user);
-            syncDeviceSession(data.user);
-        }
-        
         window.location.hash = '#whos-watching';
     }
 }
@@ -2484,9 +2480,6 @@ function applyAnimeFilters() {
     loadAnimeRegionTrending();
 }
 
-// ============================================================
-// ★ v104: YEAR TIER HELPERS ★
-// ============================================================
 function buildYearTiers(years, isTV) {
     if (!years || years.length === 0) {
         return [{ gte: null, lte: null, label: 'any' }];
@@ -2520,9 +2513,6 @@ function applyTierToParams(params, tier, isTV) {
     }
 }
 
-// ============================================================
-// ★ v104: loadDiscover — tiered year widening + dedup. ★
-// ============================================================
 async function loadDiscover(page, isTv) {
     var isReset = (page === 1);
     
@@ -2613,9 +2603,6 @@ async function loadDiscover(page, isTv) {
     isLoadingMovies = false;
 }
 
-// ============================================================
-// ★ v108: loadTVDiscover — same treatment as loadDiscover. ★
-// ============================================================
 async function loadTVDiscover(page) {
     var isReset = (page === 1);
     
@@ -2703,9 +2690,6 @@ async function loadTVDiscover(page) {
     isLoadingTV = false;
 }
 
-// ============================================================
-// ★ v108: loadAnime — same treatment as loadDiscover. ★
-// ============================================================
 async function loadAnime(page) {
     var isReset = (page === 1);
     
@@ -2796,7 +2780,6 @@ async function loadAnime(page) {
     isLoadingAnime = false;
 }
 
-// === HORIZONTAL ROW SCROLL LOGIC ===
 async function loadMoreTrending() {
     if (rowStates.trendingTrack.loading || rowStates.trendingTrack.page >= rowStates.trendingTrack.totalPages) return;
     rowStates.trendingTrack.loading = true;
@@ -2975,7 +2958,6 @@ async function loadMoreAnimeRegion() {
     rowStates.animeRegionTrending.loading = false;
 }
 
-// === TREND COUNTRY DROPDOWNS ===
 function toggleTrendCountryDropdown(type, event) {
     if(event) event.stopPropagation();
     var id = 'trendCountryDropdown_' + type;
@@ -3230,7 +3212,6 @@ async function fetchLiveSearchPage(query, page, isFirstPage) {
     isLiveSearchLoading = false;
 }
 
-// INFINITE SCROLL FOR LIVE SEARCH DROPDOWN
 document.getElementById('liveSearchResults').addEventListener('scroll', function() {
     if (isLiveSearchLoading) return;
     if (this.scrollTop + this.clientHeight >= this.scrollHeight - 50) {
@@ -3397,9 +3378,6 @@ function setupHero(movies) {
     setHeroSlide(0);
 }
 
-// ============================================================
-// ★ v128: loadMoviesRegionTrending — country selector integration. ★
-// ============================================================
 async function loadMoviesRegionTrending() {
     var track = document.getElementById('moviesRegionTrending');
     if (!track) return;
@@ -3449,9 +3427,6 @@ async function loadMoviesRegionTrending() {
     setTimeout(function() { updateScrollArrows('moviesRegionTrending'); }, 50);
 }
 
-// ============================================================
-// ★ v128: loadTVRegionTrending — country selector integration. ★
-// ============================================================
 async function loadTVRegionTrending() {
     var track = document.getElementById('tvRegionTrending');
     if (!track) return;
@@ -3501,9 +3476,6 @@ async function loadTVRegionTrending() {
     setTimeout(function() { updateScrollArrows('tvRegionTrending'); }, 50);
 }
 
-// ============================================================
-// ★ v128: loadAnimeRegionTrending — country selector integration. ★
-// ============================================================
 async function loadAnimeRegionTrending() {
     var track = document.getElementById('animeRegionTrending');
     if (!track) return;
@@ -3945,7 +3917,6 @@ function updateScrollArrows(id) {
 }
 window.addEventListener('resize', function() { document.querySelectorAll('.scroller').forEach(function(el) { updateScrollArrows(el.id); }); });
 
-// === HORIZONTAL SCROLL EVENT LISTENER ===
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.scroller').forEach(function(el) {
         el.addEventListener('scroll', function() {
