@@ -1169,16 +1169,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v127</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v128</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v127 — 2026-10-28
-// CHANGELOG (v126 → v127):
-//   • Added a custom confirmation modal to replace the native browser confirm() dialog.
-//   • Updated signOutSession and deleteCurrentProfile to use the new themed modal.
+// TUBEMOCHA BUILD v128 — 2026-10-28
+// CHANGELOG (v127 → v128):
+//   • Added a mathematical limit of 5 profiles per user to prevent database bloat and JWT overflow.
+//   • Updated saveWizardProfile to block creation of a 6th profile.
+//   • Updated renderWhosWatching to hide the "Add profile" button when limit is reached.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1220,8 +1221,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v127-2026-10-28-custom-confirm-modal';
-var BUILD_NOTE_V127 = 'Replaced native confirm() with a custom styled modal for better UI consistency.';
+var TUBEMOCHA_BUILD = 'v128-2026-10-28-profile-limit';
+var BUILD_NOTE_V128 = 'Added a maximum limit of 5 profiles per user.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1881,6 +1882,13 @@ async function saveWizardProfile() {
     var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
     var existingUserProfiles = profiles.filter(function(p) { return p.userId === userId; });
 
+    // THE EQUATION: Maximum 5 profiles per account
+    if (existingUserProfiles.length >= 5) {
+        toast('You can only create up to 5 profiles.');
+        window.location.hash = '#whos-watching';
+        return;
+    }
+
     var newProfile = {
         id: Date.now().toString(),
         name: wizardState.name,
@@ -1919,12 +1927,14 @@ function renderWhosWatching() {
             + '</div>';
     }).join('');
     
-    html += '<div style="cursor:pointer; text-align:center;" onclick="startWizard()">'
-        + '<div style="width:120px; height:120px; border-radius:16px; background:#222; display:flex; align-items:center; justify-content:center; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor=\'#fff\'" onmouseout="this.style.borderColor=\'transparent\'">'
-        + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>'
-        + '</div>'
-        + '<div style="font-weight:600; font-size:14px; color:#888;">Add profile</div>'
-        + '</div>';
+    if (profiles.length < 5) {
+        html += '<div style="cursor:pointer; text-align:center;" onclick="startWizard()">'
+            + '<div style="width:120px; height:120px; border-radius:16px; background:#222; display:flex; align-items:center; justify-content:center; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor=\'#fff\'" onmouseout="this.style.borderColor=\'transparent\'">'
+            + '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>'
+            + '</div>'
+            + '<div style="font-weight:600; font-size:14px; color:#888;">Add profile</div>'
+            + '</div>';
+    }
     grid.innerHTML = html;
 }
 
