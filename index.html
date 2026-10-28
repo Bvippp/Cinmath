@@ -331,6 +331,19 @@
 /* Device Sign Out Button */
 .device-signout-btn { color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; padding: 8px 12px; border-radius: 6px; transition: background 0.2s; }
 .device-signout-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* Custom Confirm Modal */
+.custom-modal-overlay { position: fixed; inset: 0; z-index: 900; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px; }
+.custom-modal-overlay.open { display: flex; }
+.custom-modal-content { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); width: 100%; max-width: 400px; padding: 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); animation: fade .2s; text-align: center; }
+.custom-modal-title { font-size: 20px; font-weight: 800; color: #fff; }
+.custom-modal-message { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+.custom-modal-actions { display: flex; gap: 12px; margin-top: 8px; }
+.custom-modal-btn { flex: 1; height: 44px; border-radius: var(--radius-md); font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; }
+.custom-modal-btn.cancel { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+.custom-modal-btn.cancel:hover { background: rgba(255,255,255,0.05); }
+.custom-modal-btn.ok { background: var(--accent-light); border: none; color: var(--bg-main); }
+.custom-modal-btn.ok:hover { opacity: 0.9; }
 </style>
 </head>
 <body>
@@ -1055,6 +1068,18 @@
   </div>
 </div>
 
+<!-- CUSTOM CONFIRM MODAL -->
+<div class="custom-modal-overlay" id="customConfirmModal">
+  <div class="custom-modal-content">
+    <h3 class="custom-modal-title" id="customConfirmTitle">Confirm Action</h3>
+    <p class="custom-modal-message" id="customConfirmMessage">Are you sure?</p>
+    <div class="custom-modal-actions">
+      <button id="customConfirmCancel" class="custom-modal-btn cancel">Cancel</button>
+      <button id="customConfirmOk" class="custom-modal-btn ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
 <div class="detail-overlay" id="detailOverlay">
 <div class="detail-trailer-bg" id="detailTrailerBg"></div>
 <div class="detail-content">
@@ -1144,17 +1169,16 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v126</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v127</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v126 — 2026-10-28
-// CHANGELOG (v125 → v126):
-//   • Fixed false positive logouts by requiring 2 consecutive heartbeat failures.
-//   • Realtime listener now uses device_id for robust identification.
-//   • Cleaned up UI refresh logic to rely purely on Realtime.
+// TUBEMOCHA BUILD v127 — 2026-10-28
+// CHANGELOG (v126 → v127):
+//   • Added a custom confirmation modal to replace the native browser confirm() dialog.
+//   • Updated signOutSession and deleteCurrentProfile to use the new themed modal.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1196,8 +1220,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v126-2026-10-28-fixed-device-sync';
-var BUILD_NOTE_V126 = 'Fixed false positive logouts with double heartbeat check. Realtime listener now uses device_id.';
+var TUBEMOCHA_BUILD = 'v127-2026-10-28-custom-confirm-modal';
+var BUILD_NOTE_V127 = 'Replaced native confirm() with a custom styled modal for better UI consistency.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1311,6 +1335,29 @@ function generateAvatar(name) {
         <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="50" fill="${textColor}">${letter}</text>
     </svg>`;
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+// ==========================================
+// CUSTOM CONFIRM MODAL
+// ==========================================
+function showCustomConfirm(title, message, confirmText, cancelText) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('customConfirmModal');
+        document.getElementById('customConfirmTitle').textContent = title;
+        document.getElementById('customConfirmMessage').textContent = message;
+        
+        const btnOk = document.getElementById('customConfirmOk');
+        const btnCancel = document.getElementById('customConfirmCancel');
+        
+        btnOk.textContent = confirmText || 'Confirm';
+        btnCancel.textContent = cancelText || 'Cancel';
+        
+        modal.classList.add('open');
+        
+        btnOk.onclick = () => { modal.classList.remove('open'); resolve(true); };
+        btnCancel.onclick = () => { modal.classList.remove('open'); resolve(false); };
+        modal.onclick = (e) => { if (e.target === modal) { modal.classList.remove('open'); resolve(false); } };
+    });
 }
 
 // ==========================================
@@ -1527,7 +1574,8 @@ async function initSettingsPage() {
 
 async function signOutSession(sessionId) {
     if (!currentUser) return;
-    if (confirm('Are you sure you want to sign out this device?')) {
+    const confirmed = await showCustomConfirm('Sign out device', 'Are you sure you want to sign out this device?', 'Sign out', 'Cancel');
+    if (confirmed) {
         await supabaseClient.from('user_sessions').delete().eq('id', sessionId);
         toast('Device signed out');
     }
@@ -1944,7 +1992,8 @@ async function saveEditedProfile() {
 }
 
 async function deleteCurrentProfile() {
-    if (!confirm('Are you sure you want to delete this profile?')) return;
+    const confirmed = await showCustomConfirm('Delete Profile', 'This cannot be undone. History, continue watching, and the watchlist for this profile will be permanently deleted.', 'Delete', 'Cancel');
+    if (!confirmed) return;
     
     var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
     profiles = profiles.filter(function(p) { return p.id !== editingProfileId; });
