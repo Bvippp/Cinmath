@@ -6,7 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="monetag" content="52e38885034f09b41235e3ffa0100d30">
-<!-- v136 SECURITY: Content Security Policy (CSP) blocks malicious scripts & unauthorized connections -->
+<!-- v137 ANTI-BAN & SECURITY -->
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://nap5k.com https://5gvci.com https://al5sm.com https://www.vidy.st; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://image.tmdb.org https://images.unsplash.com; connect-src 'self' https://moviess.squadcode.workers.dev https://emplegscxgcwflajkhxb.supabase.co https://ipwho.is https://ipapi.co https://ipinfo.io wss://emplegscxgcwflajkhxb.supabase.co; frame-src 'self' https://www.vidy.st https://www.youtube.com; object-src 'none';">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -1103,7 +1104,7 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
         <h2>3. Data Sharing & Security</h2>
         <p>We will never sell, rent, or trade your personal account information to marketers or unauthorized third parties. We employ industry-standard encryption to protect your account credentials. However, no method of transmission over the internet is 100% secure.</p>
         <h2>4. Contact Us</h2>
-        <p>If you have questions about your privacy or wish to request data deletion, please contact us through our <a href="#" class="legal-link">contact form</a>.</p>
+        <p>If you have questions about your privacy or wish to request data deletion, please contact us through our <a href="javascript:void(0)" onclick="openContactModal()" style="color:var(--star); font-weight:700; text-decoration:underline;">contact form</a> or email us directly at dmca@tubemocha.com.</p>
     </div>
 </div>
 </div>
@@ -1117,7 +1118,7 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
             TUBEMOCHA functions strictly as an automated search engine and metadata aggregator. <strong>We DO NOT host, store, stream, or upload any video, media file, or copyrighted material on our servers.</strong>
         </div>
         <h2>1. Automated Third-Party Indexing</h2>
-        <p>All media content, streams, and downloads accessible via TUBEMOCHA are scraped, indexed, and fetched in real-time from unaffiliated third-party websites and APIs. TUBEMOCHA acts merely as a client-side directory and proxy tool, similar to Google Search, linking you to content that is already publicly accessible on the internet.</p>
+        <p>All media content, streams, and downloads accessible via TUBEMOCHA are scraped, indexed, and fetched in real-time from unaffiliated third-party websites and APIs. In accordance with the Digital Millennium Copyright Act (17 U.S.C. § 512), TUBEMOCHA acts merely as a client-side directory and proxy tool, similar to Google Search, linking you to content that is already publicly accessible on the internet.</p>
         <p>We have absolutely no control over the content hosted by these third parties. We do not curate, upload, or manage any of the media files. Therefore, we cannot directly delete or remove videos from the internet because they do not reside on our infrastructure.</p>
         <h2>2. Copyright Infringement & Removal</h2>
         <p>TUBEMOCHA fully respects intellectual property rights. If you are a copyright owner or an authorized agent and you believe that a specific link or embedded player on TUBEMOCHA infringes upon your copyright, you may submit a takedown request. Upon receiving a valid request, we will promptly blacklist and remove the indexing of the requested link from our platform.</p>
@@ -1164,7 +1165,7 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
   </div>
 </div>
 
-<!-- CONTACT FORM MODAL (v136) -->
+<!-- CONTACT FORM MODAL -->
 <div class="custom-modal-overlay" id="contactModal">
   <div class="custom-modal-content" style="text-align:left; max-width: 500px;">
     <button class="auth-modal-close" onclick="closeContactModal()" style="top: 20px; right: 20px;">&times;</button>
@@ -1280,22 +1281,27 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v136</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v137</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v136 — 2026-10-28
-// CHANGELOG (v135 → v136):
-//   • Added Contact Form modal to the DMCA page.
-//   • Styled "contact form" link with the same accent color as the HD badge.
-//   • Implemented openContactModal() and submitContactForm() logic.
+// TUBEMOCHA BUILD v137 — 2026-10-28
+// CHANGELOG (v136 → v137):
+//   • Added EMERGENCY_ADS_OFF switch for Google Safe Browsing protection.
+//   • Upgraded Contact Form to a functional mailto: link (dmca@tubemocha.com).
+//   • Added explicit Safe Harbor (17 U.S.C. § 512) legal text to DMCA page.
+//   • Added Anti-Spam Robots meta tag to <head>.
 // ============================================================
 
-// v136 SECURITY: API Key is hidden in the Cloudflare Worker proxy
+// v137 ANTI-BAN: Emergency Ad Kill Switch
+// If Google Safe Browsing flags the site due to bad ads, change this to `true` and re-upload.
+var EMERGENCY_ADS_OFF = false;
+
+// v137 SECURITY: API Key is hidden in the Cloudflare Worker proxy
 var TMDB_KEY = ''; 
-// v136 SECURITY: Routing all requests through the Cloudflare Worker
+// v137 SECURITY: Routing all requests through the Cloudflare Worker
 var TMDB_BASE = 'https://moviess.squadcode.workers.dev/3';
 
 var IMG = 'https://image.tmdb.org/t/p/w500';
@@ -1334,7 +1340,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v136-2026-10-28-contact-form-modal';
+var TUBEMOCHA_BUILD = 'v137-2026-10-28-anti-ban';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1496,7 +1502,7 @@ function showCustomConfirm(title, message, confirmText, cancelText) {
 }
 
 // ==========================================
-// CONTACT FORM MODAL (v136)
+// CONTACT FORM MODAL (v136) & REAL EMAIL (v137)
 // ==========================================
 function openContactModal() {
     document.getElementById('contactModal').classList.add('open');
@@ -1515,11 +1521,14 @@ function submitContactForm(e) {
     var email = document.getElementById('contactEmail').value;
     var message = document.getElementById('contactMessage').value;
     
-    // In a real app, this would send to a backend or email service like EmailJS.
-    // For now, we simulate a successful send.
-    console.log('Contact Form Submitted:', { name, subject, email, message });
+    // v137 ANTI-BAN: Create mailto link to actually send email to admin
+    var mailtoLink = 'mailto:dmca@tubemocha.com'
+        + '?subject=' + encodeURIComponent('DMCA Notice/Contact: ' + subject)
+        + '&body=' + encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\nMessage:\n' + message);
     
-    toast('Message sent successfully!');
+    window.location.href = mailtoLink;
+    
+    toast('Opening email client...');
     closeContactModal();
     document.getElementById('contactName').value = '';
     document.getElementById('contactSubject').value = '';
@@ -1528,9 +1537,14 @@ function submitContactForm(e) {
 }
 
 // ==========================================
-// ADS SYSTEM
+// ADS SYSTEM (v137 EMERGENCY KILL SWITCH)
 // ==========================================
 function loadAdScripts() {
+    // v137: Check Emergency Kill Switch
+    if (EMERGENCY_ADS_OFF) {
+        console.warn('[TUBEMOCHA] EMERGENCY ADS OFF: Scripts blocked.');
+        return;
+    }
     if (localStorage.getItem('tubemocha_ads') === 'false') return;
     
     if (!document.querySelector('script[data-zone="12094769"]')) {
@@ -3530,7 +3544,7 @@ function cardHTML(m){
 async function tmdb(path, params) {
     if(!params) params = {};
     var target = new URL(TMDB_BASE + path);
-    // v135: TMDB_KEY is empty, the Cloudflare Worker handles the API key injection.
+    // v137: TMDB_KEY is empty, the Cloudflare Worker handles the API key injection.
     if (TMDB_KEY) target.searchParams.set('api_key', TMDB_KEY);
     
     target.searchParams.set('language', 'en-US');
@@ -4080,9 +4094,11 @@ async function playCurrentMedia(){
     if(!currentMovie) return;
     saveToHistory(currentMovie);
     
-    if (localStorage.getItem('tubemocha_ads') !== 'false') {
+    // v137 EMERGENCY KILL SWITCH CHECK
+    if (!EMERGENCY_ADS_OFF && localStorage.getItem('tubemocha_ads') !== 'false') {
         (function(s){s.dataset.zone='12094758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
     }
+    
     var overlay = document.getElementById('playerOverlay'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; 
     currentProviderIndex = 0; hideSwitchBanner(); loadPlayerSource(0);
     clearTimeout(window._idleTimer); overlay.classList.remove('idle');
