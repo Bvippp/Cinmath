@@ -1144,17 +1144,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v125</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v126</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v125 — 2026-10-28
-// CHANGELOG (v124 → v125):
-//   • Fixed device session bugs (race conditions and accidental mass-deletions).
-//   • Switched registerSession to use UPSERT to prevent duplicate key failures.
-//   • Switched signOutSession to use the exact session ID (UUID) to prevent deleting other devices.
+// TUBEMOCHA BUILD v126 — 2026-10-28
+// CHANGELOG (v125 → v126):
+//   • Fixed false positive logouts by requiring 2 consecutive heartbeat failures.
+//   • Realtime listener now uses device_id for robust identification.
+//   • Cleaned up UI refresh logic to rely purely on Realtime.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1178,6 +1178,7 @@ if (!deviceId) {
 var sessionChannel = null;
 var heartbeatInterval = null;
 var activeInterval = null;
+var failedHeartbeats = 0;
 
 const MOVIE_GENRES = ['Comedy', 'Action', 'Drama', 'Horror', 'Romance', 'Adventure', 'Science Fiction', 'Thriller', 'Animation', 'Crime', 'Fantasy', 'Mystery', 'Documentary', 'Family', 'History', 'Music', 'War', 'Western'];
 const TV_GENRES = ['Comedy', 'Drama', 'Action & Adventure', 'Crime', 'Sci-Fi & Fantasy', 'Mystery', 'Animation', 'Family', 'Documentary', 'Kids', 'War & Politics', 'Western'];
@@ -1195,8 +1196,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v125-2026-10-28-bulletproof-sessions';
-var BUILD_NOTE_V125 = 'Fixed race conditions in session tracking using upsert. Prevented accidental mass-logouts by deleting sessions by specific ID.';
+var TUBEMOCHA_BUILD = 'v126-2026-10-28-fixed-device-sync';
+var BUILD_NOTE_V126 = 'Fixed false positive logouts with double heartbeat check. Realtime listener now uses device_id.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1398,7 +1399,6 @@ async function registerSession() {
     if (!currentUser) return;
     var info = getDeviceInfo();
     try {
-        // Use upsert to avoid delete+insert race conditions
         var res = await supabaseClient.from('user_sessions').upsert({
             user_id: currentUser.id,
             device_id: deviceId,
@@ -1427,14 +1427,21 @@ function startHeartbeat() {
         }
     }, 120000);
 
-    // Fallback polling to check if session was deleted (every 5 seconds)
+    // Fallback polling to check if session was deleted
+    failedHeartbeats = 0;
     heartbeatInterval = setInterval(async () => {
         if (currentUser && localStorage.getItem('tubemocha_session_id')) {
             const { data, error } = await supabaseClient.from('user_sessions').select('id').eq('id', localStorage.getItem('tubemocha_session_id'));
-            if (!error && (!data || data.length === 0)) {
-                // Session was deleted!
-                toast('You have been signed out from another device.');
-                handleLogout();
+            if (!error) {
+                if (data && data.length === 0) {
+                    failedHeartbeats++;
+                    if (failedHeartbeats >= 2) {
+                        toast('You have been signed out from another device.');
+                        handleLogout();
+                    }
+                } else {
+                    failedHeartbeats = 0;
+                }
             }
         }
     }, 5000);
@@ -1448,8 +1455,19 @@ function setupSessionListener() {
         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'user_sessions', filter: 'user_id=eq.' + currentUser.id }, payload => {
             console.log('[TUBEMOCHA] Realtime session deletion:', payload);
             
+            var myDeviceId = deviceId;
             var mySessionId = localStorage.getItem('tubemocha_session_id');
-            if (mySessionId && payload.old && payload.old.id === mySessionId) {
+            
+            var isMySessionDeleted = false;
+            if (payload.old) {
+                if (payload.old.device_id) {
+                    isMySessionDeleted = (payload.old.device_id === myDeviceId);
+                } else if (payload.old.id) {
+                    isMySessionDeleted = (payload.old.id === mySessionId);
+                }
+            }
+            
+            if (isMySessionDeleted) {
                 toast('You have been signed out from another device.');
                 handleLogout();
             } else {
@@ -1510,10 +1528,8 @@ async function initSettingsPage() {
 async function signOutSession(sessionId) {
     if (!currentUser) return;
     if (confirm('Are you sure you want to sign out this device?')) {
-        // Delete by exact ID to prevent accidentally deleting all sessions
         await supabaseClient.from('user_sessions').delete().eq('id', sessionId);
         toast('Device signed out');
-        initSettingsPage(); 
     }
 }
 
@@ -2107,9 +2123,14 @@ async function handleLogout() {
     if (heartbeatInterval) clearInterval(heartbeatInterval);
     if (activeInterval) clearInterval(activeInterval);
     
-    if (currentUser && deviceId) {
+    if (currentUser) {
         try {
-            await supabaseClient.from('user_sessions').delete().match({ user_id: currentUser.id, device_id: deviceId });
+            var sessionId = localStorage.getItem('tubemocha_session_id');
+            if (sessionId) {
+                await supabaseClient.from('user_sessions').delete().eq('id', sessionId);
+            } else if (deviceId) {
+                await supabaseClient.from('user_sessions').delete().match({ user_id: currentUser.id, device_id: deviceId });
+            }
         } catch (e) { console.log('Failed to remove session', e); }
     }
     localStorage.removeItem('tubemocha_session_id');
