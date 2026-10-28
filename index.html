@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="monetag" content="52e38885034f09b41235e3ffa0100d30">
-<!-- v132 SECURITY: Content Security Policy (CSP) to block malicious scripts & unauthorized connections -->
+<!-- v133 SECURITY: Content Security Policy (CSP) to block malicious scripts & unauthorized connections -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://nap5k.com https://5gvci.com https://al5sm.com https://www.vidy.st; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://image.tmdb.org https://images.unsplash.com; connect-src 'self' https://api.themoviedb.org https://emplegscxgcwflajkhxb.supabase.co https://ipwho.is https://ipapi.co https://ipinfo.io wss://emplegscxgcwflajkhxb.supabase.co; frame-src 'self' https://www.vidy.st https://www.youtube.com; object-src 'none';">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -1253,18 +1253,17 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v132</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v133</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v132 — 2026-10-28
-// CHANGELOG (v131 → v132):
-//   • Implemented strict Content Security Policy (CSP).
-//   • Added XSS sanitization function (escapeHTML) for user inputs.
-//   • Hardened Iframe sandboxing for Vidy and YouTube players.
-//   • Updated profile creation and search history to prevent DOM-based XSS.
+// TUBEMOCHA BUILD v133 — 2026-10-28
+// CHANGELOG (v132 → v133):
+//   • Removed the sandbox attribute from the Vidy player iframe to fix the "Iframe Sandbox Detected" error.
+//   • Removed the sandbox attribute from YouTube trailers to ensure they play correctly.
+//   • Retained the strict Content Security Policy (CSP) for protection.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1305,7 +1304,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v132-2026-10-28-security-hardening';
+var TUBEMOCHA_BUILD = 'v133-2026-10-28-sandbox-fix';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -3862,7 +3861,7 @@ async function showDetail(rawId, shouldPlay){
     if (m.videos && m.videos.results) {
         var trailer = m.videos.results.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; });
         if (trailer) { 
-            trailerBg.innerHTML = '<iframe src="https://www.youtube.com/embed/' + trailer.key + '?autoplay=1&mute=1&controls=0&loop=1&playlist=' + trailer.key + '&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0" sandbox="allow-scripts allow-same-origin allow-presentation" frameborder="0" allow="autoplay; encrypted-media"></iframe>'; 
+            trailerBg.innerHTML = '<iframe src="https://www.youtube.com/embed/' + trailer.key + '?autoplay=1&mute=1&controls=0&loop=1&playlist=' + trailer.key + '&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>'; 
         }
     }
     var castScroller = document.getElementById('castScroller'); castScroller.innerHTML = '';
@@ -4060,7 +4059,8 @@ function loadPlayerSource(index) {
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
     hideSwitchBanner();
     setTimeout(function(){
-        var iframeStr = '<iframe src="' + url + '" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
+        // Removed sandbox attribute to fix Vidy "Iframe Sandbox Detected" error
+        var iframeStr = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
         container.innerHTML = iframeStr + '<div class="branding-mask" style="display:none; pointer-events:none;"></div>';
         var iframe = container.querySelector('iframe');
         if(!iframe){ toast('Failed to create Vidy player'); return; }
