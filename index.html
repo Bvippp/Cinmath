@@ -1144,16 +1144,17 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v124</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v125</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v124 — 2026-10-28
-// CHANGELOG (v123 → v124):
-//   • Fixed realtime session logout by capturing session_id locally.
-//   • Added 5-second polling fallback (heartbeat) to guarantee instant logout even if Realtime fails.
+// TUBEMOCHA BUILD v125 — 2026-10-28
+// CHANGELOG (v124 → v125):
+//   • Fixed device session bugs (race conditions and accidental mass-deletions).
+//   • Switched registerSession to use UPSERT to prevent duplicate key failures.
+//   • Switched signOutSession to use the exact session ID (UUID) to prevent deleting other devices.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1194,8 +1195,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v124-2026-10-28-instant-device-logout';
-var BUILD_NOTE_V124 = 'Fixed realtime logout by matching session_id. Added 5s polling fallback for instant logout.';
+var TUBEMOCHA_BUILD = 'v125-2026-10-28-bulletproof-sessions';
+var BUILD_NOTE_V125 = 'Fixed race conditions in session tracking using upsert. Prevented accidental mass-logouts by deleting sessions by specific ID.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1397,17 +1398,14 @@ async function registerSession() {
     if (!currentUser) return;
     var info = getDeviceInfo();
     try {
-        // First, clear out this device's old sessions to avoid duplicates
-        await supabaseClient.from('user_sessions').delete().match({ user_id: currentUser.id, device_id: deviceId });
-        
-        // Insert new session
-        var res = await supabaseClient.from('user_sessions').insert({
+        // Use upsert to avoid delete+insert race conditions
+        var res = await supabaseClient.from('user_sessions').upsert({
             user_id: currentUser.id,
             device_id: deviceId,
             device_name: info.name,
             location: info.location,
             last_active: new Date().toISOString()
-        }).select().single();
+        }, { onConflict: 'user_id,device_id' }).select().single();
         
         if (res.data) {
             localStorage.setItem('tubemocha_session_id', res.data.id);
@@ -1501,7 +1499,7 @@ async function initSettingsPage() {
                 </div>
             </div>
             ${!isThisDevice ? `
-            <button class="device-signout-btn" onclick="signOutDevice('${d.device_id}')">
+            <button class="device-signout-btn" onclick="signOutSession('${d.id}')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                 Sign out
             </button>` : ''}
@@ -1509,10 +1507,11 @@ async function initSettingsPage() {
     }).join('');
 }
 
-async function signOutDevice(targetDeviceId) {
+async function signOutSession(sessionId) {
     if (!currentUser) return;
     if (confirm('Are you sure you want to sign out this device?')) {
-        await supabaseClient.from('user_sessions').delete().match({ user_id: currentUser.id, device_id: targetDeviceId });
+        // Delete by exact ID to prevent accidentally deleting all sessions
+        await supabaseClient.from('user_sessions').delete().eq('id', sessionId);
         toast('Device signed out');
         initSettingsPage(); 
     }
