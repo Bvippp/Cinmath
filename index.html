@@ -15,6 +15,7 @@
 <style>
 :root{--bg-main:#14100d;--bg-card:#1e1814;--bg-elevated:#2a211a;--border:#3a2e26;--border-light:#302520;--text-main:#f0e8dd;--text-muted:#9a8e80;--text-dim:#7a6e62;--accent:#5d4037;--accent-light:#f5ede3;--accent-red:#5d4037;--accent-blue:#5d4037;--star:#c89666;--radius-sm:8px;--radius-md:12px;--radius-lg:20px;--radius-pill:999px;--bottom-nav-height:72px}*{margin:0;padding:0;box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}body{background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}input,textarea{-webkit-user-select:auto;-moz-user-select:auto;-ms-user-select:auto;user-select:auto;}a{color:inherit;text-decoration:none}button{font-family:inherit;-webkit-tap-highlight-color:transparent;border:none;background:none;cursor:pointer}::-webkit-scrollbar{width:0;height:0}img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;background:linear-gradient(to bottom,rgba(20,16,13,0.98) 0%,rgba(20,16,13,0.85) 70%,transparent 100%);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.topbar-inner{height:60px;display:flex;align-items:center;gap:12px;padding:0 16px;max-width:1400px;margin:0 auto;width:100%;}
 
+/* BULLETPROOF LOGO STRUCTURE */
 .logo{display:flex !important;align-items:center !important;gap:8px !important;flex-shrink:0 !important;cursor:pointer !important;}
 .tm-wrapper{position:relative;display:flex;font-family:'Bebas Neue',Impact,sans-serif;font-size:48px;font-weight:900;line-height:1;letter-spacing:-0.05em;text-transform:uppercase;}
 .tm-shadow{position:absolute;top:2px;left:2px;color:rgba(0,0,0,0.8);z-index:0;}
@@ -322,6 +323,7 @@
 </head>
 <body>
 
+<!-- SAFE ANTI-INSPECTION SCRIPT -->
 <script>
 (function() {
     document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
@@ -442,6 +444,7 @@
   </div>
 </div>
 
+<!-- WIZARD VIEW -->
 <div id="view-wizard" class="view">
     <div style="padding: 60px 20px; max-width: 800px; margin: 0 auto;">
         <div class="wizard-progress" style="display:none;">
@@ -453,6 +456,7 @@
     </div>
 </div>
 
+<!-- WHOS WATCHING VIEW -->
 <div id="view-whos-watching" class="view">
     <div style="text-align:center; padding: 80px 20px;">
         <h1 style="font-size:40px; font-weight:800; margin-bottom:40px; color:#fff;">Who's watching?</h1>
@@ -464,6 +468,7 @@
     </div>
 </div>
 
+<!-- MANAGE PROFILES VIEW -->
 <div id="view-manage" class="view">
     <div style="text-align:center; padding: 80px 20px;">
         <h1 style="font-size:40px; font-weight:800; margin-bottom:40px; color:#fff;">Manage profiles</h1>
@@ -475,6 +480,7 @@
     </div>
 </div>
 
+<!-- EDIT PROFILE VIEW -->
 <div id="view-edit-profile" class="view">
     <div style="max-width:400px; margin:80px auto; text-align:center; padding: 20px;">
         <h1 style="font-size:32px; font-weight:800; margin-bottom:30px; color:#fff;">Edit profile</h1>
@@ -495,6 +501,7 @@
     </div>
 </div>
 
+<!-- SETTINGS VIEW -->
 <div id="view-settings" class="view">
     <div style="max-width:600px; margin:80px auto; padding: 20px;">
         <h1 style="font-size:36px; font-weight:800; margin-bottom:40px; color:#fff;">Settings</h1>
@@ -537,7 +544,8 @@
         <div style="margin-bottom:40px;">
             <h3 style="font-size:18px; font-weight:700; margin-bottom:10px; color:#fff;">Devices</h3>
             <p style="color:var(--text-dim); font-size:13px; margin-bottom:15px;">Sessions signed in to your account</p>
-            <div id="settingsDevicesList" style="display:flex; flex-direction:column; gap:10px;"></div>
+            <div id="settingsDevicesList" style="display:flex; flex-direction:column; gap:10px;">
+            </div>
         </div>
         
         <button onclick="window.location.hash='#whos-watching'" style="color:var(--text-muted); font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; background:transparent; border:none; cursor:pointer;">
@@ -802,7 +810,8 @@
       </div>
     </div>
     
-    <div class="auth-right" id="signupPosters"></div>
+    <div class="auth-right" id="signupPosters">
+    </div>
   </div>
 </div>
 
@@ -837,7 +846,8 @@
       </div>
     </div>
     
-    <div class="auth-right" id="loginPosters"></div>
+    <div class="auth-right" id="loginPosters">
+    </div>
   </div>
 </div>
 
@@ -1010,7 +1020,8 @@
       <p id="authModalSubtitle">Sign in to use this feature</p>
     </div>
     <div class="auth-modal-body">
-      <div class="auth-modal-form" id="authModalFormContainer"></div>
+      <div class="auth-modal-form" id="authModalFormContainer">
+      </div>
     </div>
     <div class="auth-modal-footer">
       By continuing you agree to our <a onclick="window.location.hash='#terms'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">Terms</a>, <a onclick="window.location.hash='#privacy'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">Privacy</a> and <a onclick="window.location.hash='#dmca'; closeAuthModal()" style="text-decoration:underline;cursor:pointer;">DMCA</a>.
@@ -1115,21 +1126,29 @@
 // ============================================================
 // TUBEMOCHA BUILD v129 — 2026-10-27
 // CHANGELOG (v128 → v129):
-//   • FIXED MOBILE LOGIN BUG: After successful login, the profile
-//     dropdown still showed "Login / Sign up" and the session was
-//     lost on refresh. Root cause: syncDeviceSession() was signing
-//     the user back out if currentDeviceId happened to be in the
-//     revoked_devices list (from any prior sign-out), leaving the
-//     avatar visible in the header while the dropdown reset to
-//     guest view. On reload, session was gone → full logout.
-//   • FIX: syncDeviceSession now takes an `event` argument.
-//     On SIGNED_IN (fresh login) it clears currentDeviceId from
-//     revoked_devices so the user stays signed in.
-//     On INITIAL_SESSION / SESSION_RESTORED it respects revoked
-//     (so remote sign-out still works on refresh).
-//   • FIX: updateHeaderAvatar(null) now clears the dropdown
-//     avatar/name/email to prevent stale data leaking through.
-//   • FIX: DOMContentLoaded passes 'INITIAL_SESSION' explicitly.
+//   • FIXED: Mobile login bug — user logs in, sees "logged in successfully"
+//     toast, but profile dropdown shows "Login"/"Sign up" buttons. After a
+//     page refresh, the account appears logged out entirely.
+//   • ROOT CAUSE: The device revocation system was too aggressive. On login,
+//     syncDeviceSession could see currentDeviceId inside revoked_devices
+//     (leftover from a previous session, a race with updateUser, or a stale
+//     refreshSession() response on slow mobile networks). If it did, it
+//     immediately called signOut({scope:'local'}) — killing the fresh session.
+//     startDeviceCheck would also fire the same signOut 10s after login.
+//   • FIX 1: syncDeviceSession now UN-REVOKES the current device on login —
+//     it strips currentDeviceId out of revoked_devices before syncing. This
+//     lets a user log back in after being revoked, and prevents accidental
+//     false-positive signouts.
+//   • FIX 2: Removed refreshSession() from syncDeviceSession — it was fragile
+//     on mobile networks and could trigger unexpected auth state changes.
+//     Now uses the user object passed in directly.
+//   • FIX 3: Added a 5-second grace delay before startDeviceCheck begins its
+//     periodic revocation polling — avoids racing the initial sync.
+//   • FIX 4: onAuthStateChange now only triggers device sync on
+//     INITIAL_SESSION and SIGNED_IN events. Not on TOKEN_REFRESHED or
+//     USER_UPDATED (which fire frequently and don't need device sync).
+//   • FIX 5: initSettingsPage uses getSession() instead of refreshSession()
+//     for the same reliability reasons.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1138,6 +1157,7 @@ var IMG = 'https://image.tmdb.org/t/p/w500';
 var BACKDROP = 'https://image.tmdb.org/t/p/original';
 var PROFILE = 'https://image.tmdb.org/t/p/w185';
 
+// --- SUPABASE CONFIGURATION ---
 var SUPABASE_URL = 'https://emplegscxgcwflajkhxb.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcGxlZ3NjeGdjd2ZsYWpraHhiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4NjE0NDgsImV4cCI6MjEwODQzNzQ0OH0.2nqVlpIK5fI9nbtdKlBIdON971ZikHctB0KW9AcW0t8';
 var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -1158,8 +1178,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v129-2026-10-27-fix-mobile-login-state';
-var BUILD_NOTE_V129 = 'Fixed mobile login state bug: syncDeviceSession no longer signs out on fresh login.';
+var TUBEMOCHA_BUILD = 'v129-2026-10-27-mobile-login-fix';
+var BUILD_NOTE_V129 = 'syncDeviceSession un-revokes current device on login; removed refreshSession(); 5s grace before device check.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1171,6 +1191,7 @@ if (!currentDeviceId) {
 
 var isSyncingDevices = false;
 var deviceCheckInterval = null;
+var deviceCheckTimeout = null;
 
 var isLoadingMovies = false, hasMoreMovies = true;
 var isLoadingTV = false, hasMoreTV = true;
@@ -1263,7 +1284,10 @@ function generateAvatar(name) {
     const hue = Math.abs(hash) % 360;
     const bgColor = `hsl(${hue}, 45%, 70%)`; 
     const textColor = '#3e2723';
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="${bgColor}" /><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="50" fill="${textColor}">${letter}</text></svg>`;
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect width="100" height="100" fill="${bgColor}" />
+        <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="50" fill="${textColor}">${letter}</text>
+    </svg>`;
     return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
@@ -1307,6 +1331,7 @@ function renderHistoryPage() {
     let hist = JSON.parse(localStorage.getItem('tubemocha_history_' + currentUser.id)) || [];
     const grid = document.getElementById('historyGrid');
     const empty = document.getElementById('historyEmpty');
+    
     if (hist.length === 0) {
         if (grid) grid.style.display = 'none';
         if (empty) empty.style.display = 'block';
@@ -1335,56 +1360,58 @@ function getDeviceInfo() {
     return { name: `${browser} • ${os}`, location: timezone };
 }
 
+// ============================================================
+// v129: START DEVICE CHECK — 5s grace delay, then poll
+// ============================================================
 function startDeviceCheck() {
     if (deviceCheckInterval) clearInterval(deviceCheckInterval);
-    deviceCheckInterval = setInterval(async () => {
+    if (deviceCheckTimeout) clearTimeout(deviceCheckTimeout);
+    
+    // Grace period: give syncDeviceSession time to complete and propagate
+    // before we start checking for revocations.
+    deviceCheckTimeout = setTimeout(function() {
         if (!currentUser) return;
-        try {
-            const { data } = await supabaseClient.auth.getUser();
-            if (data && data.user && data.user.user_metadata) {
-                let revoked = data.user.user_metadata.revoked_devices || [];
-                if (revoked.includes(currentDeviceId)) {
-                    clearInterval(deviceCheckInterval);
-                    toast('You have been signed out from another device.');
-                    await supabaseClient.auth.signOut({ scope: 'local' });
-                    window.location.hash = '#home';
+        deviceCheckInterval = setInterval(async () => {
+            if (!currentUser) return;
+            try {
+                const { data } = await supabaseClient.auth.getUser();
+                if (data && data.user && data.user.user_metadata) {
+                    let revoked = data.user.user_metadata.revoked_devices || [];
+                    if (revoked.includes(currentDeviceId)) {
+                        clearInterval(deviceCheckInterval);
+                        toast('You have been signed out from another device.');
+                        await supabaseClient.auth.signOut({ scope: 'local' });
+                        window.location.hash = '#home';
+                    }
                 }
-            }
-        } catch(e) {}
-    }, 10000);
+            } catch(e) { /* network hiccup — skip this check */ }
+        }, 10000);
+    }, 5000);
 }
 
 // ============================================================
-// v129 FIX: syncDeviceSession now takes `event`. On SIGNED_IN we
-// clear this device from revoked_devices so re-login always works.
-// On INITIAL_SESSION / SESSION_RESTORED we respect revoked so that
-// remote sign-out still forces logout on refresh.
+// v129: SYNC DEVICE SESSION — un-revoke current device on login.
 // ============================================================
-async function syncDeviceSession(user, event) {
+async function syncDeviceSession(user) {
     if (!user || isSyncingDevices) return [];
     isSyncingDevices = true;
-    event = event || 'SESSION_RESTORED';
     try {
+        // Use the user's current metadata directly — no refreshSession().
         let latestMetadata = user.user_metadata || {};
-        try {
-            const { data: refreshData } = await supabaseClient.auth.refreshSession();
-            if (refreshData && refreshData.session && refreshData.session.user) {
-                latestMetadata = refreshData.session.user.user_metadata || {};
-            }
-        } catch(e) { }
-
-        let revoked = latestMetadata.revoked_devices || [];
-
-        // v129: Fresh login always wins — clear this device from revoked.
-        //        Session restore respects revoked so remote sign-out still works.
-        if (event === 'SIGNED_IN') {
+        
+        // Normalize to arrays
+        let revoked = Array.isArray(latestMetadata.revoked_devices) ? [...latestMetadata.revoked_devices] : [];
+        let devices = Array.isArray(latestMetadata.devices) ? [...latestMetadata.devices] : [];
+        
+        // CRITICAL: Un-revoke the current device.
+        // If this device is in the revoked list, remove it before syncing.
+        // This is what prevents the "login then immediately sign out" bug.
+        if (revoked.includes(currentDeviceId)) {
+            console.log('[TUBEMOCHA] Current device found in revoked list — un-revoking for this login.');
             revoked = revoked.filter(function(id) { return id !== currentDeviceId; });
-        } else if (revoked.includes(currentDeviceId)) {
-            await supabaseClient.auth.signOut({ scope: 'local' });
-            return [];
         }
-
-        let devices = latestMetadata.devices || [];
+        
+        // Add/update current device in the devices list
         let currentDevice = getDeviceInfo();
         let existingIdx = devices.findIndex(function(d) { return d.id === currentDeviceId; });
         let sessionData = {
@@ -1393,15 +1420,13 @@ async function syncDeviceSession(user, event) {
             location: currentDevice.location,
             lastActive: new Date().toISOString()
         };
-
         if (existingIdx > -1) {
             devices[existingIdx] = sessionData;
         } else {
             devices.push(sessionData);
         }
-
         devices = devices.sort(function(a, b) { return new Date(b.lastActive) - new Date(a.lastActive); }).slice(0, 5);
-
+        
         await supabaseClient.auth.updateUser({ data: { devices: devices, revoked_devices: revoked } });
         
         if (currentUser) {
@@ -1418,40 +1443,41 @@ async function syncDeviceSession(user, event) {
     }
 }
 
+// ============================================================
+// v129: INIT SETTINGS — use getSession() instead of refreshSession()
+// ============================================================
 async function initSettingsPage() {
     try {
-        const { data } = await supabaseClient.auth.refreshSession();
+        const { data } = await supabaseClient.auth.getSession();
         if (data && data.session && data.session.user) {
             currentUser = data.session.user;
         }
     } catch(e) { }
 
     let devices = (currentUser && currentUser.user_metadata && currentUser.user_metadata.devices) ? [...currentUser.user_metadata.devices] : [];
-    let revoked = (currentUser && currentUser.user_metadata && currentUser.user_metadata.revoked_devices) ? currentUser.user_metadata.revoked_devices : [];
+    let revoked = (currentUser && currentUser.user_metadata && currentUser.user_metadata.revoked_devices) ? [...currentUser.user_metadata.revoked_devices] : [];
     
     let currentDevice = getDeviceInfo();
-    let existingIdx = devices.findIndex(d => d.id === currentDeviceId);
+    let existingIdx = devices.findIndex(function(d) { return d.id === currentDeviceId; });
     let sessionData = {
         id: currentDeviceId,
         name: currentDevice.name,
         location: currentDevice.location,
         lastActive: new Date().toISOString()
     };
-
     if (existingIdx > -1) {
         devices[existingIdx] = sessionData;
     } else {
         devices.push(sessionData);
     }
-
-    devices = devices.sort((a, b) => new Date(b.lastActive) - new Date(a.lastActive)).slice(0, 5);
+    devices = devices.sort(function(a, b) { return new Date(b.lastActive) - new Date(a.lastActive); }).slice(0, 5);
 
     let activeProfile = JSON.parse(localStorage.getItem('tubemocha_active_profile'));
     let displayName = activeProfile ? activeProfile.name : (currentUser ? currentUser.email.split('@')[0] : 'Guest');
     document.getElementById('settingsUsernameDisplay').textContent = displayName;
 
     let html = '';
-    devices.forEach(d => {
+    devices.forEach(function(d) {
         let isCurrent = d.id === currentDeviceId;
         let dateStr = new Date(d.lastActive).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
         html += `
@@ -1492,7 +1518,7 @@ async function signOutSpecificDevice(deviceId) {
         return;
     }
     let devices = (currentUser && currentUser.user_metadata && currentUser.user_metadata.devices) ? [...currentUser.user_metadata.devices] : [];
-    devices = devices.filter(d => d.id !== deviceId);
+    devices = devices.filter(function(d) { return d.id !== deviceId; });
     let revoked = (currentUser && currentUser.user_metadata && currentUser.user_metadata.revoked_devices) ? [...currentUser.user_metadata.revoked_devices] : [];
     if (!revoked.includes(deviceId)) {
         revoked.push(deviceId);
@@ -1539,46 +1565,24 @@ async function submitChangePassword(e) {
     const newPass = document.getElementById('newPassword').value;
     const confirmPass = document.getElementById('confirmPassword').value;
     const btn = document.getElementById('confirmPasswordBtn');
-
-    if (newPass !== confirmPass) {
-        toast('New passwords do not match.');
-        return;
-    }
-    if (!currentUser) {
-        toast('Not logged in.');
-        return;
-    }
-
-    btn.disabled = true;
-    btn.textContent = 'Verifying...';
-
-    const res = await supabaseClient.auth.signInWithPassword({
-        email: currentUser.email,
-        password: oldPass
-    });
-
+    if (newPass !== confirmPass) { toast('New passwords do not match.'); return; }
+    if (!currentUser) { toast('Not logged in.'); return; }
+    btn.disabled = true; btn.textContent = 'Verifying...';
+    const res = await supabaseClient.auth.signInWithPassword({ email: currentUser.email, password: oldPass });
     if (res.error) {
         toast('Incorrect old password.');
-        btn.disabled = false;
-        btn.textContent = 'Confirm';
+        btn.disabled = false; btn.textContent = 'Confirm';
         return;
     }
-
     btn.textContent = 'Updating...';
-
-    const updateRes = await supabaseClient.auth.updateUser({
-        password: newPass
-    });
-
+    const updateRes = await supabaseClient.auth.updateUser({ password: newPass });
     if (updateRes.error) {
         toast('Failed to update password: ' + updateRes.error.message);
     } else {
         toast('Password updated successfully!');
         cancelChangePassword();
     }
-
-    btn.disabled = false;
-    btn.textContent = 'Confirm';
+    btn.disabled = false; btn.textContent = 'Confirm';
 }
 
 function syncProfilesFromCloud(user) {
@@ -1596,15 +1600,21 @@ function syncProfilesFromCloud(user) {
 }
 
 // ============================================================
-// v129 FIX: handleAuthState now takes `event` and forwards it to
-// syncDeviceSession. onAuthStateChange capture the event name.
+// v129: HANDLE AUTH STATE — accept event, sync devices only on
+// INITIAL_SESSION / SIGNED_IN.
 // ============================================================
 function handleAuthState(session, event) {
-    event = event || 'INITIAL_SESSION';
     if (session) {
         currentUser = session.user;
         syncProfilesFromCloud(session.user);
-        syncDeviceSession(session.user, event);
+        
+        // Only sync devices on initial load or fresh sign-in.
+        // Skip on TOKEN_REFRESHED / USER_UPDATED — those fire frequently
+        // and don't need a device-metadata write.
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === undefined) {
+            syncDeviceSession(session.user);
+        }
+        
         startDeviceCheck();
         restoreActiveProfile();
         fetchWatchlistFromDB();
@@ -1618,13 +1628,12 @@ function handleAuthState(session, event) {
     } else {
         currentUser = null;
         if (deviceCheckInterval) clearInterval(deviceCheckInterval);
+        if (deviceCheckTimeout) clearTimeout(deviceCheckTimeout);
         localStorage.removeItem('tubemocha_active_profile');
         localStorage.setItem('tubemocha_ads', 'true');
         var adsToggle = document.getElementById('adsToggle');
         if (adsToggle) adsToggle.checked = true;
-        
         loadAdScripts();
-        
         document.getElementById('dropdownAuthProfile').style.display = 'none';
         document.getElementById('dropdownAuthButtons').style.display = 'flex';
         updateHeaderAvatar(null);
@@ -1646,10 +1655,6 @@ function restoreActiveProfile() {
     }
 }
 
-// ============================================================
-// v129 FIX: on null logout we now clear the dropdown avatar/name/email
-// so no stale data lingers.
-// ============================================================
 function updateHeaderAvatar(profile) {
     const img = document.getElementById('headerAvatar');
     const icon = document.getElementById('headerDefaultIcon');
@@ -1665,17 +1670,14 @@ function updateHeaderAvatar(profile) {
         if (icon) icon.style.display = 'none';
         if (bottomImg) { bottomImg.src = avatarUrl; bottomImg.style.display = 'block'; }
         if (bottomIcon) bottomIcon.style.display = 'none';
-        if (dropImg) { dropImg.src = avatarUrl; dropImg.style.display = 'block'; }
+        if (dropImg) dropImg.src = avatarUrl;
         if (nameDisplay) nameDisplay.textContent = profile.name;
         if (emailDisplay && currentUser) emailDisplay.textContent = currentUser.email;
     } else {
-        if (img) { img.src = ''; img.style.display = 'none'; }
+        if (img) img.style.display = 'none';
         if (icon) icon.style.display = 'block';
-        if (bottomImg) { bottomImg.src = ''; bottomImg.style.display = 'none'; }
+        if (bottomImg) bottomImg.style.display = 'none';
         if (bottomIcon) bottomIcon.style.display = 'block';
-        if (dropImg) { dropImg.src = ''; dropImg.style.display = 'none'; }
-        if (nameDisplay) nameDisplay.textContent = 'User';
-        if (emailDisplay) emailDisplay.textContent = '';
     }
 }
 
@@ -1713,9 +1715,7 @@ function triggerSearch(e) {
         q.setSelectionRange(0, 0);
         openSearchDropdown();
     }
-    if (window.location.hash !== '#search') {
-        window.location.hash = '#search';
-    }
+    if (window.location.hash !== '#search') { window.location.hash = '#search'; }
 }
 
 function startWizard() {
@@ -1733,7 +1733,9 @@ function renderWizard() {
         + '<h2 style="font-size:32px; font-weight:800; margin-bottom:10px; text-align:center;">Create your profile</h2>'
         + '<p style="color:#888; text-align:center; margin-bottom:30px;">Give it a name — this is who\'s watching</p>'
         + '<input type="text" id="wizardName" value="' + safeName + '" placeholder="Profile name" maxlength="20" style="width:100%; max-width:400px; margin:0 auto 20px; padding:15px; border-radius:8px; background:#222; border:1px solid #444; color:#fff; display:block; text-align:center; font-size:16px; outline:none;">'
-        + '<div style="text-align:center;"><button class="btn-play" onclick="wizardStartWatching()" id="wizardStartBtn">Start watching</button></div>';
+        + '<div style="text-align:center;">'
+        + '<button class="btn-play" onclick="wizardStartWatching()" id="wizardStartBtn">Start watching</button>'
+        + '</div>';
     var inp = document.getElementById('wizardName');
     if (inp) {
         inp.focus();
@@ -1761,20 +1763,16 @@ async function saveWizardProfile() {
     } catch (e) { }
     if (!userId && currentUser) userId = currentUser.id;
     if (!userId) userId = 'guest';
-
     var profiles = JSON.parse(localStorage.getItem('tubemocha_profiles')) || [];
     var existingUserProfiles = profiles.filter(function(p) { return p.userId === userId; });
     var newProfile = { id: Date.now().toString(), name: wizardState.name, userId: userId };
     profiles.push(newProfile);
     localStorage.setItem('tubemocha_profiles', JSON.stringify(profiles));
-
     if (userId !== 'guest') {
         var myProfiles = profiles.filter(function(p) { return p.userId === userId; });
-        try {
-            await supabaseClient.auth.updateUser({ data: { profiles: myProfiles } });
-        } catch(e) { console.log('Failed to sync profiles:', e); }
+        try { await supabaseClient.auth.updateUser({ data: { profiles: myProfiles } }); }
+        catch(e) { console.log('Failed to sync profiles:', e); }
     }
-
     if (existingUserProfiles.length === 0) {
         localStorage.setItem('tubemocha_active_profile', JSON.stringify(newProfile));
         updateHeaderAvatar(newProfile);
@@ -1890,20 +1888,41 @@ function openAuthModal(mode) {
         subtitle.textContent = 'Sign in to use this feature';
         container.innerHTML = ''
             + '<form onsubmit="handleModalLogin(event)">'
-            + '<div class="auth-input-group" style="margin-bottom:12px;"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><input type="email" id="modalLoginEmail" placeholder="Email" required></div>'
-            + '<div class="auth-input-group" style="margin-bottom:12px;"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><input type="password" id="modalLoginPassword" placeholder="Password" required></div>'
-            + '<button type="submit" class="auth-submit-btn">Login</button></form>'
-            + '<div class="auth-switch" style="text-align:center; margin-top:16px;">New to Tubemocha? <a onclick="openAuthModal(\'signup\')">Create an account</a></div>';
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>'
+            + '<input type="email" id="modalLoginEmail" placeholder="Email" required>'
+            + '</div>'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'
+            + '<input type="password" id="modalLoginPassword" placeholder="Password" required>'
+            + '</div>'
+            + '<button type="submit" class="auth-submit-btn">Login</button>'
+            + '</form>'
+            + '<div class="auth-switch" style="text-align:center; margin-top:16px;">'
+            + 'New to Tubemocha? <a onclick="openAuthModal(\'signup\')">Create an account</a>'
+            + '</div>';
     } else {
         title.textContent = 'Create your Tubemocha account';
         subtitle.textContent = 'Fill in your details to get started';
         container.innerHTML = ''
             + '<form onsubmit="handleModalSignUp(event)">'
-            + '<div class="auth-input-group" style="margin-bottom:12px;"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><input type="text" id="modalSignupUsername" placeholder="Username" required></div>'
-            + '<div class="auth-input-group" style="margin-bottom:12px;"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><input type="email" id="modalSignupEmail" placeholder="Email" required></div>'
-            + '<div class="auth-input-group" style="margin-bottom:12px;"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg><input type="password" id="modalSignupPassword" placeholder="Password" required minlength="6"></div>'
-            + '<button type="submit" class="auth-submit-btn">Sign up</button></form>'
-            + '<div class="auth-switch" style="text-align:center; margin-top:16px;">Already have an account? <a onclick="openAuthModal(\'login\')">Login</a></div>';
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
+            + '<input type="text" id="modalSignupUsername" placeholder="Username" required>'
+            + '</div>'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>'
+            + '<input type="email" id="modalSignupEmail" placeholder="Email" required>'
+            + '</div>'
+            + '<div class="auth-input-group" style="margin-bottom:12px;">'
+            + '<svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>'
+            + '<input type="password" id="modalSignupPassword" placeholder="Password" required minlength="6">'
+            + '</div>'
+            + '<button type="submit" class="auth-submit-btn">Sign up</button>'
+            + '</form>'
+            + '<div class="auth-switch" style="text-align:center; margin-top:16px;">'
+            + 'Already have an account? <a onclick="openAuthModal(\'login\')">Login</a>'
+            + '</div>';
     }
     document.getElementById('authModal').classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -1921,21 +1940,22 @@ async function handleModalLogin(e) {
     var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     var error = res.error;
     var data = res.data;
-    if (error) { 
+    if (error) {
         if (error.message.toLowerCase().includes('email not confirmed')) {
             toast('Email not confirmed. Go to Supabase > Auth > Users, delete this user, and sign up again.');
         } else if (error.message.toLowerCase().includes('invalid login credentials')) {
             toast('Invalid email or password. Please try again.');
         } else {
-            toast(error.message); 
+            toast(error.message);
         }
-    } 
-    else { 
-        toast('Logged in successfully!'); 
-        closeAuthModal(); 
+    } else {
+        toast('Logged in successfully!');
+        closeAuthModal();
         if (data.user) {
             syncProfilesFromCloud(data.user);
-            syncDeviceSession(data.user, 'SIGNED_IN');
+            // Note: syncDeviceSession is also triggered by onAuthStateChange.
+            // The isSyncingDevices guard prevents duplicate work.
+            syncDeviceSession(data.user);
         }
         window.location.hash = '#whos-watching';
     }
@@ -1950,19 +1970,18 @@ async function handleModalSignUp(e) {
         email: email, password: password, options: { data: { username: username } }
     });
     var error = res.error;
-    if (error) { 
+    if (error) {
         if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
             toast('Account already exists. Please log in.');
             openAuthModal('login');
         } else if (error.message.toLowerCase().includes('rate limit')) {
             toast('Sign up rate limit exceeded. Disable "Confirm email" in Supabase.');
         } else {
-            toast(error.message); 
+            toast(error.message);
         }
-    } 
-    else { 
-        toast('Registered successfully'); 
-        closeAuthModal(); 
+    } else {
+        toast('Registered successfully');
+        closeAuthModal();
         startWizard();
     }
 }
@@ -1972,21 +1991,18 @@ async function handleSignUp(e) {
     var username = document.getElementById('signupUsername').value;
     var email = document.getElementById('signupEmail').value;
     var password = document.getElementById('signupPassword').value;
-    var res = await supabaseClient.auth.signUp({
-        email: email, password: password, options: { data: { username: username } }
-    });
+    var res = await supabaseClient.auth.signUp({ email: email, password: password, options: { data: { username: username } } });
     var error = res.error;
-    if (error) { 
+    if (error) {
         if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('user already exists')) {
             toast('Account already exists. Please log in.');
             window.location.hash = '#login';
         } else if (error.message.toLowerCase().includes('rate limit')) {
             toast('Sign up rate limit exceeded. Disable "Confirm email" in Supabase.');
         } else {
-            toast(error.message); 
+            toast(error.message);
         }
-    } 
-    else { toast('Registered successfully'); startWizard(); }
+    } else { toast('Registered successfully'); startWizard(); }
 }
 
 async function handleLogin(e) {
@@ -1996,20 +2012,19 @@ async function handleLogin(e) {
     var res = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
     var error = res.error;
     var data = res.data;
-    if (error) { 
+    if (error) {
         if (error.message.toLowerCase().includes('email not confirmed')) {
             toast('Email not confirmed. Go to Supabase > Auth > Users, delete this user, and sign up again.');
         } else if (error.message.toLowerCase().includes('invalid login credentials')) {
             toast('Invalid email or password. Please try again.');
         } else {
-            toast(error.message); 
+            toast(error.message);
         }
-    } 
-    else { 
-        toast('Logged in successfully!'); 
+    } else {
+        toast('Logged in successfully!');
         if (data.user) {
             syncProfilesFromCloud(data.user);
-            syncDeviceSession(data.user, 'SIGNED_IN');
+            syncDeviceSession(data.user);
         }
         window.location.hash = '#whos-watching';
     }
@@ -2024,10 +2039,20 @@ async function handleLogout() {
 
 async function fetchWatchlistFromDB() {
     if (!currentUser) return;
-    var res = await supabaseClient.from('watchlists').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+    var res = await supabaseClient
+        .from('watchlists')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
     if (!res.error && res.data) {
         watchlist = res.data.map(function(item) {
-            return { id: parseInt(item.movie_id), media_type: item.media_type, _tv: item.media_type === 'tv', t: item.title, poster_path: item.poster_path };
+            return {
+                id: parseInt(item.movie_id),
+                media_type: item.media_type,
+                _tv: item.media_type === 'tv',
+                t: item.title,
+                poster_path: item.poster_path
+            };
         });
         renderWatchlist();
     }
@@ -2394,10 +2419,13 @@ async function loadDiscover(page, isTv) {
             } else {
                 filterState._tierPage = tierPage + 1;
             }
-            if (isReset) { if (appendedCount >= PAGE_SIZE) break; }
-            else { if (appendedCount > 0) break; }
+            if (isReset) {
+                if (appendedCount >= PAGE_SIZE) break;
+            } else {
+                if (appendedCount > 0) break;
+            }
         }
-        if (filterState._tier >= tiers.length) hasMoreMovies = false;
+        if (filterState._tier >= tiers.length) { hasMoreMovies = false; }
         if (isReset && appendedCount === 0) {
             document.getElementById('moviesGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
             hasMoreMovies = false;
@@ -2460,10 +2488,13 @@ async function loadTVDiscover(page) {
             } else {
                 tvFilterState._tierPage = tierPage + 1;
             }
-            if (isReset) { if (appendedCount >= PAGE_SIZE) break; }
-            else { if (appendedCount > 0) break; }
+            if (isReset) {
+                if (appendedCount >= PAGE_SIZE) break;
+            } else {
+                if (appendedCount > 0) break;
+            }
         }
-        if (tvFilterState._tier >= tiers.length) hasMoreTV = false;
+        if (tvFilterState._tier >= tiers.length) { hasMoreTV = false; }
         if (isReset && appendedCount === 0) {
             document.getElementById('tvGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
             hasMoreTV = false;
@@ -2527,10 +2558,13 @@ async function loadAnime(page) {
             } else {
                 animeFilterState._tierPage = tierPage + 1;
             }
-            if (isReset) { if (appendedCount >= PAGE_SIZE) break; }
-            else { if (appendedCount > 0) break; }
+            if (isReset) {
+                if (appendedCount >= PAGE_SIZE) break;
+            } else {
+                if (appendedCount > 0) break;
+            }
         }
-        if (animeFilterState._tier >= tiers.length) hasMoreAnime = false;
+        if (animeFilterState._tier >= tiers.length) { hasMoreAnime = false; }
         if (isReset && appendedCount === 0) {
             document.getElementById('animeGrid').innerHTML = '<div class="empty"><b>No results found</b>Try adjusting filters.</div>';
             hasMoreAnime = false;
@@ -2628,10 +2662,7 @@ async function loadMoreMoviesRegion() {
     rowStates.moviesRegionTrending.loading = true;
     var nextPage = rowStates.moviesRegionTrending.page + 1;
     var country = trendCountryMovies;
-    if (!country) {
-        var geo = await getUserCountry();
-        country = geo.code;
-    }
+    if (!country) { var geo = await getUserCountry(); country = geo.code; }
     var params = { sort_by: 'popularity.desc', page: nextPage };
     if (country) params.with_origin_country = country;
     if (filterState.genres.length > 0) params.with_genres = filterState.genres.join('|');
@@ -2651,10 +2682,7 @@ async function loadMoreTVRegion() {
     rowStates.tvRegionTrending.loading = true;
     var nextPage = rowStates.tvRegionTrending.page + 1;
     var country = trendCountryTV;
-    if (!country) {
-        var geo = await getUserCountry();
-        country = geo.code;
-    }
+    if (!country) { var geo = await getUserCountry(); country = geo.code; }
     var params = { sort_by: 'popularity.desc', page: nextPage };
     if (country) params.with_origin_country = country;
     if (tvFilterState.genres.length > 0) params.with_genres = tvFilterState.genres.join('|');
@@ -2674,10 +2702,7 @@ async function loadMoreAnimeRegion() {
     rowStates.animeRegionTrending.loading = true;
     var nextPage = rowStates.animeRegionTrending.page + 1;
     var country = trendCountryAnime;
-    if (!country) {
-        var geo = await getUserCountry();
-        country = geo.code;
-    }
+    if (!country) { var geo = await getUserCountry(); country = geo.code; }
     var params = { sort_by: 'popularity.desc', page: nextPage, with_genres: '16' };
     if (animeFilterState.genres.length > 0) params.with_genres = '16,' + animeFilterState.genres.join('|');
     if (country) params.with_origin_country = country;
@@ -2699,7 +2724,7 @@ function toggleTrendCountryDropdown(type, event) {
     var isOpen = dropdown.classList.contains('show');
     document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
     if (!isOpen) {
-        if (dropdown.innerHTML === '') populateTrendCountries(type);
+        if (dropdown.innerHTML === '') { populateTrendCountries(type); }
         dropdown.classList.add('show');
     }
 }
@@ -2707,7 +2732,8 @@ function toggleTrendCountryDropdown(type, event) {
 function populateTrendCountries(type) {
     var container = document.getElementById('trendCountryDropdown_' + type);
     var currentCountry = type === 'movie' ? trendCountryMovies : (type === 'tv' ? trendCountryTV : trendCountryAnime);
-    var html = COUNTRIES_LIST.map(function(c) { 
+    var html = '';
+    html += COUNTRIES_LIST.map(function(c) { 
         return '<label class="checkbox-label" style="padding: 10px; cursor: pointer; ' + (currentCountry === c.id ? 'background: rgba(255,255,255,0.1); font-weight: 700;' : '') + '" onclick="setTrendCountry(\'' + type + '\', \'' + c.id + '\', \'' + c.name + '\')">' + c.name + '</label>';
     }).join('');
     container.innerHTML = html;
@@ -3109,7 +3135,7 @@ async function loadMoviesRegionTrending() {
             country = geo.code;
             countryName = geo.name;
         }
-        if (headEl) headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
+        if (headEl) { headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now'; }
         var btn = document.getElementById('btnTrendCountryMovie');
         if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
         var params = { sort_by: 'popularity.desc', page: 1 };
@@ -3149,7 +3175,7 @@ async function loadTVRegionTrending() {
             country = geo.code;
             countryName = geo.name;
         }
-        if (headEl) headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
+        if (headEl) { headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now'; }
         var btn = document.getElementById('btnTrendCountryTV');
         if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
         var params = { sort_by: 'popularity.desc', page: 1 };
@@ -3189,7 +3215,7 @@ async function loadAnimeRegionTrending() {
             country = geo.code;
             countryName = geo.name;
         }
-        if (headEl) headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now';
+        if (headEl) { headEl.textContent = countryName ? 'Trending in ' + countryName : 'Trending Right Now'; }
         var btn = document.getElementById('btnTrendCountryAnime');
         if (btn) btn.textContent = (countryName || 'Select Country') + ' ▾';
         var params = { sort_by: 'popularity.desc', page: 1, with_genres: '16' };
@@ -3220,9 +3246,7 @@ async function loadTVPage(){
     } catch(e) { }
     renderTVFilterCheckboxes();
     loadTVRegionTrending();
-    if (!document.getElementById('tvGrid').innerHTML) {
-        loadTVDiscover(1);
-    }
+    if (!document.getElementById('tvGrid').innerHTML) { loadTVDiscover(1); }
 }
 
 async function loadAnimePage(){
@@ -3235,9 +3259,7 @@ async function loadAnimePage(){
     } catch(e) { }
     renderAnimeFilterCheckboxes();
     loadAnimeRegionTrending();
-    if (!document.getElementById('animeGrid').innerHTML) {
-        loadAnime(1);
-    }
+    if (!document.getElementById('animeGrid').innerHTML) { loadAnime(1); }
 }
 
 function openGenrePage(genreId, genreName) { 
@@ -3409,9 +3431,7 @@ async function loadRecommendations(movie) {
 function handleRecScroll() {
     var el = document.getElementById('recommendationsScroller');
     if (!el) return;
-    if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 100) {
-        loadMoreRecommendations();
-    }
+    if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 100) { loadMoreRecommendations(); }
 }
 
 async function loadMoreRecommendations() {
@@ -3707,7 +3727,6 @@ function handleRouting() {
     var searchDropdown = document.getElementById('searchDropdown');
     if (searchDropdown) searchDropdown.classList.remove('open');
     document.querySelectorAll('.filter-dropdown').forEach(function(d) { d.classList.remove('show'); });
-
     if (hash === 'home' || hash === '') {
         document.getElementById('view-home').classList.add('active');
         document.getElementById('b-home').classList.add('active');
@@ -3830,25 +3849,19 @@ function handleRouting() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
-    // v129: Explicitly mark this as INITIAL_SESSION so syncDeviceSession
-    //       respects any remote sign-out that happened while away.
+    // Pass 'INITIAL_SESSION' explicitly so handleAuthState syncs devices on load
     supabaseClient.auth.getSession().then(function(res) {
         handleAuthState(res && res.data ? res.data.session : null, 'INITIAL_SESSION');
     });
-
     var adsEnabled = localStorage.getItem('tubemocha_ads') !== 'false';
     var adsToggle = document.getElementById('adsToggle');
     if (adsToggle) adsToggle.checked = adsEnabled;
-    if (adsEnabled) {
-        loadAdScripts();
-    }
-
+    if (adsEnabled) { loadAdScripts(); }
     if (!window.location.hash) {
         window.location.hash = '#home';
     } else {
         handleRouting();
     }
-    
     var sentinel = document.getElementById('moviesSentinel');
     if (sentinel) moviesObserver.observe(sentinel);
     var tvSentinel = document.getElementById('tvSentinel');
