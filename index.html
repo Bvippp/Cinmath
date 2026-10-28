@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="monetag" content="52e38885034f09b41235e3ffa0100d30">
+<!-- v132 SECURITY: Content Security Policy (CSP) to block malicious scripts & unauthorized connections -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://nap5k.com https://5gvci.com https://al5sm.com https://www.vidy.st; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://image.tmdb.org https://images.unsplash.com; connect-src 'self' https://api.themoviedb.org https://emplegscxgcwflajkhxb.supabase.co https://ipwho.is https://ipapi.co https://ipinfo.io wss://emplegscxgcwflajkhxb.supabase.co; frame-src 'self' https://www.vidy.st https://www.youtube.com; object-src 'none';">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -15,7 +17,7 @@
 <style>
 :root{--bg-main:#14100d;--bg-card:#1e1814;--bg-elevated:#2a211a;--border:#3a2e26;--border-light:#302520;--text-main:#f0e8dd;--text-muted:#9a8e80;--text-dim:#7a6e62;--accent:#5d4037;--accent-light:#f5ede3;--accent-red:#5d4037;--accent-blue:#5d4037;--star:#c89666;--radius-sm:8px;--radius-md:12px;--radius-lg:20px;--radius-pill:999px;--bottom-nav-height:72px}*{margin:0;padding:0;box-sizing:border-box}html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;overflow-y:scroll !important}body{background:var(--bg-main);color:var(--text-main);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--bottom-nav-height) + env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;}input,textarea{-webkit-user-select:auto;-moz-user-select:auto;-ms-user-select:auto;user-select:auto;}a{color:inherit;text-decoration:none}button{font-family:inherit;-webkit-tap-highlight-color:transparent;border:none;background:none;cursor:pointer}
 
-/* --- v131: GLOBAL THICK VERTICAL SCROLLBARS --- */
+/* --- GLOBAL THICK VERTICAL SCROLLBARS --- */
 ::-webkit-scrollbar {
     width: 16px !important;
     height: 16px !important;
@@ -70,7 +72,7 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
 .poster img{position:absolute;top:0;left:0;width:100% !important;height:100% !important;object-fit:cover !important;}
 .badge{position:absolute;top:8px;left:8px;padding:4px 8px;border-radius:6px;font-size:10px;font-weight:800;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}.badge.hd{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.tv{background:rgba(200,150,102,0.95);color:var(--bg-main)}.badge.rating{left:auto;right:8px;background:rgba(20,16,13,0.8);color:var(--accent-light);border:1px solid rgba(255,255,255,0.1)}.badge.rating span{color:var(--star)}.badge.new-season{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--bg-main);padding:4px 12px;border-radius:4px;font-size:11px;font-weight:800;text-transform:capitalize;z-index:2;box-shadow:0 2px 4px rgba(0,0,0,0.5);white-space:nowrap;top:auto}.genre-card{flex:0 0 280px;aspect-ratio:16/9;border-radius:var(--radius-lg);overflow:hidden;position:relative;cursor:pointer;border:1px solid var(--border);transition:transform .2s}@media (min-width:390px){.genre-card{flex:0 0 320px}}@media (min-width:768px){.genre-card{flex:0 0 380px}}.genre-card:active{transform:scale(.97)}.genre-card img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}.genre-card::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9) 0%,rgba(0,0,0,0.2) 60%,transparent 100%)}.genre-card-title{position:absolute;bottom:16px;left:20px;right:20px;font-size:22px;font-weight:800;color:#fff;z-index:2;text-shadow:0 2px 5px rgba(0,0,0,0.6)}.card-info{padding:10px 4px 0}.card-title{font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-main);line-height:1.3}.card-sub{font-size:11.5px;color:var(--text-dim);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}.card-sub .s-star{color:var(--star)}.card-sub .s-sep{color:var(--text-dim);margin:0 3px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px 12px;padding:0 20px}@media (min-width:390px){.grid{grid-template-columns:repeat(auto-fill,minmax(135px,1fr))}}@media (min-width:768px){.grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px}}.grid .card{flex:none;width:100%}.view{display:none;animation:fade .3s}.view.active{display:block}@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
-/* --- v131: DETAIL OVERLAY SCROLLBAR --- */
+/* --- DETAIL OVERLAY SCROLLBAR --- */
 .detail-overlay{position:fixed;inset:0;z-index:300;background:var(--bg-main);overflow-y:scroll;display:none;scrollbar-width:thin;scrollbar-color:var(--star) var(--bg-elevated);}
 .detail-overlay.open{display:block}
 .detail-overlay::-webkit-scrollbar{width:16px !important;display:block;background:var(--bg-main);border-left:1px solid var(--border);}
@@ -396,7 +398,7 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
 .custom-modal-btn.ok { background: var(--accent-light); border: none; color: var(--bg-main); }
 .custom-modal-btn.ok:hover { opacity: 0.9; }
 
-/* v131: Person View Styles */
+/* Person View Styles */
 #view-person { padding-bottom: 80px; }
 .person-header { display: flex; gap: 30px; padding: 40px 20px; align-items: center; flex-wrap: wrap; }
 .person-img { width: 200px; height: 300px; object-fit: cover; border-radius: var(--radius-lg); box-shadow: 0 10px 30px rgba(0,0,0,0.5); background: var(--bg-card); }
@@ -826,7 +828,7 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
   </div>
 </div>
 
-<!-- v131: PERSON VIEW -->
+<!-- PERSON VIEW -->
 <div id="view-person" class="view">
   <div class="main" style="padding-top:10px">
     <button class="detail-back" style="position:relative; top:0; left:0; margin:20px;" onclick="window.history.back()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
@@ -1251,18 +1253,18 @@ img{display:block;max-width:100%}.topbar{position:sticky;top:0;z-index:120;backg
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v131</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v132</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v131 — 2026-10-28
-// CHANGELOG (v130 → v131):
-//   • Made all vertical scrollbars globally thick (16px).
-//   • Fixed the detail overlay scrollbar to be visible and thick.
-//   • Made Cast pictures clickable, routing to a new Person View.
-//   • Created Person View with profile pic, bio, and infinite scroll for all credits.
+// TUBEMOCHA BUILD v132 — 2026-10-28
+// CHANGELOG (v131 → v132):
+//   • Implemented strict Content Security Policy (CSP).
+//   • Added XSS sanitization function (escapeHTML) for user inputs.
+//   • Hardened Iframe sandboxing for Vidy and YouTube players.
+//   • Updated profile creation and search history to prevent DOM-based XSS.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1303,7 +1305,7 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v131-2026-10-28-person-view-thick-scroll';
+var TUBEMOCHA_BUILD = 'v132-2026-10-28-security-hardening';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1388,6 +1390,22 @@ var COUNTRIES_LIST = [
     { name: 'Yemen', id: 'YE' },
     { name: 'Zambia', id: 'ZM' }, { name: 'Zimbabwe', id: 'ZW' }
 ];
+
+// ==========================================
+// SECURITY & SANITIZATION
+// ==========================================
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str).replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
 
 // ==========================================
 // SHARE SYSTEM
@@ -1637,8 +1655,8 @@ async function initSettingsPage() {
             <div style="display:flex; gap:15px; align-items:center;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
                 <div>
-                    <div style="font-weight:600; color:#fff;">${d.device_name} ${isThisDevice ? '<span style="background:var(--border); padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:var(--text-muted);">This device</span>' : ''}</div>
-                    <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">${d.location} • Last active ${date}</div>
+                    <div style="font-weight:600; color:#fff;">${escapeHTML(d.device_name)} ${isThisDevice ? '<span style="background:var(--border); padding:2px 6px; border-radius:4px; font-size:10px; margin-left:8px; color:var(--text-muted);">This device</span>' : ''}</div>
+                    <div style="font-size:12px; color:var(--text-dim); margin-top:4px;">${escapeHTML(d.location)} • Last active ${date}</div>
                 </div>
             </div>
             ${!isThisDevice ? `
@@ -1842,8 +1860,8 @@ function updateHeaderAvatar(profile) {
         if (bottomIcon) bottomIcon.style.display = 'none';
         
         if (dropImg) dropImg.src = avatarUrl;
-        if (nameDisplay) nameDisplay.textContent = profile.name;
-        if (emailDisplay && currentUser) emailDisplay.textContent = currentUser.email;
+        if (nameDisplay) nameDisplay.textContent = escapeHTML(profile.name);
+        if (emailDisplay && currentUser) emailDisplay.textContent = escapeHTML(currentUser.email);
     } else {
         if (img) img.style.display = 'none';
         if (icon) icon.style.display = 'block';
@@ -1975,7 +1993,7 @@ async function saveWizardProfile() {
     if (existingUserProfiles.length === 0) {
         localStorage.setItem('tubemocha_active_profile', JSON.stringify(newProfile));
         updateHeaderAvatar(newProfile);
-        toast('Welcome to Tubemocha, ' + newProfile.name + '!');
+        toast('Welcome to Tubemocha, ' + escapeHTML(newProfile.name) + '!');
         window.location.hash = '#home';
     } else {
         toast('Profile created');
@@ -1994,7 +2012,7 @@ function renderWhosWatching() {
             + '<div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin-bottom:10px; border:2px solid transparent; transition:all 0.2s;" onmouseover="this.style.borderColor=\'#fff\'" onmouseout="this.style.borderColor=\'transparent\'">'
             + '<img src="' + avatarUrl + '" style="width:100%; height:100%; object-fit:cover;">'
             + '</div>'
-            + '<div style="font-weight:600; font-size:14px; color:#fff;">' + p.name + '</div>'
+            + '<div style="font-weight:600; font-size:14px; color:#fff;">' + escapeHTML(p.name) + '</div>'
             + '</div>';
     }).join('');
     
@@ -2030,7 +2048,7 @@ function renderManageProfiles() {
             + '<div style="width:120px; height:120px; border-radius:16px; overflow:hidden; margin:0 auto 10px; position:relative; cursor:pointer;" onclick="openEditProfile(\'' + p.id + '\')">'
             + '<img src="' + avatarUrl + '" style="width:100%; height:100%; object-fit:cover;">'
             + '</div>'
-            + '<div style="font-weight:600; font-size:14px; color:#fff;">' + p.name + '</div>'
+            + '<div style="font-weight:600; font-size:14px; color:#fff;">' + escapeHTML(p.name) + '</div>'
             + '</div>';
     }).join('');
 }
@@ -2381,17 +2399,17 @@ function updateActiveFiltersUI() {
         hasFilters = true;
         var found = GENRES_LIST.find(function(x) { return x.id === g; });
         var name = found ? found.name : g;
-        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(name) + ' <span onclick="toggleFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
     filterState.years.forEach(function(y) {
         hasFilters = true;
-        html += '<div class="active-filter-tag">' + y + ' <span onclick="toggleFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(y) + ' <span onclick="toggleFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
     filterState.countries.forEach(function(c) {
         hasFilters = true;
         var found = COUNTRIES_LIST.find(function(x) { return x.id === c; });
         var name = found ? found.name : c;
-        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(name) + ' <span onclick="toggleFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
     });
 
     if (hasFilters) {
@@ -2472,17 +2490,17 @@ function updateTVActiveFiltersUI() {
         hasFilters = true;
         var found = TV_GENRES_LIST.find(function(x) { return x.id === g; });
         var name = found ? found.name : g;
-        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleTVFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(name) + ' <span onclick="toggleTVFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
     tvFilterState.years.forEach(function(y) {
         hasFilters = true;
-        html += '<div class="active-filter-tag">' + y + ' <span onclick="toggleTVFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(y) + ' <span onclick="toggleTVFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
     tvFilterState.countries.forEach(function(c) {
         hasFilters = true;
         var found = COUNTRIES_LIST.find(function(x) { return x.id === c; });
         var name = found ? found.name : c;
-        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleTVFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(name) + ' <span onclick="toggleTVFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
     });
 
     if (hasFilters) {
@@ -2563,17 +2581,17 @@ function updateAnimeActiveFiltersUI() {
         hasFilters = true;
         var found = GENRES_LIST.find(function(x) { return x.id === g; });
         var name = found ? found.name : g;
-        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleAnimeFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(name) + ' <span onclick="toggleAnimeFilter(\'genres\', \'' + g + '\'); document.querySelectorAll(\'input[value=\\\'' + g + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
     animeFilterState.years.forEach(function(y) {
         hasFilters = true;
-        html += '<div class="active-filter-tag">' + y + ' <span onclick="toggleAnimeFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(y) + ' <span onclick="toggleAnimeFilter(\'years\', \'' + y + '\'); document.querySelectorAll(\'input[value=\\\'' + y + '\\\']\').forEach(function(c){c.checked=false;})">×</span></div>';
     });
     animeFilterState.countries.forEach(function(c) {
         hasFilters = true;
         var found = COUNTRIES_LIST.find(function(x) { return x.id === c; });
         var name = found ? found.name : c;
-        html += '<div class="active-filter-tag">' + name + ' <span onclick="toggleAnimeFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
+        html += '<div class="active-filter-tag">' + escapeHTML(name) + ' <span onclick="toggleAnimeFilter(\'countries\', \'' + c + '\'); document.querySelectorAll(\'input[value=\\\'' + c + '\\\']\').forEach(function(cb){cb.checked=false;})">×</span></div>';
     });
 
     if (hasFilters) {
@@ -3345,7 +3363,7 @@ async function fetchLiveSearchPage(query, page, isFirstPage) {
                     var poster = getSafeImageUrl(mapped);
                     var clickId = mapped._tv ? ('tv-' + mapped.id) : ('movie-' + mapped.id);
                     var genres = (mapped.g || []).slice(0, 2).join(', ');
-                    return '<div class="search-result-item" onclick="selectLiveSearchResult(\'' + clickId + '\')"><img src="' + poster + '" class="search-result-poster" alt=""><div class="search-result-info"><div class="search-result-title">' + mapped.t + '</div><div class="search-result-meta"><span>' + (mapped._tv ? 'Show' : 'Movie') + '</span><span>' + mapped.y + '</span><span class="search-result-rating">★ ' + mapped.r + '</span><span>' + genres + '</span></div></div></div>';
+                    return '<div class="search-result-item" onclick="selectLiveSearchResult(\'' + clickId + '\')"><img src="' + poster + '" class="search-result-poster" alt=""><div class="search-result-info"><div class="search-result-title">' + escapeHTML(mapped.t) + '</div><div class="search-result-meta"><span>' + (mapped._tv ? 'Show' : 'Movie') + '</span><span>' + mapped.y + '</span><span class="search-result-rating">★ ' + mapped.r + '</span><span>' + genres + '</span></div></div></div>';
                 }).join('');
                 resultsContainer.insertAdjacentHTML('beforeend', html);
                 break;
@@ -3393,7 +3411,7 @@ function selectLiveSearchResult(hashId) {
 function renderRecentSearches() {
     var list = document.getElementById('recentSearchesList');
     if (recentSearches.length === 0) { list.innerHTML = '<div class="search-empty-text" style="padding:0;text-align:left;">No recent searches</div>'; return; }
-    list.innerHTML = recentSearches.map(function(q) { return '<div class="recent-search-item" onclick="applyRecentSearch(\'' + q + '\')">' + q + '</div>'; }).join('');
+    list.innerHTML = recentSearches.map(function(q) { return '<div class="recent-search-item" onclick="applyRecentSearch(\'' + escapeHTML(q).replace(/'/g, "\\'") + '\')">' + escapeHTML(q) + '</div>'; }).join('');
 }
 function applyRecentSearch(query) { document.getElementById('q').value = query; openSearchDropdown(); performLiveSearch(query); }
 function clearRecentSearches(e) { e.stopPropagation(); recentSearches = []; localStorage.setItem('tubemocha_recent_searches', JSON.stringify(recentSearches)); renderRecentSearches(); }
@@ -3443,7 +3461,7 @@ function cardHTML(m){
         var badgeClass = isTV ? 'tv' : 'hd';
         var badgeText = isTV ? 'TV' : 'HD';
         var clickId = isTV ? ('tv-' + m.id) : ('movie-' + m.id);
-        return '<div class="card" data-id="' + clickId + '" onclick="window.location.hash=\'#' + clickId + '\'"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge ' + badgeClass + '">' + badgeText + '</span><span class="badge rating"><span>★</span> ' + rating + '</span></div><div class="card-info"><div class="card-title">' + title + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span>' + year + '<span class="s-sep">·</span>' + genres + '</div></div></div>';
+        return '<div class="card" data-id="' + clickId + '" onclick="window.location.hash=\'#' + clickId + '\'"><div class="poster"><img src="' + poster + '" loading="lazy" alt=""><span class="badge ' + badgeClass + '">' + badgeText + '</span><span class="badge rating"><span>★</span> ' + rating + '</span></div><div class="card-info"><div class="card-title">' + escapeHTML(title) + '</div><div class="card-sub"><span class="s-star">★</span> ' + rating + '<span class="s-sep">·</span>' + year + '<span class="s-sep">·</span>' + escapeHTML(genres) + '</div></div></div>';
     }catch(e){ return ''; }
 }
 
@@ -3525,7 +3543,7 @@ function setupHero(movies) {
         if(descEl) descEl.textContent = h.d;
         var typeStr = h._tv ? 'TV Show' : 'Movie';
         var genresStr = (h.g && h.g.length > 0) ? h.g.slice(0, 2).join(' & ') : (h._tv ? 'TV Show' : 'Movie');
-        if(metaEl) metaEl.innerHTML = '<span class="star">★ ' + h.r + '</span><span class="divider">·</span><span>' + h.y + '</span><span class="divider">·</span><span>' + typeStr + '</span>' + (genresStr ? '<span class="divider">·</span><span>' + genresStr + '</span>' : '');
+        if(metaEl) metaEl.innerHTML = '<span class="star">★ ' + h.r + '</span><span class="divider">·</span><span>' + h.y + '</span><span class="divider">·</span><span>' + typeStr + '</span>' + (genresStr ? '<span class="divider">·</span><span>' + escapeHTML(genresStr) + '</span>' : '');
         if(playEl) playEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : 'movie-'+h.id); };
         if(infoEl) infoEl.onclick = function() { window.location.hash = '#' + (h._tv ? 'tv-'+h.id : 'movie-'+h.id); };
     });
@@ -3730,7 +3748,7 @@ async function loadPopularGenres() {
         if (!bgUrl) bgUrl = 'https://images.unsplash.com/photo-1485846234645-a62644f84728?q=80&w=1000&auto=format&fit=crop';
         var card = document.createElement('div'); card.className = 'genre-card';
         card.onclick = (function(genreId, genreName) { return function() { openGenrePage(genreId, genreName); }; })(g.id, g.name);
-        card.innerHTML = '<img src="' + bgUrl + '" alt="' + g.name + '"><div class="genre-card-title">' + g.name + '</div>';
+        card.innerHTML = '<img src="' + bgUrl + '" alt="' + g.name + '"><div class="genre-card-title">' + escapeHTML(g.name) + '</div>';
         if (g.name === 'Comedy') card.style.boxShadow = 'inset 0 0 100px rgba(30, 58, 138, 0.6)';
         if (g.name === 'Action') card.style.boxShadow = 'inset 0 0 100px rgba(153, 27, 27, 0.6)';
         if (g.name === 'Drama') card.style.boxShadow = 'inset 0 0 100px rgba(88, 28, 135, 0.6)';
@@ -3760,7 +3778,7 @@ async function doSearch(q){
     searchQuery = q; searchPage = 1; searchAllResults = []; hasMoreSearch = true; isLoadingSearch = false;
     var grid = document.getElementById('searchGrid');
     grid.innerHTML = '<div class="empty">Searching…</div>';
-    document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
+    document.getElementById('searchTitle').textContent = 'Search: "' + escapeHTML(q) + '"';
     document.getElementById('searchEmpty').style.display = 'none';
     
     var params = { query: q, page: 1, include_adult: 'false' };
@@ -3835,7 +3853,7 @@ async function showDetail(rawId, shouldPlay){
     
     var genresStr = (m.g && m.g.length > 0) ? m.g.slice(0,3).join(' · ') : (isTV ? 'TV Show' : 'Movie');
     
-    document.getElementById('detailMeta').innerHTML = '<span class="star">★ ' + m.r + '</span><span class="divider">·</span><span>' + m.y + '</span><span class="divider">·</span><span>' + durationStr + '</span><span class="divider">·</span><span class="vote-box" style="color:#fff; border-color:#fff;">4K</span><span class="vote-box" style="color:#fff; border-color:#fff;">' + (isTV ? 'M18' : 'R') + '</span><br><span style="font-size:13px; color:var(--text-dim); margin-top:4px;">' + genresStr + '</span>';
+    document.getElementById('detailMeta').innerHTML = '<span class="star">★ ' + m.r + '</span><span class="divider">·</span><span>' + m.y + '</span><span class="divider">·</span><span>' + durationStr + '</span><span class="divider">·</span><span class="vote-box" style="color:#fff; border-color:#fff;">4K</span><span class="vote-box" style="color:#fff; border-color:#fff;">' + (isTV ? 'M18' : 'R') + '</span><br><span style="font-size:13px; color:var(--text-dim); margin-top:4px;">' + escapeHTML(genresStr) + '</span>';
     var inList = watchlist.some(function(x) { return String(x.id) === String(currentMovie.id); });
     document.getElementById('detailListText').textContent = inList ? 'Added to Watchlist' : 'Add to Watchlist';
     var bgUrl = m.backdrop_path ? BACKDROP + m.backdrop_path : getSafeImageUrl(m);
@@ -3843,13 +3861,15 @@ async function showDetail(rawId, shouldPlay){
     var trailerBg = document.getElementById('detailTrailerBg'); trailerBg.innerHTML = '';
     if (m.videos && m.videos.results) {
         var trailer = m.videos.results.find(function(v) { return v.type === 'Trailer' && v.site === 'YouTube'; });
-        if (trailer) { trailerBg.innerHTML = '<iframe src="https://www.youtube.com/embed/' + trailer.key + '?autoplay=1&mute=1&controls=0&loop=1&playlist=' + trailer.key + '&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0" frameborder="0" allow="autoplay; encrypted-media"></iframe>'; }
+        if (trailer) { 
+            trailerBg.innerHTML = '<iframe src="https://www.youtube.com/embed/' + trailer.key + '?autoplay=1&mute=1&controls=0&loop=1&playlist=' + trailer.key + '&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0" sandbox="allow-scripts allow-same-origin allow-presentation" frameborder="0" allow="autoplay; encrypted-media"></iframe>'; 
+        }
     }
     var castScroller = document.getElementById('castScroller'); castScroller.innerHTML = '';
     if (m.credits && m.credits.cast) {
         castScroller.innerHTML = m.credits.cast.slice(0, 10).map(function(c) {
             var defaultImg = 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\' viewBox=\'0 0 100 100\'%3E%3Crect fill=\'%231e1814\' width=\'100\' height=\'100\'/%3E%3Ccircle cx=\'50\' cy=\'40\' r=\'20\' fill=\'%233a2e26\'/%3E%3Cpath d=\'M20 90 Q 50 50 80 90\' stroke=\'%233a2e26\' stroke-width=\'20\' fill=\'none\'/%3E%3C/svg%3E';
-            return '<div class="cast-card" onclick="window.location.hash=\'#person-' + c.id + '\'"><img src="' + (c.profile_path ? PROFILE + c.profile_path : defaultImg) + '" alt=""><div class="cast-name">' + c.name + '</div><div class="cast-role">' + (c.character || '') + '</div></div>';
+            return '<div class="cast-card" onclick="window.location.hash=\'#person-' + c.id + '\'"><img src="' + (c.profile_path ? PROFILE + c.profile_path : defaultImg) + '" alt=""><div class="cast-name">' + escapeHTML(c.name) + '</div><div class="cast-role">' + escapeHTML(c.character || '') + '</div></div>';
         }).join('');
     } else { castScroller.innerHTML = '<div class="empty" style="padding:20px 0">No cast information available.</div>'; }
     
@@ -3871,7 +3891,7 @@ async function showDetail(rawId, shouldPlay){
 
 async function loadRecommendations(movie) {
     var container = document.getElementById('recommendationsContainer'); var scroller = document.getElementById('recommendationsScroller'); var recSub = document.getElementById('recSub');
-    container.style.display = 'block'; recSub.textContent = 'Because you clicked "' + movie.t + '"'; 
+    container.style.display = 'block'; recSub.textContent = 'Because you clicked "' + escapeHTML(movie.t) + '"'; 
     scroller.innerHTML = '<div class="empty" style="padding:20px 0">Finding similar titles...</div>';
     
     recState = { page: 1, totalPages: 1, movieId: movie.tmdb, isTV: movie._tv, isLoading: true };
@@ -3939,7 +3959,7 @@ async function setupTVSeasons(showId) {
     
     if (listEl) {
         listEl.innerHTML = validSeasons.map(function(s) { 
-            return '<div class="checkbox-label" style="padding:10px 16px; cursor:pointer; display:block;" onclick="changeSeason(' + s.season_number + ')">Season ' + s.season_number + '</div>'; 
+            return '<div class="checkbox-label" style="padding:10px 16px; cursor:pointer; display:block;" onclick="changeSeason(' + s.season_number + ')">Season ' + escapeHTML(s.season_number) + '</div>'; 
         }).join('');
     }
     changeSeason(validSeasons.length > 0 ? validSeasons[0].season_number : 1);
@@ -3975,7 +3995,7 @@ async function changeSeason(seasonNum) {
     if (episodes.length === 0) { listEl.innerHTML = '<div class="empty">No episodes available for this season.</div>'; return; }
     listEl.innerHTML = episodes.map(function(ep) {
         var thumb = ep.still_path ? 'https://image.tmdb.org/t/p/w300' + ep.still_path : getSafeImageUrl({ t: ep.name || 'Episode ' + ep.episode_number });
-        return '<div class="episode-card" onclick="selectEpisode(' + currentSeason + ', ' + ep.episode_number + ')"><img src="' + thumb + '" class="episode-thumb" alt=""><div class="episode-info"><div class="episode-number">EPISODE ' + ep.episode_number + '</div><div class="episode-title">' + (ep.name || 'Untitled Episode') + '</div><div class="episode-runtime">' + (ep.runtime ? ep.runtime + ' min' : 'N/A') + '</div></div></div>';
+        return '<div class="episode-card" onclick="selectEpisode(' + currentSeason + ', ' + ep.episode_number + ')"><img src="' + thumb + '" class="episode-thumb" alt=""><div class="episode-info"><div class="episode-number">EPISODE ' + escapeHTML(ep.episode_number) + '</div><div class="episode-title">' + escapeHTML(ep.name || 'Untitled Episode') + '</div><div class="episode-runtime">' + (ep.runtime ? ep.runtime + ' min' : 'N/A') + '</div></div></div>';
     }).join('');
 }
 
@@ -4040,7 +4060,7 @@ function loadPlayerSource(index) {
     container.innerHTML = '<div class="loader" id="playerLoader"></div><div class="branding-mask" style="display:none; pointer-events:none;"></div>';
     hideSwitchBanner();
     setTimeout(function(){
-        var iframeStr = '<iframe src="' + url + '" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
+        var iframeStr = '<iframe src="' + url + '" sandbox="allow-scripts allow-same-origin allow-forms allow-presentation" referrerpolicy="origin" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" allow="encrypted-media; autoplay; fullscreen; picture-in-picture; popups" style="width:100%;height:100%;border:0;position:absolute;top:0;left:0;z-index:1;opacity:0;transition:opacity 0.4s;"></iframe>';
         container.innerHTML = iframeStr + '<div class="branding-mask" style="display:none; pointer-events:none;"></div>';
         var iframe = container.querySelector('iframe');
         if(!iframe){ toast('Failed to create Vidy player'); return; }
@@ -4223,13 +4243,13 @@ async function loadPersonView(personId) {
         var headerHtml = '<div class="person-header">' +
             '<img src="' + profileImg + '" class="person-img" alt="">' +
             '<div class="person-info">' +
-                '<h1>' + data.name + '</h1>' +
+                '<h1>' + escapeHTML(data.name) + '</h1>' +
                 '<div class="person-meta">' +
-                    (data.known_for_department ? '<span>Dept: ' + data.known_for_department + '</span>' : '') +
-                    (data.birthday ? '<span>Born: ' + data.birthday + '</span>' : '') +
-                    (data.place_of_birth ? '<span>From: ' + data.place_of_birth + '</span>' : '') +
+                    (data.known_for_department ? '<span>Dept: ' + escapeHTML(data.known_for_department) + '</span>' : '') +
+                    (data.birthday ? '<span>Born: ' + escapeHTML(data.birthday) + '</span>' : '') +
+                    (data.place_of_birth ? '<span>From: ' + escapeHTML(data.place_of_birth) + '</span>' : '') +
                 '</div>' +
-                '<div class="person-bio">' + (data.biography || 'No biography available.') + '</div>' +
+                '<div class="person-bio">' + escapeHTML(data.biography || 'No biography available.') + '</div>' +
             '</div>' +
         '</div>';
         document.getElementById('personHeaderContainer').innerHTML = headerHtml;
@@ -4371,7 +4391,7 @@ function handleRouting() {
         var q = decodeURIComponent(hash.substring(7));
         document.getElementById('view-search').classList.add('active');
         document.getElementById('b-search').classList.add('active');
-        document.getElementById('searchTitle').textContent = 'Search: "' + q + '"';
+        document.getElementById('searchTitle').textContent = 'Search: "' + escapeHTML(q) + '"';
         doSearch(q);
         window.currentView = 'search';
     }
