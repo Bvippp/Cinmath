@@ -327,6 +327,10 @@
 .share-action-btn:active svg {
     transform: scale(0.9);
 }
+
+/* Device Sign Out Button */
+.device-signout-btn { color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; padding: 8px 12px; border-radius: 6px; transition: background 0.2s; }
+.device-signout-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
 </style>
 </head>
 <body>
@@ -1140,17 +1144,16 @@
         <div class="site-disclaimer" style="border:none; margin: 0 0 12px 0; padding: 0;">
             <p>TUBEMOCHA does not host, upload, or store any files. Titles shown here are indexed automatically from public sources and third-party services. The media stays on those platforms — we only provide links.</p>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v123</p>
+        <p style="font-size: 12.5px; color: var(--text-dim); font-weight: 600;">© 2026 TUBEMOCHA • v124</p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ============================================================
-// TUBEMOCHA BUILD v123 — 2026-10-28
-// CHANGELOG (v122 → v123):
-//   • Implemented full multi-device session management via Supabase Realtime.
-//   • Replaced mock Devices UI with live database synchronization.
-//   • Added remote logout capability (signing out Device A kills the session on Device B).
+// TUBEMOCHA BUILD v124 — 2026-10-28
+// CHANGELOG (v123 → v124):
+//   • Fixed realtime session logout by capturing session_id locally.
+//   • Added 5-second polling fallback (heartbeat) to guarantee instant logout even if Realtime fails.
 // ============================================================
 
 var TMDB_KEY = '3d1cb94d909aab088231f5af899dffdc';
@@ -1172,6 +1175,8 @@ if (!deviceId) {
     localStorage.setItem('tubemocha_device_id', deviceId);
 }
 var sessionChannel = null;
+var heartbeatInterval = null;
+var activeInterval = null;
 
 const MOVIE_GENRES = ['Comedy', 'Action', 'Drama', 'Horror', 'Romance', 'Adventure', 'Science Fiction', 'Thriller', 'Animation', 'Crime', 'Fantasy', 'Mystery', 'Documentary', 'Family', 'History', 'Music', 'War', 'Western'];
 const TV_GENRES = ['Comedy', 'Drama', 'Action & Adventure', 'Crime', 'Sci-Fi & Fantasy', 'Mystery', 'Animation', 'Family', 'Documentary', 'Kids', 'War & Politics', 'Western'];
@@ -1189,8 +1194,8 @@ var allCache = [], currentMovie = null, heroMovies = [];
 var searchQuery = '', searchPage = 1, searchAllResults = [], searchTotalPages = 0;
 var watchlist = []; 
 var recentSearches = JSON.parse(localStorage.getItem('tubemocha_recent_searches')) || ['the break', 'the brea', 'the bre'];
-var TUBEMOCHA_BUILD = 'v123-2026-10-28-real-device-management';
-var BUILD_NOTE_V123 = 'Implemented real multi-device session management and remote logout via Supabase Realtime.';
+var TUBEMOCHA_BUILD = 'v124-2026-10-28-instant-device-logout';
+var BUILD_NOTE_V124 = 'Fixed realtime logout by matching session_id. Added 5s polling fallback for instant logout.';
 localStorage.setItem('tubemocha_build', TUBEMOCHA_BUILD);
 console.log('[TUBEMOCHA] Build:', TUBEMOCHA_BUILD);
 
@@ -1392,16 +1397,49 @@ async function registerSession() {
     if (!currentUser) return;
     var info = getDeviceInfo();
     try {
-        await supabaseClient.from('user_sessions').upsert({
+        // First, clear out this device's old sessions to avoid duplicates
+        await supabaseClient.from('user_sessions').delete().match({ user_id: currentUser.id, device_id: deviceId });
+        
+        // Insert new session
+        var res = await supabaseClient.from('user_sessions').insert({
             user_id: currentUser.id,
             device_id: deviceId,
             device_name: info.name,
             location: info.location,
             last_active: new Date().toISOString()
-        }, { onConflict: 'user_id,device_id' });
+        }).select().single();
+        
+        if (res.data) {
+            localStorage.setItem('tubemocha_session_id', res.data.id);
+        }
     } catch(e) {
-        console.log('Session registration failed (make sure user_sessions table exists)', e);
+        console.log('Session registration failed', e);
     }
+    startHeartbeat();
+}
+
+function startHeartbeat() {
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+    if (activeInterval) clearInterval(activeInterval);
+    
+    // Update last active every 2 minutes
+    activeInterval = setInterval(async () => {
+        if (currentUser && localStorage.getItem('tubemocha_session_id')) {
+            await supabaseClient.from('user_sessions').update({ last_active: new Date().toISOString() }).eq('id', localStorage.getItem('tubemocha_session_id'));
+        }
+    }, 120000);
+
+    // Fallback polling to check if session was deleted (every 5 seconds)
+    heartbeatInterval = setInterval(async () => {
+        if (currentUser && localStorage.getItem('tubemocha_session_id')) {
+            const { data, error } = await supabaseClient.from('user_sessions').select('id').eq('id', localStorage.getItem('tubemocha_session_id'));
+            if (!error && (!data || data.length === 0)) {
+                // Session was deleted!
+                toast('You have been signed out from another device.');
+                handleLogout();
+            }
+        }
+    }, 5000);
 }
 
 function setupSessionListener() {
@@ -1412,12 +1450,11 @@ function setupSessionListener() {
         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'user_sessions', filter: 'user_id=eq.' + currentUser.id }, payload => {
             console.log('[TUBEMOCHA] Realtime session deletion:', payload);
             
-            // If the deleted row matches our own device_id, we must log out instantly
-            if (payload.old && payload.old.device_id === deviceId) {
+            var mySessionId = localStorage.getItem('tubemocha_session_id');
+            if (mySessionId && payload.old && payload.old.id === mySessionId) {
                 toast('You have been signed out from another device.');
                 handleLogout();
             } else {
-                // Another device was signed out, refresh settings page if open
                 if (window.currentView === 'settings') initSettingsPage();
             }
         })
@@ -1464,7 +1501,7 @@ async function initSettingsPage() {
                 </div>
             </div>
             ${!isThisDevice ? `
-            <button onclick="signOutDevice('${d.device_id}')" style="color:var(--text-muted); background:none; border:none; cursor:pointer; font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; padding: 8px 12px; border-radius: 6px; transition: background 0.2s; hover:background: rgba(255,255,255,0.1);">
+            <button class="device-signout-btn" onclick="signOutDevice('${d.device_id}')">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                 Sign out
             </button>` : ''}
@@ -1477,7 +1514,6 @@ async function signOutDevice(targetDeviceId) {
     if (confirm('Are you sure you want to sign out this device?')) {
         await supabaseClient.from('user_sessions').delete().match({ user_id: currentUser.id, device_id: targetDeviceId });
         toast('Device signed out');
-        // Realtime will handle updating the UI, but we can optimistically refresh
         initSettingsPage(); 
     }
 }
@@ -1631,6 +1667,9 @@ function handleAuthState(session) {
             supabaseClient.removeChannel(sessionChannel);
             sessionChannel = null;
         }
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        if (activeInterval) clearInterval(activeInterval);
+        localStorage.removeItem('tubemocha_session_id');
     }
 }
 
@@ -2066,11 +2105,15 @@ async function handleLogin(e) {
 }
 
 async function handleLogout() {
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+    if (activeInterval) clearInterval(activeInterval);
+    
     if (currentUser && deviceId) {
         try {
             await supabaseClient.from('user_sessions').delete().match({ user_id: currentUser.id, device_id: deviceId });
         } catch (e) { console.log('Failed to remove session', e); }
     }
+    localStorage.removeItem('tubemocha_session_id');
     await supabaseClient.auth.signOut();
     toast('Logged out');
     closeProfileDropdown();
